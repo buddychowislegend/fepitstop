@@ -33,6 +33,7 @@ export default function ProblemDetailPage() {
   const [css, setCss] = useState(initial?.css ?? (problem.starterCss ?? "body{font-family:system-ui}"));
   const [js, setJs] = useState(initial?.js ?? (problem.starterJs ?? "console.log('ready')"));
   const [logs, setLogs] = useState<string[]>([]);
+  const [aiReview, setAiReview] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const jsRef = useRef<HTMLTextAreaElement>(null);
   const [pane, setPane] = useState<number>(() => {
@@ -40,6 +41,17 @@ export default function ProblemDetailPage() {
     const val = saved ? Number(saved) : 50;
     return Number.isFinite(val) && val >= 20 && val <= 80 ? val : 50; // percent
   });
+
+  const getAiReview = () => {
+    // Simulate AI review
+    const reviews = [
+      "✓ Good use of modern JavaScript. Consider adding error handling for edge cases.",
+      "✓ Clean code structure. Tip: Add JSDoc comments for better documentation.",
+      "✓ Performance looks good. Consider memoization if this runs frequently.",
+      "✓ Nice implementation! For interviews, explain your time/space complexity.",
+    ];
+    setAiReview(reviews[Math.floor(Math.random() * reviews.length)]);
+  };
 
   useEffect(() => {
     const data = JSON.stringify({ html, css, js });
@@ -68,9 +80,26 @@ export default function ProblemDetailPage() {
       <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl sm:text-3xl font-extrabold">{problem.title}</h1>
-          <span className="text-sm text-white/80">{problem.difficulty}</span>
+          <div className="flex items-center gap-3">
+            <button onClick={getAiReview} className="px-4 py-2 rounded-md bg-white/10 hover:bg-white/15 text-sm font-medium">
+              Get AI Review
+            </button>
+            <span className="text-sm text-white/80">{problem.difficulty}</span>
+          </div>
         </div>
         <p className="mt-2 text-white/80">{problem.prompt}</p>
+
+        {aiReview && (
+          <div className="mt-4 p-4 rounded-lg bg-[#2ad17e]/15 ring-1 ring-[#2ad17e]/30 text-white">
+            <div className="flex items-start gap-2">
+              <span className="text-lg">🤖</span>
+              <div>
+                <p className="font-semibold text-sm">AI Code Review</p>
+                <p className="mt-1 text-sm">{aiReview}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6 grid lg:grid-cols-2 gap-6">
           <div className="flex flex-col gap-4">

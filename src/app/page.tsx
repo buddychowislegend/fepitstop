@@ -12,9 +12,12 @@ export default function Home() {
         </div>
         <nav className="hidden md:flex items-center gap-8 text-white/80">
           <a className="hover:text-white" href="/problems">Problems</a>
-          <a className="hover:text-white" href="#">Companies</a>
-          <a className="hover:text-white" href="#">Practice</a>
-          <a className="hover:text-white" href="#">Discuss</a>
+          <a className="hover:text-white" href="/system-design">System Design</a>
+          <a className="hover:text-white" href="/prep-plans">Prep Plans</a>
+          <a className="hover:text-white" href="/community">Community</a>
+          <a className="hover:text-white" href="/progress">Progress</a>
+          <a className="hover:text-white" href="/quiz">Quiz</a>
+          <a className="hover:text-white" href="/mock-interview">Mock Interview</a>
         </nav>
         <div className="hidden sm:flex items-center gap-3">
           <button className="px-4 py-2 rounded-md text-sm font-medium text-white/90 hover:text-white">Sign In</button>
