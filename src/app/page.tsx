@@ -2,102 +2,150 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
+      <header className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
+            <Image src="/file.svg" alt="FrontCode logo" width={22} height={22} className="dark:invert-0" />
+          </div>
+          <span className="text-xl font-semibold">Frontend Pitstop</span>
         </div>
+        <nav className="hidden md:flex items-center gap-8 text-white/80">
+          <a className="hover:text-white" href="/problems">Problems</a>
+          <a className="hover:text-white" href="#">Companies</a>
+          <a className="hover:text-white" href="#">Practice</a>
+          <a className="hover:text-white" href="#">Discuss</a>
+        </nav>
+        <div className="hidden sm:flex items-center gap-3">
+          <button className="px-4 py-2 rounded-md text-sm font-medium text-white/90 hover:text-white">Sign In</button>
+          <button className="px-4 py-2 rounded-md bg-white text-[#3a1670] font-semibold hover:opacity-90">Get Started</button>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-6 pb-24 pt-8">
+        <section className="grid lg:grid-cols-2 gap-10 items-center">
+          <div className="py-8">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 ring-1 ring-white/15">Interactive</div>
+            <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
+              Master Frontend Interviews with <span className="text-[#ffb21e]">Real</span> Questions
+            </h1>
+            <p className="mt-5 text-white/80 text-base sm:text-lg max-w-xl">
+              Practice frontend interview questions from top tech companies. Code in our interactive editor and ace your next interview.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <button className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2ad17e] text-[#0e1a12] px-5 py-3 font-semibold hover:opacity-95">
+                <span>Start Practicing</span>
+              </button>
+              <button className="inline-flex items-center justify-center gap-2 rounded-md border border-white/20 px-5 py-3 font-semibold text-white hover:bg-white/10">
+                View Questions
+              </button>
+            </div>
+            <div className="mt-8 flex items-center gap-6 text-sm text-white/80">
+              <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#2ad17e]"></span>500+ Questions</div>
+              <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#5cd3ff]"></span>50+ Companies</div>
+              <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-white/70"></span>Live Code Editor</div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="relative rounded-2xl bg-[#151a24] ring-1 ring-white/10 shadow-2xl overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-3 bg-[#0f131a] border-b border-white/5 text-white/70 text-sm">
+                <span className="h-3 w-3 rounded-full bg-[#ff5f56]"></span>
+                <span className="h-3 w-3 rounded-full bg-[#ffbd2e]"></span>
+                <span className="h-3 w-3 rounded-full bg-[#27c93f]"></span>
+                <span className="ml-3">code-editor.js</span>
+              </div>
+              <pre className="p-5 text-sm leading-6 text-white/90 overflow-x-auto"><code>{`function debounce(func, delay) {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}`}</code></pre>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="mt-20 sm:mt-24">
+          <div className="text-center">
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Everything You Need to Succeed</h2>
+            <p className="mt-3 text-white/80 max-w-3xl mx-auto">
+              Our platform provides comprehensive preparation tools for frontend engineering interviews
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Card 1 */}
+            <div className="rounded-2xl bg-white text-[#0f1720] p-6 sm:p-7 shadow-xl ring-1 ring-black/5 transition transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/10 [animation:fadeUp_700ms_ease-out_0ms_both]">
+              <div className="h-11 w-11 rounded-xl bg-[#6f5af6]/15 flex items-center justify-center">
+                <span className="text-xl">?</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold">Real Interview Questions</h3>
+              <p className="mt-2 text-[#415466]">
+                Practice with actual questions asked at Google, Meta, Amazon, and other top tech companies.
+              </p>
+              <ul className="mt-4 space-y-2 text-[#0f1720]">
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>JavaScript fundamentals</li>
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>React & Vue.js</li>
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>CSS & HTML challenges</li>
+              </ul>
+            </div>
+
+            {/* Card 2 */}
+            <div className="rounded-2xl bg-white text-[#0f1720] p-6 sm:p-7 shadow-xl ring-1 ring-black/5 transition transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/10 [animation:fadeUp_700ms_ease-out_120ms_both]">
+              <div className="h-11 w-11 rounded-xl bg-[#20c997]/15 flex items-center justify-center">
+                <span className="text-xl">{`</>`}</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold">Interactive Code Editor</h3>
+              <p className="mt-2 text-[#415466]">
+                Write, test, and debug your solutions in our powerful browser-based code editor.
+              </p>
+              <ul className="mt-4 space-y-2 text-[#0f1720]">
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Syntax highlighting</li>
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Auto-completion</li>
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Live preview</li>
+              </ul>
+            </div>
+
+            {/* Card 3 */}
+            <div className="rounded-2xl bg-white text-[#0f1720] p-6 sm:p-7 shadow-xl ring-1 ring-black/5 transition transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/10 [animation:fadeUp_700ms_ease-out_240ms_both]">
+              <div className="h-11 w-11 rounded-xl bg-[#f59f00]/15 flex items-center justify-center">
+                <span className="text-xl">#</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold">Company-Specific Prep</h3>
+              <p className="mt-2 text-[#415466]">
+                Filter questions by company and round to focus your prep effectively.
+              </p>
+              <ul className="mt-4 space-y-2 text-[#0f1720]">
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>50+ tech companies</li>
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Round-wise questions</li>
+                <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Difficulty levels</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="mt-24 sm:mt-28 border-t border-white/10">
+          <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
+                <Image src="/file.svg" alt="FrontCode logo" width={20} height={20} />
+              </div>
+              <span className="font-semibold">Frontend Pitstop</span>
+            </div>
+            <nav className="flex items-center gap-6 text-white/80">
+              <a className="hover:text-white" href="#">Privacy</a>
+              <a className="hover:text-white" href="#">Terms</a>
+              <a className="hover:text-white" href="#">Contact</a>
+            </nav>
+            <p className="text-white/60 text-sm">© {new Date().getFullYear()} Frontend Pitstop. All rights reserved.</p>
+          </div>
+        </footer>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
