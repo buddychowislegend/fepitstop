@@ -1,18 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const { quizQuestions } = require('../data/quizQuestions');
+const db = require('../config/db');
 
 // Get all quiz questions
-router.get('/', (req, res) => {
-  res.json({ questions: quizQuestions });
+router.get('/', async (req, res) => {
+  try {
+    const questions = await db.getQuizQuestions();
+    res.json({ questions });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Get random quiz questions
-router.get('/random/:count', (req, res) => {
-  const count = Math.min(parseInt(req.params.count) || 5, quizQuestions.length);
-  const shuffled = [...quizQuestions].sort(() => 0.5 - Math.random());
-  res.json({ questions: shuffled.slice(0, count) });
+router.get('/random/:count', async (req, res) => {
+  try {
+    const count = Math.min(parseInt(req.params.count) || 5, 50);
+    const questions = await db.getRandomQuizQuestions(count);
+    res.json({ questions });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;
-

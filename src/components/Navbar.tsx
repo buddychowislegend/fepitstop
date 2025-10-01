@@ -21,8 +21,13 @@ export default function Navbar() {
       <div className="hidden sm:flex items-center gap-3">
         {user ? (
           <>
-            <span className="text-sm text-white/80">Hi, {user.name}</span>
-            <button onClick={logout} className="px-4 py-2 rounded-md text-sm font-medium text-white/90 hover:text-white">
+            <Link href="/profile" className="px-4 py-2 rounded-md text-sm font-medium text-white/90 hover:text-white flex items-center gap-2">
+              <span className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
+                {user.name?.charAt(0).toUpperCase()}
+              </span>
+              <span>{user.name}</span>
+            </Link>
+            <button onClick={logout} className="px-4 py-2 rounded-md bg-white/10 hover:bg-white/15 text-sm font-medium">
               Logout
             </button>
           </>

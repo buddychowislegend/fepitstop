@@ -2,9 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
-
-// In-memory user store (replace with database in production)
-const users = [];
+const db = require('../config/db');
 
 // Middleware to verify JWT
 const verifyToken = (req, res, next) => {
@@ -32,7 +30,7 @@ router.post('/signup', async (req, res) => {
     }
 
     // Check if user exists
-    const existingUser = users.find((u) => u.email === email);
+    const existingUser = await db.findUserByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' });
     }
@@ -41,14 +39,11 @@ router.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = {
-      id: Date.now().toString(),
+    const user = await db.createUser({
       email,
       name,
       password: hashedPassword,
-      createdAt: new Date(),
-    };
-    users.push(user);
+    });
 
     // Generate token
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
@@ -77,7 +72,7 @@ router.post('/signin', async (req, res) => {
     }
 
     // Find user
-    const user = users.find((u) => u.email === email);
+    const user = await db.findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -104,13 +99,114 @@ router.post('/signin', async (req, res) => {
 });
 
 // Get Current User
-router.get('/me', verifyToken, (req, res) => {
-  const user = users.find((u) => u.id === req.userId);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+router.get('/me', verifyToken, async (req, res) => {
+  try {
+    const user = await db.findUserById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const { password, ...userWithoutPassword } = user;
+    res.json({ user: userWithoutPassword });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
   }
-  res.json({ user: { id: user.id, email: user.email, name: user.name } });
+});
+
+// Update User Profile
+router.put('/profile', verifyToken, async (req, res) => {
+  try {
+    const { name, bio } = req.body;
+    const updates = {};
+    if (name) updates.name = name;
+    if (bio !== undefined) updates.bio = bio;
+
+    const user = await db.updateUser(req.userId, updates);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    res.json({ user: userWithoutPassword });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Change Password
+router.put('/password', verifyToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Both current and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const user = await db.findUserById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Verify current password
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.updateUser(req.userId, { password: hashedPassword });
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete Account
+router.delete('/account', verifyToken, async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required to delete account' });
+    }
+
+    const user = await db.findUserById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Verify password
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Incorrect password' });
+    }
+
+    // Delete user
+    await db.deleteUser(req.userId);
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get User Activity History
+router.get('/activity', verifyToken, async (req, res) => {
+  try {
+    const user = await db.findUserById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ activities: user.activityHistory || [] });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;
-

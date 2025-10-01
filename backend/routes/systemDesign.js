@@ -1,20 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const { systemDesignScenarios } = require('../data/systemDesignScenarios');
+const db = require('../config/db');
 
 // Get all system design scenarios
-router.get('/', (req, res) => {
-  res.json({ scenarios: systemDesignScenarios });
+router.get('/', async (req, res) => {
+  try {
+    const scenarios = await db.getSystemDesignScenarios();
+    res.json({ scenarios });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Get scenario by ID
-router.get('/:id', (req, res) => {
-  const scenario = systemDesignScenarios.find((s) => s.id === req.params.id);
-  if (!scenario) {
-    return res.status(404).json({ error: 'Scenario not found' });
+router.get('/:id', async (req, res) => {
+  try {
+    const scenario = await db.findSystemDesignScenarioById(req.params.id);
+    if (!scenario) {
+      return res.status(404).json({ error: 'Scenario not found' });
+    }
+    res.json({ scenario });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
   }
-  res.json({ scenario });
 });
 
 module.exports = router;
-
