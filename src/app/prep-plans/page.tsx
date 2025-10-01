@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Plan = {
   id: string;
@@ -9,39 +9,22 @@ type Plan = {
   topics: string[];
 };
 
-const plans: Plan[] = [
-  {
-    id: "beginner",
-    name: "Beginner Bootcamp",
-    duration: "4 weeks",
-    level: "Beginner",
-    topics: ["JavaScript Fundamentals", "HTML/CSS Basics", "DOM Manipulation", "Debugging", "Basic React"],
-  },
-  {
-    id: "intermediate",
-    name: "Intermediate Track",
-    duration: "6 weeks",
-    level: "Intermediate",
-    topics: ["Advanced React", "State Management", "Performance Optimization", "Testing", "TypeScript Basics"],
-  },
-  {
-    id: "advanced",
-    name: "Advanced System Design",
-    duration: "8 weeks",
-    level: "Advanced",
-    topics: ["Architecture Patterns", "Scalability", "Micro-frontends", "GraphQL", "CI/CD", "SSR/SSG"],
-  },
-  {
-    id: "faang",
-    name: "FAANG Interview Prep",
-    duration: "10 weeks",
-    level: "All Levels",
-    topics: ["Company-specific Questions", "Mock Interviews", "Behavioral Prep", "System Design", "Live Coding"],
-  },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function PrepPlansPage() {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Plan | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/prep-plans`)
+      .then((res) => res.json())
+      .then((data) => {
+        setPlans(data.plans || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
@@ -50,7 +33,10 @@ export default function PrepPlansPage() {
         <p className="mt-2 text-white/80">Choose a study plan based on your experience level and target companies.</p>
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
-          {plans.map((p) => (
+          {loading ? (
+            <p className="text-white/60 col-span-2">Loading plans...</p>
+          ) : (
+            plans.map((p) => (
             <div
               key={p.id}
               className={`rounded-2xl p-6 ring-1 transition cursor-pointer ${
@@ -70,7 +56,8 @@ export default function PrepPlansPage() {
                 {p.topics.length > 3 && <li className="text-xs">+ {p.topics.length - 3} more topics</li>}
               </ul>
             </div>
-          ))}
+            ))
+          )}
         </div>
 
         {selected && (

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Scenario = {
   id: string;
@@ -8,35 +8,23 @@ type Scenario = {
   steps: { title: string; guidance: string; complete: boolean }[];
 };
 
-const scenarios: Scenario[] = [
-  {
-    id: "news-feed",
-    title: "Design a News Feed Component",
-    description: "Build a scalable, performant news feed like Facebook or Twitter",
-    steps: [
-      { title: "Component Architecture", guidance: "Break down into FeedContainer, FeedItem, InfiniteScroll components", complete: false },
-      { title: "State Management", guidance: "Choose between Context API, Redux, or Zustand for feed state", complete: false },
-      { title: "Performance Optimization", guidance: "Implement virtualization for long lists, lazy loading for images", complete: false },
-      { title: "Real-time Updates", guidance: "Design WebSocket integration or polling strategy", complete: false },
-      { title: "Error Handling", guidance: "Add retry logic, skeleton loaders, and fallback UI", complete: false },
-    ],
-  },
-  {
-    id: "autocomplete",
-    title: "Design an Autocomplete Search",
-    description: "Create a scalable autocomplete with debouncing and caching",
-    steps: [
-      { title: "Input Debouncing", guidance: "Implement debounce to reduce API calls", complete: false },
-      { title: "Caching Strategy", guidance: "Cache previous search results in memory or localStorage", complete: false },
-      { title: "Keyboard Navigation", guidance: "Support arrow keys, Enter, and Escape", complete: false },
-      { title: "API Design", guidance: "Design efficient backend query with pagination", complete: false },
-    ],
-  },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function SystemDesignPage() {
+  const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Scenario | null>(null);
   const [steps, setSteps] = useState<Scenario["steps"]>([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/system-design`)
+      .then((res) => res.json())
+      .then((data) => {
+        setScenarios(data.scenarios || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const startScenario = (s: Scenario) => {
     setSelected(s);
@@ -55,15 +43,19 @@ export default function SystemDesignPage() {
 
         {!selected ? (
           <div className="mt-8 grid gap-6 md:grid-cols-2">
-            {scenarios.map((s) => (
-              <div key={s.id} className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition">
-                <h3 className="text-xl font-bold">{s.title}</h3>
-                <p className="mt-2 text-white/80">{s.description}</p>
-                <button onClick={() => startScenario(s)} className="mt-4 px-4 py-2 rounded-md bg-white text-[#3a1670] font-semibold hover:opacity-90">
-                  Start Scenario
-                </button>
-              </div>
-            ))}
+            {loading ? (
+              <p className="text-white/60 col-span-2">Loading scenarios...</p>
+            ) : (
+              scenarios.map((s) => (
+                <div key={s.id} className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition">
+                  <h3 className="text-xl font-bold">{s.title}</h3>
+                  <p className="mt-2 text-white/80">{s.description}</p>
+                  <button onClick={() => startScenario(s)} className="mt-4 px-4 py-2 rounded-md bg-white text-[#3a1670] font-semibold hover:opacity-90">
+                    Start Scenario
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         ) : (
           <div className="mt-8">
@@ -96,4 +88,3 @@ export default function SystemDesignPage() {
     </div>
   );
 }
-

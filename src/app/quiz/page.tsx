@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Question = {
   id: string;
@@ -8,32 +8,25 @@ type Question = {
   correct: number;
 };
 
-const questions: Question[] = [
-  {
-    id: "1",
-    question: "What does `null == undefined` return?",
-    options: ["true", "false", "TypeError", "undefined"],
-    correct: 0,
-  },
-  {
-    id: "2",
-    question: "Which CSS property controls text size?",
-    options: ["font-style", "text-style", "font-size", "text-size"],
-    correct: 2,
-  },
-  {
-    id: "3",
-    question: "What is the result of `typeof NaN`?",
-    options: ["'NaN'", "'number'", "'undefined'", "'object'"],
-    correct: 1,
-  },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function QuizPage() {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_URL}/quiz/random/5`)
+      .then((res) => res.json())
+      .then((data) => {
+        setQuestions(data.questions || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const handleNext = () => {
     if (selected === questions[current].correct) {
@@ -52,7 +45,23 @@ export default function QuizPage() {
     setSelected(null);
     setScore(0);
     setFinished(false);
+    setLoading(true);
+    fetch(`${API_URL}/quiz/random/5`)
+      .then((res) => res.json())
+      .then((data) => {
+        setQuestions(data.questions || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+        <p>Loading quiz...</p>
+      </div>
+    );
+  }
 
   if (finished) {
     return (
@@ -108,4 +117,3 @@ export default function QuizPage() {
     </div>
   );
 }
-

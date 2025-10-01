@@ -1,29 +1,10 @@
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <header className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
-            <Image src="/file.svg" alt="FrontCode logo" width={22} height={22} className="dark:invert-0" />
-          </div>
-          <span className="text-xl font-semibold">Frontend Pitstop</span>
-        </div>
-        <nav className="hidden md:flex items-center gap-8 text-white/80">
-          <a className="hover:text-white" href="/problems">Problems</a>
-          <a className="hover:text-white" href="/system-design">System Design</a>
-          <a className="hover:text-white" href="/prep-plans">Prep Plans</a>
-          <a className="hover:text-white" href="/community">Community</a>
-          <a className="hover:text-white" href="/progress">Progress</a>
-          <a className="hover:text-white" href="/quiz">Quiz</a>
-          <a className="hover:text-white" href="/mock-interview">Mock Interview</a>
-        </nav>
-        <div className="hidden sm:flex items-center gap-3">
-          <button className="px-4 py-2 rounded-md text-sm font-medium text-white/90 hover:text-white">Sign In</button>
-          <button className="px-4 py-2 rounded-md bg-white text-[#3a1670] font-semibold hover:opacity-90">Get Started</button>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="max-w-6xl mx-auto px-6 pb-24 pt-8">
         <section className="grid lg:grid-cols-2 gap-10 items-center">
@@ -71,10 +52,99 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Platform Features Section */}
         <section className="mt-20 sm:mt-24">
           <div className="text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Everything You Need to Succeed</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Explore All Features</h2>
+            <p className="mt-3 text-white/80 max-w-3xl mx-auto">
+              Everything you need to ace your frontend interviews in one platform
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Problems */}
+            <a href="/problems" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+              <div className="h-11 w-11 rounded-xl bg-[#6f5af6]/15 flex items-center justify-center">
+                <span className="text-2xl">💻</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold group-hover:text-[#ffb21e] transition">Problems</h3>
+              <p className="mt-2 text-white/70">
+                500+ curated frontend interview questions with interactive code editor
+              </p>
+            </a>
+
+            {/* System Design */}
+            <a href="/system-design" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+              <div className="h-11 w-11 rounded-xl bg-[#20c997]/15 flex items-center justify-center">
+                <span className="text-2xl">🏗️</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold group-hover:text-[#ffb21e] transition">System Design</h3>
+              <p className="mt-2 text-white/70">
+                Step-by-step scenarios to design scalable UI components and apps
+              </p>
+            </a>
+
+            {/* Prep Plans */}
+            <a href="/prep-plans" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+              <div className="h-11 w-11 rounded-xl bg-[#f59f00]/15 flex items-center justify-center">
+                <span className="text-2xl">📚</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold group-hover:text-[#ffb21e] transition">Prep Plans</h3>
+              <p className="mt-2 text-white/70">
+                Personalized study plans based on your level and target companies
+              </p>
+            </a>
+
+            {/* Community */}
+            <a href="/community" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+              <div className="h-11 w-11 rounded-xl bg-[#5cd3ff]/15 flex items-center justify-center">
+                <span className="text-2xl">👥</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold group-hover:text-[#ffb21e] transition">Community</h3>
+              <p className="mt-2 text-white/70">
+                Share solutions, discuss approaches, and learn from peers
+              </p>
+            </a>
+
+            {/* Progress & Leaderboard */}
+            <a href="/progress" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+              <div className="h-11 w-11 rounded-xl bg-[#2ad17e]/15 flex items-center justify-center">
+                <span className="text-2xl">📊</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold group-hover:text-[#ffb21e] transition">Progress Tracking</h3>
+              <p className="mt-2 text-white/70">
+                Track your journey, earn achievements, and compete on leaderboards
+              </p>
+            </a>
+
+            {/* Quiz */}
+            <a href="/quiz" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+              <div className="h-11 w-11 rounded-xl bg-[#ff6b6b]/15 flex items-center justify-center">
+                <span className="text-2xl">🎯</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold group-hover:text-[#ffb21e] transition">Quiz & Trivia</h3>
+              <p className="mt-2 text-white/70">
+                Quick revision sessions with JS, CSS, and HTML questions
+              </p>
+            </a>
+
+            {/* Mock Interview */}
+            <a href="/mock-interview" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+              <div className="h-11 w-11 rounded-xl bg-[#a78bfa]/15 flex items-center justify-center">
+                <span className="text-2xl">🎤</span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold group-hover:text-[#ffb21e] transition">Mock Interviews</h3>
+              <p className="mt-2 text-white/70">
+                Schedule practice interviews and get targeted feedback
+              </p>
+            </a>
+          </div>
+        </section>
+
+        {/* Why Choose Section */}
+        <section className="mt-20 sm:mt-24">
+          <div className="text-center">
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Why Frontend Pitstop?</h2>
             <p className="mt-3 text-white/80 max-w-3xl mx-auto">
               Our platform provides comprehensive preparation tools for frontend engineering interviews
             </p>

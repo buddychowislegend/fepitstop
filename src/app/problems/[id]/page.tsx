@@ -1,7 +1,18 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getProblemById } from "@/data/problems";
 import { notFound, useParams } from "next/navigation";
+
+type Problem = {
+  id: string;
+  title: string;
+  difficulty: string;
+  prompt: string;
+  starterHtml?: string;
+  starterCss?: string;
+  starterJs?: string;
+};
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 function Editor({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
@@ -18,29 +29,89 @@ function Editor({ label, value, onChange }: { label: string; value: string; onCh
 
 export default function ProblemDetailPage() {
   const params = useParams<{ id: string }>();
-  const problem = useMemo(() => getProblemById(params.id), [params.id]);
-  if (!problem) return notFound();
-
-  const storageKey = `fp_${problem.id}`;
-  const initial = useMemo(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      return raw ? JSON.parse(raw) as { html: string; css: string; js: string } : null;
-    } catch { return null; }
-  }, [storageKey]);
-
-  const [html, setHtml] = useState(initial?.html ?? (problem.starterHtml ?? "<div id=app>hello</div>"));
-  const [css, setCss] = useState(initial?.css ?? (problem.starterCss ?? "body{font-family:system-ui}"));
-  const [js, setJs] = useState(initial?.js ?? (problem.starterJs ?? "console.log('ready')"));
+  const [problem, setProblem] = useState<Problem | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  const storageKey = `fp_${params.id}`;
+  const [html, setHtml] = useState("");
+  const [css, setCss] = useState("");
+  const [js, setJs] = useState("");
   const [logs, setLogs] = useState<string[]>([]);
   const [aiReview, setAiReview] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const jsRef = useRef<HTMLTextAreaElement>(null);
-  const [pane, setPane] = useState<number>(() => {
-    const saved = localStorage.getItem(`${storageKey}_pane`);
-    const val = saved ? Number(saved) : 50;
-    return Number.isFinite(val) && val >= 20 && val <= 80 ? val : 50; // percent
-  });
+  const [pane, setPane] = useState<number>(50);
+
+  // Fetch problem data
+  useEffect(() => {
+    fetch(`${API_URL}/problems/${params.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const prob = data.problem;
+        setProblem(prob);
+        
+        // Load from localStorage or use starter code
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (raw) {
+            const saved = JSON.parse(raw) as { html: string; css: string; js: string };
+            setHtml(saved.html);
+            setCss(saved.css);
+            setJs(saved.js);
+          } else {
+            setHtml(prob.starterHtml || "<div id=app>hello</div>");
+            setCss(prob.starterCss || "body{font-family:system-ui}");
+            setJs(prob.starterJs || "console.log('ready')");
+          }
+        } catch {
+          setHtml(prob.starterHtml || "<div id=app>hello</div>");
+          setCss(prob.starterCss || "body{font-family:system-ui}");
+          setJs(prob.starterJs || "console.log('ready')");
+        }
+        
+        // Load pane setting
+        const savedPane = localStorage.getItem(`${storageKey}_pane`);
+        if (savedPane) {
+          const val = Number(savedPane);
+          if (Number.isFinite(val) && val >= 20 && val <= 80) {
+            setPane(val);
+          }
+        }
+        
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Fetch error:', err);
+        setLoading(false);
+      });
+  }, [params.id, storageKey]);
+
+  // Save to localStorage
+  useEffect(() => {
+    if (problem) {
+      const data = JSON.stringify({ html, css, js });
+      localStorage.setItem(storageKey, data);
+    }
+  }, [html, css, js, storageKey, problem]);
+
+  // Save pane width
+  useEffect(() => {
+    if (problem) {
+      localStorage.setItem(`${storageKey}_pane`, String(pane));
+    }
+  }, [pane, storageKey, problem]);
+
+  // Capture console logs from iframe
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      const data = e.data as any;
+      if (data && data.type === 'fp-log') {
+        setLogs((prev) => [...prev, String(data.payload)]);
+      }
+    }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   const getAiReview = () => {
     // Simulate AI review
@@ -53,27 +124,24 @@ export default function ProblemDetailPage() {
     setAiReview(reviews[Math.floor(Math.random() * reviews.length)]);
   };
 
-  useEffect(() => {
-    const data = JSON.stringify({ html, css, js });
-    localStorage.setItem(storageKey, data);
-  }, [html, css, js, storageKey]);
+  // Early returns AFTER all hooks
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+        <p>Loading problem...</p>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    localStorage.setItem(`${storageKey}_pane`, String(pane));
-  }, [pane, storageKey]);
+  if (!problem) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+        <p>Problem not found</p>
+      </div>
+    );
+  }
 
   const srcDoc = `<!doctype html>\n<html>\n<head><style>${css}</style><script>\n(function(){\n  const parent = window.parent;\n  const origLog = console.log;\n  console.log = function(){\n    try{ parent.postMessage({type:'fp-log', payload: Array.from(arguments).map(String).join(' ')}, '*'); }catch(e){}\n    origLog.apply(console, arguments);\n  };\n})();\n<\/script></head>\n<body>${html}<script>${js}<\/script></body>\n</html>`;
-
-  useEffect(() => {
-    function onMessage(e: MessageEvent) {
-      const data = e.data as any;
-      if (data && data.type === 'fp-log') {
-        setLogs((prev) => [...prev, String(data.payload)]);
-      }
-    }
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
