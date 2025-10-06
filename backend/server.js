@@ -9,6 +9,7 @@ const prepPlansRoutes = require('./routes/prepPlans');
 const quizRoutes = require('./routes/quiz');
 const communityRoutes = require('./routes/community');
 const systemDesignRoutes = require('./routes/systemDesign');
+const submissionsRoutes = require('./routes/submissions');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,6 +50,7 @@ app.use('/api/prep-plans', prepPlansRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/system-design', systemDesignRoutes);
+app.use('/api/submissions', submissionsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend is running' });

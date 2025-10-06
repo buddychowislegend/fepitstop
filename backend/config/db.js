@@ -187,6 +187,61 @@ class Database {
     this.write(db);
     return db;
   }
+
+  // Submissions
+  async addSubmission(submission) {
+    const db = this.read();
+    if (!db.submissions) {
+      db.submissions = [];
+    }
+    db.submissions.push(submission);
+    this.write(db);
+    return submission;
+  }
+
+  async getUserSubmissions(userId, problemId = null) {
+    const db = this.read();
+    if (!db.submissions) {
+      return [];
+    }
+    let submissions = db.submissions.filter(s => s.userId === userId);
+    if (problemId) {
+      submissions = submissions.filter(s => s.problemId === problemId);
+    }
+    return submissions;
+  }
+
+  async addUserCompletedProblem(userId, problemId) {
+    const db = this.read();
+    const user = db.users.find(u => u.id === userId);
+    if (user) {
+      if (!user.completedProblems) {
+        user.completedProblems = [];
+      }
+      if (!user.completedProblems.includes(problemId)) {
+        user.completedProblems.push(problemId);
+        this.write(db);
+      }
+    }
+  }
+
+  async isProblemCompletedByUser(userId, problemId) {
+    const db = this.read();
+    const user = db.users.find(u => u.id === userId);
+    if (!user || !user.completedProblems) {
+      return false;
+    }
+    return user.completedProblems.includes(problemId);
+  }
+
+  async getUserCompletedProblems(userId) {
+    const db = this.read();
+    const user = db.users.find(u => u.id === userId);
+    if (!user || !user.completedProblems) {
+      return [];
+    }
+    return user.completedProblems;
+  }
 }
 
 module.exports = new Database();

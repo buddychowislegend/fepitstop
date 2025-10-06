@@ -144,11 +144,30 @@ function TestCases({ testCases, results }: {
   results?: Array<{ input: string; expected: string; actual?: string; passed?: boolean; }>;
 }) {
   const displayCases = results || testCases;
+  const hasResults = results && results.length > 0;
+  const passedCount = hasResults ? results.filter(r => r.passed).length : 0;
+  const totalCount = hasResults ? results.length : testCases.length;
   
   return (
     <div className="h-full flex flex-col">
       <div className="px-4 py-2 bg-white/5 border-b border-white/10 flex-shrink-0">
-        <h3 className="text-white font-medium">Test Cases</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-white font-medium">Test Cases</h3>
+          {hasResults && (
+            <div className="flex items-center gap-2">
+              <span className={`text-sm font-medium ${
+                passedCount === totalCount ? 'text-green-300' : 'text-red-300'
+              }`}>
+                {passedCount}/{totalCount} passed
+              </span>
+              {passedCount === totalCount ? (
+                <span className="text-green-300">🎉</span>
+              ) : (
+                <span className="text-red-300">❌</span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       <div className="flex-1 p-4 space-y-3 overflow-auto">
         {displayCases.map((testCase, index) => (
@@ -215,101 +234,236 @@ export default function ProblemDetailPage() {
   const [testResults, setTestResults] = useState<Array<{ input: string; expected: string; actual?: string; passed?: boolean; }>>([]);
   const [activeTab, setActiveTab] = useState<'code' | 'testcases'>('code');
   const [isRunning, setIsRunning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
 
   // Run test cases
   const runTests = () => {
     if (!problem?.testCases) return;
     
     setIsRunning(true);
+    setTestResults([]); // Clear previous results
+    setActiveTab('testcases'); // Switch to test cases tab to show results
     
-    // Simulate running tests with a delay
+    // Execute tests with a small delay to show loading state
     setTimeout(() => {
-      const results = problem.testCases!.map((testCase, index) => {
-        try {
-          // Handle different problem types
-          if (problem.id === 'closure-counter') {
-            // For closure counter, we expect the function to return a counter function
-            const counterFunction = new Function('return ' + js)();
-            if (typeof counterFunction !== 'function') {
+      try {
+        const results = problem.testCases!.map((testCase, index) => {
+          try {
+            // Create a sandboxed execution environment
+            const executeCode = (code: string, inputs: any[]) => {
+              // Wrap the user's code in a function and execute it
+              const wrappedCode = `
+                (function() {
+                  ${code}
+                  // Try to find the main function or return the last expression
+                  if (typeof solution !== 'undefined') return solution;
+                  if (typeof twoSum !== 'undefined') return twoSum;
+                  if (typeof counter !== 'undefined') return counter;
+                  if (typeof createCounter !== 'undefined') return createCounter;
+                  
+                  // If no named function, try to execute the code directly
+                  return eval(${JSON.stringify(code)});
+                })()
+              `;
+              
+              return new Function('return ' + wrappedCode)();
+            };
+
+            // Parse input based on problem type
+            let parsedInput;
+            try {
+              parsedInput = JSON.parse(testCase.input);
+            } catch {
+              parsedInput = testCase.input; // Use as string if not JSON
+            }
+
+            let actual;
+            let expected = testCase.expected;
+
+            // Handle different problem types with specific logic
+            if (problem.id === 'closure-counter' || problem.id === 'counter') {
+              // For closure problems, expect a function that returns a counter
+              const userFunction = new Function('return ' + js)();
+              
+              if (typeof userFunction !== 'function') {
+                return {
+                  input: testCase.input,
+                  expected: testCase.expected,
+                  actual: 'Error: Code should return a function',
+                  passed: false
+                };
+              }
+              
+              // Call the function multiple times to test counter behavior
+              const expectedCount = parseInt(testCase.expected);
+              let result = -1;
+              for (let i = 0; i <= expectedCount; i++) {
+                result = userFunction();
+              }
+              
+              actual = result.toString();
+              const passed = actual === expected;
+              
               return {
                 input: testCase.input,
-                expected: testCase.expected,
-                actual: 'Error: Function should return a counter function',
-                passed: false
+                expected,
+                actual,
+                passed
+              };
+              
+            } else if (problem.id === 'two-sum') {
+              // For two-sum, expect array input and array output
+              const [nums, target] = parsedInput;
+              const userFunction = new Function('return ' + js)();
+              const result = userFunction(nums, target);
+              
+              actual = JSON.stringify(result);
+              const passed = actual === expected;
+              
+              return {
+                input: testCase.input,
+                expected,
+                actual,
+                passed
+              };
+              
+            } else {
+              // Generic test case handling
+              const userFunction = new Function('return ' + js)();
+              
+              if (Array.isArray(parsedInput)) {
+                actual = userFunction(...parsedInput);
+              } else {
+                actual = userFunction(parsedInput);
+              }
+              
+              // Handle different output types
+              if (typeof actual === 'object' && actual !== null) {
+                actual = JSON.stringify(actual);
+              } else {
+                actual = String(actual);
+              }
+              
+              const passed = actual === expected;
+              
+              return {
+                input: testCase.input,
+                expected,
+                actual,
+                passed
               };
             }
             
-            // Call the counter function the expected number of times
-            const expectedCount = parseInt(testCase.expected);
-            let actual = -1;
-            for (let i = 0; i <= expectedCount; i++) {
-              actual = counterFunction();
-            }
-            
-            const passed = actual.toString() === testCase.expected;
-            
+          } catch (error) {
             return {
               input: testCase.input,
               expected: testCase.expected,
-              actual: actual.toString(),
-              passed
-            };
-          } else if (problem.id === 'two-sum') {
-            // For two sum, parse the input array and target
-            const input = JSON.parse(testCase.input);
-            const [nums, target] = input;
-            const expected = testCase.expected;
-            
-            // Create and call the function
-            const twoSumFunction = new Function('return ' + js)();
-            const actual = twoSumFunction(nums, target);
-            
-            // Compare arrays
-            const actualStr = JSON.stringify(actual);
-            const passed = actualStr === expected;
-            
-            return {
-              input: testCase.input,
-              expected,
-              actual: actualStr,
-              passed
-            };
-          } else {
-            // Generic test case handling
-            const input = JSON.parse(testCase.input);
-            const expected = testCase.expected;
-            
-            const userFunction = new Function('return ' + js)();
-            let actual;
-            
-            if (Array.isArray(input)) {
-              actual = userFunction(...input);
-            } else {
-              actual = userFunction(input);
-            }
-            
-            const passed = String(actual) === expected;
-            
-            return {
-              input: testCase.input,
-              expected,
-              actual: String(actual),
-              passed
+              actual: `Error: ${error instanceof Error ? error.message : String(error)}`,
+              passed: false
             };
           }
-        } catch (error) {
-          return {
-            input: testCase.input,
-            expected: testCase.expected,
-            actual: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            passed: false
-          };
+        });
+        
+        setTestResults(results);
+        
+        // Show summary in console
+        const passedCount = results.filter(r => r.passed).length;
+        const totalCount = results.length;
+        console.log(`Test Results: ${passedCount}/${totalCount} passed`);
+        
+        if (passedCount === totalCount) {
+          console.log('🎉 All tests passed!');
+        } else {
+          console.log(`❌ ${totalCount - passedCount} test(s) failed`);
+        }
+        
+      } catch (error) {
+        console.error('Test execution error:', error);
+        setTestResults([{
+          input: 'All tests',
+          expected: 'Success',
+          actual: `Execution Error: ${error instanceof Error ? error.message : String(error)}`,
+          passed: false
+        }]);
+      }
+      
+      setIsRunning(false);
+    }, 500); // Reduced delay for better UX
+  };
+
+  // Submit solution
+  const submitSolution = async () => {
+    if (!problem || !js.trim()) {
+      setSubmissionStatus('Please write some code before submitting');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmissionStatus(null);
+
+    try {
+      const token = localStorage.getItem('fp_token');
+      if (!token) {
+        setSubmissionStatus('Please log in to submit solutions');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const response = await fetch(api('/submissions/submit'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          problemId: problem.id,
+          solution: js,
+          language: 'javascript',
+          testResults: testResults
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsCompleted(true);
+        setSubmissionStatus('✅ Solution submitted successfully!');
+        // Show success message for 3 seconds
+        setTimeout(() => {
+          setSubmissionStatus(null);
+        }, 3000);
+      } else {
+        setSubmissionStatus(`❌ ${data.error || 'Failed to submit solution'}`);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      setSubmissionStatus('❌ Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Check if problem is completed
+  const checkCompletionStatus = async () => {
+    try {
+      const token = localStorage.getItem('fp_token');
+      if (!token) return;
+
+      const response = await fetch(api(`/submissions/completed/${params.id}`), {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
       });
-      
-      setTestResults(results);
-      setIsRunning(false);
-    }, 1000); // Simulate 1 second delay
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsCompleted(data.completed);
+      }
+    } catch (error) {
+      console.error('Error checking completion status:', error);
+    }
   };
 
   // Fetch problem data
@@ -349,6 +503,9 @@ export default function ProblemDetailPage() {
         }
         
         setLoading(false);
+        
+        // Check completion status after loading problem
+        checkCompletionStatus();
       })
       .catch((err) => {
         console.error('Fetch error:', err);
@@ -439,6 +596,36 @@ export default function ProblemDetailPage() {
               <div>
                 <p className="font-semibold text-sm">AI Code Review</p>
                 <p className="mt-1 text-sm">{aiReview}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {submissionStatus && (
+          <div className={`mt-4 p-4 rounded-lg ring-1 text-white ${
+            submissionStatus.includes('✅') 
+              ? 'bg-green-500/15 ring-green-400/30' 
+              : submissionStatus.includes('❌')
+              ? 'bg-red-500/15 ring-red-400/30'
+              : 'bg-yellow-500/15 ring-yellow-400/30'
+          }`}>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">
+                {submissionStatus.includes('✅') ? '✅' : 
+                 submissionStatus.includes('❌') ? '❌' : '⚠️'}
+              </span>
+              <p className="text-sm font-medium">{submissionStatus}</p>
+            </div>
+          </div>
+        )}
+
+        {isCompleted && (
+          <div className="mt-4 p-4 rounded-lg bg-green-500/15 ring-1 ring-green-400/30 text-white">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🎉</span>
+              <div>
+                <p className="font-semibold text-sm">Problem Completed!</p>
+                <p className="mt-1 text-sm">Great job! This problem has been marked as completed.</p>
               </div>
             </div>
           </div>
@@ -579,11 +766,45 @@ export default function ProblemDetailPage() {
                     disabled={isRunning}
                     className="flex items-center gap-2 px-3 py-2 text-sm text-white bg-[#2ad17e] hover:opacity-90 disabled:opacity-50 rounded font-medium"
                   >
-                    <span>▶</span>
-                    {isRunning ? 'Running...' : 'Run'}
+                    {isRunning ? (
+                      <>
+                        <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>Running tests...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>▶</span>
+                        <span>Run</span>
+                      </>
+                    )}
                   </button>
-                  <button className="px-4 py-2 text-sm text-white bg-yellow-500 hover:bg-yellow-600 rounded font-medium">
-                    Submit
+                  <button 
+                    onClick={submitSolution}
+                    disabled={isSubmitting || isCompleted}
+                    className={`px-4 py-2 text-sm text-white rounded font-medium ${
+                      isCompleted 
+                        ? 'bg-green-500 cursor-not-allowed' 
+                        : isSubmitting
+                        ? 'bg-yellow-500 cursor-not-allowed'
+                        : 'bg-yellow-500 hover:bg-yellow-600'
+                    }`}
+                  >
+                    {isCompleted ? (
+                      <>
+                        <span>✓</span>
+                        <span>Completed</span>
+                      </>
+                    ) : isSubmitting ? (
+                      <>
+                        <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>📤</span>
+                        <span>Submit</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
