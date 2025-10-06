@@ -10,6 +10,7 @@ type Problem = {
   tags: string[];
 };
 
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const difficultyColors: Record<Problem["difficulty"], string> = {
