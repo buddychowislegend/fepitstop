@@ -102,7 +102,11 @@ router.get('/user', verifyToken, async (req, res) => {
 router.get('/completed/:problemId', verifyToken, async (req, res) => {
   try {
     const { problemId } = req.params;
-    const isCompleted = await db.isProblemCompletedByUser(req.userId, problemId);
+    
+    // Check if user has any submissions for this problem
+    const submissions = await db.getUserSubmissions(req.userId, problemId);
+    const isCompleted = submissions.length > 0;
+    
     res.json({ completed: isCompleted });
   } catch (error) {
     console.error('Check completion error:', error);

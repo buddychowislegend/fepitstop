@@ -63,7 +63,8 @@ app.get('/api/health', (req, res) => {
     status: 'ok', 
     message: 'Backend is running',
     database: {
-      type: db.isServerless ? 'in-memory' : 'file-system',
+      type: db.isServerless ? 'persistent-file' : 'file-system',
+      path: db.filePath,
       problems: dbData.problems?.length || 0,
       users: dbData.users?.length || 0,
       submissions: dbData.submissions?.length || 0

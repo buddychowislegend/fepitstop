@@ -430,6 +430,14 @@ export default function ProblemDetailPage() {
       if (response.ok) {
         setIsCompleted(true);
         setSubmissionStatus('✅ Solution submitted successfully!');
+        
+        // Update localStorage to track completion
+        const completedProblems = JSON.parse(localStorage.getItem('fp_completed_problems') || '[]');
+        if (!completedProblems.includes(problem.id)) {
+          completedProblems.push(problem.id);
+          localStorage.setItem('fp_completed_problems', JSON.stringify(completedProblems));
+        }
+        
         // Show success message for 3 seconds
         setTimeout(() => {
           setSubmissionStatus(null);
@@ -451,6 +459,14 @@ export default function ProblemDetailPage() {
       const token = localStorage.getItem('fp_token');
       if (!token) return;
 
+      // First check localStorage
+      const completedProblems = JSON.parse(localStorage.getItem('fp_completed_problems') || '[]');
+      if (completedProblems.includes(params.id)) {
+        setIsCompleted(true);
+        return;
+      }
+
+      // Then try server
       const response = await fetch(api(`/submissions/completed/${params.id}`), {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -460,9 +476,19 @@ export default function ProblemDetailPage() {
       if (response.ok) {
         const data = await response.json();
         setIsCompleted(data.completed);
+        
+        // If server says completed, update localStorage
+        if (data.completed && !completedProblems.includes(params.id)) {
+          completedProblems.push(params.id);
+          localStorage.setItem('fp_completed_problems', JSON.stringify(completedProblems));
+        }
       }
     } catch (error) {
       console.error('Error checking completion status:', error);
+      
+      // Fallback to localStorage
+      const completedProblems = JSON.parse(localStorage.getItem('fp_completed_problems') || '[]');
+      setIsCompleted(completedProblems.includes(params.id));
     }
   };
 

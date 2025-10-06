@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Use persistent file-based database for all environments
+// Try to use /tmp directory in serverless environments (writable)
 const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
 
 // Use /tmp directory for serverless environments (writable)
@@ -114,7 +115,13 @@ class Database {
     const user = {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       ...userData,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      solvedProblems: [],
+      streak: 0,
+      rank: 0,
+      totalSolved: 0,
+      achievements: [],
+      activityHistory: [],
     };
     db.users.push(user);
     this.write(db);
@@ -124,19 +131,41 @@ class Database {
   async updateUser(id, updates) {
     const db = this.read();
     const userIndex = db.users.findIndex(u => u.id === id);
-    if (userIndex !== -1) {
-      db.users[userIndex] = { ...db.users[userIndex], ...updates };
-      this.write(db);
-      return db.users[userIndex];
-    }
-    return null;
+    if (userIndex === -1) return null;
+    
+    db.users[userIndex] = { ...db.users[userIndex], ...updates };
+    this.write(db);
+    return db.users[userIndex];
   }
 
   async deleteUser(id) {
     const db = this.read();
-    db.users = db.users.filter(u => u.id !== id);
+    const userIndex = db.users.findIndex(u => u.id === id);
+    if (userIndex === -1) return false;
+    
+    db.users.splice(userIndex, 1);
     this.write(db);
     return true;
+  }
+
+  async addUserActivity(userId, activity) {
+    const db = this.read();
+    const user = db.users.find(u => u.id === userId);
+    if (!user) return null;
+    
+    if (!user.activityHistory) user.activityHistory = [];
+    user.activityHistory.unshift({
+      ...activity,
+      timestamp: new Date().toISOString(),
+    });
+    
+    // Keep only last 50 activities
+    if (user.activityHistory.length > 50) {
+      user.activityHistory = user.activityHistory.slice(0, 50);
+    }
+    
+    this.write(db);
+    return user;
   }
 
   // Problems
@@ -169,14 +198,14 @@ class Database {
 
   async getRandomQuizQuestions(count) {
     const db = this.read();
-    const shuffled = db.quizQuestions.sort(() => 0.5 - Math.random());
+    const shuffled = [...db.quizQuestions].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   }
 
   // Community Solutions
   async getCommunitySolutions() {
     const db = this.read();
-    return db.communitySolutions;
+    return db.communitySolutions.sort((a, b) => b.upvotes - a.upvotes);
   }
 
   async findCommunitySolutionById(id) {
@@ -188,11 +217,10 @@ class Database {
     const db = this.read();
     const solution = db.communitySolutions.find(s => s.id === id);
     if (solution) {
-      solution.upvotes = (solution.upvotes || 0) + 1;
+      solution.upvotes += 1;
       this.write(db);
-      return solution;
     }
-    return null;
+    return solution;
   }
 
   // System Design Scenarios
@@ -204,25 +232,6 @@ class Database {
   async findSystemDesignScenarioById(id) {
     const db = this.read();
     return db.systemDesignScenarios.find(s => s.id === id);
-  }
-
-  // User Activity
-  async addUserActivity(userId, activity) {
-    const db = this.read();
-    const user = db.users.find(u => u.id === userId);
-    if (user) {
-      if (!user.activityHistory) {
-        user.activityHistory = [];
-      }
-      user.activityHistory.push(activity);
-      this.write(db);
-    }
-  }
-
-  async getUserActivity(userId) {
-    const db = this.read();
-    const user = db.users.find(u => u.id === userId);
-    return user?.activityHistory || [];
   }
 
   // Seed database
@@ -324,3 +333,4 @@ class Database {
 }
 
 module.exports = new Database();
+
