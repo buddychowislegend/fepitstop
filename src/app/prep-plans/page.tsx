@@ -9,7 +9,7 @@ type Plan = {
   topics: string[];
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { api } from "@/lib/config";
 
 export default function PrepPlansPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -17,7 +17,7 @@ export default function PrepPlansPage() {
   const [selected, setSelected] = useState<Plan | null>(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/prep-plans`)
+    fetch(api(`/prep-plans`))
       .then((res) => res.json())
       .then((data) => {
         setPlans(data.plans || []);

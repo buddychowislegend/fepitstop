@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { api } from "@/lib/config";
 
 export default function ProfilePage() {
   const { user, token, logout } = useAuth();
@@ -36,7 +36,7 @@ export default function ProfilePage() {
     }
 
     // Fetch profile
-    fetch(`${API_URL}/auth/me`, {
+    fetch(api(`/auth/me`), {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -49,7 +49,7 @@ export default function ProfilePage() {
       .catch(() => setLoading(false));
 
     // Fetch activity
-    fetch(`${API_URL}/auth/activity`, {
+    fetch(api(`/auth/activity`), {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -62,7 +62,7 @@ export default function ProfilePage() {
     setSaving(true);
 
     try {
-      const res = await fetch(`${API_URL}/auth/profile`, {
+      const res = await fetch(api(`/auth/profile`), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +88,7 @@ export default function ProfilePage() {
     setPasswordError("");
 
     try {
-      const res = await fetch(`${API_URL}/auth/password`, {
+      const res = await fetch(api(`/auth/password`), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +116,7 @@ export default function ProfilePage() {
     setDeleteError("");
 
     try {
-      const res = await fetch(`${API_URL}/auth/account`, {
+      const res = await fetch(api(`/auth/account`), {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

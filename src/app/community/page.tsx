@@ -10,7 +10,7 @@ type Solution = {
   tags: string[];
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { api } from "@/lib/config";
 
 export default function CommunityPage() {
   const [solutions, setSolutions] = useState<Solution[]>([]);
@@ -18,7 +18,7 @@ export default function CommunityPage() {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    fetch(`${API_URL}/community`)
+    fetch(api(`/community`))
       .then((res) => res.json())
       .then((data) => {
         setSolutions(data.solutions || []);

@@ -11,7 +11,7 @@ type Problem = {
 };
 
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { api } from "@/lib/config";
 
 const difficultyColors: Record<Problem["difficulty"], string> = {
   Easy: "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/20",
@@ -26,7 +26,7 @@ export default function ProblemsPage() {
   const [difficulty, setDifficulty] = useState<"All" | Problem["difficulty"]>("All");
 
   useEffect(() => {
-    fetch(`${API_URL}/problems`)
+    fetch(api(`/problems`))
       .then((res) => res.json())
       .then((data) => {
         setProblems(data.problems || []);

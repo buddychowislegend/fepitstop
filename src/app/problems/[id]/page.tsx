@@ -26,7 +26,7 @@ type Problem = {
   }>;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { api } from "@/lib/config";
 
 function CodeEditor({ value, onChange, language = "javascript" }: { 
   value: string; 
@@ -245,7 +245,7 @@ export default function ProblemDetailPage() {
 
   // Fetch problem data
   useEffect(() => {
-    fetch(`${API_URL}/problems/${params.id}`)
+            fetch(api(`/problems/${params.id}`))
       .then((res) => res.json())
       .then((data) => {
         const prob = data.problem;

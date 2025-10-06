@@ -8,7 +8,7 @@ type Question = {
   correct: number;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { api } from "@/lib/config";
 
 export default function QuizPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -19,7 +19,7 @@ export default function QuizPage() {
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/quiz/random/5`)
+    fetch(api(`/quiz/random/5`))
       .then((res) => res.json())
       .then((data) => {
         setQuestions(data.questions || []);
@@ -46,7 +46,7 @@ export default function QuizPage() {
     setScore(0);
     setFinished(false);
     setLoading(true);
-    fetch(`${API_URL}/quiz/random/5`)
+    fetch(api(`/quiz/random/5`))
       .then((res) => res.json())
       .then((data) => {
         setQuestions(data.questions || []);
