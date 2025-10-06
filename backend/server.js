@@ -15,12 +15,26 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001', 
-    'http://localhost:3002',
-    'https://fepitstop.onrender.com'
-  ],
+  origin: (origin, callback) => {
+    const staticAllowed = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'https://fepitstop.onrender.com',
+      'https://frontendpitstop.vercel.app'
+    ];
+
+    if (!origin) return callback(null, true); // allow non-browser tools / same-origin
+    if (staticAllowed.includes(origin)) return callback(null, true);
+
+    try {
+      const { hostname } = new URL(origin);
+      // Allow Vercel preview deployments of your frontend (e.g., https://frontendpitstop-<hash>-vercel.app)
+      if (hostname.endsWith('.vercel.app')) return callback(null, true);
+    } catch (_) {}
+
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
