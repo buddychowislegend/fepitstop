@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { notFound, useParams } from "next/navigation";
 
 type Problem = {
@@ -28,44 +29,112 @@ type Problem = {
 
 import { api } from "@/lib/config";
 
+// Load Monaco client-side only
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+
 function CodeEditor({ value, onChange, language = "javascript" }: { 
   value: string; 
   onChange: (v: string) => void; 
   language?: string;
 }) {
+  // Register a lightweight completion provider when Monaco mounts
+  function handleMount(editor: any, monaco: any) {
+    const suggestions = [
+      {
+        label: 'console.log',
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: "console.log(${1:msg});",
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        detail: 'Log to console',
+      },
+      {
+        label: 'map',
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: "${1:arr}.map((${2:item}) => ${3:item});",
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        detail: 'Array.map snippet',
+      },
+      {
+        label: 'filter',
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: "${1:arr}.filter((${2:item}) => ${3:condition});",
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        detail: 'Array.filter snippet',
+      },
+      {
+        label: 'reduce',
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: "${1:arr}.reduce((${2:acc}, ${3:item}) => ${4:acc}, ${5:init});",
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        detail: 'Array.reduce snippet',
+      },
+      {
+        label: 'qs',
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: "document.querySelector('${1:selector}')",
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        detail: 'document.querySelector',
+      },
+      {
+        label: 'qsa',
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: "document.querySelectorAll('${1:selector}')",
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        detail: 'document.querySelectorAll',
+      },
+      {
+        label: 'addevent',
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: "${1:el}.addEventListener('${2:event}', (${3:e}) => {\n  ${4:// ...}\n});",
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        detail: 'addEventListener',
+      },
+      {
+        label: 'fetch',
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: "fetch('${1:/api}', { method: '${2:GET}' }).then(r => r.json()).then(data => {\n  console.log(data);\n});",
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        detail: 'fetch JSON',
+      },
+    ];
+
+    monaco.languages.registerCompletionItemProvider('javascript', {
+      provideCompletionItems: () => {
+        return { suggestions };
+      },
+    });
+  }
+
   return (
     <div className="h-full flex flex-col">
-      {/* Editor Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10 flex-shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-sm text-white/60">Language:</span>
-            <select className="bg-white/10 text-white text-sm px-2 py-1 rounded border border-white/20">
-              <option value="javascript">JavaScript</option>
-              <option value="typescript">TypeScript</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white/60">Theme:</span>
-            <select className="bg-white/10 text-white text-sm px-2 py-1 rounded border border-white/20">
-              <option value="dracula">Dracula</option>
-              <option value="monokai">Monokai</option>
-            </select>
+            <span className="bg-white/10 text-white text-sm px-2 py-1 rounded border border-white/20">JavaScript</span>
           </div>
         </div>
       </div>
-      
-      {/* Code Editor */}
-      <textarea
-        className="flex-1 bg-[#0f131a] text-green-400 p-4 font-mono text-sm resize-none focus:outline-none leading-relaxed min-h-0"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="// Write your code here..."
-        style={{ 
-          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-          height: '100%'
-        }}
-      />
+      <div className="flex-1 min-h-0">
+        <MonacoEditor
+          height="100%"
+          defaultLanguage={language}
+          language={language}
+          value={value}
+          onChange={(v) => onChange(v ?? '')}
+          theme="vs-dark"
+          options={{
+            automaticLayout: true,
+            wordWrap: "on",
+            minimap: { enabled: false },
+            suggestOnTriggerCharacters: true,
+            quickSuggestions: { other: true, comments: true, strings: true },
+            tabSize: 2,
+            fontLigatures: true,
+          }}
+          onMount={handleMount}
+        />
+      </div>
     </div>
   );
 }
