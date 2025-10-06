@@ -4,36 +4,78 @@ const path = require('path');
 const DB_DIR = path.join(__dirname, '../database');
 const DB_FILE = path.join(DB_DIR, 'data.json');
 
-// Ensure database directory exists
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
-}
+// Check if we're in a serverless environment (read-only file system)
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production';
 
-// Initialize database file if it doesn't exist
-if (!fs.existsSync(DB_FILE)) {
-  const initialData = {
-    users: [],
-    problems: [],
-    prepPlans: [],
-    quizQuestions: [],
-    communitySolutions: [],
-    systemDesignScenarios: [],
-  };
-  fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
+// Initialize in-memory database for serverless environments
+let inMemoryDB = {
+  users: [],
+  problems: [],
+  prepPlans: [],
+  quizQuestions: [],
+  communitySolutions: [],
+  systemDesignScenarios: [],
+  submissions: []
+};
+
+// Only use file system if not in serverless environment
+if (!isServerless) {
+  try {
+    // Ensure database directory exists
+    if (!fs.existsSync(DB_DIR)) {
+      fs.mkdirSync(DB_DIR, { recursive: true });
+    }
+
+    // Initialize database file if it doesn't exist
+    if (!fs.existsSync(DB_FILE)) {
+      const initialData = {
+        users: [],
+        problems: [],
+        prepPlans: [],
+        quizQuestions: [],
+        communitySolutions: [],
+        systemDesignScenarios: [],
+        submissions: []
+      };
+      fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
+    }
+  } catch (error) {
+    console.warn('File system not available, using in-memory storage:', error.message);
+  }
 }
 
 class Database {
   constructor() {
     this.filePath = DB_FILE;
+    this.isServerless = isServerless;
   }
 
   read() {
-    const data = fs.readFileSync(this.filePath, 'utf8');
-    return JSON.parse(data);
+    if (this.isServerless) {
+      return { ...inMemoryDB };
+    }
+    
+    try {
+      const data = fs.readFileSync(this.filePath, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.warn('Failed to read from file system, using in-memory storage:', error.message);
+      return { ...inMemoryDB };
+    }
   }
 
   write(data) {
-    fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2));
+    if (this.isServerless) {
+      inMemoryDB = { ...data };
+      return;
+    }
+    
+    try {
+      fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.warn('Failed to write to file system, using in-memory storage:', error.message);
+      inMemoryDB = { ...data };
+    }
   }
 
   // Users
@@ -186,6 +228,35 @@ class Database {
     db.systemDesignScenarios = data.systemDesignScenarios || db.systemDesignScenarios;
     this.write(db);
     return db;
+  }
+
+  // Initialize in-memory database with problems data for serverless
+  async initializeServerlessData() {
+    if (this.isServerless) {
+      try {
+        // Load problems data from the comprehensive problems file
+        const problemsArray = require('../data/comprehensive-problems');
+        inMemoryDB.problems = problemsArray || [];
+        
+        // Initialize other collections as empty arrays
+        inMemoryDB.prepPlans = [];
+        inMemoryDB.quizQuestions = [];
+        inMemoryDB.communitySolutions = [];
+        inMemoryDB.systemDesignScenarios = [];
+        inMemoryDB.submissions = [];
+        
+        console.log(`✅ Serverless database initialized with ${inMemoryDB.problems.length} problems`);
+      } catch (error) {
+        console.warn('Failed to load problems data for serverless:', error.message);
+        // Initialize with empty arrays if loading fails
+        inMemoryDB.problems = [];
+        inMemoryDB.prepPlans = [];
+        inMemoryDB.quizQuestions = [];
+        inMemoryDB.communitySolutions = [];
+        inMemoryDB.systemDesignScenarios = [];
+        inMemoryDB.submissions = [];
+      }
+    }
   }
 
   // Submissions

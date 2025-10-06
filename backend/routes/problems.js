@@ -6,8 +6,10 @@ const db = require('../config/db');
 router.get('/', async (req, res) => {
   try {
     const problems = await db.getProblems();
+    console.log(`Problems API: Returning ${problems.length} problems`);
     res.json({ problems });
   } catch (error) {
+    console.error('Problems API error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
