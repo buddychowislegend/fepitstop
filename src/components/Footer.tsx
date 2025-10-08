@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -57,9 +58,12 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-white/60">
-            © {currentYear} Frontend Pitstop. All rights reserved.
-          </p>
+          <div className="flex items-center gap-3">
+            <Image src="/logo-simple.svg" alt="Frontend Pitstop" width={32} height={32} />
+            <p className="text-sm text-white/60">
+              © {currentYear} Frontend Pitstop. All rights reserved.
+            </p>
+          </div>
           <div className="flex items-center gap-6 text-sm text-white/60">
             <Link href="/privacy" className="hover:text-white transition">
               Privacy Policy

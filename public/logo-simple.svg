@@ -1,0 +1,44 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded square background -->
+  <rect x="2" y="2" width="36" height="36" rx="8" fill="url(#gradient)"/>
+  
+  <!-- Code brackets </> -->
+  <g transform="translate(8, 10)">
+    <!-- Left bracket < -->
+    <path d="M 6 4 L 2 10 L 6 16" 
+          stroke="#ffffff" 
+          stroke-width="2.5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"
+          fill="none"/>
+    
+    <!-- Right bracket > -->
+    <path d="M 18 4 L 22 10 L 18 16" 
+          stroke="#ffffff" 
+          stroke-width="2.5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"
+          fill="none"/>
+    
+    <!-- Forward slash / -->
+    <line x1="14" y1="4" x2="10" y2="16" 
+          stroke="#2ad17e" 
+          stroke-width="2.5" 
+          stroke-linecap="round"/>
+  </g>
+  
+  <!-- Checkered flag accent (small) -->
+  <g transform="translate(26, 26)" opacity="0.8">
+    <rect x="0" y="0" width="3" height="3" fill="#2ad17e"/>
+    <rect x="3" y="0" width="3" height="3" fill="#ffffff"/>
+    <rect x="0" y="3" width="3" height="3" fill="#ffffff"/>
+    <rect x="3" y="3" width="3" height="3" fill="#2ad17e"/>
+  </g>
+</svg>

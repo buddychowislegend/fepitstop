@@ -22,8 +22,8 @@ export default function Navbar() {
       <div className="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden shadow-lg">
-            <Image src="/file.svg" alt="Frontend Pitstop logo" width={22} height={22} className="invert" />
+          <div className="h-9 w-9 flex items-center justify-center">
+            <Image src="/logo-simple.svg" alt="Frontend Pitstop logo" width={36} height={36} />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
             Frontend Pitstop
