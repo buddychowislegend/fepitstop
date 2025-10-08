@@ -13,8 +13,8 @@ export default function Navbar() {
     { href: "/quiz", label: "Quiz" },
     { href: "/prep-plans", label: "Prep Plans" },
     { href: "/system-design", label: "System Design" },
-    { href: "/mock-interview", label: "Mock Interview" },
-    { href: "/community", label: "Community" },
+    { href: "/mock-interview", label: "Mock Interview", comingSoon: true },
+    { href: "/community", label: "Community", comingSoon: true },
   ];
 
   return (
@@ -34,17 +34,25 @@ export default function Navbar() {
         <nav className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
+            const isComingSoon = 'comingSoon' in link && link.comingSoon;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition relative ${
                   isActive
                     ? 'bg-white/15 text-white'
+                    : isComingSoon
+                    ? 'text-white/50 cursor-not-allowed'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {link.label}
+                {isComingSoon && (
+                  <span className="absolute -top-1 -right-1 text-xs bg-yellow-500/20 text-yellow-300 px-1 rounded-full">
+                    🚀
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -94,17 +102,23 @@ export default function Navbar() {
         <div className="flex gap-2">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
+            const isComingSoon = 'comingSoon' in link && link.comingSoon;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition relative ${
                   isActive
                     ? 'bg-white/15 text-white'
+                    : isComingSoon
+                    ? 'text-white/50 cursor-not-allowed'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {link.label}
+                {isComingSoon && (
+                  <span className="ml-1 text-xs">🚀</span>
+                )}
               </Link>
             );
           })}
