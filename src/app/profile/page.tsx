@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { api } from "@/lib/config";
 
 export default function ProfilePage() {
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -14,6 +15,11 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [saving, setSaving] = useState(false);
+  
+  // Submissions and solved problems
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [solvedProblems, setSolvedProblems] = useState<any[]>([]);
+  const [totalProblems, setTotalProblems] = useState(100);
   
   // Password change
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -30,7 +36,13 @@ export default function ProfilePage() {
   const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!token) {
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return;
+    }
+
+    // Redirect if not authenticated
+    if (!token || !user) {
       router.push("/signin");
       return;
     }
@@ -48,6 +60,38 @@ export default function ProfilePage() {
       })
       .catch(() => setLoading(false));
 
+    // Fetch submissions
+    fetch(api(`/submissions/user`), {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setSubmissions(data.submissions || []);
+        
+        // Get unique solved problems
+        const uniqueSolved = new Set(data.submissions?.map((s: any) => s.problemId) || []);
+        
+        // Fetch problem details for solved problems
+        if (uniqueSolved.size > 0) {
+          fetch(api(`/problems`))
+            .then((res) => res.json())
+            .then((problemsData) => {
+              const solved = (problemsData.problems || []).filter((p: any) => 
+                uniqueSolved.has(p.id)
+              );
+              setSolvedProblems(solved);
+              setTotalProblems(problemsData.problems?.length || 100);
+            });
+        } else {
+          fetch(api(`/problems`))
+            .then((res) => res.json())
+            .then((problemsData) => {
+              setTotalProblems(problemsData.problems?.length || 100);
+            });
+        }
+      })
+      .catch(() => {});
+
     // Fetch activity
     fetch(api(`/auth/activity`), {
       headers: { Authorization: `Bearer ${token}` },
@@ -55,7 +99,7 @@ export default function ProfilePage() {
       .then((res) => res.json())
       .then((data) => setActivities(data.activities || []))
       .catch(() => {});
-  }, [token, router]);
+  }, [token, user, authLoading, router]);
 
   const handleSave = async () => {
     if (!token) return;
@@ -137,7 +181,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
         <p>Loading profile...</p>
@@ -145,13 +189,26 @@ export default function ProfilePage() {
     );
   }
 
-  if (!profile) {
+  if (!profile || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
-        <p>Please sign in to view your profile</p>
+        <div className="text-center">
+          <p className="mb-4">Please sign in to view your profile</p>
+          <Link href="/signin" className="px-4 py-2 rounded-lg bg-white text-[#3a1670] font-semibold">
+            Sign In
+          </Link>
+        </div>
       </div>
     );
   }
+
+  const solvedCount = solvedProblems.length;
+  const solvedPercentage = totalProblems > 0 ? (solvedCount / totalProblems * 100).toFixed(1) : 0;
+  
+  // Calculate difficulty breakdown
+  const easyCount = solvedProblems.filter(p => p.difficulty === 'Easy').length;
+  const mediumCount = solvedProblems.filter(p => p.difficulty === 'Medium').length;
+  const hardCount = solvedProblems.filter(p => p.difficulty === 'Hard').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
@@ -233,22 +290,82 @@ export default function ProfilePage() {
 
         {/* Stats Grid */}
         <div className="mt-8 grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">
-            <h3 className="text-sm uppercase tracking-wide text-white/60">Problems Solved</h3>
-            <p className="mt-2 text-4xl font-extrabold">{profile.totalSolved || 0}</p>
-            <p className="mt-1 text-sm text-white/70">Keep practicing!</p>
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-6 ring-1 ring-emerald-400/20">
+            <h3 className="text-sm uppercase tracking-wide text-emerald-300">Problems Solved</h3>
+            <p className="mt-2 text-4xl font-extrabold">{solvedCount}/{totalProblems}</p>
+            <p className="mt-1 text-sm text-emerald-200/80">{solvedPercentage}% complete</p>
+            <div className="mt-3 w-full bg-white/10 rounded-full h-2">
+              <div 
+                className="bg-emerald-400 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${solvedPercentage}%` }}
+              ></div>
+            </div>
           </div>
-          <div className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">
-            <h3 className="text-sm uppercase tracking-wide text-white/60">Current Streak</h3>
+          <div className="rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 p-6 ring-1 ring-blue-400/20">
+            <h3 className="text-sm uppercase tracking-wide text-blue-300">Current Streak</h3>
             <p className="mt-2 text-4xl font-extrabold">{profile.streak || 0} days</p>
-            <p className="mt-1 text-sm text-white/70">{profile.streak > 0 ? "🔥 On fire!" : "Start your streak!"}</p>
+            <p className="mt-1 text-sm text-blue-200/80">{profile.streak > 0 ? "🔥 On fire!" : "Start your streak!"}</p>
           </div>
-          <div className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">
-            <h3 className="text-sm uppercase tracking-wide text-white/60">Global Rank</h3>
-            <p className="mt-2 text-4xl font-extrabold">#{profile.rank || "—"}</p>
-            <p className="mt-1 text-sm text-white/70">Keep climbing!</p>
+          <div className="rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 p-6 ring-1 ring-purple-400/20">
+            <h3 className="text-sm uppercase tracking-wide text-purple-300">Total Submissions</h3>
+            <p className="mt-2 text-4xl font-extrabold">{submissions.length}</p>
+            <p className="mt-1 text-sm text-purple-200/80">Attempts made</p>
           </div>
         </div>
+
+        {/* Difficulty Breakdown */}
+        <div className="mt-8 rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">
+          <h2 className="text-xl font-bold mb-4">Solved by Difficulty</h2>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-emerald-400">{easyCount}</div>
+              <div className="text-sm text-white/60 mt-1">Easy</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-amber-400">{mediumCount}</div>
+              <div className="text-sm text-white/60 mt-1">Medium</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-rose-400">{hardCount}</div>
+              <div className="text-sm text-white/60 mt-1">Hard</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Solved Problems List */}
+        {solvedProblems.length > 0 && (
+          <div className="mt-8 rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">
+            <h2 className="text-xl font-bold mb-4">Recently Solved Problems</h2>
+            <div className="space-y-2">
+              {solvedProblems.slice(0, 10).map((problem: any) => (
+                <Link
+                  key={problem.id}
+                  href={`/problems/${problem.id}`}
+                  className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-green-400">✓</span>
+                    <span className="font-medium">{problem.title}</span>
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    problem.difficulty === 'Easy' ? 'bg-emerald-500/20 text-emerald-300' :
+                    problem.difficulty === 'Medium' ? 'bg-amber-500/20 text-amber-300' :
+                    'bg-rose-500/20 text-rose-300'
+                  }`}>
+                    {problem.difficulty}
+                  </span>
+                </Link>
+              ))}
+            </div>
+            {solvedProblems.length > 10 && (
+              <div className="mt-4 text-center">
+                <Link href="/problems" className="text-sm text-blue-300 hover:text-blue-200">
+                  View all {solvedProblems.length} solved problems →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Account Info */}
         <div className="mt-8 rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">

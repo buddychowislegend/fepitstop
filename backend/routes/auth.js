@@ -44,10 +44,9 @@ router.post('/send-otp', async (req, res) => {
     const emailResult = await sendOTPEmail(email, otp, name);
 
     res.status(200).json({
-      message: 'OTP sent successfully',
+      message: 'OTP sent successfully to your email',
       email,
-      development: emailResult.development || false,
-      otp: emailResult.development ? otp : undefined // Only show OTP in development
+      emailSent: !emailResult.development
     });
   } catch (error) {
     console.error('Send OTP error:', error);
@@ -133,9 +132,8 @@ router.post('/resend-otp', async (req, res) => {
     const emailResult = await sendOTPEmail(email, otp);
 
     res.status(200).json({
-      message: 'OTP resent successfully',
-      development: emailResult.development || false,
-      otp: emailResult.development ? otp : undefined
+      message: 'OTP resent successfully to your email',
+      emailSent: !emailResult.development
     });
   } catch (error) {
     console.error('Resend OTP error:', error);

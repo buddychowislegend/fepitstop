@@ -2,8 +2,10 @@ const nodemailer = require('nodemailer');
 
 // Create reusable transporter
 const createTransporter = () => {
-  // For Gmail (you can use other providers too)
+  // Check if email credentials are configured
   if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    console.log('📧 Email service configured with:', process.env.EMAIL_USER);
+    
     return nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -13,8 +15,10 @@ const createTransporter = () => {
     });
   }
   
-  // For testing: Use Ethereal (fake SMTP)
-  // In production, replace with real SMTP credentials
+  console.log('⚠️ Email not configured - OTP will only be logged to console');
+  console.log('To enable emails, set EMAIL_USER and EMAIL_PASSWORD environment variables');
+  
+  // For testing: No transporter means development mode
   return null;
 };
 

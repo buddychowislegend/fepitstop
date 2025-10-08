@@ -50,12 +50,7 @@ export default function SignUpPage() {
         throw new Error(data.error || 'Failed to send OTP');
       }
 
-      // Show OTP in development mode
-      if (data.development && data.otp) {
-        setSuccess(`OTP sent! Development mode - Your OTP: ${data.otp}`);
-      } else {
-        setSuccess(`Verification code sent to ${email}! Check your inbox.`);
-      }
+      setSuccess(`Verification code sent to ${email}! Please check your inbox and spam folder.`);
       
       setStep('otp');
       setResendTimer(60); // 60 second cooldown
@@ -179,11 +174,7 @@ export default function SignUpPage() {
         throw new Error(data.error || 'Failed to resend OTP');
       }
 
-      if (data.development && data.otp) {
-        setSuccess(`New code sent! Development mode - Your OTP: ${data.otp}`);
-      } else {
-        setSuccess('New verification code sent! Check your inbox.');
-      }
+      setSuccess('New verification code sent! Please check your inbox and spam folder.');
       
       setResendTimer(60);
       setOtp(["", "", "", "", "", ""]);
