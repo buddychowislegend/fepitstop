@@ -59,6 +59,52 @@ const problems = [
     starterCss: `.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}`,
     starterJs: "",
   },
+  // Riddles as problems (non-coding)
+  {
+    id: "riddle-bridge-crossing",
+    title: "Riddle: Bridge and Torch (Minimum Time)",
+    difficulty: "Easy",
+    tags: ["riddle", "logic"],
+    prompt: "Four people take 1, 2, 7, and 10 minutes to cross a bridge at night. One torch, at most two can cross at a time, and the crossing time is the slower person's time. What is the minimum total time?",
+    starterHtml: "",
+    starterCss: "",
+    starterJs: "",
+    timeLimit: "2mins",
+    examples: [
+      {
+        input: "People with crossing times: [1, 2, 7, 10] minutes",
+        output: "17 minutes",
+        explanation: "Optimal strategy:\n1. Person 1 and 2 cross together (2 min) - Total: 2\n2. Person 1 returns (1 min) - Total: 3\n3. Person 7 and 10 cross together (10 min) - Total: 13\n4. Person 2 returns (2 min) - Total: 15\n5. Person 1 and 2 cross together (2 min) - Total: 17"
+      }
+    ],
+    testCases: [
+      {
+        input: "[1, 2, 7, 10]",
+        expected: "17",
+        explanation: "The two slowest people (7, 10) should cross together to minimize their impact"
+      },
+      {
+        input: "[1, 2, 5, 10]",
+        expected: "17",
+        explanation: "Similar strategy: 1&2 cross (2), 1 returns (1), 5&10 cross (10), 2 returns (2), 1&2 cross (2) = 17"
+      },
+      {
+        input: "[5, 10, 20, 25]",
+        expected: "60",
+        explanation: "Strategy: 5&10 cross (10), 5 returns (5), 20&25 cross (25), 10 returns (10), 5&10 cross (10) = 60"
+      }
+    ]
+  },
+  {
+    id: "riddle-wolf-goat-cabbage",
+    title: "Riddle: Wolf, Goat, Cabbage (Min Crossings)",
+    difficulty: "Easy",
+    tags: ["riddle", "logic"],
+    prompt: "A farmer must carry a wolf, a goat, and a cabbage across a river. The boat holds only one item with the farmer. He cannot leave the wolf with the goat, or the goat with the cabbage. What is the minimum number of crossings?",
+    starterHtml: "",
+    starterCss: "",
+    starterJs: "",
+  },
 ];
 
 module.exports = { problems };
