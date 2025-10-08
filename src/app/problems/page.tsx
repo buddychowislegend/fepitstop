@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import type { CSSProperties } from "react";
 import Link from "next/link";
 
 type Problem = {
@@ -8,6 +7,8 @@ type Problem = {
   title: string;
   difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
+  companies?: string[];
+  timeLimit?: string;
 };
 
 
@@ -25,6 +26,8 @@ export default function ProblemsPage() {
   const [query, setQuery] = useState("");
   const [difficulty, setDifficulty] = useState<"All" | Problem["difficulty"]>("All");
   const [showCompleted, setShowCompleted] = useState<"All" | "Completed" | "Not Completed">("All");
+  const [selectedCompany, setSelectedCompany] = useState<string>("All");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [completedProblems, setCompletedProblems] = useState<Set<string>>(new Set());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -103,6 +106,23 @@ export default function ProblemsPage() {
     console.log('Cleared all completions');
   };
 
+  // Extract unique companies and tags
+  const allCompanies = useMemo(() => {
+    const companies = new Set<string>();
+    problems.forEach(p => {
+      if (p.companies && Array.isArray(p.companies)) {
+        p.companies.forEach(c => companies.add(c));
+      }
+    });
+    return Array.from(companies).sort();
+  }, [problems]);
+
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    problems.forEach(p => p.tags.forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [problems]);
+
   const filtered = useMemo(() => {
     return problems.filter((p) => {
       const matchesQuery = p.title.toLowerCase().includes(query.toLowerCase());
@@ -116,22 +136,39 @@ export default function ProblemsPage() {
         matchesCompletion = !isCompleted;
       }
       
-      return matchesQuery && matchesDiff && matchesCompletion;
+      const matchesCompany = selectedCompany === "All" 
+        ? true 
+        : p.companies?.includes(selectedCompany) || false;
+      
+      const matchesTags = selectedTags.length === 0
+        ? true
+        : selectedTags.every(tag => p.tags.includes(tag));
+      
+      return matchesQuery && matchesDiff && matchesCompletion && matchesCompany && matchesTags;
     });
-  }, [problems, query, difficulty, showCompleted, completedProblems]);
+  }, [problems, query, difficulty, showCompleted, selectedCompany, selectedTags, completedProblems]);
 
   const completedCount = problems.filter(p => completedProblems.has(p.id)).length;
   const totalCount = problems.length;
 
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold">Problems</h1>
-            <p className="mt-2 text-white/80">Search and filter frontend interview questions.</p>
+      <div className="max-w-[1600px] mx-auto px-6 py-10">
+        {/* Header */}
+        <header className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold">Problems</h1>
+              <p className="mt-2 text-white/80">{totalCount} frontend interview challenges from top companies</p>
+            </div>
             {isAuthenticated && (
-              <div className="mt-3 flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-green-400">✓</span>
                   <span className="text-white/80">
@@ -147,101 +184,292 @@ export default function ProblemsPage() {
               </div>
             )}
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <input
-              className="w-full sm:w-80 rounded-md bg-white/10 placeholder-white/60 px-4 py-2 ring-1 ring-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
-              placeholder="Search problems..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <select
-              className="rounded-md bg-white/10 px-3 py-2 ring-1 ring-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as any)}
-            >
-              <option>All</option>
-              <option>Easy</option>
-              <option>Medium</option>
-              <option>Hard</option>
-            </select>
-            {isAuthenticated && (
-              <select
-                className="rounded-md bg-white/10 px-3 py-2 ring-1 ring-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
-                value={showCompleted}
-                onChange={(e) => setShowCompleted(e.target.value as any)}
-              >
-                <option>All</option>
-                <option>Completed</option>
-                <option>Not Completed</option>
-              </select>
-            )}
-            
-            {/* Debug buttons for testing */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => markProblemCompleted('two-sum')}
-                  className="px-2 py-1 text-xs bg-blue-500 text-white rounded"
-                >
-                  Mark Two Sum
-                </button>
-                <button
-                  onClick={clearAllCompletions}
-                  className="px-2 py-1 text-xs bg-red-500 text-white rounded"
-                >
-                  Clear All
-                </button>
-              </div>
-            )}
-          </div>
+          
+          {/* Search bar */}
+          <input
+            className="w-full rounded-lg bg-white/10 placeholder-white/60 px-4 py-3 ring-1 ring-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 text-base"
+            placeholder="Search problems by title..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
         </header>
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {loading ? (
-            <p className="text-white/60 col-span-3">Loading problems...</p>
-          ) : filtered.length === 0 ? (
-            <p className="text-white/60 col-span-3">No problems found</p>
-          ) : (
-            filtered.map((p, idx) => {
-              const isCompleted = completedProblems.has(p.id);
-              return (
-                <article
-                  key={p.id}
-                  className={`rounded-2xl p-5 ring-1 shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/20 [animation:fadeUp_700ms_ease-out_calc(var(--i,0)*120ms)_both] ${
-                    isCompleted 
-                      ? 'bg-green-500/10 ring-green-400/20 border-green-400/30' 
-                      : 'bg-[#151a24] ring-white/10'
-                  }`}
-                  style={{ ["--i" as any]: idx } as CSSProperties}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg">{p.title}</h3>
-                      {isCompleted && (
-                        <span className="text-green-400 text-lg" title="Completed">✓</span>
-                      )}
-                    </div>
-                    <span className={`text-xs px-2 py-1 rounded ${difficultyColors[p.difficulty as keyof typeof difficultyColors]}`}>{p.difficulty}</span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/70">
-                    {p.tags.map((t) => (
-                      <span key={t} className="px-2 py-1 rounded bg-white/5 ring-1 ring-white/10">{t}</span>
+        <div className="flex gap-6">
+          {/* Left Sidebar - Filters */}
+          <aside className="w-64 flex-shrink-0 hidden lg:block">
+            <div className="sticky top-6 space-y-6">
+              {/* Difficulty Filter */}
+              <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+                <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Difficulty</h3>
+                <div className="space-y-2">
+                  {["All", "Easy", "Medium", "Hard"].map((diff) => (
+                    <button
+                      key={diff}
+                      onClick={() => setDifficulty(diff as any)}
+                      className={`w-full text-left px-3 py-2 rounded-md text-sm transition ${
+                        difficulty === diff
+                          ? 'bg-white/20 text-white font-medium'
+                          : 'bg-white/5 text-white/70 hover:bg-white/10'
+                      }`}
+                    >
+                      {diff}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Status Filter */}
+              {isAuthenticated && (
+                <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+                  <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Status</h3>
+                  <div className="space-y-2">
+                    {["All", "Completed", "Not Completed"].map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => setShowCompleted(status as any)}
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition ${
+                          showCompleted === status
+                            ? 'bg-white/20 text-white font-medium'
+                            : 'bg-white/5 text-white/70 hover:bg-white/10'
+                        }`}
+                      >
+                        {status}
+                      </button>
                     ))}
                   </div>
-                  <Link 
-                    href={`/problems/${p.id}`} 
-                    className={`mt-5 inline-flex items-center justify-center rounded-md font-semibold px-4 py-2 hover:opacity-90 ${
-                      isCompleted 
-                        ? 'bg-green-500 text-white' 
-                        : 'bg-white text-[#3a1670]'
+                </div>
+              )}
+
+              {/* Tags Filter */}
+              <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+                <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Tags</h3>
+                <div className="space-y-1 max-h-64 overflow-y-auto">
+                  {allTags.slice(0, 15).map((tag) => (
+                    <label key={tag} className="flex items-center gap-2 px-2 py-1 hover:bg-white/5 rounded cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedTags.includes(tag)}
+                        onChange={() => toggleTag(tag)}
+                        className="rounded"
+                      />
+                      <span className="text-sm text-white/80">{tag}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content - Problems List */}
+          <main className="flex-1 min-w-0">
+            <div className="bg-white/5 rounded-lg ring-1 ring-white/10 overflow-hidden">
+              {/* List Header */}
+              <div className="bg-white/10 px-6 py-3 border-b border-white/10">
+                <div className="flex items-center gap-4 text-sm font-semibold text-white/90">
+                  <div className="w-12">Status</div>
+                  <div className="flex-1">Title</div>
+                  <div className="w-24">Difficulty</div>
+                  <div className="w-32 hidden md:block">Time</div>
+                  <div className="w-48 hidden xl:block">Companies</div>
+                  <div className="w-24">Action</div>
+                </div>
+              </div>
+
+              {/* Problems List */}
+              <div className="divide-y divide-white/10">
+                {loading ? (
+                  <div className="px-6 py-12 text-center text-white/60">
+                    Loading problems...
+                  </div>
+                ) : filtered.length === 0 ? (
+                  <div className="px-6 py-12 text-center text-white/60">
+                    No problems found. Try adjusting your filters.
+                  </div>
+                ) : (
+                  filtered.map((p) => {
+                    const isCompleted = completedProblems.has(p.id);
+                    return (
+                      <div
+                        key={p.id}
+                        className={`px-6 py-4 hover:bg-white/5 transition ${
+                          isCompleted ? 'bg-green-500/5' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Status Icon */}
+                          <div className="w-12 flex justify-center">
+                            {isCompleted ? (
+                              <span className="text-green-400 text-xl" title="Completed">✓</span>
+                            ) : (
+                              <span className="text-white/20 text-xl">○</span>
+                            )}
+                          </div>
+
+                          {/* Title and Tags */}
+                          <div className="flex-1 min-w-0">
+                            <Link 
+                              href={`/problems/${p.id}`}
+                              className="font-medium hover:text-blue-300 transition"
+                            >
+                              {p.title}
+                            </Link>
+                            <div className="flex flex-wrap gap-1.5 mt-1.5">
+                              {p.tags.slice(0, 3).map((t) => (
+                                <span 
+                                  key={t} 
+                                  className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/70"
+                                >
+                                  {t}
+                                </span>
+                              ))}
+                              {p.tags.length > 3 && (
+                                <span className="text-xs text-white/50">+{p.tags.length - 3}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Difficulty */}
+                          <div className="w-24">
+                            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${difficultyColors[p.difficulty]}`}>
+                              {p.difficulty}
+                            </span>
+                          </div>
+
+                          {/* Time Limit */}
+                          <div className="w-32 hidden md:block text-sm text-white/60">
+                            {p.timeLimit || '30mins'}
+                          </div>
+
+                          {/* Companies */}
+                          <div className="w-48 hidden xl:block">
+                            {p.companies && p.companies.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {p.companies.slice(0, 2).map((company) => (
+                                  <span 
+                                    key={company}
+                                    className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 ring-1 ring-blue-400/30"
+                                  >
+                                    {company}
+                                  </span>
+                                ))}
+                                {p.companies.length > 2 && (
+                                  <span className="text-xs text-white/50">+{p.companies.length - 2}</span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-white/40">—</span>
+                            )}
+                          </div>
+
+                          {/* Action Button */}
+                          <div className="w-24">
+                            <Link
+                              href={`/problems/${p.id}`}
+                              className={`inline-flex items-center justify-center px-4 py-1.5 rounded-md text-sm font-medium transition ${
+                                isCompleted
+                                  ? 'bg-green-500/20 text-green-300 hover:bg-green-500/30'
+                                  : 'bg-white/10 text-white hover:bg-white/20'
+                              }`}
+                            >
+                              {isCompleted ? 'Review' : 'Solve'}
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Results count */}
+              {!loading && (
+                <div className="px-6 py-3 bg-white/5 border-t border-white/10 text-center text-sm text-white/60">
+                  Showing {filtered.length} of {totalCount} problems
+                </div>
+              )}
+            </div>
+          </main>
+
+          {/* Right Sidebar - Company Filter */}
+          <aside className="w-72 flex-shrink-0 hidden xl:block">
+            <div className="sticky top-6">
+              <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+                <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Filter by Company</h3>
+                <div className="space-y-1 max-h-[600px] overflow-y-auto">
+                  <button
+                    onClick={() => setSelectedCompany("All")}
+                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition ${
+                      selectedCompany === "All"
+                        ? 'bg-white/20 text-white font-medium'
+                        : 'bg-white/5 text-white/70 hover:bg-white/10'
                     }`}
                   >
-                    {isCompleted ? '✓ Completed' : 'Solve'}
-                  </Link>
-                </article>
-              );
-            })
-          )}
+                    All Companies ({totalCount})
+                  </button>
+                  {allCompanies.map((company) => {
+                    const count = problems.filter(p => p.companies?.includes(company)).length;
+                    return (
+                      <button
+                        key={company}
+                        onClick={() => setSelectedCompany(company)}
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition flex items-center justify-between ${
+                          selectedCompany === company
+                            ? 'bg-white/20 text-white font-medium'
+                            : 'bg-white/5 text-white/70 hover:bg-white/10'
+                        }`}
+                      >
+                        <span>{company}</span>
+                        <span className="text-xs text-white/50">({count})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        {/* Mobile filters (shown on small screens) */}
+        <div className="lg:hidden mt-6 space-y-4">
+          <details className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+            <summary className="font-semibold cursor-pointer">Filters</summary>
+            <div className="mt-4 space-y-4">
+              {/* Mobile Difficulty */}
+              <div>
+                <h4 className="text-sm font-medium mb-2">Difficulty</h4>
+                <div className="flex gap-2">
+                  {["All", "Easy", "Medium", "Hard"].map((diff) => (
+                    <button
+                      key={diff}
+                      onClick={() => setDifficulty(diff as any)}
+                      className={`px-3 py-1.5 rounded-md text-sm ${
+                        difficulty === diff
+                          ? 'bg-white/20 text-white'
+                          : 'bg-white/5 text-white/70'
+                      }`}
+                    >
+                      {diff}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mobile Company */}
+              <div>
+                <h4 className="text-sm font-medium mb-2">Company</h4>
+                <select
+                  value={selectedCompany}
+                  onChange={(e) => setSelectedCompany(e.target.value)}
+                  className="w-full rounded-md bg-white/10 px-3 py-2 ring-1 ring-white/15"
+                >
+                  <option value="All">All Companies</option>
+                  {allCompanies.map((company) => (
+                    <option key={company} value={company}>{company}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </details>
         </div>
       </div>
     </div>
