@@ -10,6 +10,7 @@ const quizRoutes = require('./routes/quiz');
 const communityRoutes = require('./routes/community');
 const systemDesignRoutes = require('./routes/systemDesign');
 const submissionsRoutes = require('./routes/submissions');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,7 +43,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-Admin-Key']
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -55,6 +56,7 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/system-design', systemDesignRoutes);
 app.use('/api/submissions', submissionsRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
   const db = require('./config/db');
