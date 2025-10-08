@@ -49,7 +49,33 @@ const comprehensiveProblems = [
     prompt: "Implement a debounce utility that delays invoking a function until after wait ms.",
     starterHtml: "",
     starterCss: "",
-    starterJs: "function debounce(func, delay){\n  let id;\n  return (...args)=>{\n    clearTimeout(id);\n    id = setTimeout(()=>func.apply(this,args), delay);\n  };\n}"
+    starterJs: "function debounce(func, delay){\n  let id;\n  return (...args)=>{\n    clearTimeout(id);\n    id = setTimeout(()=>func.apply(this,args), delay);\n  };\n}",
+    timeLimit: "15mins",
+    completionCount: "23.4k done",
+    examples: [
+      {
+        input: "Rapid calls within delay period",
+        output: "Only the last call executes after delay",
+        explanation: "If debounce(fn, 300) is called 5 times within 300ms, only the last call will execute after 300ms from the last invocation."
+      }
+    ],
+    testCases: [
+      {
+        input: "Multiple rapid calls",
+        expected: "Function executes only once after delay",
+        explanation: "Debounce should cancel previous timers and only execute the last call"
+      },
+      {
+        input: "Call, wait for delay, call again",
+        expected: "Function executes twice (once per delayed period)",
+        explanation: "Each call after the delay period should execute independently"
+      },
+      {
+        input: "Pass arguments to debounced function",
+        expected: "Arguments are correctly passed to the original function",
+        explanation: "Debounce should preserve function arguments"
+      }
+    ]
   },
   {
     id: "throttle",
@@ -59,7 +85,33 @@ const comprehensiveProblems = [
     prompt: "Implement throttle that ensures a function is called at most once in N ms.",
     starterHtml: "",
     starterCss: "",
-    starterJs: "function throttle(func, delay){\n  let last = 0;\n  return (...args)=>{\n    const now = Date.now();\n    if(now - last >= delay){\n      last = now;\n      func.apply(this,args);\n    }\n  };\n}"
+    starterJs: "function throttle(func, delay){\n  let last = 0;\n  return (...args)=>{\n    const now = Date.now();\n    if(now - last >= delay){\n      last = now;\n      func.apply(this,args);\n    }\n  };\n}",
+    timeLimit: "15mins",
+    completionCount: "18.9k done",
+    examples: [
+      {
+        input: "10 rapid calls with 100ms throttle",
+        output: "Function executes immediately, then waits 100ms between subsequent calls",
+        explanation: "First call executes immediately, subsequent calls are throttled to execute at most once per 100ms."
+      }
+    ],
+    testCases: [
+      {
+        input: "Rapid scroll events",
+        expected: "Function executes at regular intervals (e.g., every 100ms)",
+        explanation: "Throttle should execute the function at the start and then at fixed intervals"
+      },
+      {
+        input: "First call",
+        expected: "Executes immediately",
+        explanation: "The first call to a throttled function should execute right away"
+      },
+      {
+        input: "Multiple calls within throttle window",
+        expected: "Only first call executes, others are ignored",
+        explanation: "Calls made before the throttle period expires should be ignored"
+      }
+    ]
   },
   {
     id: "closure-counter",
@@ -214,7 +266,33 @@ const comprehensiveProblems = [
     prompt: "Render a long list efficiently by virtualizing rows.",
     starterHtml: "<div id=app></div>",
     starterCss: "",
-    starterJs: ""
+    starterJs: "",
+    timeLimit: "45mins",
+    completionCount: "8.2k done",
+    examples: [
+      {
+        input: "Array of 10,000 items",
+        output: "Only visible items (e.g., 20) are rendered in DOM",
+        explanation: "Virtual scrolling only renders items that are visible in the viewport, improving performance dramatically for large lists."
+      }
+    ],
+    testCases: [
+      {
+        input: "List with 10,000 items, viewport shows 20",
+        expected: "Only ~20-30 DOM nodes rendered",
+        explanation: "Should render visible items plus a buffer for smooth scrolling"
+      },
+      {
+        input: "Scroll to bottom",
+        expected: "DOM nodes are recycled, new items rendered",
+        explanation: "As user scrolls, old items are removed and new ones added"
+      },
+      {
+        input: "Variable height items",
+        expected: "Correctly calculates positions and renders items",
+        explanation: "Advanced: Handle items with different heights dynamically"
+      }
+    ]
   },
   {
     id: "autocomplete",
@@ -224,7 +302,38 @@ const comprehensiveProblems = [
     prompt: "Build an autocomplete input with suggestions and keyboard navigation.",
     starterHtml: "",
     starterCss: "",
-    starterJs: ""
+    starterJs: "",
+    timeLimit: "30mins",
+    completionCount: "14.7k done",
+    examples: [
+      {
+        input: "User types 'ja'",
+        output: "Shows suggestions: ['JavaScript', 'Java', 'Jakarta']",
+        explanation: "Filter suggestions based on input and display them in a dropdown below the input field."
+      }
+    ],
+    testCases: [
+      {
+        input: "Type 'react'",
+        expected: "Shows filtered suggestions containing 'react'",
+        explanation: "Should filter and display matching suggestions"
+      },
+      {
+        input: "Press Arrow Down",
+        expected: "Highlights first suggestion",
+        explanation: "Keyboard navigation should work with arrow keys"
+      },
+      {
+        input: "Press Enter on highlighted suggestion",
+        expected: "Fills input with selected suggestion",
+        explanation: "Should select highlighted item on Enter key"
+      },
+      {
+        input: "Click outside autocomplete",
+        expected: "Closes suggestion dropdown",
+        explanation: "Should handle click outside to close suggestions"
+      }
+    ]
   },
   {
     id: "infinite-scroll",
@@ -366,7 +475,38 @@ const comprehensiveProblems = [
     prompt: "Create a responsive grid that maintains aspect ratio cards.",
     starterHtml: "<div class=grid></div>",
     starterCss: ".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}",
-    starterJs: ""
+    starterJs: "",
+    timeLimit: "20mins",
+    completionCount: "29.3k done",
+    examples: [
+      {
+        input: "Container width: 1200px",
+        output: "Grid shows 4-6 columns with equal-width cards",
+        explanation: "CSS Grid auto-fill creates responsive columns that adjust based on container width."
+      }
+    ],
+    testCases: [
+      {
+        input: "Desktop viewport (1200px)",
+        expected: "4-6 columns displayed",
+        explanation: "Should show multiple columns on wide screens"
+      },
+      {
+        input: "Tablet viewport (768px)",
+        expected: "2-3 columns displayed",
+        explanation: "Should adapt to medium-sized screens"
+      },
+      {
+        input: "Mobile viewport (375px)",
+        expected: "1-2 columns displayed",
+        explanation: "Should stack nicely on mobile devices"
+      },
+      {
+        input: "Cards with images",
+        expected: "Maintains aspect ratio (e.g., 16:9 or 1:1)",
+        explanation: "Cards should maintain consistent aspect ratio across all sizes"
+      }
+    ]
   },
   {
     id: "flexbox-center",
@@ -606,10 +746,32 @@ const comprehensiveProblems = [
     starterHtml: "",
     starterCss: "",
     starterJs: "",
-    timeLimit: "2mins",
+    timeLimit: "5mins",
     completionCount: "—",
-    examples: [],
-    testCases: []
+    examples: [
+      {
+        input: "Items: Wolf, Goat, Cabbage",
+        output: "7 crossings",
+        explanation: "Optimal solution:\n1. Take goat across → \n2. Return alone ←\n3. Take wolf across →\n4. Bring goat back ←\n5. Take cabbage across →\n6. Return alone ←\n7. Take goat across →\nTotal: 7 crossings"
+      }
+    ],
+    testCases: [
+      {
+        input: "[Wolf, Goat, Cabbage]",
+        expected: "7",
+        explanation: "The goat must be moved twice (across and back) to prevent it from being left with either wolf or cabbage"
+      },
+      {
+        input: "Why can't wolf be left with goat?",
+        expected: "Wolf will eat the goat",
+        explanation: "Constraint: Wolf cannot be left alone with goat"
+      },
+      {
+        input: "Why can't goat be left with cabbage?",
+        expected: "Goat will eat the cabbage",
+        explanation: "Constraint: Goat cannot be left alone with cabbage"
+      }
+    ]
   }
 ];
 
