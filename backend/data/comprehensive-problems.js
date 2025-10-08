@@ -28,16 +28,36 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "[[1, [2, 3]], 4]",
+        "input": "flattenRecursive([[1, [2, 3]], 4])",
         "output": "[1, 2, 3, 4]",
         "explanation": "All levels of nesting are removed while preserving element sequence"
+      },
+      {
+        "input": "flattenRecursive([1, [2, [3, [4, 5]]]])",
+        "output": "[1, 2, 3, 4, 5]",
+        "explanation": "Handles multiple levels of nesting"
       }
     ],
     "testCases": [
       {
-        "input": "Deep nesting: [[[[1]]]]",
+        "input": "[[[[1]]]]",
         "expected": "[1]",
-        "explanation": "Should handle arbitrary depth"
+        "explanation": "Deep nesting with single element"
+      },
+      {
+        "input": "[[1, 2, [3, [4, 5]]], 6]",
+        "expected": "[1,2,3,4,5,6]",
+        "explanation": "Mixed nesting levels"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "expected": "[1,2,3]",
+        "explanation": "Already flat array"
+      },
+      {
+        "input": "[]",
+        "expected": "[]",
+        "explanation": "Empty array"
       }
     ]
   },
