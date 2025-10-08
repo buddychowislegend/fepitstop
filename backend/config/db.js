@@ -240,30 +240,61 @@ class Database {
   // Initialize persistent database with problems data
   async initializeServerlessData() {
     try {
-      // Load problems data from the comprehensive problems file
+      // Load all data from data files
       const problemsArray = require('../data/comprehensive-problems');
+      const { prepPlans } = require('../data/prepPlans');
+      const { quizQuestions } = require('../data/quizQuestions');
+      const { communitySolutions } = require('../data/communitySolutions');
+      const { systemDesignScenarios } = require('../data/systemDesignScenarios');
       
       // Read current database
       const db = this.read();
       
-      // Only initialize problems if they don't exist yet
+      // Initialize all data if database is empty or incomplete
       if (!db.problems || db.problems.length === 0) {
         db.problems = problemsArray || [];
-        db.prepPlans = db.prepPlans || [];
-        db.quizQuestions = db.quizQuestions || [];
-        db.communitySolutions = db.communitySolutions || [];
-        db.systemDesignScenarios = db.systemDesignScenarios || [];
+        db.prepPlans = prepPlans || [];
+        db.quizQuestions = quizQuestions || [];
+        db.communitySolutions = communitySolutions || [];
+        db.systemDesignScenarios = systemDesignScenarios || [];
         db.submissions = db.submissions || [];
         db.users = db.users || [];
         
         // Write to persistent storage
         this.write(db);
-        console.log(`✅ Database initialized with ${db.problems.length} problems at ${this.filePath}`);
+        console.log(`✅ Database initialized with ${db.problems.length} problems, ${db.quizQuestions.length} quiz questions at ${this.filePath}`);
       } else {
-        console.log(`✅ Database already initialized with ${db.problems.length} problems`);
+        // Even if problems exist, check if quiz questions need to be initialized
+        if (!db.quizQuestions || db.quizQuestions.length === 0) {
+          db.quizQuestions = quizQuestions || [];
+          this.write(db);
+          console.log(`✅ Quiz questions initialized: ${db.quizQuestions.length} questions`);
+        }
+        
+        // Check other collections too
+        if (!db.prepPlans || db.prepPlans.length === 0) {
+          db.prepPlans = prepPlans || [];
+          this.write(db);
+          console.log(`✅ Prep plans initialized: ${db.prepPlans.length} plans`);
+        }
+        
+        if (!db.communitySolutions || db.communitySolutions.length === 0) {
+          db.communitySolutions = communitySolutions || [];
+          this.write(db);
+          console.log(`✅ Community solutions initialized: ${db.communitySolutions.length} solutions`);
+        }
+        
+        if (!db.systemDesignScenarios || db.systemDesignScenarios.length === 0) {
+          db.systemDesignScenarios = systemDesignScenarios || [];
+          this.write(db);
+          console.log(`✅ System design scenarios initialized: ${db.systemDesignScenarios.length} scenarios`);
+        }
+        
+        console.log(`✅ Database initialized with ${db.problems.length} problems, ${db.quizQuestions.length} quiz questions`);
       }
     } catch (error) {
-      console.warn('Failed to load problems data:', error.message);
+      console.warn('Failed to load data:', error.message);
+      console.error(error);
     }
   }
 
