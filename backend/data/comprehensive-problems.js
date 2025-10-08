@@ -2,6 +2,7 @@
 // 100 original problems covering JavaScript, React, CSS, DOM APIs, and Algorithms
 // All titles rephrased to be original and avoid copyright
 // Problems randomly shuffled for uniqueness
+// Examples synced with test cases for consistency
 
 const comprehensiveProblems = [
   {
@@ -21,9 +22,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -62,9 +73,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -107,9 +128,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Scroll handler with 100ms throttle",
-        "output": "Handler fires at most every 100ms",
-        "explanation": "Limits execution frequency regardless of event rate"
+        "input": "throttle(fn, 100)",
+        "output": "function",
+        "explanation": "Should return throttled function"
+      },
+      {
+        "input": "rapid calls",
+        "output": "limited execution",
+        "explanation": "Should limit execution rate"
+      },
+      {
+        "input": "within limit",
+        "output": "executed immediately",
+        "explanation": "Should execute if within limit"
       }
     ],
     "testCases": [
@@ -150,9 +181,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Sample input",
-        "output": "Expected output",
-        "explanation": "Algorithm produces correct result"
+        "input": "rateLimiter(3, 1000)",
+        "output": "function",
+        "explanation": "Should create rate limiter"
+      },
+      {
+        "input": "limiter(() => {})",
+        "output": "undefined",
+        "explanation": "Should allow first request"
+      },
+      {
+        "input": "limiter(() => {})",
+        "output": "undefined",
+        "explanation": "Should allow within limit"
       }
     ],
     "testCases": [
@@ -198,9 +239,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "[[1, [2, 3]], 4]",
-        "output": "[1, 2, 3, 4]",
-        "explanation": "All levels of nesting are removed while preserving element sequence"
+        "input": "[1, [2, [3]]]",
+        "output": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "output": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "output": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ],
     "testCases": [
@@ -238,9 +289,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Subscribe to event, then emit",
-        "output": "All subscribers receive notification",
-        "explanation": "Event system coordinates message passing"
+        "input": "emitter.on('test', callback)",
+        "output": "undefined",
+        "explanation": "Should register event listener"
+      },
+      {
+        "input": "emitter.emit('test', 'data')",
+        "output": "undefined",
+        "explanation": "Should trigger event with data"
+      },
+      {
+        "input": "emitter.off('test', callback)",
+        "output": "undefined",
+        "explanation": "Should remove event listener"
       }
     ],
     "testCases": [
@@ -281,9 +342,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "'hello', 3",
+        "output": "'hellohellohello'",
+        "explanation": "Should repeat string 3 times"
+      },
+      {
+        "input": "'a', 5",
+        "output": "'aaaaa'",
+        "explanation": "Should repeat single character"
+      },
+      {
+        "input": "'', 3",
+        "output": "''",
+        "explanation": "Should handle empty string"
       }
     ],
     "testCases": [
@@ -324,9 +395,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "output": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
+      },
+      {
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "output": "[2, 3]",
+        "explanation": "Should filter array elements"
+      },
+      {
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "output": "6",
+        "explanation": "Should reduce array to single value"
       }
     ],
     "testCases": [
@@ -366,9 +447,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -409,9 +500,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -452,9 +553,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -494,9 +605,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -537,9 +658,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "output": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
+      },
+      {
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "output": "[2, 3]",
+        "explanation": "Should filter array elements"
+      },
+      {
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "output": "6",
+        "explanation": "Should reduce array to single value"
       }
     ],
     "testCases": [
@@ -580,9 +711,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -628,9 +769,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "[[1, [2, 3]], 4]",
-        "output": "[1, 2, 3, 4]",
-        "explanation": "All levels of nesting are removed while preserving element sequence"
+        "input": "[1, [2, [3]]]",
+        "output": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "output": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "output": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ],
     "testCases": [
@@ -670,9 +821,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Sample input",
-        "output": "Expected output",
-        "explanation": "Algorithm produces correct result"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -711,9 +872,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -754,9 +925,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Sample input",
-        "output": "Expected output",
-        "explanation": "Algorithm produces correct result"
+        "input": "['a', 'b', 'a', 'c'], 2",
+        "output": "['a', 'b']",
+        "explanation": "Should return top 2 most frequent words"
+      },
+      {
+        "input": "['a', 'a', 'a'], 1",
+        "output": "['a']",
+        "explanation": "Should return single most frequent word"
+      },
+      {
+        "input": "['a', 'b', 'c'], 3",
+        "output": "['a', 'b', 'c']",
+        "explanation": "Should return all words when k equals length"
       }
     ],
     "testCases": [
@@ -795,9 +976,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -837,9 +1028,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -880,9 +1081,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -923,9 +1134,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create div element"
+      },
+      {
+        "input": "createElement('span')",
+        "output": "HTMLSpanElement",
+        "explanation": "Should create span element"
+      },
+      {
+        "input": "createElement('input')",
+        "output": "HTMLInputElement",
+        "explanation": "Should create input element"
       }
     ],
     "testCases": [
@@ -965,9 +1186,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -1016,9 +1247,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -1059,9 +1300,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "[2, 4, 5, 2, 3, 4]",
+        "output": "histogram object",
+        "explanation": "Should create histogram with correct counts"
+      },
+      {
+        "input": "[1, 1, 1, 1]",
+        "output": "histogram object",
+        "explanation": "All same values"
+      },
+      {
+        "input": "[]",
+        "output": "empty histogram",
+        "explanation": "Empty input array"
       }
     ],
     "testCases": [
@@ -1101,9 +1352,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Subscribe to event, then emit",
-        "output": "All subscribers receive notification",
-        "explanation": "Event system coordinates message passing"
+        "input": "emitter.on('test', callback)",
+        "output": "undefined",
+        "explanation": "Should register event listener"
+      },
+      {
+        "input": "emitter.emit('test', 'data')",
+        "output": "undefined",
+        "explanation": "Should trigger event with data"
+      },
+      {
+        "input": "emitter.off('test', callback)",
+        "output": "undefined",
+        "explanation": "Should remove event listener"
       }
     ],
     "testCases": [
@@ -1143,9 +1404,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -1184,9 +1455,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Sample input",
-        "output": "Expected output",
-        "explanation": "Algorithm produces correct result"
+        "input": "compose(f, g)(x)",
+        "output": "f(g(x))",
+        "explanation": "Should compose two functions"
+      },
+      {
+        "input": "compose(f, g, h)(x)",
+        "output": "f(g(h(x)))",
+        "explanation": "Should compose three functions"
+      },
+      {
+        "input": "compose(x => x * 2, x => x + 1)(5)",
+        "output": "12",
+        "explanation": "Should compose math functions"
       }
     ],
     "testCases": [
@@ -1226,9 +1507,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -1269,9 +1560,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -1318,9 +1619,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "output": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
+      },
+      {
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "output": "[2, 3]",
+        "explanation": "Should filter array elements"
+      },
+      {
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "output": "6",
+        "explanation": "Should reduce array to single value"
       }
     ],
     "testCases": [
@@ -1361,9 +1672,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -1404,9 +1725,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "output": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
+      },
+      {
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "output": "[2, 3]",
+        "explanation": "Should filter array elements"
+      },
+      {
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "output": "6",
+        "explanation": "Should reduce array to single value"
       }
     ],
     "testCases": [
@@ -1445,9 +1776,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -1485,9 +1826,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "{ a: 1, b: { c: 2 } }",
+        "output": "{ a: 1, b: { c: 2 } }",
+        "explanation": "Should clone nested objects"
+      },
+      {
+        "input": "[1, [2, [3]]]",
+        "output": "[1, [2, [3]]]",
+        "explanation": "Should clone nested arrays"
+      },
+      {
+        "input": "null",
+        "output": "null",
+        "explanation": "Should handle null values"
       }
     ],
     "testCases": [
@@ -1528,9 +1879,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -1571,9 +1932,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Multiple async operations",
-        "output": "Coordinated execution with proper sequencing",
-        "explanation": "Async operations complete in expected order"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -1613,9 +1984,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Sample input",
-        "output": "Expected output",
-        "explanation": "Algorithm produces correct result"
+        "input": "'hello world'",
+        "output": "processed string",
+        "explanation": "Should process string input"
+      },
+      {
+        "input": "''",
+        "output": "empty result",
+        "explanation": "Should handle empty string"
+      },
+      {
+        "input": "'test123'",
+        "output": "filtered result",
+        "explanation": "Should handle string with numbers"
       }
     ],
     "testCases": [
@@ -1655,9 +2036,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -1704,9 +2095,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -1745,9 +2146,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "[[1, [2, 3]], 4]",
-        "output": "[1, 2, 3, 4]",
-        "explanation": "All levels of nesting are removed while preserving element sequence"
+        "input": "[1, [2, [3]]]",
+        "output": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "output": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "output": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ],
     "testCases": [
@@ -1786,9 +2197,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -1834,9 +2255,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Scroll handler with 100ms throttle",
-        "output": "Handler fires at most every 100ms",
-        "explanation": "Limits execution frequency regardless of event rate"
+        "input": "throttle(console.log, 100)",
+        "output": "function",
+        "explanation": "Should return a function"
+      },
+      {
+        "input": "throttle(() => {}, 0)",
+        "output": "function",
+        "explanation": "Should work with zero delay"
+      },
+      {
+        "input": "throttle(() => {}, 1000)",
+        "output": "function",
+        "explanation": "Should work with large delay"
       }
     ],
     "testCases": [
@@ -1876,9 +2307,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -1920,9 +2361,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Multiple async operations",
-        "output": "Coordinated execution with proper sequencing",
-        "explanation": "Async operations complete in expected order"
+        "input": "new Promise((resolve) => resolve(42))",
+        "output": "Promise",
+        "explanation": "Should create a promise"
+      },
+      {
+        "input": "Promise.resolve(42)",
+        "output": "Promise",
+        "explanation": "Should create resolved promise"
+      },
+      {
+        "input": "Promise.reject('error')",
+        "output": "Promise",
+        "explanation": "Should create rejected promise"
       }
     ],
     "testCases": [
@@ -1960,9 +2411,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -2003,9 +2464,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "['btn', 'btn-primary']",
+        "output": "'btn btn-primary'",
+        "explanation": "Array of strings"
+      },
+      {
+        "input": "{ btn: true, 'btn-primary': false }",
+        "output": "'btn'",
+        "explanation": "Object with boolean values"
+      },
+      {
+        "input": "['btn', { 'btn-primary': true, disabled: false }]",
+        "output": "'btn btn-primary'",
+        "explanation": "Mixed array and object"
       }
     ],
     "testCases": [
@@ -2044,9 +2515,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -2087,9 +2568,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "[[1, [2, 3]], 4]",
-        "output": "[1, 2, 3, 4]",
-        "explanation": "All levels of nesting are removed while preserving element sequence"
+        "input": "[1, [2, [3]]]",
+        "output": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "output": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "output": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ],
     "testCases": [
@@ -2130,9 +2621,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "{ sales: [{ name: 'John', salary: 1000 }] }",
+        "output": "1000",
+        "explanation": "Single employee salary"
+      },
+      {
+        "input": "{ sales: [{ name: 'John', salary: 1000 }], dev: [{ name: 'Jane', salary: 2000 }] }",
+        "output": "3000",
+        "explanation": "Multiple departments"
+      },
+      {
+        "input": "{}",
+        "output": "0",
+        "explanation": "Empty company structure"
       }
     ],
     "testCases": [
@@ -2173,9 +2674,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -2216,9 +2727,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "[[1, [2, 3]], 4]",
-        "output": "[1, 2, 3, 4]",
-        "explanation": "All levels of nesting are removed while preserving element sequence"
+        "input": "[1, [2, [3]]]",
+        "output": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "output": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "output": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ],
     "testCases": [
@@ -2259,9 +2780,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -2301,9 +2832,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Expensive calculation called twice with same inputs",
-        "output": "Second call returns cached result instantly",
-        "explanation": "Cache eliminates redundant computations"
+        "input": "memoize((x) => x * 2)",
+        "output": "function",
+        "explanation": "Should return memoized function"
+      },
+      {
+        "input": "memoize((x) => x * x)(5)",
+        "output": "25",
+        "explanation": "Should compute and cache result"
+      },
+      {
+        "input": "memoize((x) => x * x)(5)",
+        "output": "25",
+        "explanation": "Should return cached result on second call"
       }
     ],
     "testCases": [
@@ -2345,9 +2886,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Multiple async operations",
-        "output": "Coordinated execution with proper sequencing",
-        "explanation": "Async operations complete in expected order"
+        "input": "new Promise((resolve) => resolve(42))",
+        "output": "Promise",
+        "explanation": "Should create a promise"
+      },
+      {
+        "input": "Promise.resolve(42)",
+        "output": "Promise",
+        "explanation": "Should create resolved promise"
+      },
+      {
+        "input": "Promise.reject('error')",
+        "output": "Promise",
+        "explanation": "Should create rejected promise"
       }
     ],
     "testCases": [
@@ -2387,9 +2938,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Search input with 300ms debounce",
-        "output": "API call only fires after user stops typing for 300ms",
-        "explanation": "Prevents excessive API calls during typing"
+        "input": "debounce(fn, 100)",
+        "output": "function",
+        "explanation": "Should return debounced function"
+      },
+      {
+        "input": "rapid calls",
+        "output": "delayed execution",
+        "explanation": "Should delay execution"
+      },
+      {
+        "input": "single call",
+        "output": "executed once",
+        "explanation": "Should execute after delay"
       }
     ],
     "testCases": [
@@ -2429,9 +2990,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -2470,9 +3041,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -2512,9 +3093,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Multiple async operations",
-        "output": "Coordinated execution with proper sequencing",
-        "explanation": "Async operations complete in expected order"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -2555,9 +3146,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -2600,9 +3201,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "[[1, [2, 3]], 4]",
-        "output": "[1, 2, 3, 4]",
-        "explanation": "All levels of nesting are removed while preserving element sequence"
+        "input": "[1, [2, [3]]]",
+        "output": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "output": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "output": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ],
     "testCases": [
@@ -2643,9 +3254,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -2684,9 +3305,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -2726,9 +3357,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "fn(1, 2, 3)",
+        "output": "computed result",
+        "explanation": "Should call function with arguments"
+      },
+      {
+        "input": "fn()",
+        "output": "default result",
+        "explanation": "Should handle function with no arguments"
+      },
+      {
+        "input": "fn.call(this, arg)",
+        "output": "bound result",
+        "explanation": "Should handle function binding"
       }
     ],
     "testCases": [
@@ -2768,9 +3409,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "output": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
+      },
+      {
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "output": "[2, 3]",
+        "explanation": "Should filter array elements"
+      },
+      {
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "output": "6",
+        "explanation": "Should reduce array to single value"
       }
     ],
     "testCases": [
@@ -2811,9 +3462,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -2858,14 +3519,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "flattenRecursive([[1, [2, 3]], 4])",
-        "output": "[1, 2, 3, 4]",
-        "explanation": "All levels of nesting are removed while preserving element sequence"
+        "input": "[[[[1]]]]",
+        "output": "[1]",
+        "explanation": "Deep nesting with single element"
       },
       {
-        "input": "flattenRecursive([1, [2, [3, [4, 5]]]])",
-        "output": "[1, 2, 3, 4, 5]",
-        "explanation": "Handles multiple levels of nesting"
+        "input": "[[1, 2, [3, [4, 5]]], 6]",
+        "output": "[1,2,3,4,5,6]",
+        "explanation": "Mixed nesting levels"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "output": "[1,2,3]",
+        "explanation": "Already flat array"
       }
     ],
     "testCases": [
@@ -2908,9 +3574,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -2949,9 +3625,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -2992,9 +3678,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Expensive calculation called twice with same inputs",
-        "output": "Second call returns cached result instantly",
-        "explanation": "Cache eliminates redundant computations"
+        "input": "memoize(fn)",
+        "output": "function",
+        "explanation": "Should return memoized function"
+      },
+      {
+        "input": "memoizedFn(5)",
+        "output": "computed result",
+        "explanation": "Should compute result first time"
+      },
+      {
+        "input": "memoizedFn(5)",
+        "output": "cached result",
+        "explanation": "Should return cached result"
       }
     ],
     "testCases": [
@@ -3033,9 +3729,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -3074,9 +3780,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -3122,9 +3838,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Search input with 300ms debounce",
-        "output": "API call only fires after user stops typing for 300ms",
-        "explanation": "Prevents excessive API calls during typing"
+        "input": "debounce(fn, 100)",
+        "output": "function",
+        "explanation": "Should return debounced function"
+      },
+      {
+        "input": "rapid calls",
+        "output": "delayed execution",
+        "explanation": "Should delay execution"
+      },
+      {
+        "input": "single call",
+        "output": "executed once",
+        "explanation": "Should execute after delay"
       }
     ],
     "testCases": [
@@ -3163,9 +3889,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -3207,9 +3943,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Multiple async operations",
-        "output": "Coordinated execution with proper sequencing",
-        "explanation": "Async operations complete in expected order"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -3255,9 +4001,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "[[1, [2, 3]], 4]",
-        "output": "[1, 2, 3, 4]",
-        "explanation": "All levels of nesting are removed while preserving element sequence"
+        "input": "[1, [2, [3]]]",
+        "output": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "output": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "output": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ],
     "testCases": [
@@ -3295,9 +4051,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "curry((a, b, c) => a + b + c)(1)(2)(3)",
+        "output": "6",
+        "explanation": "Should curry function with 3 args"
+      },
+      {
+        "input": "curry((a, b) => a * b)(2)(3)",
+        "output": "6",
+        "explanation": "Should curry function with 2 args"
+      },
+      {
+        "input": "curry((a) => a * 2)(5)",
+        "output": "10",
+        "explanation": "Should curry single argument function"
       }
     ],
     "testCases": [
@@ -3337,9 +4103,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -3380,9 +4156,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -3423,9 +4209,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -3468,9 +4264,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "output": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
+      },
+      {
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "output": "[2, 3]",
+        "explanation": "Should filter array elements"
+      },
+      {
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "output": "6",
+        "explanation": "Should reduce array to single value"
       }
     ],
     "testCases": [
@@ -3511,9 +4317,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Search input with 300ms debounce",
-        "output": "API call only fires after user stops typing for 300ms",
-        "explanation": "Prevents excessive API calls during typing"
+        "input": "debounce(fn, 100)",
+        "output": "function",
+        "explanation": "Should return debounced function"
+      },
+      {
+        "input": "rapid calls",
+        "output": "delayed execution",
+        "explanation": "Should delay execution"
+      },
+      {
+        "input": "single call",
+        "output": "executed once",
+        "explanation": "Should execute after delay"
       }
     ],
     "testCases": [
@@ -3554,9 +4370,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -3595,9 +4421,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -3638,9 +4474,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Sample input",
-        "output": "Expected output",
-        "explanation": "Algorithm produces correct result"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -3680,9 +4526,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Subscribe to event, then emit",
-        "output": "All subscribers receive notification",
-        "explanation": "Event system coordinates message passing"
+        "input": "emitter.on('test', callback)",
+        "output": "undefined",
+        "explanation": "Should register event listener"
+      },
+      {
+        "input": "emitter.emit('test', 'data')",
+        "output": "undefined",
+        "explanation": "Should trigger event with data"
+      },
+      {
+        "input": "emitter.off('test', callback)",
+        "output": "undefined",
+        "explanation": "Should remove event listener"
       }
     ],
     "testCases": [
@@ -3723,9 +4579,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "DOM tree with nested elements",
-        "output": "Successfully processes all matching nodes",
-        "explanation": "Traversal handles complex structures"
+        "input": "createElement('div')",
+        "output": "HTMLDivElement",
+        "explanation": "Should create DOM element"
+      },
+      {
+        "input": "querySelector('.test')",
+        "output": "Element or null",
+        "explanation": "Should find DOM element"
+      },
+      {
+        "input": "addEventListener('click', handler)",
+        "output": "undefined",
+        "explanation": "Should add event listener"
       }
     ],
     "testCases": [
@@ -3765,9 +4631,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -3807,9 +4683,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Sample input",
-        "output": "Expected output",
-        "explanation": "Algorithm produces correct result"
+        "input": "'I'",
+        "output": "1",
+        "explanation": "Should convert I to 1"
+      },
+      {
+        "input": "'IV'",
+        "output": "4",
+        "explanation": "Should convert IV to 4"
+      },
+      {
+        "input": "'IX'",
+        "output": "9",
+        "explanation": "Should convert IX to 9"
       }
     ],
     "testCases": [
@@ -3853,9 +4739,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -3895,9 +4791,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -3937,9 +4843,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Subscribe to event, then emit",
-        "output": "All subscribers receive notification",
-        "explanation": "Event system coordinates message passing"
+        "input": "emitter.on('test', callback)",
+        "output": "undefined",
+        "explanation": "Should register event listener"
+      },
+      {
+        "input": "emitter.emit('test', 'data')",
+        "output": "undefined",
+        "explanation": "Should trigger event with data"
+      },
+      {
+        "input": "emitter.off('test', callback)",
+        "output": "undefined",
+        "explanation": "Should remove event listener"
       }
     ],
     "testCases": [
@@ -3978,9 +4894,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -4019,9 +4945,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "User interaction",
-        "output": "Component updates reactively",
-        "explanation": "State changes trigger appropriate re-renders"
+        "input": "component props",
+        "output": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "output": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "output": "event response",
+        "explanation": "Should handle user interactions"
       }
     ],
     "testCases": [
@@ -4063,9 +4999,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -4105,9 +5051,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Subscribe to event, then emit",
-        "output": "All subscribers receive notification",
-        "explanation": "Event system coordinates message passing"
+        "input": "emitter.on('test', callback)",
+        "output": "undefined",
+        "explanation": "Should register event listener"
+      },
+      {
+        "input": "emitter.emit('test', 'data')",
+        "output": "undefined",
+        "explanation": "Should trigger event with data"
+      },
+      {
+        "input": "emitter.off('test', callback)",
+        "output": "undefined",
+        "explanation": "Should remove event listener"
       }
     ],
     "testCases": [
@@ -4146,9 +5102,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "output": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
+      },
+      {
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "output": "[2, 3]",
+        "explanation": "Should filter array elements"
+      },
+      {
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "output": "6",
+        "explanation": "Should reduce array to single value"
       }
     ],
     "testCases": [
@@ -4187,9 +5153,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -4229,9 +5205,19 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "Sample input",
-        "output": "Expected output",
-        "explanation": "Algorithm produces correct result"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
@@ -4270,9 +5256,19 @@ const comprehensiveProblems = [
     "companies": [],
     "examples": [
       {
-        "input": "Standard input",
-        "output": "Expected output",
-        "explanation": "Demonstrates the core functionality"
+        "input": "basic input",
+        "output": "expected result",
+        "explanation": "Should handle basic scenario"
+      },
+      {
+        "input": "edge case input",
+        "output": "edge case result",
+        "explanation": "Should handle edge cases"
+      },
+      {
+        "input": "complex input",
+        "output": "complex result",
+        "explanation": "Should handle complex scenarios"
       }
     ],
     "testCases": [
