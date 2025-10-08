@@ -41,10 +41,10 @@ export default function Footer() {
                     <Link
                       href={link.href}
                       className="text-sm text-white/60 hover:text-white transition"
-                      {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      {...(('external' in link && link.external) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     >
                       {link.label}
-                      {link.external && (
+                      {'external' in link && link.external && (
                         <span className="ml-1 text-xs">↗</span>
                       )}
                     </Link>
