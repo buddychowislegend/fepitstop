@@ -269,7 +269,7 @@ export default function SignUpPage() {
                   {otp.map((digit, index) => (
                     <input
                       key={index}
-                      ref={(el) => (otpInputs.current[index] = el)}
+                      ref={(el) => { otpInputs.current[index] = el; }}
                       type="text"
                       inputMode="numeric"
                       maxLength={1}
