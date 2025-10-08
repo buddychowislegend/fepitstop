@@ -280,6 +280,118 @@ class MongoDatabase {
     return user?.completedProblems || [];
   }
 
+  // Quiz Completions
+  async addQuizCompletion(quizCompletion) {
+    await this.ensureConnection();
+    const completion = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      ...quizCompletion,
+      completedAt: new Date().toISOString()
+    };
+    await this.db.collection('quizCompletions').insertOne(completion);
+    
+    // Update user's quiz stats
+    await this.db.collection('users').updateOne(
+      { id: quizCompletion.userId },
+      { 
+        $inc: { totalQuizzesTaken: 1 },
+        $push: { 
+          quizHistory: {
+            score: quizCompletion.score,
+            totalQuestions: quizCompletion.totalQuestions,
+            rating: quizCompletion.rating,
+            completedAt: completion.completedAt
+          }
+        }
+      }
+    );
+    
+    return completion;
+  }
+
+  async getUserQuizCompletions(userId) {
+    await this.ensureConnection();
+    return await this.db.collection('quizCompletions').find({ userId }).sort({ completedAt: -1 }).toArray();
+  }
+
+  async getUserQuizStats(userId) {
+    await this.ensureConnection();
+    const completions = await this.db.collection('quizCompletions').find({ userId }).toArray();
+    
+    if (completions.length === 0) {
+      return {
+        totalQuizzes: 0,
+        averageScore: 0,
+        averageRating: 0,
+        totalQuestions: 0
+      };
+    }
+    
+    const totalScore = completions.reduce((sum, c) => sum + c.score, 0);
+    const totalQuestions = completions.reduce((sum, c) => sum + c.totalQuestions, 0);
+    const totalRating = completions.reduce((sum, c) => sum + (c.rating || 0), 0);
+    
+    return {
+      totalQuizzes: completions.length,
+      averageScore: Math.round((totalScore / totalQuestions) * 100),
+      averageRating: totalRating / completions.length,
+      totalQuestions
+    };
+  }
+
+  // Ranking System
+  async calculateUserRank(userId) {
+    await this.ensureConnection();
+    const user = await this.db.collection('users').findOne({ id: userId });
+    
+    if (!user) return null;
+    
+    // Get user's stats
+    const problemsSolved = user.totalSolved || 0;
+    const quizStats = await this.getUserQuizStats(userId);
+    
+    // Calculate score: problems (70%) + quiz performance (30%)
+    const problemScore = problemsSolved * 10; // 10 points per problem
+    const quizScore = quizStats.totalQuizzes * 5 + (quizStats.averageScore / 10); // 5 points per quiz + bonus for accuracy
+    const totalScore = problemScore + quizScore;
+    
+    // Update user's rank score
+    await this.db.collection('users').updateOne(
+      { id: userId },
+      { $set: { rankScore: totalScore } }
+    );
+    
+    // Get user's rank position
+    const usersWithHigherScore = await this.db.collection('users').countDocuments({
+      rankScore: { $gt: totalScore }
+    });
+    
+    const rank = usersWithHigherScore + 1;
+    
+    // Update user's rank
+    await this.db.collection('users').updateOne(
+      { id: userId },
+      { $set: { rank } }
+    );
+    
+    return {
+      rank,
+      totalScore,
+      problemsSolved,
+      quizzesTaken: quizStats.totalQuizzes,
+      quizAverageScore: quizStats.averageScore
+    };
+  }
+
+  async getLeaderboard(limit = 10) {
+    await this.ensureConnection();
+    return await this.db.collection('users')
+      .find({ rankScore: { $exists: true } })
+      .sort({ rankScore: -1 })
+      .limit(limit)
+      .toArray();
+  }
+
   // Helper to get database stats (async for MongoDB)
   async read() {
     try {

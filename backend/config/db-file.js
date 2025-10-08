@@ -353,6 +353,121 @@ class Database {
     return user.completedProblems;
   }
 
+  // Quiz Completions
+  async addQuizCompletion(quizCompletion) {
+    const db = this.read();
+    if (!db.quizCompletions) {
+      db.quizCompletions = [];
+    }
+    
+    const completion = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      ...quizCompletion,
+      completedAt: new Date().toISOString()
+    };
+    
+    db.quizCompletions.push(completion);
+    
+    // Update user's quiz stats
+    const user = db.users.find(u => u.id === quizCompletion.userId);
+    if (user) {
+      if (!user.totalQuizzesTaken) user.totalQuizzesTaken = 0;
+      if (!user.quizHistory) user.quizHistory = [];
+      
+      user.totalQuizzesTaken += 1;
+      user.quizHistory.push({
+        score: quizCompletion.score,
+        totalQuestions: quizCompletion.totalQuestions,
+        rating: quizCompletion.rating,
+        completedAt: completion.completedAt
+      });
+    }
+    
+    this.write(db);
+    return completion;
+  }
+
+  async getUserQuizCompletions(userId) {
+    const db = this.read();
+    if (!db.quizCompletions) {
+      return [];
+    }
+    return db.quizCompletions.filter(c => c.userId === userId).sort((a, b) => 
+      new Date(b.completedAt) - new Date(a.completedAt)
+    );
+  }
+
+  async getUserQuizStats(userId) {
+    const db = this.read();
+    const completions = (db.quizCompletions || []).filter(c => c.userId === userId);
+    
+    if (completions.length === 0) {
+      return {
+        totalQuizzes: 0,
+        averageScore: 0,
+        averageRating: 0,
+        totalQuestions: 0
+      };
+    }
+    
+    const totalScore = completions.reduce((sum, c) => sum + c.score, 0);
+    const totalQuestions = completions.reduce((sum, c) => sum + c.totalQuestions, 0);
+    const totalRating = completions.reduce((sum, c) => sum + (c.rating || 0), 0);
+    
+    return {
+      totalQuizzes: completions.length,
+      averageScore: Math.round((totalScore / totalQuestions) * 100),
+      averageRating: totalRating / completions.length,
+      totalQuestions
+    };
+  }
+
+  // Ranking System
+  async calculateUserRank(userId) {
+    const db = this.read();
+    const user = db.users.find(u => u.id === userId);
+    
+    if (!user) return null;
+    
+    // Get user's stats
+    const problemsSolved = user.totalSolved || 0;
+    const quizStats = await this.getUserQuizStats(userId);
+    
+    // Calculate score: problems (70%) + quiz performance (30%)
+    const problemScore = problemsSolved * 10; // 10 points per problem
+    const quizScore = quizStats.totalQuizzes * 5 + (quizStats.averageScore / 10); // 5 points per quiz + bonus for accuracy
+    const totalScore = problemScore + quizScore;
+    
+    // Update user's rank score
+    user.rankScore = totalScore;
+    
+    // Calculate rank position
+    const sortedUsers = db.users
+      .filter(u => u.rankScore !== undefined)
+      .sort((a, b) => (b.rankScore || 0) - (a.rankScore || 0));
+    
+    const rank = sortedUsers.findIndex(u => u.id === userId) + 1;
+    user.rank = rank;
+    
+    this.write(db);
+    
+    return {
+      rank,
+      totalScore,
+      problemsSolved,
+      quizzesTaken: quizStats.totalQuizzes,
+      quizAverageScore: quizStats.averageScore
+    };
+  }
+
+  async getLeaderboard(limit = 10) {
+    const db = this.read();
+    return db.users
+      .filter(u => u.rankScore !== undefined)
+      .sort((a, b) => (b.rankScore || 0) - (a.rankScore || 0))
+      .slice(0, limit);
+  }
+
   // OTP Management (for email verification)
   async storeOTP(email, otp, userData) {
     const db = this.read();

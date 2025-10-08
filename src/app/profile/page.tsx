@@ -21,6 +21,11 @@ export default function ProfilePage() {
   const [solvedProblems, setSolvedProblems] = useState<any[]>([]);
   const [totalProblems, setTotalProblems] = useState(100);
   
+  // Ranking and quiz stats
+  const [rankInfo, setRankInfo] = useState<any>(null);
+  const [quizStats, setQuizStats] = useState<any>(null);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  
   // Password change
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -99,7 +104,37 @@ export default function ProfilePage() {
       .then((res) => res.json())
       .then((data) => setActivities(data.activities || []))
       .catch(() => {});
+
+    // Fetch quiz stats
+    fetch(api(`/quiz/stats`), {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setQuizStats(data.stats))
+      .catch(() => {});
+
+    // Fetch leaderboard
+    fetch(api(`/quiz/leaderboard?limit=10`))
+      .then((res) => res.json())
+      .then((data) => setLeaderboard(data.leaderboard || []))
+      .catch(() => {});
   }, [token, user, authLoading, router]);
+
+  // Calculate rank when component mounts or when submissions/quiz stats change
+  useEffect(() => {
+    if (!token || !user) return;
+
+    fetch(api(`/auth/rank`), {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}` 
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setRankInfo(data.rankInfo))
+      .catch(() => {});
+  }, [token, user, submissions.length, quizStats]);
 
   const handleSave = async () => {
     if (!token) return;
@@ -312,6 +347,105 @@ export default function ProfilePage() {
             <p className="mt-1 text-sm text-purple-200/80">Attempts made</p>
           </div>
         </div>
+
+        {/* Ranking Section */}
+        {rankInfo && (
+          <div className="mt-8 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 p-6 ring-1 ring-amber-400/20">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">🏆 Your Rank</h2>
+              <span className="text-3xl font-extrabold text-amber-300">#{rankInfo.rank}</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-amber-300">{rankInfo.totalScore}</div>
+                <div className="text-xs text-white/60 mt-1">Total Points</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-emerald-300">{rankInfo.problemsSolved}</div>
+                <div className="text-xs text-white/60 mt-1">Problems</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-300">{rankInfo.quizzesTaken}</div>
+                <div className="text-xs text-white/60 mt-1">Quizzes</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-300">{rankInfo.quizAverageScore}%</div>
+                <div className="text-xs text-white/60 mt-1">Quiz Avg</div>
+              </div>
+            </div>
+            <div className="mt-4 text-xs text-white/70">
+              <p>💡 Earn points by solving problems (10 pts each) and completing quizzes (5 pts + accuracy bonus)</p>
+            </div>
+          </div>
+        )}
+
+        {/* Quiz Stats */}
+        {quizStats && quizStats.totalQuizzes > 0 && (
+          <div className="mt-8 rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">
+            <h2 className="text-xl font-bold mb-4">📝 Quiz Performance</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-400">{quizStats.totalQuizzes}</div>
+                <div className="text-sm text-white/60 mt-1">Quizzes Taken</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-emerald-400">{quizStats.averageScore}%</div>
+                <div className="text-sm text-white/60 mt-1">Average Score</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-amber-400">{quizStats.averageRating.toFixed(1)}⭐</div>
+                <div className="text-sm text-white/60 mt-1">Avg Rating</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-400">{quizStats.totalQuestions}</div>
+                <div className="text-sm text-white/60 mt-1">Questions Answered</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Leaderboard */}
+        {leaderboard.length > 0 && (
+          <div className="mt-8 rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">
+            <h2 className="text-xl font-bold mb-4">🏆 Top 10 Leaderboard</h2>
+            <div className="space-y-2">
+              {leaderboard.map((leader: any, index: number) => (
+                <div
+                  key={leader.id}
+                  className={`flex items-center justify-between p-3 rounded-lg transition ${
+                    leader.id === user?.id
+                      ? 'bg-amber-500/20 ring-1 ring-amber-400/30'
+                      : 'bg-white/5 hover:bg-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`text-2xl font-bold ${
+                      index === 0 ? 'text-amber-300' :
+                      index === 1 ? 'text-gray-300' :
+                      index === 2 ? 'text-orange-400' :
+                      'text-white/60'
+                    }`}>
+                      #{index + 1}
+                    </span>
+                    <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
+                      {leader.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-semibold">{leader.name}</div>
+                      <div className="text-xs text-white/60">
+                        {leader.totalSolved || 0} problems • {leader.totalQuizzesTaken || 0} quizzes
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl font-bold text-amber-300">{leader.rankScore || 0}</div>
+                    <div className="text-xs text-white/60">points</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Difficulty Breakdown */}
         <div className="mt-8 rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">

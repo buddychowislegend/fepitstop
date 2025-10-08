@@ -331,4 +331,20 @@ router.get('/activity', verifyToken, async (req, res) => {
   }
 });
 
+// Calculate and get user rank
+router.post('/rank', verifyToken, async (req, res) => {
+  try {
+    const rankInfo = await db.calculateUserRank(req.userId);
+    
+    if (!rankInfo) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json({ rankInfo });
+  } catch (error) {
+    console.error('Rank calculation error:', error);
+    res.status(500).json({ error: 'Failed to calculate rank' });
+  }
+});
+
 module.exports = router;

@@ -11,7 +11,7 @@
 
 ### Step 2: Generate App Password
 
-1. Go to: https://myaccount.google.com/apppasswords
+1. Go to:   
    - Or: Google Account → Security → 2-Step Verification → App passwords
 2. **Select app:** Choose "Mail"
 3. **Select device:** Choose "Other (Custom name)"
