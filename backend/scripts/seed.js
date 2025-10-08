@@ -1,6 +1,6 @@
 require('dotenv').config();
 const db = require('../config/db');
-const { problems } = require('../data/problems');
+const problems = require('../data/comprehensive-problems');
 const { prepPlans } = require('../data/prepPlans');
 const { quizQuestions } = require('../data/quizQuestions');
 const { communitySolutions } = require('../data/communitySolutions');
