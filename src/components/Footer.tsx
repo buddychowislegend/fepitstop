@@ -29,7 +29,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="border-t border-white/10 bg-[#1f1144]/30 mt-20">
+    <footer className="border-t border-white/10 bg-gradient-to-br from-[#1f1144]/80 via-[#3a1670]/60 to-[#6a2fb5]/40 backdrop-blur-sm mt-20">
       <div className="max-w-[1600px] mx-auto px-6 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           {Object.entries(footerLinks).map(([category, links]) => (

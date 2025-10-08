@@ -1,13 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <Navbar />
-
-      <main className="max-w-6xl mx-auto px-6 pb-24 pt-8">
+      <div className="max-w-6xl mx-auto px-6 pb-24 pt-8">
         <section className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="py-8">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 ring-1 ring-white/15">Interactive</div>
@@ -210,24 +207,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="mt-24 sm:mt-28 border-t border-white/10">
-          <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
-                <Image src="/file.svg" alt="FrontCode logo" width={20} height={20} />
-              </div>
-              <span className="font-semibold">Frontend Pitstop</span>
-            </div>
-            <nav className="flex items-center gap-6 text-white/80">
-              <a className="hover:text-white" href="#">Privacy</a>
-              <a className="hover:text-white" href="#">Terms</a>
-              <a className="hover:text-white" href="#">Contact</a>
-            </nav>
-            <p className="text-white/60 text-sm">© {new Date().getFullYear()} Frontend Pitstop. All rights reserved.</p>
-          </div>
-        </footer>
-      </main>
+      </div>
     </div>
   );
 }
