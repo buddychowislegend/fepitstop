@@ -82,7 +82,26 @@ export default function ProblemsPage() {
     fetch(api(`/problems`))
       .then((res) => res.json())
       .then((data) => {
-        setProblems(data.problems || []);
+        // Filter out UI design questions and problems without proper test cases
+        const validProblems = (data.problems || []).filter((problem: any) => {
+          // Exclude UI design questions
+          const isUIDesign = problem.tags?.some((tag: string) => 
+            tag.toLowerCase().includes('ui') || 
+            tag.toLowerCase().includes('design') ||
+            tag.toLowerCase().includes('css') ||
+            tag.toLowerCase().includes('html')
+          );
+          
+          // Exclude problems without proper test cases
+          const hasValidTestCases = problem.testCases && 
+            problem.testCases.length >= 3 &&
+            problem.testCases[0].input !== "standard input" &&
+            problem.testCases[0].input !== "basic input";
+          
+          return !isUIDesign && hasValidTestCases;
+        });
+        
+        setProblems(validProblems);
         setLoading(false);
       })
       .catch(() => setLoading(false));
