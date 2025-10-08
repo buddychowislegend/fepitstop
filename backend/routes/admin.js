@@ -5,8 +5,17 @@ const db = require('../config/db');
 // Simple admin authentication (you should enhance this with proper admin roles)
 const adminAuth = (req, res, next) => {
   const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_KEY) {
-    return res.status(403).json({ error: 'Unauthorized' });
+  const expectedKey = process.env.ADMIN_KEY || 'admin_key_frontendpitstop_secure_2025';
+  
+  if (adminKey !== expectedKey) {
+    console.log('Admin auth failed:', { 
+      provided: adminKey ? 'key provided' : 'no key', 
+      expected: expectedKey ? 'key configured' : 'no key configured' 
+    });
+    return res.status(403).json({ 
+      error: 'Unauthorized',
+      hint: 'Provide X-Admin-Key header'
+    });
   }
   next();
 };
