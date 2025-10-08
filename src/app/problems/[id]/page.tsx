@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 type Problem = {
   id: string;
@@ -219,6 +221,8 @@ function TestCases({ testCases, results }: {
 
 export default function ProblemDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
+  const { user, token } = useAuth();
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -237,10 +241,18 @@ export default function ProblemDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
+  const [allTestsPassed, setAllTestsPassed] = useState(false);
 
   // Run test cases
   const runTests = () => {
     if (!problem?.testCases) return;
+    
+    // Check if user is signed in
+    if (!user || !token) {
+      setSubmissionStatus('🔒 Please sign in to run tests');
+      setTimeout(() => setSubmissionStatus(null), 3000);
+      return;
+    }
     
     setIsRunning(true);
     setTestResults([]); // Clear previous results
@@ -379,7 +391,20 @@ export default function ProblemDetailPage() {
         // Show summary in console
         const passedCount = results.filter(r => r.passed).length;
         const totalCount = results.length;
+        const allPassed = passedCount === totalCount;
+        setAllTestsPassed(allPassed);
+        
         console.log(`Test Results: ${passedCount}/${totalCount} passed`);
+        
+        // Show status message
+        if (allPassed) {
+          setSubmissionStatus('✅ All tests passed! You can now submit your solution.');
+        } else {
+          setSubmissionStatus(`❌ ${totalCount - passedCount} test(s) failed. Fix your code and try again.`);
+        }
+        
+        // Clear status after 5 seconds
+        setTimeout(() => setSubmissionStatus(null), 5000);
         
         if (passedCount === totalCount) {
           console.log('🎉 All tests passed!');
@@ -404,7 +429,29 @@ export default function ProblemDetailPage() {
   // Submit solution
   const submitSolution = async () => {
     if (!problem || !js.trim()) {
-      setSubmissionStatus('Please write some code before submitting');
+      setSubmissionStatus('⚠️ Please write some code before submitting');
+      setTimeout(() => setSubmissionStatus(null), 3000);
+      return;
+    }
+
+    // Check if user is signed in
+    if (!user || !token) {
+      setSubmissionStatus('🔒 Please sign in to submit solutions');
+      setTimeout(() => setSubmissionStatus(null), 3000);
+      return;
+    }
+
+    // Check if tests have been run
+    if (testResults.length === 0) {
+      setSubmissionStatus('⚠️ Please run tests before submitting');
+      setTimeout(() => setSubmissionStatus(null), 3000);
+      return;
+    }
+
+    // Check if all tests passed
+    if (!allTestsPassed) {
+      setSubmissionStatus('❌ All test cases must pass before submission');
+      setTimeout(() => setSubmissionStatus(null), 3000);
       return;
     }
 
@@ -412,12 +459,6 @@ export default function ProblemDetailPage() {
     setSubmissionStatus(null);
 
     try {
-      const token = localStorage.getItem('fp_token');
-      if (!token) {
-        setSubmissionStatus('Please log in to submit solutions');
-        setIsSubmitting(false);
-        return;
-      }
 
       const response = await fetch(api('/submissions/submit'), {
         method: 'POST',
@@ -781,6 +822,21 @@ export default function ProblemDetailPage() {
                 )}
               </div>
 
+              {/* Status Banner */}
+              {submissionStatus && (
+                <div className={`p-3 rounded-lg text-sm font-medium ${
+                  submissionStatus.includes('✅') || submissionStatus.includes('All tests passed')
+                    ? 'bg-green-500/20 text-green-300 ring-1 ring-green-400/30'
+                    : submissionStatus.includes('❌') || submissionStatus.includes('failed')
+                    ? 'bg-red-500/20 text-red-300 ring-1 ring-red-400/30'
+                    : submissionStatus.includes('🔒')
+                    ? 'bg-blue-500/20 text-blue-300 ring-1 ring-blue-400/30'
+                    : 'bg-yellow-500/20 text-yellow-300 ring-1 ring-yellow-400/30'
+                }`}>
+                  {submissionStatus}
+                </div>
+              )}
+
               {/* Bottom Controls */}
               <div className="flex items-center justify-between bg-white/10 p-3 rounded-lg ring-1 ring-white/15">
                 <div className="flex items-center gap-2 text-sm text-white/60">
@@ -795,33 +851,54 @@ export default function ProblemDetailPage() {
                     <span>✓</span>
                     Mark complete
                   </button>
-                  <button 
-                    onClick={runTests}
-                    disabled={isRunning}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-white bg-[#2ad17e] hover:opacity-90 disabled:opacity-50 rounded font-medium"
-                  >
-                    {isRunning ? (
-                      <>
-                        <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span>Running tests...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>▶</span>
-                        <span>Run</span>
-                      </>
-                    )}
-                  </button>
+                  {!user || !token ? (
+                    <Link
+                      href="/signin"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-blue-500 hover:bg-blue-600 rounded font-medium"
+                    >
+                      <span>🔒</span>
+                      <span>Sign in to run tests</span>
+                    </Link>
+                  ) : (
+                    <button 
+                      onClick={runTests}
+                      disabled={isRunning}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-white bg-[#2ad17e] hover:opacity-90 disabled:opacity-50 rounded font-medium"
+                    >
+                      {isRunning ? (
+                        <>
+                          <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Running tests...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>▶</span>
+                          <span>Run</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                   <button 
                     onClick={submitSolution}
-                    disabled={isSubmitting || isCompleted}
+                    disabled={isSubmitting || isCompleted || !allTestsPassed || !user || !token}
                     className={`px-4 py-2 text-sm text-white rounded font-medium ${
                       isCompleted 
                         ? 'bg-green-500 cursor-not-allowed' 
                         : isSubmitting
                         ? 'bg-yellow-500 cursor-not-allowed'
+                        : !allTestsPassed || !user || !token
+                        ? 'bg-gray-500 cursor-not-allowed opacity-50'
                         : 'bg-yellow-500 hover:bg-yellow-600'
                     }`}
+                    title={
+                      !user || !token 
+                        ? 'Sign in to submit' 
+                        : testResults.length === 0
+                        ? 'Run tests first'
+                        : !allTestsPassed
+                        ? 'All tests must pass to submit'
+                        : 'Submit your solution'
+                    }
                   >
                     {isCompleted ? (
                       <>
