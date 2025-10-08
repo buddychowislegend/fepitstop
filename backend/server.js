@@ -58,34 +58,39 @@ app.use('/api/system-design', systemDesignRoutes);
 app.use('/api/submissions', submissionsRoutes);
 app.use('/api/admin', adminRoutes);
 
-app.get('/api/health', (req, res) => {
-  const db = require('./config/db');
-  const dbData = db.read();
-  
-  // Get recent users (last 7 days)
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const recentUsers = (dbData.users || [])
-    .filter(u => new Date(u.createdAt) > sevenDaysAgo)
-    .map(u => ({
-      name: u.name,
-      email: u.email,
-      createdAt: u.createdAt,
-      solvedCount: u.completedProblems?.length || 0
-    }));
-  
-  res.json({ 
-    status: 'ok', 
-    message: 'Backend is running',
-    database: {
-      type: db.isServerless ? 'persistent-file' : 'file-system',
-      path: db.filePath,
-      problems: dbData.problems?.length || 0,
-      users: dbData.users?.length || 0,
-      submissions: dbData.submissions?.length || 0,
-      recentUsers: recentUsers.length,
-      recentUsersList: recentUsers
-    }
-  });
+app.get('/api/health', async (req, res) => {
+  try {
+    const db = require('./config/db');
+    const dbData = await db.read();
+    
+    // Get recent users (last 7 days)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const recentUsers = (dbData.users || [])
+      .filter(u => new Date(u.createdAt) > sevenDaysAgo)
+      .map(u => ({
+        name: u.name,
+        email: u.email,
+        createdAt: u.createdAt,
+        solvedCount: u.completedProblems?.length || 0
+      }));
+    
+    res.json({ 
+      status: 'ok', 
+      message: 'Backend is running',
+      database: {
+        type: db.isServerless ? 'MongoDB Atlas (permanent)' : 'file-system',
+        path: db.filePath,
+        problems: dbData.problems?.length || 0,
+        users: dbData.users?.length || 0,
+        submissions: dbData.submissions?.length || 0,
+        recentUsers: recentUsers.length,
+        recentUsersList: recentUsers
+      }
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
 });
 
 app.listen(PORT, () => {

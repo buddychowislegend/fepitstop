@@ -7,17 +7,20 @@
 const FileDatabase = require('./db-file');
 const MongoDatabase = require('./mongodb');
 
-// Determine which database to use based on environment
-const USE_MONGODB = !!process.env.MONGODB_URI && 
-                    process.env.MONGODB_URI !== 'mongodb://localhost:27017/frontendpitstop' &&
-                    !process.env.MONGODB_URI.includes('localhost');
+// Determine which database to use
+const USE_MONGODB = !!process.env.MONGODB_URI && process.env.MONGODB_URI !== 'mongodb://localhost:27017/frontendpitstop';
 
 let dbInstance;
 
-// Initialize database instance
 if (USE_MONGODB) {
   console.log('🍃 Using MongoDB Atlas for permanent storage');
   dbInstance = new MongoDatabase();
+  
+  // Initialize MongoDB connection
+  dbInstance.connect().catch(err => {
+    console.error('Failed to connect to MongoDB, falling back to file storage:', err.message);
+    dbInstance = new FileDatabase();
+  });
 } else {
   console.log('📁 Using file-based storage (local development)');
   dbInstance = new FileDatabase();

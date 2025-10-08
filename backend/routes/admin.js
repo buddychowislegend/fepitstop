@@ -54,7 +54,7 @@ router.get('/users', adminAuth, async (req, res) => {
 // Get database stats (admin only)
 router.get('/stats', adminAuth, async (req, res) => {
   try {
-    const dbData = db.read();
+    const dbData = await db.read();
     
     const stats = {
       users: {
@@ -72,9 +72,9 @@ router.get('/stats', adminAuth, async (req, res) => {
       quizQuestions: dbData.quizQuestions?.length || 0,
       prepPlans: dbData.prepPlans?.length || 0,
       storage: {
-        isServerless: db.isServerless,
+        type: process.env.MONGODB_URI ? 'MongoDB Atlas (permanent)' : 'File-based',
         path: db.filePath,
-        warning: db.isServerless ? 'Data resets on each deployment (ephemeral storage)' : 'Persistent storage'
+        status: process.env.MONGODB_URI ? '✅ Permanent storage' : '⚠️ Development only'
       }
     };
     
