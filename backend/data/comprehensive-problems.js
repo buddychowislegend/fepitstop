@@ -132,18 +132,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -175,19 +175,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "expected": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "expected": "[2, 3]",
+        "explanation": "Should filter array elements"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "expected": "6",
+        "explanation": "Should reduce array to single value"
       }
     ]
   },
@@ -354,19 +354,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "expected": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "expected": "[2, 3]",
+        "explanation": "Should filter array elements"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "expected": "6",
+        "explanation": "Should reduce array to single value"
       }
     ]
   },
@@ -398,19 +398,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "new Promise((resolve) => resolve(42))",
+        "expected": "Promise",
+        "explanation": "Should create a promise"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "Promise.resolve(42)",
+        "expected": "Promise",
+        "explanation": "Should create resolved promise"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "Promise.reject('error')",
+        "expected": "Promise",
+        "explanation": "Should create rejected promise"
       }
     ]
   },
@@ -441,19 +441,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "expected": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "expected": "[2, 3]",
+        "explanation": "Should filter array elements"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "expected": "6",
+        "explanation": "Should reduce array to single value"
       }
     ]
   },
@@ -484,19 +484,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create div element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "createElement('span')",
+        "expected": "HTMLSpanElement",
+        "explanation": "Should create span element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "createElement('input')",
+        "expected": "HTMLInputElement",
+        "explanation": "Should create input element"
       }
     ]
   },
@@ -566,19 +566,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "{ a: 1, b: { c: 2 } }",
+        "expected": "{ a: 1, b: { c: 2 } }",
+        "explanation": "Should clone nested objects"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, [2, [3]]]",
+        "expected": "[1, [2, [3]]]",
+        "explanation": "Should clone nested arrays"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "null",
+        "expected": "null",
+        "explanation": "Should handle null values"
       }
     ]
   },
@@ -608,19 +608,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "emitter.on('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should register event listener"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "emitter.emit('test', 'data')",
+        "expected": "undefined",
+        "explanation": "Should trigger event with data"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "emitter.off('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should remove event listener"
       }
     ]
   },
@@ -650,19 +650,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "emitter.on('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should register event listener"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "emitter.emit('test', 'data')",
+        "expected": "undefined",
+        "explanation": "Should trigger event with data"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "emitter.off('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should remove event listener"
       }
     ]
   },
@@ -693,19 +693,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -774,18 +774,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -857,18 +857,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -900,18 +900,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -943,19 +943,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -986,19 +986,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "expected": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "expected": "[2, 3]",
+        "explanation": "Should filter array elements"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "expected": "6",
+        "explanation": "Should reduce array to single value"
       }
     ]
   },
@@ -1029,18 +1029,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1071,19 +1071,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "fn(1, 2, 3)",
+        "expected": "computed result",
+        "explanation": "Should call function with arguments"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "fn()",
+        "expected": "default result",
+        "explanation": "Should handle function with no arguments"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "fn.call(this, arg)",
+        "expected": "bound result",
+        "explanation": "Should handle function binding"
       }
     ]
   },
@@ -1114,18 +1114,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1157,18 +1157,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1200,19 +1200,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -1331,19 +1331,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "['a', 'b', 'a', 'c'], 2",
+        "expected": "['a', 'b']",
+        "explanation": "Should return top 2 most frequent words"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "['a', 'a', 'a'], 1",
+        "expected": "['a']",
+        "explanation": "Should return single most frequent word"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "['a', 'b', 'c'], 3",
+        "expected": "['a', 'b', 'c']",
+        "explanation": "Should return all words when k equals length"
       }
     ]
   },
@@ -1414,19 +1414,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -1457,19 +1457,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -1500,19 +1500,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -1543,18 +1543,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1628,18 +1628,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1669,18 +1669,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1710,18 +1710,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1752,18 +1752,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1794,18 +1794,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -1835,19 +1835,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "compose(f, g)(x)",
+        "expected": "f(g(x))",
+        "explanation": "Should compose two functions"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "compose(f, g, h)(x)",
+        "expected": "f(g(h(x)))",
+        "explanation": "Should compose three functions"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "compose(x => x * 2, x => x + 1)(5)",
+        "expected": "12",
+        "explanation": "Should compose math functions"
       }
     ]
   },
@@ -1875,19 +1875,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "curry((a, b, c) => a + b + c)(1)(2)(3)",
+        "expected": "6",
+        "explanation": "Should curry function with 3 args"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "curry((a, b) => a * b)(2)(3)",
+        "expected": "6",
+        "explanation": "Should curry function with 2 args"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "curry((a) => a * 2)(5)",
+        "expected": "10",
+        "explanation": "Should curry single argument function"
       }
     ]
   },
@@ -1924,19 +1924,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "expected": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "expected": "[2, 3]",
+        "explanation": "Should filter array elements"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "expected": "6",
+        "explanation": "Should reduce array to single value"
       }
     ]
   },
@@ -2050,19 +2050,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "expected": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "expected": "[2, 3]",
+        "explanation": "Should filter array elements"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "expected": "6",
+        "explanation": "Should reduce array to single value"
       }
     ]
   },
@@ -2090,19 +2090,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "emitter.on('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should register event listener"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "emitter.emit('test', 'data')",
+        "expected": "undefined",
+        "explanation": "Should trigger event with data"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "emitter.off('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should remove event listener"
       }
     ]
   },
@@ -2132,19 +2132,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "emitter.on('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should register event listener"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "emitter.emit('test', 'data')",
+        "expected": "undefined",
+        "explanation": "Should trigger event with data"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "emitter.off('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should remove event listener"
       }
     ]
   },
@@ -2174,19 +2174,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "emitter.on('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should register event listener"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "emitter.emit('test', 'data')",
+        "expected": "undefined",
+        "explanation": "Should trigger event with data"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "emitter.off('test', callback)",
+        "expected": "undefined",
+        "explanation": "Should remove event listener"
       }
     ]
   },
@@ -2257,18 +2257,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -2575,19 +2575,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -2618,18 +2618,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -2701,18 +2701,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -2744,19 +2744,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -2831,19 +2831,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "new Promise((resolve) => resolve(42))",
+        "expected": "Promise",
+        "explanation": "Should create a promise"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "Promise.resolve(42)",
+        "expected": "Promise",
+        "explanation": "Should create resolved promise"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "Promise.reject('error')",
+        "expected": "Promise",
+        "explanation": "Should create rejected promise"
       }
     ]
   },
@@ -2872,19 +2872,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -2915,19 +2915,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "rateLimiter(3, 1000)",
+        "expected": "function",
+        "explanation": "Should create rate limiter"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "limiter(() => {})",
+        "expected": "undefined",
+        "explanation": "Should allow first request"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "limiter(() => {})",
+        "expected": "undefined",
+        "explanation": "Should allow within limit"
       }
     ]
   },
@@ -2958,18 +2958,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3043,19 +3043,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -3083,18 +3083,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3126,19 +3126,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "'hello', 3",
+        "expected": "'hellohellohello'",
+        "explanation": "Should repeat string 3 times"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "'a', 5",
+        "expected": "'aaaaa'",
+        "explanation": "Should repeat single character"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "'', 3",
+        "expected": "''",
+        "explanation": "Should handle empty string"
       }
     ]
   },
@@ -3225,18 +3225,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3316,18 +3316,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3358,19 +3358,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "[1, 2, 3].map(x => x * 2)",
+        "expected": "[2, 4, 6]",
+        "explanation": "Should transform array elements"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, 2, 3].filter(x => x > 1)",
+        "expected": "[2, 3]",
+        "explanation": "Should filter array elements"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "[1, 2, 3].reduce((a, b) => a + b)",
+        "expected": "6",
+        "explanation": "Should reduce array to single value"
       }
     ]
   },
@@ -3400,18 +3400,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3442,18 +3442,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3484,19 +3484,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
@@ -3526,18 +3526,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3568,19 +3568,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "'I'",
+        "expected": "1",
+        "explanation": "Should convert I to 1"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "'IV'",
+        "expected": "4",
+        "explanation": "Should convert IV to 4"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "'IX'",
+        "expected": "9",
+        "explanation": "Should convert IX to 9"
       }
     ]
   },
@@ -3610,18 +3610,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3652,18 +3652,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3694,18 +3694,18 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "basic input",
+        "expected": "expected result",
+        "explanation": "Should handle basic scenario"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "edge case input",
+        "expected": "edge case result",
+        "explanation": "Should handle edge cases"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
+        "input": "complex input",
+        "expected": "complex result",
         "explanation": "Should handle complex scenarios"
       }
     ]
@@ -3736,19 +3736,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "'hello world'",
+        "expected": "processed string",
+        "explanation": "Should process string input"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "''",
+        "expected": "empty result",
+        "explanation": "Should handle empty string"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "'test123'",
+        "expected": "filtered result",
+        "explanation": "Should handle string with numbers"
       }
     ]
   },
@@ -3778,19 +3778,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "standard input",
-        "expected": "expected output",
-        "explanation": "Should handle typical scenario"
+        "input": "createElement('div')",
+        "expected": "HTMLDivElement",
+        "explanation": "Should create DOM element"
       },
       {
-        "input": "edge case",
-        "expected": "handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "querySelector('.test')",
+        "expected": "Element or null",
+        "explanation": "Should find DOM element"
       },
       {
-        "input": "complex case",
-        "expected": "correct result",
-        "explanation": "Should handle complex scenarios"
+        "input": "addEventListener('click', handler)",
+        "expected": "undefined",
+        "explanation": "Should add event listener"
       }
     ]
   },
