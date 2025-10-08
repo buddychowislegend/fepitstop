@@ -115,10 +115,10 @@ const comprehensiveProblems = [
       "array",
       "coding"
     ],
-    "prompt": "Implement a rate-limiting wrapper that ensures a function executes at most once within a specified time window. Unlike debouncing, throttling guarantees regular execution intervals, making it suitable for scroll and resize handlers.",
+    "prompt": "Implement a rate-limiting wrapper that ensures a function executes at most once within a specified time window. Unlike debouncing, throttling guarantees regular execution intervals, making it suitable for scroll and resize handlers. Your throttle function should accept a function, delay in milliseconds, and optional configuration for leading and trailing edge execution.",
     "starterHtml": "",
     "starterCss": "",
-    "starterJs": "function throttle(func, delay, options = {}) {\n  // your code\n}\n\nconst throttled = throttle(() => console.log('scroll'), 1000, {\n  leading: true,\n  trailing: false\n});",
+    "starterJs": "function throttle(func, delay, options = { leading: true, trailing: false }) {\n  let timeoutId = null;\n  let lastExecuted = 0;\n  \n  return function(...args) {\n    // your code here\n  };\n}\n\n// Test your implementation\nlet callCount = 0;\nconst increment = () => { callCount++; };\nconst throttled = throttle(increment, 100);\n\n// Call multiple times rapidly\nthrottled(); // Should execute immediately (leading)\nthrottled(); // Should be throttled\nthrottled(); // Should be throttled\n\nsetTimeout(() => {\n  console.log('Call count:', callCount); // Should be 1\n}, 150);",
     "timeLimit": "35mins",
     "completionCount": "—",
     "companies": [
@@ -128,36 +128,41 @@ const comprehensiveProblems = [
     ],
     "examples": [
       {
-        "input": "throttle(fn, 100)",
-        "output": "function",
-        "explanation": "Should return throttled function"
+        "input": "throttle(() => count++, 100); call 3 times rapidly",
+        "output": "1",
+        "explanation": "Only first call executes within 100ms window (leading edge)"
       },
       {
-        "input": "rapid calls",
-        "output": "limited execution",
-        "explanation": "Should limit execution rate"
+        "input": "throttle(() => count++, 100, {leading: false, trailing: true}); call 3 times",
+        "output": "1",
+        "explanation": "Only last call executes after delay (trailing edge)"
       },
       {
-        "input": "within limit",
-        "output": "executed immediately",
-        "explanation": "Should execute if within limit"
+        "input": "throttle(() => count++, 100); wait 150ms between calls",
+        "output": "2",
+        "explanation": "Both calls execute as they're outside throttle window"
       }
     ],
     "testCases": [
       {
-        "input": "throttle(fn, 100)",
+        "input": "let count = 0; const fn = () => count++; const throttled = throttle(fn, 100); throttled(); throttled(); throttled(); return count;",
+        "expected": "1",
+        "explanation": "Leading edge: only first call executes immediately"
+      },
+      {
+        "input": "let count = 0; const fn = () => count++; const throttled = throttle(fn, 100, {leading: false, trailing: true}); throttled(); throttled(); setTimeout(() => count, 150);",
+        "expected": "1",
+        "explanation": "Trailing edge: only last call executes after delay"
+      },
+      {
+        "input": "let count = 0; const fn = () => count++; const throttled = throttle(fn, 50); throttled(); setTimeout(() => { throttled(); return count; }, 100);",
+        "expected": "2",
+        "explanation": "Calls outside window both execute"
+      },
+      {
+        "input": "const fn = () => 'test'; const throttled = throttle(fn, 100); return typeof throttled;",
         "expected": "function",
-        "explanation": "Should return throttled function"
-      },
-      {
-        "input": "rapid calls",
-        "expected": "limited execution",
-        "explanation": "Should limit execution rate"
-      },
-      {
-        "input": "within limit",
-        "expected": "executed immediately",
-        "explanation": "Should execute if within limit"
+        "explanation": "Should return a function"
       }
     ]
   },
