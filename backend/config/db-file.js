@@ -522,6 +522,52 @@ class Database {
     db.otps = db.otps.filter(o => o.email !== email);
     this.write(db);
   }
+
+  // Password Reset Token Management
+  async storePasswordResetToken(email, token) {
+    const db = this.read();
+    if (!db.passwordResets) {
+      db.passwordResets = [];
+    }
+    
+    // Remove any existing token for this email
+    db.passwordResets = db.passwordResets.filter(r => r.email !== email);
+    
+    // Add new token with expiration
+    db.passwordResets.push({
+      email,
+      token,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 minutes
+    });
+    
+    this.write(db);
+    return { email, token };
+  }
+
+  async verifyPasswordResetToken(email, token) {
+    const db = this.read();
+    if (!db.passwordResets) {
+      return null;
+    }
+    
+    const resetData = db.passwordResets.find(r => 
+      r.email === email && 
+      r.token === token && 
+      new Date(r.expiresAt) > new Date()
+    );
+    
+    return resetData || null;
+  }
+
+  async deletePasswordResetToken(email) {
+    const db = this.read();
+    if (!db.passwordResets) {
+      return;
+    }
+    db.passwordResets = db.passwordResets.filter(r => r.email !== email);
+    this.write(db);
+  }
 }
 
 module.exports = Database;

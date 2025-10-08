@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const db = require('../config/db');
-const { generateOTP, sendOTPEmail, sendWelcomeEmail } = require('../services/emailService');
+const { generateOTP, sendOTPEmail, sendWelcomeEmail, generateResetToken, sendPasswordResetEmail } = require('../services/emailService');
 
 // Middleware to verify JWT
 const verifyToken = (req, res, next) => {
@@ -344,6 +344,112 @@ router.post('/rank', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Rank calculation error:', error);
     res.status(500).json({ error: 'Failed to calculate rank' });
+  }
+});
+
+// Forgot password - Send reset link
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Check if user exists
+    const user = await db.findUserByEmail(email);
+    if (!user) {
+      // Don't reveal if user exists or not for security
+      return res.status(200).json({
+        message: 'If an account exists with this email, you will receive a password reset link',
+        emailSent: true
+      });
+    }
+
+    // Generate reset token
+    const resetToken = generateResetToken();
+    await db.storePasswordResetToken(email, resetToken);
+
+    // Send reset email
+    const emailResult = await sendPasswordResetEmail(email, resetToken, user.name);
+
+    res.status(200).json({
+      message: 'Password reset link sent to your email',
+      email,
+      emailSent: !emailResult.development
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to process password reset request', details: error.message });
+  }
+});
+
+// Verify reset token
+router.post('/verify-reset-token', async (req, res) => {
+  try {
+    const { email, token } = req.body;
+
+    if (!email || !token) {
+      return res.status(400).json({ error: 'Email and token are required' });
+    }
+
+    const resetData = await db.verifyPasswordResetToken(email, token);
+
+    if (!resetData) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Token verified successfully'
+    });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(500).json({ error: 'Failed to verify token' });
+  }
+});
+
+// Reset password with token
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, token, newPassword } = req.body;
+
+    if (!email || !token || !newPassword) {
+      return res.status(400).json({ error: 'Email, token, and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Verify token
+    const resetData = await db.verifyPasswordResetToken(email, token);
+    if (!resetData) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    // Get user
+    const user = await db.findUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await db.updateUser(user.id, { password: hashedPassword });
+
+    // Delete reset token
+    await db.deletePasswordResetToken(email);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({ error: 'Failed to reset password', details: error.message });
   }
 });
 

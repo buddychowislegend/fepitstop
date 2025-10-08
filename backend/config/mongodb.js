@@ -482,6 +482,53 @@ class MongoDatabase {
     await this.db.collection('otps').deleteMany({ email });
   }
 
+  // Password Reset Token Management
+  async storePasswordResetToken(email, token) {
+    await this.ensureConnection();
+    
+    const resetData = {
+      email,
+      token,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
+    };
+    
+    // Remove any existing token for this email
+    await this.db.collection('passwordResets').deleteMany({ email });
+    
+    // Insert new token
+    await this.db.collection('passwordResets').insertOne(resetData);
+    
+    // Create TTL index for auto-deletion
+    await this.db.collection('passwordResets').createIndex(
+      { expiresAt: 1 },
+      { expireAfterSeconds: 0 }
+    ).catch(() => {});
+    
+    return resetData;
+  }
+
+  async verifyPasswordResetToken(email, token) {
+    await this.ensureConnection();
+    
+    const resetData = await this.db.collection('passwordResets').findOne({ 
+      email, 
+      token,
+      expiresAt: { $gt: new Date() }
+    });
+    
+    if (!resetData) {
+      return null;
+    }
+    
+    return resetData;
+  }
+
+  async deletePasswordResetToken(email) {
+    await this.ensureConnection();
+    await this.db.collection('passwordResets').deleteMany({ email });
+  }
+
   // Compatibility properties
   get isServerless() {
     return true;

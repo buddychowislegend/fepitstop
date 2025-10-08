@@ -164,8 +164,104 @@ const sendWelcomeEmail = async (email, name) => {
   }
 };
 
+// Generate password reset token
+const generateResetToken = () => {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
+// Send password reset email
+const sendPasswordResetEmail = async (email, token, name = 'User') => {
+  try {
+    const transporter = createTransporter();
+    
+    // If no transporter, log token for development
+    if (!transporter) {
+      console.log(`\n📧 Password Reset Email (Development Mode):`);
+      console.log(`   To: ${email}`);
+      console.log(`   Reset Token: ${token}`);
+      console.log(`   Reset Link: https://frontendpitstop.vercel.app/reset-password?token=${token}&email=${email}`);
+      console.log(`   This email would be sent in production\n`);
+      return { success: true, development: true };
+    }
+
+    const resetLink = `https://frontendpitstop.vercel.app/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+    const mailOptions = {
+      from: `"Frontend Pitstop" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Reset Your Password - Frontend Pitstop',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+            .button { display: inline-block; padding: 15px 40px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; }
+            .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+            .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🔐 Password Reset Request</h1>
+            </div>
+            <div class="content">
+              <p>Hi ${name},</p>
+              <p>We received a request to reset your password for your Frontend Pitstop account.</p>
+              
+              <div style="text-align: center;">
+                <a href="${resetLink}" class="button">Reset Your Password</a>
+              </div>
+              
+              <p style="font-size: 14px; color: #666;">Or copy and paste this link into your browser:</p>
+              <p style="font-size: 12px; word-break: break-all; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                ${resetLink}
+              </p>
+              
+              <div class="warning">
+                <strong>⚠️ Security Notice:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                  <li>This link will expire in 30 minutes</li>
+                  <li>If you didn't request this reset, please ignore this email</li>
+                  <li>Your password will remain unchanged</li>
+                </ul>
+              </div>
+              
+              <p style="margin-top: 30px;">
+                <strong>Need help?</strong><br>
+                If you're having trouble, contact our support team at support@frontendpitstop.com
+              </p>
+              
+              <div class="footer">
+                <p>© ${new Date().getFullYear()} Frontend Pitstop. All rights reserved.</p>
+                <p>Master frontend interviews with 100+ curated problems</p>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    return { success: true };
+  } catch (error) {
+    console.error('Password reset email error:', error);
+    
+    // In development, still log the token
+    console.log(`\n📧 Password Reset for ${email}: ${token} (Email failed: ${error.message})\n`);
+    return { success: true, development: true, error: error.message };
+  }
+};
+
 module.exports = {
   generateOTP,
   sendOTPEmail,
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  generateResetToken,
+  sendPasswordResetEmail
 };
