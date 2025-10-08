@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
 export default function Home() {
@@ -17,12 +18,20 @@ export default function Home() {
               Practice frontend interview questions from top tech companies. Code in our interactive editor and ace your next interview.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <button className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2ad17e] text-[#0e1a12] px-5 py-3 font-semibold hover:opacity-95">
+              <Link 
+                href="/problems"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2ad17e] text-[#0e1a12] px-5 py-3 font-semibold hover:opacity-95 transition"
+              >
                 <span>Start Practicing</span>
-              </button>
-              <button className="inline-flex items-center justify-center gap-2 rounded-md border border-white/20 px-5 py-3 font-semibold text-white hover:bg-white/10">
+                <span>→</span>
+              </Link>
+              <Link 
+                href="/problems"
+                className="inline-flex items-center justify-center gap-2 rounded-md border border-white/20 px-5 py-3 font-semibold text-white hover:bg-white/10 transition"
+              >
                 View Questions
-              </button>
+                <span>📝</span>
+              </Link>
             </div>
             <div className="mt-8 flex items-center gap-6 text-sm text-white/80">
               <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#2ad17e]"></span>500+ Questions</div>
