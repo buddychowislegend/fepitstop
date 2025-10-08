@@ -114,4 +114,38 @@ router.get('/users/recent', adminAuth, async (req, res) => {
   }
 });
 
+// Seed database (admin only) - For MongoDB initialization
+router.post('/seed', adminAuth, async (req, res) => {
+  try {
+    const problemsArray = require('../data/comprehensive-problems');
+    const { prepPlans } = require('../data/prepPlans');
+    const { quizQuestions } = require('../data/quizQuestions');
+    const { communitySolutions } = require('../data/communitySolutions');
+    const { systemDesignScenarios } = require('../data/systemDesignScenarios');
+    
+    await db.seed({
+      problems: problemsArray,
+      prepPlans,
+      quizQuestions,
+      communitySolutions,
+      systemDesignScenarios
+    });
+    
+    res.json({ 
+      success: true,
+      message: 'Database seeded successfully',
+      seeded: {
+        problems: problemsArray.length,
+        prepPlans: prepPlans.length,
+        quizQuestions: quizQuestions.length,
+        communitySolutions: communitySolutions.length,
+        systemDesignScenarios: systemDesignScenarios.length
+      }
+    });
+  } catch (error) {
+    console.error('Seed error:', error);
+    res.status(500).json({ error: 'Failed to seed database', details: error.message });
+  }
+});
+
 module.exports = router;
