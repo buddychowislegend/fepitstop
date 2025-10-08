@@ -17,7 +17,16 @@ const PORT = process.env.PORT || 5000;
 
 // Initialize serverless data if needed
 const db = require('./config/db');
-db.initializeServerlessData();
+
+// Initialize MongoDB data (async, but don't block server startup)
+(async () => {
+  try {
+    await db.initializeServerlessData();
+    console.log('✅ Database initialized');
+  } catch (error) {
+    console.error('⚠️ Database initialization error:', error.message);
+  }
+})();
 
 // Middleware
 app.use(cors({
