@@ -274,9 +274,17 @@ export default function ProblemDetailPage() {
             // Parse input based on problem type
             let parsedInput;
             try {
+              // First try JSON.parse for standard JSON
               parsedInput = JSON.parse(testCase.input);
             } catch {
-              parsedInput = testCase.input; // Use as string if not JSON
+              // If JSON.parse fails, try eval for JavaScript syntax (arrays, objects, etc.)
+              try {
+                // Safely evaluate JavaScript array/object syntax
+                parsedInput = eval('(' + testCase.input + ')');
+              } catch {
+                // If both fail, use as string
+                parsedInput = testCase.input;
+              }
             }
 
             let actual;
