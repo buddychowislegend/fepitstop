@@ -318,6 +318,58 @@ class MongoDatabase {
     }
   }
 
+  // OTP Management
+  async storeOTP(email, otp, userData) {
+    await this.ensureConnection();
+    
+    // Store OTP with 10 minute expiration
+    const otpData = {
+      email,
+      otp,
+      userData,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+    };
+    
+    // Remove any existing OTP for this email
+    await this.db.collection('otps').deleteMany({ email });
+    
+    // Insert new OTP
+    await this.db.collection('otps').insertOne(otpData);
+    
+    // Create TTL index for auto-deletion (only needs to be done once)
+    await this.db.collection('otps').createIndex(
+      { expiresAt: 1 },
+      { expireAfterSeconds: 0 }
+    ).catch(() => {}); // Ignore if index already exists
+    
+    return otpData;
+  }
+
+  async verifyOTP(email, otp) {
+    await this.ensureConnection();
+    
+    const otpData = await this.db.collection('otps').findOne({ 
+      email, 
+      otp,
+      expiresAt: { $gt: new Date() }
+    });
+    
+    if (!otpData) {
+      return null;
+    }
+    
+    // Delete OTP after successful verification
+    await this.db.collection('otps').deleteOne({ email, otp });
+    
+    return otpData.userData;
+  }
+
+  async deleteOTP(email) {
+    await this.ensureConnection();
+    await this.db.collection('otps').deleteMany({ email });
+  }
+
   // Compatibility properties
   get isServerless() {
     return true;

@@ -352,6 +352,61 @@ class Database {
     }
     return user.completedProblems;
   }
+
+  // OTP Management (for email verification)
+  async storeOTP(email, otp, userData) {
+    const db = this.read();
+    if (!db.otps) {
+      db.otps = [];
+    }
+    
+    // Remove any existing OTP for this email
+    db.otps = db.otps.filter(o => o.email !== email);
+    
+    // Add new OTP with expiration
+    db.otps.push({
+      email,
+      otp,
+      userData,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
+    });
+    
+    this.write(db);
+    return { email, otp, userData };
+  }
+
+  async verifyOTP(email, otp) {
+    const db = this.read();
+    if (!db.otps) {
+      return null;
+    }
+    
+    const otpData = db.otps.find(o => 
+      o.email === email && 
+      o.otp === otp && 
+      new Date(o.expiresAt) > new Date()
+    );
+    
+    if (!otpData) {
+      return null;
+    }
+    
+    // Delete OTP after verification
+    db.otps = db.otps.filter(o => !(o.email === email && o.otp === otp));
+    this.write(db);
+    
+    return otpData.userData;
+  }
+
+  async deleteOTP(email) {
+    const db = this.read();
+    if (!db.otps) {
+      return;
+    }
+    db.otps = db.otps.filter(o => o.email !== email);
+    this.write(db);
+  }
 }
 
 module.exports = Database;
