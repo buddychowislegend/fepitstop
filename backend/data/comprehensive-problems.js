@@ -88,14 +88,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "[2, 4, 5, 2, 3, 4]",
+        "expected": "histogram object",
+        "explanation": "Should create histogram with correct counts"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "[1, 1, 1, 1]",
+        "expected": "histogram object",
+        "explanation": "All same values"
+      },
+      {
+        "input": "[]",
+        "expected": "empty histogram",
+        "explanation": "Empty input array"
       }
     ]
   },
@@ -127,14 +132,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -165,14 +175,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -208,9 +223,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "20 events in 100ms window",
-        "expected": "Function executes once",
-        "explanation": "Throttle should enforce rate limit"
+        "input": "throttle(console.log, 100)",
+        "expected": "function",
+        "explanation": "Should return a function"
+      },
+      {
+        "input": "throttle(() => {}, 0)",
+        "expected": "function",
+        "explanation": "Should work with zero delay"
+      },
+      {
+        "input": "throttle(() => {}, 1000)",
+        "expected": "function",
+        "explanation": "Should work with large delay"
       }
     ]
   },
@@ -241,14 +266,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "{ sales: [{ name: 'John', salary: 1000 }] }",
+        "expected": "1000",
+        "explanation": "Single employee salary"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "{ sales: [{ name: 'John', salary: 1000 }], dev: [{ name: 'Jane', salary: 2000 }] }",
+        "expected": "3000",
+        "explanation": "Multiple departments"
+      },
+      {
+        "input": "{}",
+        "expected": "0",
+        "explanation": "Empty company structure"
       }
     ]
   },
@@ -279,14 +309,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "['btn', 'btn-primary']",
+        "expected": "'btn btn-primary'",
+        "explanation": "Array of strings"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should manage boundary conditions"
+        "input": "{ btn: true, 'btn-primary': false }",
+        "expected": "'btn'",
+        "explanation": "Object with boolean values"
+      },
+      {
+        "input": "['btn', { 'btn-primary': true, disabled: false }]",
+        "expected": "'btn btn-primary'",
+        "explanation": "Mixed array and object"
       }
     ]
   },
@@ -319,14 +354,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -358,9 +398,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Mixed success and failure",
-        "expected": "Errors propagate correctly",
-        "explanation": "Should handle both outcomes"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -391,14 +441,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -429,9 +484,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -461,9 +526,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -491,14 +566,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -528,9 +608,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Multiple subscribers",
-        "expected": "All callbacks invoked",
-        "explanation": "Should notify all registered listeners"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -560,9 +650,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Multiple subscribers",
-        "expected": "All callbacks invoked",
-        "explanation": "Should notify all registered listeners"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -593,9 +693,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -624,9 +734,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Deep nesting: [[[[1]]]]",
-        "expected": "[1]",
-        "explanation": "Should handle arbitrary depth"
+        "input": "[1, [2, [3]]]",
+        "expected": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "expected": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "expected": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ]
   },
@@ -654,14 +774,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -691,9 +816,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "fn(1, 2) then fn(1, 2) again",
-        "expected": "Computation runs once, cache hit second time",
-        "explanation": "Should cache based on arguments"
+        "input": "memoize((x) => x * 2)",
+        "expected": "function",
+        "explanation": "Should return memoized function"
+      },
+      {
+        "input": "memoize((x) => x * x)(5)",
+        "expected": "25",
+        "explanation": "Should compute and cache result"
+      },
+      {
+        "input": "memoize((x) => x * x)(5)",
+        "expected": "25",
+        "explanation": "Should return cached result on second call"
       }
     ]
   },
@@ -722,14 +857,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -760,14 +900,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -798,9 +943,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -831,14 +986,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -869,9 +1029,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should work for boundary conditions"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -901,14 +1071,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -939,14 +1114,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -977,14 +1157,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1015,9 +1200,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1050,9 +1245,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "20 events in 100ms window",
-        "expected": "Function executes once",
-        "explanation": "Throttle should enforce rate limit"
+        "input": "throttle(fn, 100)",
+        "expected": "function",
+        "explanation": "Should return throttled function"
+      },
+      {
+        "input": "rapid calls",
+        "expected": "limited execution",
+        "explanation": "Should limit execution rate"
+      },
+      {
+        "input": "within limit",
+        "expected": "executed immediately",
+        "explanation": "Should execute if within limit"
       }
     ]
   },
@@ -1083,9 +1288,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -1116,9 +1331,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should work for boundary conditions"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1146,9 +1371,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -1179,9 +1414,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1212,9 +1457,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1245,9 +1500,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1278,9 +1543,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Mixed success and failure",
-        "expected": "Errors propagate correctly",
-        "explanation": "Should handle both outcomes"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1309,9 +1584,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -1343,9 +1628,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Mixed success and failure",
-        "expected": "Errors propagate correctly",
-        "explanation": "Should handle both outcomes"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1374,14 +1669,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1410,14 +1710,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1447,14 +1752,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1484,14 +1794,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1520,9 +1835,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should work for boundary conditions"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1550,14 +1875,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1594,14 +1924,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1631,9 +1966,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Multiple rapid calls",
-        "expected": "Only last call executes",
-        "explanation": "Previous pending calls should be cancelled"
+        "input": "debounce(fn, 100)",
+        "expected": "function",
+        "explanation": "Should return debounced function"
+      },
+      {
+        "input": "rapid calls",
+        "expected": "delayed execution",
+        "explanation": "Should delay execution"
+      },
+      {
+        "input": "single call",
+        "expected": "executed once",
+        "explanation": "Should execute after delay"
       }
     ]
   },
@@ -1664,9 +2009,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Multiple rapid calls",
-        "expected": "Only last call executes",
-        "explanation": "Previous pending calls should be cancelled"
+        "input": "debounce(fn, 100)",
+        "expected": "function",
+        "explanation": "Should return debounced function"
+      },
+      {
+        "input": "rapid calls",
+        "expected": "delayed execution",
+        "explanation": "Should delay execution"
+      },
+      {
+        "input": "single call",
+        "expected": "executed once",
+        "explanation": "Should execute after delay"
       }
     ]
   },
@@ -1695,14 +2050,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1730,9 +2090,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Multiple subscribers",
-        "expected": "All callbacks invoked",
-        "explanation": "Should notify all registered listeners"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1762,9 +2132,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Multiple subscribers",
-        "expected": "All callbacks invoked",
-        "explanation": "Should notify all registered listeners"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1794,9 +2174,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Multiple subscribers",
-        "expected": "All callbacks invoked",
-        "explanation": "Should notify all registered listeners"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1826,9 +2216,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -1857,14 +2257,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -1897,9 +2302,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Deep nesting: [[[[1]]]]",
-        "expected": "[1]",
-        "explanation": "Should handle arbitrary depth"
+        "input": "[1, [2, [3]]]",
+        "expected": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "expected": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "expected": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ]
   },
@@ -1935,9 +2350,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Deep nesting: [[[[1]]]]",
-        "expected": "[1]",
-        "explanation": "Should handle arbitrary depth"
+        "input": "[1, [2, [3]]]",
+        "expected": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "expected": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "expected": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ]
   },
@@ -1973,9 +2398,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Deep nesting: [[[[1]]]]",
-        "expected": "[1]",
-        "explanation": "Should handle arbitrary depth"
+        "input": "[1, [2, [3]]]",
+        "expected": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "expected": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "expected": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ]
   },
@@ -2006,9 +2441,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Deep nesting: [[[[1]]]]",
-        "expected": "[1]",
-        "explanation": "Should handle arbitrary depth"
+        "input": "[1, [2, [3]]]",
+        "expected": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "expected": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "expected": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ]
   },
@@ -2044,9 +2489,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Deep nesting: [[[[1]]]]",
-        "expected": "[1]",
-        "explanation": "Should handle arbitrary depth"
+        "input": "[1, [2, [3]]]",
+        "expected": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "expected": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "expected": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ]
   },
@@ -2077,9 +2532,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Deep nesting: [[[[1]]]]",
-        "expected": "[1]",
-        "explanation": "Should handle arbitrary depth"
+        "input": "[1, [2, [3]]]",
+        "expected": "[1,2,3]",
+        "explanation": "Should flatten nested arrays"
+      },
+      {
+        "input": "[[1, 2], [3, 4]]",
+        "expected": "[1,2,3,4]",
+        "explanation": "Should flatten array of arrays"
+      },
+      {
+        "input": "[1, 2, 3]",
+        "expected": "[1,2,3]",
+        "explanation": "Should handle already flat array"
       }
     ]
   },
@@ -2110,9 +2575,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2143,14 +2618,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2180,9 +2660,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -2211,14 +2701,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2249,9 +2744,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2282,9 +2787,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "fn(1, 2) then fn(1, 2) again",
-        "expected": "Computation runs once, cache hit second time",
-        "explanation": "Should cache based on arguments"
+        "input": "memoize(fn)",
+        "expected": "function",
+        "explanation": "Should return memoized function"
+      },
+      {
+        "input": "memoizedFn(5)",
+        "expected": "computed result",
+        "explanation": "Should compute result first time"
+      },
+      {
+        "input": "memoizedFn(5)",
+        "expected": "cached result",
+        "explanation": "Should return cached result"
       }
     ]
   },
@@ -2316,9 +2831,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Mixed success and failure",
-        "expected": "Errors propagate correctly",
-        "explanation": "Should handle both outcomes"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2347,9 +2872,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2380,9 +2915,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should work for boundary conditions"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2413,14 +2958,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2450,9 +3000,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -2483,9 +3043,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2513,14 +3083,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2551,14 +3126,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2594,9 +3174,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Multiple rapid calls",
-        "expected": "Only last call executes",
-        "explanation": "Previous pending calls should be cancelled"
+        "input": "debounce(fn, 100)",
+        "expected": "function",
+        "explanation": "Should return debounced function"
+      },
+      {
+        "input": "rapid calls",
+        "expected": "delayed execution",
+        "explanation": "Should delay execution"
+      },
+      {
+        "input": "single call",
+        "expected": "executed once",
+        "explanation": "Should execute after delay"
       }
     ]
   },
@@ -2635,14 +3225,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2672,9 +3267,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -2711,14 +3316,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2748,14 +3358,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2785,14 +3400,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2822,14 +3442,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2859,9 +3484,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2891,9 +3526,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should work for boundary conditions"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2923,9 +3568,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should work for boundary conditions"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2955,9 +3610,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should work for boundary conditions"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -2987,14 +3652,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Basic case",
-        "expected": "Correct output",
-        "explanation": "Should handle typical scenarios"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
       },
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
+        "input": "edge case",
+        "expected": "handles gracefully",
         "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -3024,9 +3694,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Mixed success and failure",
-        "expected": "Errors propagate correctly",
-        "explanation": "Should handle both outcomes"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -3056,9 +3736,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Edge case",
-        "expected": "Handles gracefully",
-        "explanation": "Should work for boundary conditions"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -3088,9 +3778,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Nested DOM structure",
-        "expected": "All matching nodes found",
-        "explanation": "Should traverse entire tree"
+        "input": "standard input",
+        "expected": "expected output",
+        "explanation": "Should handle typical scenario"
+      },
+      {
+        "input": "edge case",
+        "expected": "handles gracefully",
+        "explanation": "Should manage boundary conditions"
+      },
+      {
+        "input": "complex case",
+        "expected": "correct result",
+        "explanation": "Should handle complex scenarios"
       }
     ]
   },
@@ -3124,9 +3824,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3155,9 +3865,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3186,9 +3906,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3217,9 +3947,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3248,9 +3988,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3279,9 +4029,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3310,9 +4070,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3341,9 +4111,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3372,9 +4152,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3403,9 +4193,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3434,9 +4234,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   },
@@ -3467,9 +4277,19 @@ const comprehensiveProblems = [
     ],
     "testCases": [
       {
-        "input": "Valid props",
-        "expected": "Component renders correctly",
-        "explanation": "Should handle expected inputs"
+        "input": "component props",
+        "expected": "rendered component",
+        "explanation": "Should render React component"
+      },
+      {
+        "input": "state change",
+        "expected": "updated component",
+        "explanation": "Should handle state updates"
+      },
+      {
+        "input": "event handling",
+        "expected": "event response",
+        "explanation": "Should handle user interactions"
       }
     ]
   }
