@@ -1,10 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
+import AdSense from "@/components/AdSense";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
       <div className="max-w-6xl mx-auto px-6 pb-24 pt-8">
+        {/* Top Banner Ad */}
+        <div className="mb-6">
+          <AdSense
+            adSlot="1234567895"
+            adFormat="horizontal"
+            style={{ display: "block", minHeight: "90px" }}
+          />
+        </div>
         <section className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="py-8">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 ring-1 ring-white/15">Interactive</div>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AdSense from "@/components/AdSense";
 
 type Question = {
   id: string;
@@ -172,6 +173,15 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
         <div className="max-w-4xl mx-auto px-6 py-10">
+          {/* Top Banner Ad */}
+          <div className="mb-6">
+            <AdSense
+              adSlot="1234567896"
+              adFormat="horizontal"
+              style={{ display: "block", minHeight: "90px" }}
+            />
+          </div>
+
           {/* Rating Screen */}
           {showRating && (
             <div className="rounded-2xl bg-white/10 p-8 ring-1 ring-white/15">
@@ -324,7 +334,7 @@ export default function QuizPage() {
                   className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/15 font-semibold transition"
                 >
                   Take Another Quiz
-                </button>
+          </button>
                 <Link
                   href="/profile"
                   className="px-6 py-3 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
@@ -362,8 +372,8 @@ export default function QuizPage() {
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
       <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-extrabold">Curated Quiz & Trivia</h1>
-          <p className="mt-2 text-white/80">Test your knowledge with quick revision questions.</p>
+        <h1 className="text-3xl sm:text-4xl font-extrabold">Curated Quiz & Trivia</h1>
+        <p className="mt-2 text-white/80">Test your knowledge with quick revision questions.</p>
         </div>
 
         {/* Progress Bar */}
@@ -443,14 +453,14 @@ export default function QuizPage() {
           <div className="mt-8 flex items-center justify-between">
             <div className="text-sm text-white/60">
               {selected !== null ? '✓ Answer selected' : 'Select an answer to continue'}
-            </div>
-            <button
-              onClick={handleNext}
-              disabled={selected === null}
+          </div>
+          <button
+            onClick={handleNext}
+            disabled={selected === null}
               className="px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
-            >
+          >
               {current + 1 === questions.length ? "Finish Quiz" : "Next Question"} →
-            </button>
+          </button>
           </div>
         </div>
 

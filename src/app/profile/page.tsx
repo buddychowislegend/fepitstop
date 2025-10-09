@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AdSense from "@/components/AdSense";
 
 import { api } from "@/lib/config";
 
@@ -248,6 +249,15 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
       <div className="max-w-4xl mx-auto px-6 py-10">
+        {/* Top Banner Ad */}
+        <div className="mb-6">
+          <AdSense
+            adSlot="1234567897"
+            adFormat="horizontal"
+            style={{ display: "block", minHeight: "90px" }}
+          />
+        </div>
+
         <div className="flex items-center justify-between">
           <h1 className="text-3xl sm:text-4xl font-extrabold">My Profile</h1>
           <button

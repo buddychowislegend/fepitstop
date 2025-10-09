@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import AdSense from "@/components/AdSense";
 
 type Problem = {
   id: string;
@@ -181,6 +182,15 @@ export default function ProblemsPage() {
       <div className="max-w-[1600px] mx-auto px-6 py-10">
         {/* Header */}
         <header className="mb-8">
+          {/* Top Banner Ad */}
+          <div className="mb-6">
+            <AdSense
+              adSlot="1234567890"
+              adFormat="horizontal"
+              style={{ display: "block", minHeight: "90px" }}
+            />
+          </div>
+
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl sm:text-4xl font-extrabold">Problems</h1>
@@ -411,7 +421,16 @@ export default function ProblemsPage() {
 
           {/* Right Sidebar - Company Filter */}
           <aside className="w-72 flex-shrink-0 hidden xl:block">
-            <div className="sticky top-6">
+            <div className="sticky top-6 space-y-4">
+              {/* Sidebar Ad */}
+              <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+                <AdSense
+                  adSlot="1234567891"
+                  adFormat="vertical"
+                  style={{ display: "block", minHeight: "250px" }}
+                />
+              </div>
+
               <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
                 <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Filter by Company</h3>
                 <div className="space-y-1 max-h-[600px] overflow-y-auto">
