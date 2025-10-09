@@ -10,15 +10,33 @@ const adminAuth = (req, res, next) => {
   if (adminKey !== expectedKey) {
     console.log('Admin auth failed:', { 
       provided: adminKey ? 'key provided' : 'no key', 
-      expected: expectedKey ? 'key configured' : 'no key configured' 
+      expected: expectedKey ? 'key configured' : 'no key configured',
+      providedKey: adminKey ? adminKey.substring(0, 10) + '...' : 'none',
+      expectedKey: expectedKey ? expectedKey.substring(0, 10) + '...' : 'none'
     });
     return res.status(403).json({ 
       error: 'Unauthorized',
-      hint: 'Provide X-Admin-Key header'
+      hint: 'Provide X-Admin-Key header',
+      debug: process.env.NODE_ENV === 'development' ? {
+        providedLength: adminKey?.length || 0,
+        expectedLength: expectedKey?.length || 0
+      } : undefined
     });
   }
   next();
 };
+
+// Check admin key configuration (for debugging)
+router.get('/check-key', (req, res) => {
+  const expectedKey = process.env.ADMIN_KEY || 'admin_key_frontendpitstop_secure_2025';
+  res.json({
+    keyConfigured: !!process.env.ADMIN_KEY,
+    keySource: process.env.ADMIN_KEY ? 'environment variable' : 'default fallback',
+    keyPrefix: expectedKey.substring(0, 15) + '...',
+    keyLength: expectedKey.length,
+    hint: 'Use this key with X-Admin-Key header'
+  });
+});
 
 // Get all users (admin only)
 router.get('/users', adminAuth, async (req, res) => {
