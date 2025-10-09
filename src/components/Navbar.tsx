@@ -11,8 +11,8 @@ export default function Navbar() {
   const navLinks = [
     { href: "/problems", label: "Problems" },
     { href: "/quiz", label: "Quiz" },
-    { href: "/features", label: "Features" },
-    { href: "/pricing", label: "Pricing", highlight: true },
+    // { href: "/features", label: "Features" }, // Hidden for now
+    // { href: "/pricing", label: "Pricing", highlight: true }, // Hidden for now
     { href: "/prep-plans", label: "Prep Plans" },
     { href: "/system-design", label: "System Design" },
     { href: "/mock-interview", label: "Mock Interview", comingSoon: true },

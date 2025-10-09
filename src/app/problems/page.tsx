@@ -99,7 +99,7 @@ export default function ProblemsPage() {
             problem.testCases[0].input !== "standard input" &&
             problem.testCases[0].input !== "basic input";
           
-          return !isUIDesign && hasValidTestCases;
+          return hasValidTestCases;
         });
         
         setProblems(validProblems);
