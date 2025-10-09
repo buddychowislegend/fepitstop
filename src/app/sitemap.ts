@@ -6,14 +6,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all problems for dynamic URLs
   let problems: any[] = []
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://fepit.vercel.app/api'}/problems`, {
-      cache: 'no-store'
+    // Use the backend API directly
+    const apiUrl = 'https://fepit.vercel.app/api/problems'
+    const response = await fetch(apiUrl, {
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json',
+      },
+      // Add timeout
+      signal: AbortSignal.timeout(5000)
     })
+    
     if (response.ok) {
-      problems = await response.json()
+      const data = await response.json()
+      problems = Array.isArray(data) ? data : []
+    } else {
+      console.error('API response not OK:', response.status, response.statusText)
     }
   } catch (error) {
     console.error('Error fetching problems for sitemap:', error)
+    // Return static pages only if API fails
   }
 
   // Static pages
