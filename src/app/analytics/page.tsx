@@ -21,60 +21,65 @@ export default function AnalyticsPage() {
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [adminKey, setAdminKey] = useState("");
+  const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [days, setDays] = useState(7);
 
-  const fetchAnalytics = async (key: string) => {
+  const ADMIN_PASSWORD = "manasi22";
+  const ADMIN_API_KEY = "admin_key_frontendpitstop_secure_2025";
+
+  const fetchAnalytics = async () => {
     try {
       setLoading(true);
       setError("");
       
       const response = await fetch(api(`/analytics/summary?days=${days}`), {
         headers: {
-          'X-Admin-Key': key
+          'X-Admin-Key': ADMIN_API_KEY
         }
       });
 
       if (response.ok) {
         const data = await response.json();
         setSummary(data.summary);
-        setAuthenticated(true);
-        // Store admin key in session
-        sessionStorage.setItem('fp_admin_key', key);
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to fetch analytics');
-        setAuthenticated(false);
       }
     } catch (err) {
       setError('Network error. Please try again.');
-      setAuthenticated(false);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Check if admin key is stored
-    const storedKey = sessionStorage.getItem('fp_admin_key');
-    if (storedKey) {
-      setAdminKey(storedKey);
-      fetchAnalytics(storedKey);
+    // Check if authenticated in session
+    const isAuth = sessionStorage.getItem('fp_analytics_auth') === 'true';
+    if (isAuth) {
+      setAuthenticated(true);
+      fetchAnalytics();
     } else {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (authenticated && adminKey) {
-      fetchAnalytics(adminKey);
+    if (authenticated) {
+      fetchAnalytics();
     }
   }, [days]);
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchAnalytics(adminKey);
+    
+    if (password === ADMIN_PASSWORD) {
+      setAuthenticated(true);
+      sessionStorage.setItem('fp_analytics_auth', 'true');
+      fetchAnalytics();
+    } else {
+      setError('Incorrect password');
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -97,7 +102,7 @@ export default function AnalyticsPage() {
               </div>
               <h1 className="text-3xl font-bold mb-2">Analytics Dashboard</h1>
               <p className="text-white/70 text-sm">
-                Enter admin key to view analytics
+                Enter password to view analytics
               </p>
             </div>
 
@@ -109,15 +114,15 @@ export default function AnalyticsPage() {
 
             <form onSubmit={handleAuth} className="space-y-6">
               <div>
-                <label htmlFor="adminKey" className="block text-sm font-medium mb-2">
-                  Admin Key
+                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                  Password
                 </label>
                 <input
-                  id="adminKey"
+                  id="password"
                   type="password"
-                  value={adminKey}
-                  onChange={(e) => setAdminKey(e.target.value)}
-                  placeholder="Enter admin key"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
                   required
                   className="w-full px-4 py-3 rounded-lg bg-white/10 ring-1 ring-white/15 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-white/40"
                 />
@@ -170,8 +175,10 @@ export default function AnalyticsPage() {
             </select>
             <button
               onClick={() => {
-                sessionStorage.removeItem('fp_admin_key');
+                sessionStorage.removeItem('fp_analytics_auth');
                 setAuthenticated(false);
+                setPassword("");
+                setSummary(null);
               }}
               className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-sm font-medium"
             >
