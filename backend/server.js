@@ -12,8 +12,7 @@ const systemDesignRoutes = require('./routes/systemDesign');
 const submissionsRoutes = require('./routes/submissions');
 const adminRoutes = require('./routes/admin');
 const analyticsRoutes = require('./routes/analytics');
-const paymentRoutes = require('./routes/payment');
-const contactRoutes = require('./routes/contact');
+// const paymentRoutes = require('./routes/payment'); // Temporarily disabled - causing mongoose conflicts
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -74,8 +73,7 @@ app.use('/api/system-design', systemDesignRoutes);
 app.use('/api/submissions', submissionsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use('/api/contact', contactRoutes);
+// app.use('/api/payment', paymentRoutes); // Temporarily disabled - causing mongoose conflicts
 
 app.get('/api/health', async (req, res) => {
   try {

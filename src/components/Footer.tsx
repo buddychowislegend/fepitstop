@@ -23,9 +23,9 @@ export default function Footer() {
       { href: "/signup", label: "Sign Up" },
     ],
     "Resources": [
-      { href: "/contact", label: "Contact Us" },
-      { href: "/privacy-policy", label: "Privacy Policy" },
-      { href: "/terms", label: "Terms of Service" },
+      { href: "https://github.com", label: "GitHub", external: true },
+      { href: "https://twitter.com", label: "Twitter", external: true },
+      { href: "mailto:support@frontendpitstop.com", label: "Contact", external: true },
     ],
   };
 
@@ -42,8 +42,12 @@ export default function Footer() {
                     <Link
                       href={link.href}
                       className="text-sm text-white/60 hover:text-white transition"
+                      {...(('external' in link && link.external) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     >
                       {link.label}
+                      {'external' in link && link.external && (
+                        <span className="ml-1 text-xs">↗</span>
+                      )}
                     </Link>
                   </li>
                 ))}
@@ -61,14 +65,11 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex items-center gap-6 text-sm text-white/60">
-            <Link href="/privacy-policy" className="hover:text-white transition">
-              Privacy
+            <Link href="/privacy" className="hover:text-white transition">
+              Privacy Policy
             </Link>
             <Link href="/terms" className="hover:text-white transition">
-              Terms
-            </Link>
-            <Link href="/contact" className="hover:text-white transition">
-              Contact
+              Terms of Service
             </Link>
           </div>
         </div>
