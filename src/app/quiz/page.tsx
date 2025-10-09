@@ -342,9 +342,25 @@ export default function QuizPage() {
   const q = questions[current];
   const progress = ((current + 1) / questions.length) * 100;
 
+  // Parse question to extract code snippet if present
+  const parseQuestion = (question: string) => {
+    const codeBlockRegex = /```js\n([\s\S]*?)\n```/;
+    const match = question.match(codeBlockRegex);
+    
+    if (match) {
+      const textBefore = question.substring(0, match.index).trim();
+      const codeSnippet = match[1];
+      return { text: textBefore, code: codeSnippet, hasCode: true };
+    }
+    
+    return { text: question, code: null, hasCode: false };
+  };
+
+  const parsedQuestion = parseQuestion(q.question);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <div className="max-w-3xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-extrabold">Curated Quiz & Trivia</h1>
           <p className="mt-2 text-white/80">Test your knowledge with quick revision questions.</p>
@@ -379,7 +395,27 @@ export default function QuizPage() {
             )}
           </div>
           
-          <h2 className="text-2xl font-bold mb-6 leading-relaxed">{q.question}</h2>
+          {/* Question Text */}
+          <h2 className="text-xl font-bold mb-4 leading-relaxed">{parsedQuestion.text}</h2>
+          
+          {/* Code Snippet (if present) */}
+          {parsedQuestion.hasCode && (
+            <div className="mb-6 rounded-lg overflow-hidden ring-1 ring-white/20">
+              {/* Code Editor Header */}
+              <div className="flex items-center gap-2 px-4 py-2 bg-[#0f131a] border-b border-white/10">
+                <span className="h-3 w-3 rounded-full bg-[#ff5f56]"></span>
+                <span className="h-3 w-3 rounded-full bg-[#ffbd2e]"></span>
+                <span className="h-3 w-3 rounded-full bg-[#27c93f]"></span>
+                <span className="ml-2 text-xs text-white/50">javascript</span>
+              </div>
+              {/* Code Content */}
+              <pre className="p-4 bg-[#1e1e1e] overflow-x-auto">
+                <code className="text-sm font-mono text-white/90 leading-relaxed">
+                  {parsedQuestion.code}
+                </code>
+              </pre>
+            </div>
+          )}
           
           <div className="space-y-3">
             {q.options.map((opt, i) => (
