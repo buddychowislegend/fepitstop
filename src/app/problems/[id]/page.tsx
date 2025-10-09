@@ -223,7 +223,7 @@ function TestCases({ testCases, results }: {
 export default function ProblemDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { user, token } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -543,8 +543,19 @@ export default function ProblemDetailPage() {
   };
 
   // Fetch problem data
+  // Check authentication
   useEffect(() => {
-            fetch(api(`/problems/${params.id}`))
+    if (!authLoading && !user) {
+      // Redirect to signin with return URL
+      router.push(`/signin?redirect=/problems/${params.id}`);
+    }
+  }, [authLoading, user, router, params.id]);
+
+  useEffect(() => {
+    // Only fetch if user is authenticated
+    if (!user) return;
+    
+    fetch(api(`/problems/${params.id}`))
       .then((res) => res.json())
       .then((data) => {
         const prob = data.problem;
@@ -587,7 +598,7 @@ export default function ProblemDetailPage() {
         console.error('Fetch error:', err);
         setLoading(false);
       });
-  }, [params.id, storageKey]);
+  }, [params.id, storageKey, user]);
 
   // Save to localStorage
   useEffect(() => {

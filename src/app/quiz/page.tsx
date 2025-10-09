@@ -26,7 +26,7 @@ type Answer = {
 import { api } from "@/lib/config";
 
 export default function QuizPage() {
-  const { user, token } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const router = useRouter();
   
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -46,7 +46,18 @@ export default function QuizPage() {
   const [submitting, setSubmitting] = useState(false);
   const [rankInfo, setRankInfo] = useState<any>(null);
 
+  // Check authentication
   useEffect(() => {
+    if (!authLoading && !user) {
+      // Redirect to signin with return URL
+      router.push('/signin?redirect=/quiz');
+    }
+  }, [authLoading, user, router]);
+
+  useEffect(() => {
+    // Only fetch if user is authenticated
+    if (!user) return;
+    
     fetch(api(`/quiz/random/10`))
       .then((res) => res.json())
       .then((data) => {
@@ -56,7 +67,7 @@ export default function QuizPage() {
         setQuestionStartTime(Date.now());
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [user]);
 
   const handleNext = () => {
     const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
