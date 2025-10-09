@@ -4,15 +4,34 @@ const db = require('../config/db');
 
 // Admin auth middleware
 const adminAuth = (req, res, next) => {
-  const adminKey = req.header('X-Admin-Key');
+  const adminKey = req.header('X-Admin-Key') || req.headers['x-admin-key'];
   const expectedKey = process.env.ADMIN_KEY || 'admin_key_frontendpitstop_secure_2025';
   
+  console.log('Analytics auth check:', {
+    keyProvided: !!adminKey,
+    keyLength: adminKey?.length || 0,
+    expectedLength: expectedKey?.length || 0,
+    keyPrefix: adminKey ? adminKey.substring(0, 10) + '...' : 'none',
+    expectedPrefix: expectedKey ? expectedKey.substring(0, 10) + '...' : 'none',
+    match: adminKey === expectedKey
+  });
+  
   if (!adminKey) {
-    return res.status(401).json({ error: 'Admin key required' });
+    return res.status(401).json({ 
+      error: 'Admin key required',
+      hint: 'Provide X-Admin-Key header'
+    });
   }
   
   if (adminKey !== expectedKey) {
-    return res.status(401).json({ error: 'Invalid admin key' });
+    return res.status(401).json({ 
+      error: 'Invalid admin key',
+      debug: process.env.NODE_ENV === 'development' ? {
+        providedLength: adminKey?.length,
+        expectedLength: expectedKey?.length,
+        keySource: process.env.ADMIN_KEY ? 'env var' : 'default'
+      } : undefined
+    });
   }
   
   next();
