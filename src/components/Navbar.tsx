@@ -13,6 +13,7 @@ export default function Navbar() {
     { href: "/quiz", label: "Quiz" },
     { href: "/prep-plans", label: "Prep Plans" },
     { href: "/system-design", label: "System Design" },
+    { href: "/pricing", label: "Pricing", highlight: true },
     { href: "/mock-interview", label: "Mock Interview", comingSoon: true },
     { href: "/community", label: "Community", comingSoon: true },
   ];
@@ -35,6 +36,7 @@ export default function Navbar() {
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             const isComingSoon = 'comingSoon' in link && link.comingSoon;
+            const isHighlight = 'highlight' in link && link.highlight;
             return (
               <Link
                 key={link.href}
@@ -44,6 +46,8 @@ export default function Navbar() {
                     ? 'bg-white/15 text-white'
                     : isComingSoon
                     ? 'text-white/50 cursor-not-allowed'
+                    : isHighlight
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
