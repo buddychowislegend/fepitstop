@@ -23,9 +23,9 @@ export default function Footer() {
       { href: "/signup", label: "Sign Up" },
     ],
     "Resources": [
-      { href: "https://github.com", label: "GitHub", external: true },
-      { href: "https://twitter.com", label: "Twitter", external: true },
-      { href: "mailto:support@frontendpitstop.com", label: "Contact", external: true },
+      { href: "/contact", label: "Contact Us" },
+      { href: "/privacy-policy", label: "Privacy Policy" },
+      { href: "/terms", label: "Terms of Service" },
     ],
   };
 
@@ -65,11 +65,14 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex items-center gap-6 text-sm text-white/60">
-            <Link href="/privacy" className="hover:text-white transition">
-              Privacy Policy
+            <Link href="/privacy-policy" className="hover:text-white transition">
+              Privacy
             </Link>
             <Link href="/terms" className="hover:text-white transition">
-              Terms of Service
+              Terms
+            </Link>
+            <Link href="/contact" className="hover:text-white transition">
+              Contact
             </Link>
           </div>
         </div>
