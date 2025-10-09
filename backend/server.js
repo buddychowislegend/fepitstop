@@ -36,7 +36,9 @@ app.use(cors({
       'http://localhost:3001',
       'http://localhost:3002',
       'https://fepitstop.onrender.com',
-      'https://frontendpitstop.vercel.app'
+      'https://frontendpitstop.vercel.app',
+      'https://frontendpitstop.com',
+      'https://www.frontendpitstop.com'
     ];
 
     if (!origin) return callback(null, true); // allow non-browser tools / same-origin
@@ -46,6 +48,8 @@ app.use(cors({
       const { hostname } = new URL(origin);
       // Allow Vercel preview deployments of your frontend (e.g., https://frontendpitstop-<hash>-vercel.app)
       if (hostname.endsWith('.vercel.app')) return callback(null, true);
+      // Allow custom domain and subdomains
+      if (hostname === 'frontendpitstop.com' || hostname.endsWith('.frontendpitstop.com')) return callback(null, true);
     } catch (_) {}
 
     return callback(new Error('Not allowed by CORS'));
