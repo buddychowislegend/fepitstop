@@ -17,8 +17,77 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Frontend Pitstop — Master Frontend Interviews",
-  description: "Practice real frontend interview questions with an interactive code editor.",
+  metadataBase: new URL('https://frontendpitstop.com'),
+  title: {
+    default: "Frontend Pitstop — Master Frontend Interviews & Coding Challenges",
+    template: "%s | Frontend Pitstop"
+  },
+  description: "Practice 100+ real frontend interview questions from top tech companies like Google, Meta, Amazon. Interactive code editor, instant feedback, and comprehensive solutions. Master JavaScript, React, CSS, and system design.",
+  keywords: [
+    "frontend interview questions",
+    "javascript interview",
+    "react interview questions",
+    "coding challenges",
+    "web development practice",
+    "frontend coding test",
+    "technical interview prep",
+    "javascript quiz",
+    "coding interview",
+    "frontend developer",
+    "web developer interview",
+    "coding practice",
+    "programming challenges",
+    "leetcode frontend",
+    "frontend system design"
+  ],
+  authors: [{ name: "Frontend Pitstop" }],
+  creator: "Frontend Pitstop",
+  publisher: "Frontend Pitstop",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://frontendpitstop.com",
+    title: "Frontend Pitstop — Master Frontend Interviews",
+    description: "Practice 100+ real frontend interview questions from top tech companies. Interactive code editor with instant feedback.",
+    siteName: "Frontend Pitstop",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Frontend Pitstop - Master Frontend Interviews"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Frontend Pitstop — Master Frontend Interviews",
+    description: "Practice 100+ real frontend interview questions from top tech companies. Interactive code editor with instant feedback.",
+    images: ["/og-image.png"],
+    creator: "@frontendpitstop"
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: "your-google-verification-code",
+  },
+  alternates: {
+    canonical: "https://frontendpitstop.com"
+  }
 };
 
 export default function RootLayout({
@@ -28,15 +97,43 @@ export default function RootLayout({
 }>) {
   const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-0000000000000000";
   
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Frontend Pitstop",
+    "description": "Practice frontend interview questions and coding challenges",
+    "url": "https://frontendpitstop.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://frontendpitstop.com/problems?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Frontend Pitstop",
+      "url": "https://frontendpitstop.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://frontendpitstop.com/logo.svg"
+      }
+    }
+  };
+
   return (
     <html lang="en">
       <head>
         {/* Google AdSense Script */}
         <script
           async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2772878798617814`}
           crossOrigin="anonymous"
         ></script>
+        
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
