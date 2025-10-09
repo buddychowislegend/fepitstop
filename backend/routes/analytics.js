@@ -5,7 +5,7 @@ const db = require('../config/db');
 // Admin auth middleware
 const adminAuth = (req, res, next) => {
   const adminKey = req.header('X-Admin-Key');
-  const expectedKey = process.env.ADMIN_KEY || 'dev-admin-key-12345';
+  const expectedKey = process.env.ADMIN_KEY || 'admin_key_frontendpitstop_secure_2025';
   
   if (!adminKey) {
     return res.status(401).json({ error: 'Admin key required' });
