@@ -61,8 +61,8 @@ router.post('/track', async (req, res) => {
   }
 });
 
-// Get analytics summary (admin only)
-router.get('/summary', adminAuth, async (req, res) => {
+// Get analytics summary (open access - no auth required)
+router.get('/summary', async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 7;
     const summary = await db.getAnalyticsSummary(days);

@@ -26,18 +26,13 @@ export default function AnalyticsPage() {
   const [days, setDays] = useState(7);
 
   const ADMIN_PASSWORD = "manasi22";
-  const ADMIN_API_KEY = "admin_key_frontendpitstop_secure_2025";
 
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
       setError("");
       
-      const response = await fetch(api(`/analytics/summary?days=${days}`), {
-        headers: {
-          'X-Admin-Key': ADMIN_API_KEY
-        }
-      });
+      const response = await fetch(api(`/analytics/summary?days=${days}`));
 
       if (response.ok) {
         const data = await response.json();
