@@ -468,6 +468,106 @@ class Database {
       .slice(0, limit);
   }
 
+  // Analytics
+  async trackPageView(data) {
+    const db = this.read();
+    if (!db.analytics) {
+      db.analytics = [];
+    }
+    
+    const pageView = {
+      ...data,
+      timestamp: new Date().toISOString(),
+      date: new Date().toISOString().split('T')[0]
+    };
+    
+    db.analytics.push(pageView);
+    this.write(db);
+    return pageView;
+  }
+
+  async getAnalytics(startDate, endDate) {
+    const db = this.read();
+    if (!db.analytics) {
+      return [];
+    }
+    
+    let analytics = db.analytics;
+    
+    if (startDate || endDate) {
+      analytics = analytics.filter(a => {
+        const timestamp = new Date(a.timestamp);
+        if (startDate && timestamp < new Date(startDate)) return false;
+        if (endDate && timestamp > new Date(endDate)) return false;
+        return true;
+      });
+    }
+    
+    return analytics;
+  }
+
+  async getAnalyticsSummary(days = 7) {
+    const db = this.read();
+    if (!db.analytics) {
+      return {
+        totalViews: 0,
+        uniqueVisitors: 0,
+        avgTimeSpent: 0,
+        topPages: [],
+        dateRange: {
+          start: new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString(),
+          end: new Date().toISOString()
+        }
+      };
+    }
+    
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const recentAnalytics = db.analytics.filter(a => new Date(a.timestamp) >= startDate);
+    
+    // Calculate metrics
+    const totalViews = recentAnalytics.length;
+    const uniqueVisitors = new Set(recentAnalytics.map(a => a.sessionId)).size;
+    
+    // Average time spent
+    const timeSpentEntries = recentAnalytics.filter(a => a.timeSpent && a.timeSpent > 0);
+    const avgTimeSpent = timeSpentEntries.length > 0
+      ? Math.round(timeSpentEntries.reduce((sum, a) => sum + a.timeSpent, 0) / timeSpentEntries.length)
+      : 0;
+    
+    // Top pages
+    const pageViewsMap = {};
+    const pageVisitorsMap = {};
+    
+    recentAnalytics.forEach(a => {
+      if (!pageViewsMap[a.path]) {
+        pageViewsMap[a.path] = 0;
+        pageVisitorsMap[a.path] = new Set();
+      }
+      pageViewsMap[a.path]++;
+      pageVisitorsMap[a.path].add(a.sessionId);
+    });
+    
+    const topPages = Object.entries(pageViewsMap)
+      .map(([path, views]) => ({
+        path,
+        views,
+        uniqueVisitors: pageVisitorsMap[path].size
+      }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 10);
+    
+    return {
+      totalViews,
+      uniqueVisitors,
+      avgTimeSpent,
+      topPages,
+      dateRange: {
+        start: startDate.toISOString(),
+        end: new Date().toISOString()
+      }
+    };
+  }
+
   // OTP Management (for email verification)
   async storeOTP(email, otp, userData) {
     const db = this.read();

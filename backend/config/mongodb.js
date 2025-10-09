@@ -392,6 +392,98 @@ class MongoDatabase {
       .toArray();
   }
 
+  // Analytics
+  async trackPageView(data) {
+    await this.ensureConnection();
+    const pageView = {
+      ...data,
+      timestamp: new Date(),
+      date: new Date().toISOString().split('T')[0] // YYYY-MM-DD
+    };
+    await this.db.collection('analytics').insertOne(pageView);
+    return pageView;
+  }
+
+  async getAnalytics(startDate, endDate) {
+    await this.ensureConnection();
+    const query = {};
+    
+    if (startDate || endDate) {
+      query.timestamp = {};
+      if (startDate) query.timestamp.$gte = new Date(startDate);
+      if (endDate) query.timestamp.$lte = new Date(endDate);
+    }
+    
+    return await this.db.collection('analytics').find(query).toArray();
+  }
+
+  async getAnalyticsSummary(days = 7) {
+    await this.ensureConnection();
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    
+    const [
+      totalViews,
+      uniqueVisitors,
+      pageViews,
+      avgTimeSpent,
+      topPages
+    ] = await Promise.all([
+      // Total page views
+      this.db.collection('analytics').countDocuments({ timestamp: { $gte: startDate } }),
+      
+      // Unique visitors
+      this.db.collection('analytics').distinct('sessionId', { timestamp: { $gte: startDate } }).then(arr => arr.length),
+      
+      // Page views by path
+      this.db.collection('analytics').aggregate([
+        { $match: { timestamp: { $gte: startDate } } },
+        { $group: { _id: '$path', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 }
+      ]).toArray(),
+      
+      // Average time spent
+      this.db.collection('analytics').aggregate([
+        { $match: { timestamp: { $gte: startDate }, timeSpent: { $exists: true, $gt: 0 } } },
+        { $group: { _id: null, avgTime: { $avg: '$timeSpent' } } }
+      ]).toArray().then(result => result[0]?.avgTime || 0),
+      
+      // Top pages
+      this.db.collection('analytics').aggregate([
+        { $match: { timestamp: { $gte: startDate } } },
+        { $group: { 
+            _id: '$path', 
+            views: { $sum: 1 },
+            uniqueVisitors: { $addToSet: '$sessionId' }
+          } 
+        },
+        { $project: {
+            path: '$_id',
+            views: 1,
+            uniqueVisitors: { $size: '$uniqueVisitors' }
+          }
+        },
+        { $sort: { views: -1 } },
+        { $limit: 10 }
+      ]).toArray()
+    ]);
+    
+    return {
+      totalViews,
+      uniqueVisitors,
+      avgTimeSpent: Math.round(avgTimeSpent),
+      topPages: topPages.map(p => ({
+        path: p.path || p._id,
+        views: p.views,
+        uniqueVisitors: p.uniqueVisitors
+      })),
+      dateRange: {
+        start: startDate.toISOString(),
+        end: new Date().toISOString()
+      }
+    };
+  }
+
   // Helper to get database stats (async for MongoDB)
   async read() {
     try {
