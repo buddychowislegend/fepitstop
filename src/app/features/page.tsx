@@ -2,55 +2,70 @@
 import Link from "next/link";
 import { useState } from "react";
 
+type Feature = {
+  icon: string;
+  title: string;
+  description: string;
+  highlight: boolean;
+  badge?: string | null;
+};
+
 export default function FeaturesPage() {
   const [activeTab, setActiveTab] = useState<'free' | 'pro'>('pro');
 
-  const freeFeatures = [
+  const freeFeatures: Feature[] = [
     {
       icon: "📝",
       title: "100 Interview Questions",
       description: "Access to carefully curated frontend interview questions covering HTML, CSS, JavaScript basics, and sample React problems.",
-      highlight: false
+      highlight: false,
+      badge: null
     },
     {
       icon: "💻",
       title: "Interactive Code Editor",
       description: "Write and test your code directly in the browser with our Monaco editor (same as VS Code).",
-      highlight: false
+      highlight: false,
+      badge: null
     },
     {
       icon: "✅",
       title: "Basic Test Cases",
       description: "Validate your solutions with fundamental test cases to ensure correctness.",
-      highlight: false
+      highlight: false,
+      badge: null
     },
     {
       icon: "🏆",
       title: "Public Leaderboard",
       description: "Compete with other developers and track your progress on our global leaderboard.",
-      highlight: false
+      highlight: false,
+      badge: null
     },
     {
       icon: "📧",
       title: "Daily Question via Email",
       description: "Receive a new interview question every day to keep your skills sharp.",
-      highlight: false
+      highlight: false,
+      badge: null
     },
     {
       icon: "📚",
       title: "Blog Articles & Guides",
       description: "Access our library of tutorials, interview tips, and preparation guides.",
-      highlight: false
+      highlight: false,
+      badge: null
     },
     {
       icon: "👥",
       title: "Community Access",
       description: "Join discussions, ask questions, and learn from other developers.",
-      highlight: false
+      highlight: false,
+      badge: null
     }
   ];
 
-  const proFeatures = [
+  const proFeatures: Feature[] = [
     {
       icon: "🚀",
       title: "1000+ Interview Questions",
