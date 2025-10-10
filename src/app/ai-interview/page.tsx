@@ -95,13 +95,17 @@ export default function AIInterviewPage() {
     
     setLoading(true);
     try {
-      const response = await fetch(api('/ai-interview/start'), {
+      const response = await fetch('/api/ai-interview', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ level, focus })
+        body: JSON.stringify({ 
+          action: 'start',
+          level, 
+          focus 
+        })
       });
       
       if (response.ok) {
@@ -141,16 +145,16 @@ export default function AIInterviewPage() {
     setLoading(true);
     
     try {
-      const response = await fetch(api('/ai-interview/respond'), {
+      const response = await fetch('/api/ai-interview', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
+          action: 'respond',
           sessionId,
-          message: input.trim(),
-          isVoice: false
+          message: input.trim()
         })
       });
       
@@ -182,13 +186,16 @@ export default function AIInterviewPage() {
     
     setLoading(true);
     try {
-      const response = await fetch(api('/ai-interview/end'), {
+      const response = await fetch('/api/ai-interview', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ sessionId })
+        body: JSON.stringify({ 
+          action: 'end',
+          sessionId 
+        })
       });
       
       if (response.ok) {
