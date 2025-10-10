@@ -11,11 +11,11 @@ export default function Navbar() {
   const navLinks = [
     { href: "/problems", label: "Problems" },
     { href: "/quiz", label: "Quiz" },
+    { href: "/ai-interview", label: "AI Interview" },
     // { href: "/features", label: "Features" }, // Hidden for now
     // { href: "/pricing", label: "Pricing", highlight: true }, // Hidden for now
     { href: "/prep-plans", label: "Prep Plans" },
     { href: "/system-design", label: "System Design" },
-    { href: "/mock-interview", label: "Mock Interview", comingSoon: true },
     { href: "/community", label: "Community", comingSoon: true },
   ];
 
