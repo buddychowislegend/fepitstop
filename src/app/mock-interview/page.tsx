@@ -4,18 +4,19 @@ import { useRouter } from "next/navigation";
 
 export default function MockInterviewPage() {
   const router = useRouter();
-  const isDev = process.env.NODE_ENV === 'development';
+  // Check if AI interview is enabled (via environment variable)
+  const aiInterviewEnabled = process.env.NEXT_PUBLIC_AI_INTERVIEW_ENABLED === 'true';
 
-  // Redirect to AI interview in dev mode
+  // Redirect to AI interview if enabled
   useEffect(() => {
-    if (isDev) {
+    if (aiInterviewEnabled) {
       router.push('/ai-interview');
     }
-  }, [isDev, router]);
+  }, [aiInterviewEnabled, router]);
 
-  // Show coming soon in production
-  if (!isDev) {
-  return (
+  // Show coming soon if not enabled
+  if (!aiInterviewEnabled) {
+    return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
       <div className="max-w-4xl mx-auto px-6 py-20 text-center">
         {/* Coming Soon Icon */}
