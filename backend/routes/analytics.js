@@ -40,18 +40,25 @@ const adminAuth = (req, res, next) => {
 // Track page view
 router.post('/track', async (req, res) => {
   try {
-    const { path, sessionId, timeSpent, referrer, userAgent } = req.body;
+    const { path, deviceId, sessionId, timeSpent, referrer, userAgent, screenResolution, language, timezone } = req.body;
     
-    if (!path || !sessionId) {
-      return res.status(400).json({ error: 'Path and sessionId are required' });
+    // Support both deviceId (new) and sessionId (old) for backwards compatibility
+    const visitorId = deviceId || sessionId;
+    
+    if (!path || !visitorId) {
+      return res.status(400).json({ error: 'Path and deviceId/sessionId are required' });
     }
     
     const pageView = await db.trackPageView({
       path,
-      sessionId,
+      sessionId: visitorId, // Store as sessionId in DB for now
+      deviceId: visitorId,  // Also store deviceId
       timeSpent: timeSpent || 0,
       referrer: referrer || null,
-      userAgent: userAgent || null
+      userAgent: userAgent || null,
+      screenResolution: screenResolution || null,
+      language: language || null,
+      timezone: timezone || null
     });
     
     res.json({ success: true, pageView });
