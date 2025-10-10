@@ -14,10 +14,8 @@ const adminRoutes = require('./routes/admin');
 const analyticsRoutes = require('./routes/analytics');
 // const paymentRoutes = require('./routes/payment'); // Temporarily disabled - causing mongoose conflicts
 
-// AI Interview (dev only)
-const aiInterviewRoutes = process.env.NODE_ENV !== 'production' 
-  ? require('./routes/ai-interview')
-  : null;
+// AI Interview (enabled in production too)
+const aiInterviewRoutes = require('./routes/ai-interview');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -80,11 +78,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 // app.use('/api/payment', paymentRoutes); // Temporarily disabled - causing mongoose conflicts
 
-// AI Interview (dev only)
-if (aiInterviewRoutes) {
-  app.use('/api/ai-interview', aiInterviewRoutes);
-  console.log('✅ AI Interview routes enabled (dev mode)');
-}
+// AI Interview (available in all environments)
+app.use('/api/ai-interview', aiInterviewRoutes);
+console.log('✅ AI Interview routes enabled');
 
 app.get('/api/health', async (req, res) => {
   try {
