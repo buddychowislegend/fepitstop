@@ -1,7 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Types
+type Message = {
+  role: 'interviewer' | 'candidate';
+  content: string;
+  timestamp: Date;
+  isVoice?: boolean;
+};
+
+type Session = {
+  id: string;
+  level: string;
+  focus: string;
+  startTime: Date;
+  endTime?: Date;
+  messages: Message[];
+  currentQuestion: number;
+  totalQuestions: number;
+  score?: number | null;
+  feedback?: string;
+  status: 'active' | 'completed';
+};
+
 // Simple in-memory storage for dev (replace with DB in production)
-const sessions = new Map<string, any>();
+const sessions = new Map<string, Session>();
 
 // System prompt for AI interviewer
 const INTERVIEWER_SYSTEM_PROMPT = `You are an experienced frontend interview conductor at a top tech company (Google, Meta, Amazon).
@@ -88,7 +110,7 @@ export async function POST(request: NextRequest) {
       case 'start': {
         const newSessionId = `interview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
-        const session = {
+        const session: Session = {
           id: newSessionId,
           level: level || 'mid',
           focus: focus || 'fullstack',
@@ -96,7 +118,7 @@ export async function POST(request: NextRequest) {
           messages: [],
           currentQuestion: 0,
           totalQuestions: 7,
-          status: 'active'
+          status: 'active' as const
         };
         
         sessions.set(newSessionId, session);

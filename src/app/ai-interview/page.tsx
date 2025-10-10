@@ -326,12 +326,8 @@ export default function AIInterviewPage() {
               <div className="text-6xl mb-4">🤖</div>
               <h1 className="text-4xl font-extrabold mb-2">AI Mock Interview</h1>
               <p className="text-xl text-white/80">
-                Practice with an AI interviewer powered by Gemini 2.5 Flash
+                Practice with an AI interviewer powered by Gemini 2.0 Flash
               </p>
-              <div className="inline-flex items-center gap-2 mt-4 bg-yellow-500/20 text-yellow-300 px-4 py-2 rounded-lg text-sm">
-                <span>⚠️</span>
-                <span>Development Mode Only</span>
-              </div>
             </div>
             
             <div className="space-y-6 mb-8">
