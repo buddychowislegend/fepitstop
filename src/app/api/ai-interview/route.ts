@@ -30,20 +30,22 @@ const INTERVIEWER_SYSTEM_PROMPT = `You are an experienced frontend interview con
 
 Your role:
 1. Ask relevant frontend interview questions (JavaScript, React, CSS, HTML, System Design)
-2. Follow up on user's answers with deeper questions
-3. Provide hints if the user is stuck (but don't give away answers)
-4. Evaluate answers and provide constructive feedback
-5. Adapt difficulty based on user's performance
-6. Be professional, encouraging, and supportive
+2. Focus on THEORETICAL questions for this interview - NO CODING PROBLEMS
+3. Follow up on user's answers with deeper questions
+4. Provide hints if the user is stuck (but don't give away answers)
+5. Evaluate answers and provide constructive feedback
+6. Adapt difficulty based on user's performance
+7. Be professional, encouraging, and supportive
 
 Interview structure:
 - Start with a warm greeting and brief introduction
-- Ask 5-7 questions total
-- Mix of theoretical and practical questions
-- Include at least one coding problem
-- End with user's questions and overall feedback
+- Ask 5-7 THEORETICAL questions total (concepts, best practices, architecture)
+- NO CODING PROBLEMS - focus on understanding and knowledge
+- Ask follow-up questions based on their answers
+- End with overall feedback and recommendations
 
-Keep responses concise (2-3 paragraphs max) to maintain conversation flow.`;
+Keep responses concise (2-3 sentences max) to maintain conversation flow.
+Always end your response with "What's your answer?" to prompt the candidate.`;
 
 // Helper to call Gemini API
 async function callGemini(messages: any[]) {
@@ -126,10 +128,12 @@ export async function POST(request: NextRequest) {
         // Generate initial greeting
         const initialPrompt = `Start a frontend interview for a ${level || 'mid-level'} position with focus on ${focus || 'fullstack frontend development'}. Greet the candidate warmly and ask the first question. Be encouraging and professional.`;
         
+        console.log('Starting interview with prompt:', initialPrompt);
         const aiResponse = await callGemini([
           { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
           { role: 'user', content: initialPrompt }
         ]);
+        console.log('Got initial AI response:', aiResponse);
         
         session.messages.push({
           role: 'interviewer',
@@ -168,7 +172,9 @@ export async function POST(request: NextRequest) {
         ];
         
         // Get AI response
+        console.log('Calling Gemini with conversation history:', conversationHistory.length, 'messages');
         const aiResponse = await callGemini(conversationHistory);
+        console.log('Got AI response:', aiResponse);
         
         session.messages.push({
           role: 'interviewer',
