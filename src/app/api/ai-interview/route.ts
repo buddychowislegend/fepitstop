@@ -37,6 +37,26 @@ type Session = {
 // Simple in-memory storage for dev (replace with DB in production)
 const sessions = new Map<string, Session>();
 
+// Mock interview questions for fallback when quota exceeded
+const mockQuestions = [
+  "Can you explain the difference between var, let, and const in JavaScript, and when would you use each one?",
+  "What is the Virtual DOM in React, and how does it improve performance?",
+  "Explain the concept of closures in JavaScript with an example.",
+  "What are React Hooks? Can you explain useState and useEffect?",
+  "How would you optimize the performance of a React application?",
+  "What is the difference between == and === in JavaScript?",
+  "Can you explain the concept of event bubbling and event capturing in JavaScript?",
+  "Thank you for your answers! That completes our interview. You demonstrated good knowledge of frontend concepts. Keep practicing and you'll continue to improve!"
+];
+
+function getMockResponse(questionNumber: number, userAnswer: string): string {
+  if (questionNumber >= mockQuestions.length - 1) {
+    return mockQuestions[mockQuestions.length - 1]; // Final message
+  }
+  
+  return `Thank you for your answer. ${mockQuestions[questionNumber]} What's your answer?`;
+}
+
 // System prompt for AI interviewer
 const INTERVIEWER_SYSTEM_PROMPT = `You are an experienced frontend interview conductor at a top tech company (Google, Meta, Amazon).
 
@@ -102,6 +122,12 @@ async function callGemini(messages: any[]) {
     if (!response.ok) {
       const error = await response.text();
       console.error('Gemini API error response:', error);
+      
+      // Check if it's a quota error
+      if (response.status === 429) {
+        throw new Error('QUOTA_EXCEEDED');
+      }
+      
       throw new Error(`Gemini API request failed: ${response.status} - ${error}`);
     }
 
@@ -175,11 +201,28 @@ export async function POST(request: NextRequest) {
           const initialPrompt = `Start a frontend interview for a ${level || 'mid-level'} position with focus on ${focus || 'fullstack frontend development'}. Greet the candidate warmly and ask the first question. Be encouraging and professional.`;
           
           console.log('Calling Gemini API for initial greeting...');
-          const aiResponse = await callGemini([
-            { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-            { role: 'user', content: initialPrompt }
-          ]);
-          console.log('Got initial AI response:', aiResponse.substring(0, 100) + '...');
+          
+          let aiResponse: string;
+          
+          try {
+            aiResponse = await callGemini([
+              { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
+              { role: 'user', content: initialPrompt }
+            ]);
+            console.log('Got initial AI response:', aiResponse.substring(0, 100) + '...');
+          } catch (geminiError: any) {
+            console.error('Gemini API error:', geminiError.message);
+            
+            // Use fallback mock interview if quota exceeded
+            if (geminiError.message === 'QUOTA_EXCEEDED') {
+              console.log('Quota exceeded, using mock interviewer');
+              aiResponse = `Hello! I'm ${interviewer?.name || 'your interviewer'} from ${interviewer?.company || 'a top tech company'}. Thank you for joining this ${level || 'mid-level'} frontend interview focusing on ${focus || 'fullstack development'}. I'm excited to learn about your experience and technical skills today.
+
+Let's start with a fundamental question: Can you explain the difference between var, let, and const in JavaScript, and when would you use each one? What's your answer?`;
+            } else {
+              throw geminiError;
+            }
+          }
         
           session.messages.push({
             role: 'interviewer',
@@ -217,19 +260,33 @@ export async function POST(request: NextRequest) {
           timestamp: new Date()
         });
         
-        // Build conversation history
-        const conversationHistory = [
-          { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-          ...session.messages.map((msg: any) => ({
-            role: msg.role === 'interviewer' ? 'model' : 'user',
-            content: msg.content
-          }))
-        ];
+        let aiResponse: string;
         
-        // Get AI response
-        console.log('Calling Gemini with conversation history:', conversationHistory.length, 'messages');
-        const aiResponse = await callGemini(conversationHistory);
-        console.log('Got AI response:', aiResponse);
+        try {
+          // Build conversation history
+          const conversationHistory = [
+            { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
+            ...session.messages.map((msg: any) => ({
+              role: msg.role === 'interviewer' ? 'model' : 'user',
+              content: msg.content
+            }))
+          ];
+          
+          // Get AI response
+          console.log('Calling Gemini with conversation history:', conversationHistory.length, 'messages');
+          aiResponse = await callGemini(conversationHistory);
+          console.log('Got AI response:', aiResponse);
+        } catch (geminiError: any) {
+          console.error('Gemini API error in respond:', geminiError.message);
+          
+          // Use fallback mock interview if quota exceeded
+          if (geminiError.message === 'QUOTA_EXCEEDED') {
+            console.log('Quota exceeded, using mock response');
+            aiResponse = getMockResponse(session.currentQuestion, message);
+          } else {
+            throw geminiError;
+          }
+        }
         
         session.messages.push({
           role: 'interviewer',
