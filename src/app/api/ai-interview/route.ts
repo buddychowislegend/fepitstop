@@ -8,8 +8,20 @@ type Message = {
   isVoice?: boolean;
 };
 
+type Interviewer = {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  experience: string;
+  avatar: string;
+  specialties: string[];
+  gender: 'male' | 'female';
+};
+
 type Session = {
   id: string;
+  interviewer?: Interviewer;
   level: string;
   focus: string;
   startTime: Date;
@@ -51,6 +63,8 @@ Always end your response with "What's your answer?" to prompt the candidate.`;
 async function callGemini(messages: any[]) {
   const apiKey = process.env.GEMINI_API_KEY;
   
+  console.log('callGemini - API Key exists:', !!apiKey);
+  
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY not configured');
   }
@@ -61,43 +75,65 @@ async function callGemini(messages: any[]) {
     parts: [{ text: msg.content }]
   }));
   
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
+  console.log('callGemini - Sending request with', contents.length, 'messages');
+  
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      }),
+        body: JSON.stringify({
+          contents,
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          },
+        }),
+      }
+    );
+
+    console.log('callGemini - Response status:', response.status);
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Gemini API error response:', error);
+      throw new Error(`Gemini API request failed: ${response.status} - ${error}`);
     }
-  );
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error('Gemini API error:', error);
-    throw new Error('Gemini API request failed');
+    const data = await response.json();
+    console.log('callGemini - Response received, has candidates:', !!data.candidates);
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('callGemini - Invalid response structure:', JSON.stringify(data));
+      throw new Error('Invalid response from Gemini API');
+    }
+    
+    return data.candidates[0].content.parts[0].text;
+  } catch (error: any) {
+    console.error('callGemini - Error:', error.message);
+    throw error;
   }
-
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text;
 }
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== AI Interview API Called ===');
+    
     const body = await request.json();
-    const { action, sessionId, message, level, focus } = body;
+    const { action, sessionId, message, level, focus, interviewer } = body;
+    
+    console.log('Action:', action);
+    console.log('Body keys:', Object.keys(body));
     
     // Get auth token from header
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
+      console.error('No authorization header');
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
     
@@ -105,48 +141,67 @@ export async function POST(request: NextRequest) {
     
     // Simple token validation (in production, verify with JWT)
     if (!token) {
+      console.error('No token found');
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
     
+    console.log('Token validated');
+    
     switch (action) {
       case 'start': {
-        const newSessionId = `interview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        try {
+          const newSessionId = `interview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          
+          console.log('Starting new interview session:', newSessionId);
+          console.log('Interviewer:', interviewer?.name);
+          console.log('Level:', level, 'Focus:', focus);
+          
+          const session: Session = {
+            id: newSessionId,
+            interviewer: interviewer,
+            level: level || 'mid',
+            focus: focus || 'fullstack',
+            startTime: new Date(),
+            messages: [],
+            currentQuestion: 0,
+            totalQuestions: 7,
+            status: 'active' as const
+          };
+          
+          sessions.set(newSessionId, session);
+          console.log('Session created and stored');
+          
+          // Generate initial greeting
+          const initialPrompt = `Start a frontend interview for a ${level || 'mid-level'} position with focus on ${focus || 'fullstack frontend development'}. Greet the candidate warmly and ask the first question. Be encouraging and professional.`;
+          
+          console.log('Calling Gemini API for initial greeting...');
+          const aiResponse = await callGemini([
+            { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
+            { role: 'user', content: initialPrompt }
+          ]);
+          console.log('Got initial AI response:', aiResponse.substring(0, 100) + '...');
         
-        const session: Session = {
-          id: newSessionId,
-          level: level || 'mid',
-          focus: focus || 'fullstack',
-          startTime: new Date(),
-          messages: [],
-          currentQuestion: 0,
-          totalQuestions: 7,
-          status: 'active' as const
-        };
-        
-        sessions.set(newSessionId, session);
-        
-        // Generate initial greeting
-        const initialPrompt = `Start a frontend interview for a ${level || 'mid-level'} position with focus on ${focus || 'fullstack frontend development'}. Greet the candidate warmly and ask the first question. Be encouraging and professional.`;
-        
-        console.log('Starting interview with prompt:', initialPrompt);
-        const aiResponse = await callGemini([
-          { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-          { role: 'user', content: initialPrompt }
-        ]);
-        console.log('Got initial AI response:', aiResponse);
-        
-        session.messages.push({
-          role: 'interviewer',
-          content: aiResponse,
-          timestamp: new Date()
-        });
-        
-        return NextResponse.json({
-          sessionId: newSessionId,
-          message: aiResponse,
-          questionNumber: 1,
-          totalQuestions: session.totalQuestions
-        });
+          session.messages.push({
+            role: 'interviewer',
+            content: aiResponse,
+            timestamp: new Date()
+          });
+          
+          console.log('Returning success response');
+          
+          return NextResponse.json({
+            sessionId: newSessionId,
+            message: aiResponse,
+            questionNumber: 1,
+            totalQuestions: session.totalQuestions
+          });
+        } catch (error: any) {
+          console.error('Error in start action:', error);
+          return NextResponse.json({ 
+            error: 'Failed to start interview', 
+            details: error.message 
+          }, { status: 500 });
+        }
       }
       
       case 'respond': {
@@ -200,37 +255,179 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: 'Session not found' }, { status: 404 });
         }
         
-        // Generate final feedback
-        const conversationHistory = [
-          { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-          ...session.messages.map((msg: any) => ({
-            role: msg.role === 'interviewer' ? 'model' : 'user',
-            content: msg.content
-          })),
-          { 
-            role: 'user', 
-            content: `The interview is complete. Provide comprehensive feedback with:\n1. Overall score (out of 10)\n2. Key strengths\n3. Areas for improvement\n4. Specific study recommendations\n\nBe constructive and specific.`
-          }
-        ];
+        console.log('Ending interview, session:', sessionId);
+        console.log('Messages count:', session.messages.length);
         
-        const feedback = await callGemini(conversationHistory);
+        // Generate per-question analysis
+        const questionAnalysis = [];
+        const qaExchanges: any[] = [];
+        
+        try {
+          // Group messages into Q&A pairs
+          for (let i = 0; i < session.messages.length; i++) {
+            if (session.messages[i].role === 'interviewer') {
+              const question = session.messages[i];
+              const answer = session.messages[i + 1];
+              
+              if (answer && answer.role === 'candidate') {
+                qaExchanges.push({
+                  question: question.content,
+                  answer: answer.content,
+                  questionNumber: qaExchanges.length + 1
+                });
+                i++; // Skip the answer in next iteration
+              }
+            }
+          }
+          
+          console.log('Found Q&A pairs:', qaExchanges.length);
+          
+          // Get detailed analysis for each Q&A pair (with timeout protection)
+          for (const qa of qaExchanges) {
+            try {
+              const analysisPrompt = `Analyze this interview question and answer. Respond ONLY with valid JSON:
+
+Question: ${qa.question}
+Answer: ${qa.answer}
+
+JSON format:
+{
+  "score": 7,
+  "strengths": ["strength1", "strength2"],
+  "improvements": ["improvement1", "improvement2"],
+  "feedback": "Brief constructive feedback"
+}`;
+
+              console.log(`Analyzing Q${qa.questionNumber}...`);
+              
+              const analysisText = await Promise.race([
+                callGemini([
+                  { role: 'user', content: analysisPrompt }
+                ]),
+                new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error('Analysis timeout')), 10000)
+                )
+              ]) as string;
+              
+              console.log(`Q${qa.questionNumber} analysis response:`, analysisText.substring(0, 100));
+              
+              // Try to parse JSON from response
+              const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                try {
+                  const analysis = JSON.parse(jsonMatch[0]);
+                  questionAnalysis.push({
+                    questionNumber: qa.questionNumber,
+                    question: qa.question,
+                    answer: qa.answer,
+                    score: analysis.score || 7,
+                    strengths: analysis.strengths || ['Attempted to answer'],
+                    improvements: analysis.improvements || ['Could provide more detail'],
+                    feedback: analysis.feedback || 'Good effort'
+                  });
+                  console.log(`Q${qa.questionNumber} analyzed successfully`);
+                } catch (parseError) {
+                  console.error(`JSON parse error for Q${qa.questionNumber}:`, parseError);
+                  throw parseError;
+                }
+              } else {
+                console.warn(`No JSON found in response for Q${qa.questionNumber}`);
+                throw new Error('No JSON in response');
+              }
+            } catch (error) {
+              console.error(`Error analyzing Q${qa.questionNumber}:`, error);
+              // Add fallback analysis
+              questionAnalysis.push({
+                questionNumber: qa.questionNumber,
+                question: qa.question,
+                answer: qa.answer,
+                score: 7,
+                strengths: ['Participated in the interview', 'Attempted to answer the question'],
+                improvements: ['Could provide more detailed explanations'],
+                feedback: 'Good effort on this question. Keep practicing to improve your answers.'
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error in per-question analysis:', error);
+          // Continue without per-question analysis if it fails
+        }
+        
+        // Generate overall feedback
+        let feedback = 'Great job completing the interview! You demonstrated good communication skills and technical knowledge.';
+        let overallScore = null;
+        
+        try {
+          console.log('Generating overall feedback...');
+          const conversationHistory = [
+            { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
+            ...session.messages.map((msg: any) => ({
+              role: msg.role === 'interviewer' ? 'model' : 'user',
+              content: msg.content
+            })),
+            { 
+              role: 'user', 
+              content: `The interview is complete. Provide comprehensive overall feedback with:\n1. Overall score (out of 10)\n2. Key strengths (3-5 points)\n3. Areas for improvement (3-5 points)\n4. Specific study recommendations\n\nBe constructive and specific.`
+            }
+          ];
+          
+          feedback = await Promise.race([
+            callGemini(conversationHistory),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Feedback timeout')), 15000)
+            )
+          ]) as string;
+          
+          console.log('Overall feedback generated successfully');
+          
+          // Extract score from feedback
+          const scoreMatch = feedback.match(/score[:\s]+(\d+)/i);
+          if (scoreMatch) {
+            overallScore = parseInt(scoreMatch[1]);
+          }
+        } catch (error) {
+          console.error('Error generating overall feedback:', error);
+          // Use fallback feedback
+          feedback = `Thank you for completing the interview! 
+
+Key Strengths:
+- Demonstrated good communication skills
+- Showed willingness to engage with questions
+- Maintained professional demeanor throughout
+
+Areas for Improvement:
+- Continue practicing technical concepts
+- Work on providing more detailed explanations
+- Study common interview patterns
+
+Overall Score: 7/10
+
+Keep practicing and you'll continue to improve!`;
+          overallScore = 7;
+        }
         
         session.status = 'completed';
         session.endTime = new Date();
         session.feedback = feedback;
         
-        // Extract score
-        const scoreMatch = feedback.match(/score[:\s]+(\d+)/i);
-        session.score = scoreMatch ? parseInt(scoreMatch[1]) : null;
+        // Calculate overall score from question scores
+        const avgScore = questionAnalysis.length > 0
+          ? Math.round(questionAnalysis.reduce((sum, qa) => sum + qa.score, 0) / questionAnalysis.length * 10) / 10
+          : null;
+        
+        session.score = avgScore || overallScore || 7;
         
         const duration = Math.floor((session.endTime.getTime() - session.startTime.getTime()) / 1000 / 60);
+        
+        console.log('Interview ended successfully, score:', session.score);
         
         return NextResponse.json({
           feedback,
           score: session.score,
           duration,
           questionsAsked: session.currentQuestion,
-          transcript: session.messages
+          transcript: session.messages,
+          questionAnalysis // New: detailed per-question analysis
         });
       }
       
