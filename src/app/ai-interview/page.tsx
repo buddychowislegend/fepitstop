@@ -9,6 +9,8 @@ type Message = {
   content: string;
   timestamp: Date;
   isVoice?: boolean;
+  videoBlob?: Blob;
+  videoUrl?: string;
 };
 
 type Interviewer = {
@@ -63,6 +65,9 @@ export default function AIInterviewPage() {
   const streamRef = useRef<MediaStream | null>(null);
   const actualSpokenTextRef = useRef<string>(''); // Track actual spoken text
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const videoRecorderRef = useRef<MediaRecorder | null>(null);
+  const videoChunksRef = useRef<Blob[]>([]);
+  const currentQuestionStartTimeRef = useRef<Date | null>(null);
   
   // Settings
   const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>('mid');
@@ -383,6 +388,29 @@ export default function AIInterviewPage() {
     setIsRecording(true);
     setIsListening(true);
     
+    // Start video recording
+    if (streamRef.current && !videoRecorderRef.current) {
+      try {
+        videoChunksRef.current = [];
+        const videoRecorder = new MediaRecorder(streamRef.current, {
+          mimeType: 'video/webm;codecs=vp8,opus'
+        });
+        
+        videoRecorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
+            videoChunksRef.current.push(event.data);
+          }
+        };
+        
+        videoRecorderRef.current = videoRecorder;
+        videoRecorder.start();
+        currentQuestionStartTimeRef.current = new Date();
+        console.log('Started video recording for answer');
+      } catch (error) {
+        console.error('Error starting video recording:', error);
+      }
+    }
+    
     if (recognitionRef.current) {
       recognitionRef.current.start();
     }
@@ -400,8 +428,38 @@ export default function AIInterviewPage() {
       recognitionRef.current.stop();
     }
 
-    // Don't stop camera stream - keep it running throughout interview
+    // Stop video recording
+    let videoBlob: Blob | undefined;
+    let videoUrl: string | undefined;
+    
+    if (videoRecorderRef.current && videoRecorderRef.current.state === 'recording') {
+      return new Promise<void>((resolve) => {
+        if (videoRecorderRef.current) {
+          videoRecorderRef.current.onstop = async () => {
+            if (videoChunksRef.current.length > 0) {
+              videoBlob = new Blob(videoChunksRef.current, { type: 'video/webm' });
+              videoUrl = URL.createObjectURL(videoBlob);
+              console.log('Video recorded, size:', videoBlob.size, 'bytes');
+            }
+            videoRecorderRef.current = null;
+            
+            // Continue with answer submission
+            await submitAnswerWithVideo(videoBlob, videoUrl);
+            resolve();
+          };
+          
+          videoRecorderRef.current.stop();
+        } else {
+          resolve();
+        }
+      });
+    } else {
+      // No video recording, submit without video
+      await submitAnswerWithVideo(undefined, undefined);
+    }
+  };
 
+  const submitAnswerWithVideo = async (videoBlob?: Blob, videoUrl?: string) => {
     // Wait a moment for any final speech recognition results
     await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -417,12 +475,14 @@ export default function AIInterviewPage() {
     if (answerToSubmit && session) {
       console.log('Submitting answer to AI...');
       
-      // Add candidate message to conversation
+      // Add candidate message to conversation with video
       const candidateMessage: Message = {
         role: 'candidate',
         content: answerToSubmit,
         timestamp: new Date(),
-        isVoice: true
+        isVoice: true,
+        videoBlob,
+        videoUrl
       };
       
       setMessages(prev => [...prev, candidateMessage]);
@@ -480,7 +540,9 @@ export default function AIInterviewPage() {
         role: 'candidate',
         content: 'I need to think about this question.',
         timestamp: new Date(),
-        isVoice: true
+        isVoice: true,
+        videoBlob,
+        videoUrl
       };
       
       setMessages(prev => [...prev, candidateMessage]);
@@ -514,6 +576,11 @@ export default function AIInterviewPage() {
             ...prev,
             currentQuestion: prev.currentQuestion + 1
           } : null);
+          
+          // Make AI read the next question
+          setTimeout(() => {
+            speakText(data.message);
+          }, 500);
         }
       } catch (error) {
         console.error('Error sending response:', error);
@@ -1604,6 +1671,118 @@ export default function AIInterviewPage() {
             </div>
           </div>
 
+          {/* Per-Question Detailed Analysis */}
+          {feedback.questionAnalysis && feedback.questionAnalysis.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Question-by-Question Analysis</h2>
+              <div className="space-y-6">
+                {feedback.questionAnalysis.map((qa: any, index: number) => {
+                  // Find the corresponding message with video
+                  const candidateMsg = messages.find((msg, i) => 
+                    msg.role === 'candidate' && msg.content === qa.answer
+                  );
+                  
+                  return (
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                      {/* Question Header */}
+                      <div className="bg-purple-50 p-4 border-b border-gray-200">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold text-gray-900">Question {qa.questionNumber}</h3>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">Score:</span>
+                            <span className={`text-lg font-bold ${
+                              qa.score >= 8 ? 'text-green-600' : 
+                              qa.score >= 6 ? 'text-blue-600' : 
+                              qa.score >= 4 ? 'text-yellow-600' : 
+                              'text-red-600'
+                            }`}>
+                              {qa.score}/10
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-6">
+                        {/* Question */}
+                        <div className="mb-4">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Question:</h4>
+                          <p className="text-gray-800 bg-gray-50 p-3 rounded">{qa.question}</p>
+                        </div>
+
+                        {/* Answer with Video */}
+                        <div className="mb-4">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Your Answer:</h4>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            {/* Video Playback */}
+                            {candidateMsg?.videoUrl && (
+                              <div className="bg-black rounded-lg overflow-hidden">
+                                <video 
+                                  src={candidateMsg.videoUrl} 
+                                  controls 
+                                  className="w-full h-auto"
+                                  style={{ maxHeight: '300px' }}
+                                >
+                                  Your browser does not support video playback.
+                                </video>
+                              </div>
+                            )}
+                            
+                            {/* Answer Text */}
+                            <div className={candidateMsg?.videoUrl ? '' : 'md:col-span-2'}>
+                              <p className="text-gray-800 bg-gray-50 p-3 rounded h-full">{qa.answer}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Feedback */}
+                        <div className="mb-4">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Feedback:</h4>
+                          <p className="text-gray-700 bg-blue-50 p-3 rounded border-l-4 border-blue-500">{qa.feedback}</p>
+                        </div>
+
+                        {/* Strengths and Improvements */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {/* Strengths */}
+                          {qa.strengths && qa.strengths.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-green-700 mb-2">✓ Strengths:</h4>
+                              <ul className="space-y-1">
+                                {qa.strengths.map((strength: string, i: number) => (
+                                  <li key={i} className="text-sm text-gray-700 bg-green-50 p-2 rounded flex items-start gap-2">
+                                    <span className="text-green-600 mt-0.5">•</span>
+                                    <span>{strength}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Improvements */}
+                          {qa.improvements && qa.improvements.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-yellow-700 mb-2">💡 Areas to Improve:</h4>
+                              <ul className="space-y-1">
+                                {qa.improvements.map((improvement: string, i: number) => (
+                                  <li key={i} className="text-sm text-gray-700 bg-yellow-50 p-2 rounded flex items-start gap-2">
+                                    <span className="text-yellow-600 mt-0.5">•</span>
+                                    <span>{improvement}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Overall Summary */}
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Overall Summary</h2>
+          
           {/* Detailed Analysis */}
           <div className="grid md:grid-cols-2 gap-8">
             {/* Strengths */}
