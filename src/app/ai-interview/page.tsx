@@ -42,11 +42,12 @@ export default function AIInterviewPage() {
   const router = useRouter();
   
   // Interview flow states
-  const [currentStep, setCurrentStep] = useState<'setup' | 'interviewer-selection' | 'mic-check' | 'interview' | 'feedback'>('setup');
+  const [currentStep, setCurrentStep] = useState<'setup' | 'interviewer-selection' | 'mic-check' | 'interview' | 'thank-you' | 'analysis'>('setup');
   const [session, setSession] = useState<InterviewSession | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<any>(null);
+  const [analysisProgress, setAnalysisProgress] = useState<'uploading' | 'analyzing' | 'creating-feedback' | 'complete'>('uploading');
   
   // Voice recognition
   const [isListening, setIsListening] = useState(false);
@@ -59,6 +60,7 @@ export default function AIInterviewPage() {
   const audioChunksRef = useRef<Blob[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const actualSpokenTextRef = useRef<string>(''); // Track actual spoken text
   
   // Settings
   const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>('mid');
@@ -157,6 +159,11 @@ export default function AIInterviewPage() {
               const newAnswer = cleanedPrev ? cleanedPrev + ' ' + finalTranscript.trim() : finalTranscript.trim();
               console.log('Previous answer:', cleanedPrev);
               console.log('New answer after adding final:', newAnswer);
+              
+              // Update the ref with the actual spoken text
+              actualSpokenTextRef.current = newAnswer;
+              console.log('Updated actualSpokenTextRef:', actualSpokenTextRef.current);
+              
               return newAnswer;
             });
           }
@@ -309,7 +316,15 @@ export default function AIInterviewPage() {
 
       const data = await response.json();
       setFeedback(data);
-      setCurrentStep('feedback');
+      setCurrentStep('thank-you');
+      
+      // Simulate analysis progress
+      setTimeout(() => setAnalysisProgress('analyzing'), 2000);
+      setTimeout(() => setAnalysisProgress('creating-feedback'), 4000);
+      setTimeout(() => {
+        setAnalysisProgress('complete');
+        setCurrentStep('analysis');
+      }, 6000);
     } catch (error) {
       console.error('Error ending interview:', error);
     } finally {
@@ -332,6 +347,7 @@ export default function AIInterviewPage() {
 
       // Reset current answer and start recording
       setCurrentAnswer('');
+      actualSpokenTextRef.current = ''; // Reset the ref
       setIsRecording(true);
       setIsListening(true);
       
@@ -370,10 +386,14 @@ export default function AIInterviewPage() {
     // Wait a moment for any final speech recognition results
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Send the current answer to AI
-    const answerToSubmit = currentAnswer.replace(/\[.*?\]/g, '').trim(); // Remove interim text
+    // Use the ref to get the actual spoken text, fallback to state
+    const actualSpokenText = actualSpokenTextRef.current.trim();
+    const stateAnswer = currentAnswer.replace(/\[.*?\]/g, '').trim();
+    const answerToSubmit = actualSpokenText || stateAnswer;
+    
+    console.log('Actual spoken text from ref:', actualSpokenText);
+    console.log('Current answer from state:', stateAnswer);
     console.log('Final answer to submit:', answerToSubmit);
-    console.log('Current answer state:', currentAnswer);
     
     if (answerToSubmit && session) {
       console.log('Submitting answer to AI...');
@@ -429,8 +449,8 @@ export default function AIInterviewPage() {
         setLoading(false);
       }
     } else if (session) {
-      // Even if no voice was captured, submit an empty response to continue the interview
-      console.log('No voice captured, submitting empty response to continue interview...');
+      // Only submit fallback if we actually tried to record and got nothing
+      console.log('No voice captured after recording attempt, submitting fallback response...');
       
       const candidateMessage: Message = {
         role: 'candidate',
@@ -482,6 +502,7 @@ export default function AIInterviewPage() {
     
     // Reset current answer
     setCurrentAnswer('');
+    actualSpokenTextRef.current = '';
   };
 
   const checkPermissions = async () => {
@@ -1119,68 +1140,388 @@ export default function AIInterviewPage() {
     );
   }
 
-  // Feedback Screen
-  if (currentStep === 'feedback' && feedback) {
+  // Thank You Screen
+  if (currentStep === 'thank-you') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-            <div className="text-center mb-8">
-              <div className="text-6xl mb-4">🎉</div>
-              <h1 className="text-4xl font-extrabold text-white mb-2">Interview Complete!</h1>
-              <p className="text-xl text-white/80">Here's your detailed feedback</p>
+      <div className="min-h-screen bg-white">
+        {/* Header */}
+        <div className="bg-purple-600 text-white p-4">
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">FP</span>
+              </div>
+              <h1 className="text-xl font-bold">Frontend Pitstop</h1>
             </div>
+          </div>
+        </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-4">Overall Score</h2>
-                <div className="bg-white/10 rounded-xl p-6 text-center">
-                  <div className="text-6xl font-bold text-green-400 mb-2">{feedback.score}/10</div>
-                  <p className="text-white/80">Great performance!</p>
+        {/* Main Content */}
+        <div className="max-w-4xl mx-auto p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Thank you {user?.name || 'sagar bhatnagar'}. You have completed the interview.
+            </h1>
+          </div>
+
+          {/* Progress Steps */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="space-y-4">
+              <div className={`flex items-center gap-4 p-4 rounded-lg ${
+                analysisProgress === 'uploading' ? 'bg-purple-50 border-l-4 border-purple-500' : 
+                ['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-green-50 border-l-4 border-green-500' : 'bg-gray-50'
+              }`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  analysisProgress === 'uploading' ? 'bg-purple-500' : 
+                  ['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-green-500' : 'bg-gray-300'
+                }`}>
+                  <span className="text-white text-sm">
+                    {['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) ? '✓' : '⏳'}
+                  </span>
                 </div>
+                <span className="font-medium">Uploading your responses...</span>
               </div>
 
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-4">Key Strengths</h2>
-                <div className="space-y-3">
-                  {feedback.strengths?.map((strength: string, index: number) => (
-                    <div key={index} className="bg-green-500/20 border border-green-500/30 rounded-lg p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-green-400">✓</span>
-                        <span className="text-white">{strength}</span>
-                      </div>
-                    </div>
-                  ))}
+              <div className={`flex items-center gap-4 p-4 rounded-lg ${
+                analysisProgress === 'analyzing' ? 'bg-purple-50 border-l-4 border-purple-500' : 
+                ['creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-green-50 border-l-4 border-green-500' : 'bg-gray-50'
+              }`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  analysisProgress === 'analyzing' ? 'bg-purple-500 animate-pulse' : 
+                  ['creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-green-500' : 'bg-gray-300'
+                }`}>
+                  <span className="text-white text-sm">
+                    {['creating-feedback', 'complete'].includes(analysisProgress) ? '✓' : '⏳'}
+                  </span>
                 </div>
+                <span className="font-medium">Analyzing your interview...</span>
+              </div>
+
+              <div className={`flex items-center gap-4 p-4 rounded-lg ${
+                analysisProgress === 'creating-feedback' ? 'bg-purple-50 border-l-4 border-purple-500' : 
+                analysisProgress === 'complete' ? 'bg-green-50 border-l-4 border-green-500' : 'bg-gray-50'
+              }`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  analysisProgress === 'creating-feedback' ? 'bg-purple-500 animate-pulse' : 
+                  analysisProgress === 'complete' ? 'bg-green-500' : 'bg-gray-300'
+                }`}>
+                  <span className="text-white text-sm">
+                    {analysisProgress === 'complete' ? '✓' : '⏳'}
+                  </span>
+                </div>
+                <span className="font-medium">Creating actionable feedback...</span>
               </div>
             </div>
+          </div>
 
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold text-white mb-4">Areas for Improvement</h2>
+          {/* Interview Summary Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-2">Position</h3>
+              <p className="text-2xl font-bold text-purple-600">Frontend Developer</p>
+            </div>
+            
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-2">Round</h3>
+              <p className="text-2xl font-bold text-blue-600">Technical Interview</p>
+            </div>
+            
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-2">Completed</h3>
+              <p className="text-2xl font-bold text-green-600">
+                {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Action Cards */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-4">JD Based Interview</h3>
               <div className="space-y-3">
-                {feedback.improvements?.map((improvement: string, index: number) => (
-                  <div key={index} className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-3">
+                <input 
+                  type="text" 
+                  placeholder="Role Name" 
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <input 
+                  type="text" 
+                  placeholder="Interview Type" 
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <button className="w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700">
+                  Start Interview
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-4">AI-Powered Performance Review</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Generic Review</h4>
+                  <input 
+                    type="text" 
+                    placeholder="Role Name" 
+                    className="w-full p-2 border border-gray-300 rounded text-sm"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Candidate Name" 
+                    className="w-full p-2 border border-gray-300 rounded text-sm mt-2"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Personalized Review</h4>
+                  <input 
+                    type="text" 
+                    placeholder="Role Name" 
+                    className="w-full p-2 border border-gray-300 rounded text-sm"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Company Name" 
+                    className="w-full p-2 border border-gray-300 rounded text-sm mt-2"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-4">Mock Interview for Salary Negotiation</h3>
+              <div className="bg-gray-100 rounded-lg p-4 mb-4">
+                <div className="w-full h-24 bg-gray-300 rounded flex items-center justify-center">
+                  <span className="text-gray-500">Video Preview</span>
+                </div>
+              </div>
+              <button className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+                Start Interview
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Analysis Report Screen
+  if (currentStep === 'analysis' && feedback) {
+    const interviewLevel = feedback.score >= 8 ? 'Expert' : feedback.score >= 6 ? 'Advanced' : feedback.score >= 4 ? 'Professional' : 'Entry-Level';
+    const technicalCompetency = feedback.score >= 8 ? 'Expert' : feedback.score >= 6 ? 'Advanced' : feedback.score >= 4 ? 'Professional' : 'Entry-Level';
+    
+    return (
+      <div className="min-h-screen bg-white">
+        {/* Header */}
+        <div className="bg-purple-600 text-white p-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">FP</span>
+              </div>
+              <h1 className="text-xl font-bold">Frontend Pitstop</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm">Welcome, {user?.name || 'sagar'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Interview Details */}
+        <div className="max-w-6xl mx-auto p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <p className="text-purple-600 font-semibold">Position: Frontend Developer</p>
+              <p className="text-purple-600 font-semibold">Round: Technical Interview</p>
+              <p className="text-purple-600 font-semibold">Completed: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</p>
+            </div>
+            <div className="flex gap-4">
+              <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                TRY SAME INTERVIEW AGAIN
+              </button>
+              <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2">
+                <span>📄</span>
+                REPORT
+              </button>
+              <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                CERTIFICATE
+              </button>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">You Are Here</span>
+              <span className="text-sm font-medium text-gray-700">{interviewLevel}</span>
+            </div>
+            <div className="relative">
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-1000"
+                  style={{ width: `${Math.min((feedback.score / 10) * 100, 100)}%` }}
+                ></div>
+              </div>
+              <div className="flex justify-between mt-2 text-xs text-gray-600">
+                <span>Incomplete</span>
+                <span>Entry-Level</span>
+                <span>Professional</span>
+                <span>Advanced</span>
+                <span>Expert</span>
+                <span>Extraordinary</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Performance Gauges */}
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            {/* Interview Level Gauge */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Interview Level</h3>
+              <div className="flex items-center justify-center">
+                <div className="relative w-32 h-32">
+                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth="8"
+                    />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="none"
+                      stroke="#10b981"
+                      strokeWidth="8"
+                      strokeDasharray={`${2 * Math.PI * 50}`}
+                      strokeDashoffset={`${2 * Math.PI * 50 * (1 - feedback.score / 10)}`}
+                      className="transition-all duration-1000"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{interviewLevel}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Technical Competency Gauge */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Technical Competency</h3>
+              <div className="flex items-center justify-center">
+                <div className="relative w-32 h-32">
+                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth="8"
+                    />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="none"
+                      stroke="#8b5cf6"
+                      strokeWidth="8"
+                      strokeDasharray={`${2 * Math.PI * 50}`}
+                      strokeDashoffset={`${2 * Math.PI * 50 * (1 - feedback.score / 10)}`}
+                      className="transition-all duration-1000"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">{technicalCompetency}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Detailed Analysis */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Strengths */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Strengths</h3>
+              <div className="space-y-3">
+                {feedback.strengths?.map((strength: string, index: number) => (
+                  <div key={index} className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
                     <div className="flex items-center gap-2">
-                      <span className="text-yellow-400">💡</span>
-                      <span className="text-white">{improvement}</span>
+                      <span className="text-green-500">✓</span>
+                      <span className="text-gray-800">{strength}</span>
+                    </div>
+                  </div>
+                )) || [
+                  "Good understanding of basic concepts",
+                  "Clear communication style",
+                  "Willingness to learn and improve"
+                ].map((strength, index) => (
+                  <div key={index} className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span>
+                      <span className="text-gray-800">{strength}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-8 text-center">
-              <button
-                onClick={() => {
-                  setCurrentStep('setup');
-                  setSession(null);
-                  setMessages([]);
-                  setFeedback(null);
-                }}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-105"
-              >
-                Start New Interview
-              </button>
+            {/* Areas for Improvement */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Areas for Improvement</h3>
+              <div className="space-y-3">
+                {feedback.improvements?.map((improvement: string, index: number) => (
+                  <div key={index} className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
+                    <div className="flex items-center gap-2">
+                      <span className="text-yellow-500">💡</span>
+                      <span className="text-gray-800">{improvement}</span>
+                    </div>
+                  </div>
+                )) || [
+                  "Practice more coding problems",
+                  "Study advanced JavaScript concepts",
+                  "Improve system design knowledge"
+                ].map((improvement, index) => (
+                  <div key={index} className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
+                    <div className="flex items-center gap-2">
+                      <span className="text-yellow-500">💡</span>
+                      <span className="text-gray-800">{improvement}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Overall Score */}
+          <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Overall Performance</h3>
+              <div className="text-6xl font-bold text-purple-600 mb-2">{feedback.score || 7}/10</div>
+              <p className="text-gray-600 mb-4">Great job! Keep practicing to reach the next level.</p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => {
+                    setCurrentStep('setup');
+                    setSession(null);
+                    setMessages([]);
+                    setFeedback(null);
+                  }}
+                  className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-all"
+                >
+                  Start New Interview
+                </button>
+                <button className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all">
+                  Download Report
+                </button>
+              </div>
             </div>
           </div>
         </div>
