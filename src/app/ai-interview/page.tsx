@@ -19,6 +19,7 @@ type Interviewer = {
   experience: string;
   avatar: string;
   specialties: string[];
+  gender: 'male' | 'female';
 };
 
 type InterviewSession = {
@@ -61,6 +62,7 @@ export default function AIInterviewPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const actualSpokenTextRef = useRef<string>(''); // Track actual spoken text
+  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   // Settings
   const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>('mid');
@@ -86,7 +88,8 @@ export default function AIInterviewPage() {
       company: 'Google',
       experience: '8+ years',
       avatar: '/api/placeholder/200/200',
-      specialties: ['React', 'TypeScript', 'System Design']
+      specialties: ['React', 'TypeScript', 'System Design'],
+      gender: 'female'
     },
     {
       id: 'marcus-johnson',
@@ -95,7 +98,8 @@ export default function AIInterviewPage() {
       company: 'Meta',
       experience: '10+ years',
       avatar: '/api/placeholder/200/200',
-      specialties: ['JavaScript', 'React', 'Performance']
+      specialties: ['JavaScript', 'React', 'Performance'],
+      gender: 'male'
     },
     {
       id: 'priya-sharma',
@@ -104,7 +108,8 @@ export default function AIInterviewPage() {
       company: 'Amazon',
       experience: '6+ years',
       avatar: '/api/placeholder/200/200',
-      specialties: ['Full Stack', 'React', 'Node.js']
+      specialties: ['Full Stack', 'React', 'Node.js'],
+      gender: 'female'
     },
     {
       id: 'alex-kim',
@@ -113,7 +118,8 @@ export default function AIInterviewPage() {
       company: 'Microsoft',
       experience: '12+ years',
       avatar: '/api/placeholder/200/200',
-      specialties: ['Frontend Architecture', 'React', 'Web Performance']
+      specialties: ['Frontend Architecture', 'React', 'Web Performance'],
+      gender: 'male'
     }
   ];
 
@@ -124,9 +130,16 @@ export default function AIInterviewPage() {
     }
   }, [authLoading, user, router]);
 
-  // Initialize speech recognition
+  // Initialize speech recognition and load voices
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Load voices if they're not already loaded
+      if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.addEventListener('voiceschanged', () => {
+          console.log('Voices loaded:', speechSynthesis.getVoices().map(v => ({ name: v.name, lang: v.lang })));
+        });
+      }
+
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         setIsSupported(true);
@@ -286,6 +299,26 @@ export default function AIInterviewPage() {
       setMessages(newSession.messages);
       setCurrentStep('interview');
       setTimeRemaining(20 * 60);
+      
+      // Start camera for the interview
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: true, 
+          audio: true 
+        });
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          streamRef.current = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+      }
+      
+      // Make AI read the initial greeting
+      setTimeout(() => {
+        speakText(data.message);
+      }, 1000);
     } catch (error) {
       console.error('Error starting interview:', error);
     } finally {
@@ -295,6 +328,17 @@ export default function AIInterviewPage() {
 
   const endInterview = async () => {
     if (!session || !token) return;
+    
+    // Stop camera stream when interview ends
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    
+    // Stop any ongoing speech
+    if (speechSynthesisRef.current) {
+      speechSynthesis.cancel();
+    }
     
     setLoading(true);
     try {
@@ -333,38 +377,17 @@ export default function AIInterviewPage() {
   };
 
   const startAnswer = async () => {
-    try {
-      // Start camera for user video
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-      }
-
-      // Reset current answer and start recording
-      setCurrentAnswer('');
-      actualSpokenTextRef.current = ''; // Reset the ref
-      setIsRecording(true);
-      setIsListening(true);
-      
-      if (recognitionRef.current) {
-        recognitionRef.current.start();
-      }
-    } catch (error) {
-      console.error('Error accessing media devices:', error);
-      // Still allow voice recording even if camera fails
-      setCurrentAnswer('');
-      setIsRecording(true);
-      setIsListening(true);
-      
-      if (recognitionRef.current) {
-        recognitionRef.current.start();
-      }
+    // Reset current answer and start recording
+    setCurrentAnswer('');
+    actualSpokenTextRef.current = ''; // Reset the ref
+    setIsRecording(true);
+    setIsListening(true);
+    
+    if (recognitionRef.current) {
+      recognitionRef.current.start();
     }
+    
+    console.log('Started recording answer');
   };
 
   const stopAnswer = async () => {
@@ -377,11 +400,7 @@ export default function AIInterviewPage() {
       recognitionRef.current.stop();
     }
 
-    // Stop camera stream
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
+    // Don't stop camera stream - keep it running throughout interview
 
     // Wait a moment for any final speech recognition results
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -439,6 +458,11 @@ export default function AIInterviewPage() {
             ...prev,
             currentQuestion: prev.currentQuestion + 1
           } : null);
+          
+          // Make AI read the next question
+          setTimeout(() => {
+            speakText(data.message);
+          }, 500);
         } else {
           const errorData = await response.text();
           console.error('API error:', errorData);
@@ -575,6 +599,141 @@ export default function AIInterviewPage() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // Stop any existing speech
+      if (speechSynthesisRef.current) {
+        speechSynthesis.cancel();
+      }
+
+      // Wait a bit for voices to load if they're not ready
+      const getVoices = () => {
+        let voices = speechSynthesis.getVoices();
+        if (voices.length === 0) {
+          // If no voices, wait a bit and try again
+          setTimeout(() => {
+            voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+              speakWithVoice(text, voices);
+            } else {
+              // Use default voice
+              speakWithVoice(text, []);
+            }
+          }, 100);
+          return;
+        }
+        speakWithVoice(text, voices);
+      };
+
+      getVoices();
+    }
+  };
+
+  const speakWithVoice = (text: string, voices: SpeechSynthesisVoice[]) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0; // Increased speed by 20% (was 0.8, now 1.0)
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    
+    // Get all available voices and log them for debugging
+    console.log('Available voices:', voices.map(v => ({ name: v.name, lang: v.lang })));
+    
+    let selectedVoice = null;
+    
+    if (session?.interviewer) {
+      console.log(`Selecting voice for ${session.interviewer.name} (${session.interviewer.gender})`);
+      
+      if (session.interviewer.gender === 'female') {
+        // Try multiple strategies to find female voice
+        selectedVoice = voices.find(voice => 
+          voice.name.toLowerCase().includes('female') || 
+          voice.name.toLowerCase().includes('woman') ||
+          voice.name.toLowerCase().includes('samantha') ||
+          voice.name.toLowerCase().includes('karen') ||
+          voice.name.toLowerCase().includes('susan') ||
+          voice.name.toLowerCase().includes('victoria') ||
+          voice.name.toLowerCase().includes('zira') ||
+          voice.name.toLowerCase().includes('hazel') ||
+          voice.name.toLowerCase().includes('allison') ||
+          voice.name.toLowerCase().includes('monica') ||
+          voice.name.toLowerCase().includes('serena') ||
+          voice.name.toLowerCase().includes('tessa') ||
+          voice.name.toLowerCase().includes('veena') ||
+          voice.name.toLowerCase().includes('priya') ||
+          (voice.name.toLowerCase().includes('google') && voice.name.toLowerCase().includes('female')) ||
+          (voice.name.toLowerCase().includes('microsoft') && voice.name.toLowerCase().includes('female')) ||
+          (voice.name.toLowerCase().includes('samantha')) ||
+          (voice.name.toLowerCase().includes('karen'))
+        );
+        
+        // If no specific female voice found, try by checking voice properties
+        if (!selectedVoice) {
+          selectedVoice = voices.find(voice => 
+            voice.name.toLowerCase().includes('google') && 
+            !voice.name.toLowerCase().includes('male') &&
+            !voice.name.toLowerCase().includes('man')
+          );
+        }
+        
+        // Last resort: try any voice that's not explicitly male
+        if (!selectedVoice) {
+          selectedVoice = voices.find(voice => 
+            !voice.name.toLowerCase().includes('male') && 
+            !voice.name.toLowerCase().includes('man') &&
+            !voice.name.toLowerCase().includes('david') &&
+            !voice.name.toLowerCase().includes('mark') &&
+            !voice.name.toLowerCase().includes('daniel') &&
+            !voice.name.toLowerCase().includes('alex') &&
+            !voice.name.toLowerCase().includes('tom') &&
+            !voice.name.toLowerCase().includes('richard')
+          );
+        }
+      } else {
+        // Try multiple strategies to find male voice
+        selectedVoice = voices.find(voice => 
+          voice.name.toLowerCase().includes('male') || 
+          voice.name.toLowerCase().includes('man') ||
+          voice.name.toLowerCase().includes('david') ||
+          voice.name.toLowerCase().includes('mark') ||
+          voice.name.toLowerCase().includes('daniel') ||
+          voice.name.toLowerCase().includes('alex') ||
+          voice.name.toLowerCase().includes('tom') ||
+          voice.name.toLowerCase().includes('richard') ||
+          voice.name.toLowerCase().includes('john') ||
+          voice.name.toLowerCase().includes('michael') ||
+          voice.name.toLowerCase().includes('james') ||
+          voice.name.toLowerCase().includes('robert') ||
+          voice.name.toLowerCase().includes('william') ||
+          voice.name.toLowerCase().includes('charles') ||
+          (voice.name.toLowerCase().includes('google') && voice.name.toLowerCase().includes('male')) ||
+          (voice.name.toLowerCase().includes('microsoft') && voice.name.toLowerCase().includes('male'))
+        );
+      }
+    }
+    
+    // Fallback to any natural voice if gender-specific not found
+    if (!selectedVoice && voices.length > 0) {
+      selectedVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('google') || 
+        voice.name.toLowerCase().includes('microsoft') || 
+        voice.name.toLowerCase().includes('natural') ||
+        voice.name.toLowerCase().includes('enhanced')
+      ) || voices[0]; // Use first available voice as last resort
+    }
+    
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+      console.log(`✅ Using voice: "${selectedVoice.name}" for ${session?.interviewer?.name} (${session?.interviewer?.gender})`);
+    } else {
+      console.log('⚠️ No voice selected, using default');
+    }
+
+    speechSynthesisRef.current = utterance;
+    speechSynthesis.speak(utterance);
+    
+    console.log('AI is speaking:', text);
   };
 
   // Loading state
