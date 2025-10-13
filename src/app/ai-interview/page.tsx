@@ -57,8 +57,31 @@ export default function AIInterviewPage() {
   const [isSupported, setIsSupported] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState('');
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
+  const [avatarVideoUrl, setAvatarVideoUrl] = useState<string | null>(null);
+  const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
+  const audioVisualizerRef = useRef<NodeJS.Timeout | null>(null);
+  const avatarVideoRef = useRef<HTMLVideoElement>(null);
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Ensure avatar URLs sent to D-ID are absolute and end with image extensions
+  const buildAvatarImageUrl = (rawUrl?: string, gender: 'male' | 'female' = 'female'): string => {
+    // Use a known-good photorealistic face that D-ID accepts (ends with .jpeg)
+    const didSampleFace = 'https://create-images-results.d-id.com/google-oauth2%7C117408431483365796674/upl_kF-rKCg5Ym8RMgqrXxRnl/image.jpeg';
+    const fallbackFemale = didSampleFace;
+    const fallbackMale = didSampleFace;
+    const defaultUrl = gender === 'female' ? fallbackFemale : fallbackMale;
+
+    if (!rawUrl) return defaultUrl;
+
+    // If already absolute and has valid image extension, use as is
+    const hasValidExt = /(\.jpg|\.jpeg|\.png)(\?.*)?$/i.test(rawUrl);
+    const isAbsolute = /^https?:\/\//i.test(rawUrl);
+    if (isAbsolute && hasValidExt) return rawUrl;
+
+    // If it's a relative path or missing extension, fall back to a valid stock image
+    return defaultUrl;
+  };
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -320,9 +343,14 @@ export default function AIInterviewPage() {
         console.error('Error accessing camera:', error);
       }
       
-      // Make AI read the initial greeting
+      // Make AI read the initial greeting with D-ID video
+      console.log('🚀 Starting interview, will call speakTextOrVideo in 1 second');
+      console.log('📊 Session state after setSession:', session);
       setTimeout(() => {
-        speakText(data.message);
+        console.log('⏰ Timeout triggered, calling speakTextOrVideo');
+        console.log('📊 Session state in timeout:', session);
+        console.log('📊 NewSession data:', newSession);
+        speakTextOrVideo(data.message, newSession);
       }, 1000);
     } catch (error) {
       console.error('Error starting interview:', error);
@@ -519,9 +547,9 @@ export default function AIInterviewPage() {
             currentQuestion: prev.currentQuestion + 1
           } : null);
           
-          // Make AI read the next question
+          // Make AI read the next question with D-ID video
           setTimeout(() => {
-            speakText(data.message);
+            speakTextOrVideo(data.message, session);
           }, 500);
         } else {
           const errorData = await response.text();
@@ -577,9 +605,9 @@ export default function AIInterviewPage() {
             currentQuestion: prev.currentQuestion + 1
           } : null);
           
-          // Make AI read the next question
+          // Make AI read the next question with D-ID video
           setTimeout(() => {
-            speakText(data.message);
+            speakTextOrVideo(data.message, session);
           }, 500);
         }
       } catch (error) {
@@ -668,6 +696,128 @@ export default function AIInterviewPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const startAudioVisualization = () => {
+    // Simulate audio waveform animation
+    let level = 0;
+    let direction = 1;
+    
+    audioVisualizerRef.current = setInterval(() => {
+      level += direction * (Math.random() * 15 + 10);
+      if (level >= 80) direction = -1;
+      if (level <= 20) direction = 1;
+      setAudioLevel(level);
+    }, 100);
+  };
+
+  const stopAudioVisualization = () => {
+    if (audioVisualizerRef.current) {
+      clearInterval(audioVisualizerRef.current);
+      audioVisualizerRef.current = null;
+    }
+    setAudioLevel(0);
+  };
+
+  const generateAvatarVideo = async (text: string, sessionData?: InterviewSession) => {
+    console.log('🎬 generateAvatarVideo called with:', text.substring(0, 30));
+    console.log('🔑 Token exists:', !!token);
+    console.log('👤 Session exists:', !!session);
+    console.log('👤 SessionData exists:', !!sessionData);
+    console.log('👤 Interviewer exists:', !!(sessionData?.interviewer || session?.interviewer));
+    
+    // Try D-ID API first, then fallback to speech synthesis
+    console.log('🎬 Attempting D-ID API call...');
+    
+    try {
+      setIsGeneratingAvatar(true);
+      setIsAISpeaking(true);
+      
+      // Determine voice based on gender
+      const voiceId = (sessionData?.interviewer?.gender || session?.interviewer?.gender) === 'female' 
+        ? 'en-US-JennyNeural' 
+        : 'en-US-GuyNeural';
+      
+      const response = await fetch('/api/generate-avatar-video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          text,
+          avatarUrl: buildAvatarImageUrl(
+            sessionData?.interviewer?.avatar || session?.interviewer?.avatar,
+            (sessionData?.interviewer?.gender || session?.interviewer?.gender) === 'male' ? 'male' : 'female'
+          ),
+          voice: voiceId
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // New flow: we get talkId first, then poll for status
+        if (data.talkId) {
+          const talkId = data.talkId as string;
+          console.log('🆔 D-ID talk created, polling...', talkId);
+          let attempts = 0;
+          const maxAttempts = 90; // ~3 minutes (2s interval)
+          while (attempts < maxAttempts) {
+            await new Promise(res => setTimeout(res, 2000));
+            const statusRes = await fetch(`/api/generate-avatar-video?talkId=${encodeURIComponent(talkId)}`);
+            if (!statusRes.ok) {
+              attempts++;
+              continue;
+            }
+            const statusData = await statusRes.json();
+            if (statusData.status === 'done' && statusData.videoUrl) {
+              console.log('🎥 D-ID video ready:', statusData.videoUrl);
+              setAvatarVideoUrl(statusData.videoUrl);
+              if (avatarVideoRef.current) {
+                avatarVideoRef.current.src = statusData.videoUrl;
+                await avatarVideoRef.current.play();
+              }
+              setIsGeneratingAvatar(false);
+              return statusData.videoUrl;
+            }
+            if (statusData.status === 'error') {
+              console.error('D-ID status error:', statusData);
+              break;
+            }
+            attempts++;
+          }
+          console.log('⏱️ D-ID polling timeout, using speech synthesis');
+          setIsGeneratingAvatar(false);
+          speakText(text);
+          return null;
+        }
+      } else {
+        const error = await response.json();
+        if (error.fallback) {
+          console.log('🔄 D-ID API failed, using browser speech synthesis');
+          setIsGeneratingAvatar(false);
+          speakText(text);
+        }
+      }
+    } catch (error) {
+      console.error('❌ D-ID API error:', error);
+      setIsGeneratingAvatar(false);
+      setIsAISpeaking(false);
+      speakText(text);
+    }
+    
+    return null;
+  };
+
+  const speakTextOrVideo = async (text: string, sessionData?: InterviewSession) => {
+    console.log('🎤 speakTextOrVideo called with text:', text.substring(0, 50));
+    // Try D-ID video first, fall back to browser speech
+    const videoUrl = await generateAvatarVideo(text, sessionData);
+    console.log('🎥 D-ID video result:', videoUrl);
+    if (!videoUrl) {
+      // Fallback already handled in generateAvatarVideo
+      console.log('🔄 Using fallback speech synthesis');
+    }
+  };
+
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
       // Stop any existing speech
@@ -703,6 +853,22 @@ export default function AIInterviewPage() {
     utterance.rate = 1.0; // Increased speed by 20% (was 0.8, now 1.0)
     utterance.pitch = 1;
     utterance.volume = 1;
+    
+    // Track speaking state for avatar animation
+    utterance.onstart = () => {
+      setIsAISpeaking(true);
+      startAudioVisualization();
+    };
+    
+    utterance.onend = () => {
+      setIsAISpeaking(false);
+      stopAudioVisualization();
+    };
+    
+    utterance.onerror = () => {
+      setIsAISpeaking(false);
+      stopAudioVisualization();
+    };
     
     // Get all available voices and log them for debugging
     console.log('Available voices:', voices.map(v => ({ name: v.name, lang: v.lang })));
@@ -1213,19 +1379,115 @@ export default function AIInterviewPage() {
 
             {/* Video Feeds */}
             <div className="relative flex-1 bg-gray-100">
-              {/* Interviewer Avatar */}
+              {/* Animated Interviewer Avatar with D-ID Video */}
               <div className="absolute top-4 left-4 z-10">
                 <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
-                      {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                    {/* D-ID Talking Avatar Video or Animated Circle */}
+                    <div className="relative mb-3">
+                      {avatarVideoUrl ? (
+                        // D-ID realistic talking avatar
+                        <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-purple-400 shadow-xl">
+                          <video
+                            ref={avatarVideoRef}
+                            src={avatarVideoUrl}
+                            autoPlay
+                            muted={false}
+                            playsInline
+                            className="w-full h-full object-cover"
+                            onEnded={() => {
+                              setIsAISpeaking(false);
+                              setAvatarVideoUrl(null);
+                            }}
+                          />
+                          {/* Glow effect when speaking */}
+                          <div 
+                            className="absolute inset-0 rounded-full pointer-events-none"
+                            style={{
+                              boxShadow: '0 0 30px rgba(168, 85, 247, 0.6)',
+                              animation: 'pulse 1.5s ease-in-out infinite'
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        // Fallback animated circle
+                        <>
+                          {/* Outer glow ring when speaking */}
+                          <div 
+                            className={`absolute inset-0 rounded-full transition-all duration-300 ${
+                              isAISpeaking 
+                                ? 'animate-pulse bg-purple-400/30 scale-125' 
+                                : 'bg-transparent scale-100'
+                            }`}
+                            style={{
+                              boxShadow: isAISpeaking ? '0 0 30px rgba(168, 85, 247, 0.6)' : 'none'
+                            }}
+                          />
+                          
+                          {/* Main avatar circle */}
+                          <div 
+                            className={`relative w-20 h-20 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto flex items-center justify-center text-2xl font-bold text-white shadow-lg transition-all duration-300 ${
+                              isAISpeaking ? 'scale-110' : 'scale-100'
+                            }`}
+                            style={{
+                              animation: isAISpeaking ? 'none' : 'breathe 3s ease-in-out infinite'
+                            }}
+                          >
+                            {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          
+                          {/* Audio waveform bars */}
+                          {isAISpeaking && (
+                            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  className="w-1 bg-purple-500 rounded-full"
+                                  style={{
+                                    height: `${Math.max(4, audioLevel * 0.3 + Math.random() * 10)}px`,
+                                    animation: `wave 0.5s ease-in-out infinite`,
+                                    animationDelay: `${i * 0.1}s`
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
+                    
                     <h3 className="text-sm font-bold text-gray-800">{session.interviewer.name}</h3>
                     <p className="text-purple-600 text-xs font-semibold">{session.interviewer.role}</p>
                     <p className="text-gray-600 text-xs">{session.interviewer.company}</p>
+                    
+                    {/* Status indicator */}
+                    <div className="mt-2 flex items-center justify-center gap-1">
+                      <div className={`w-2 h-2 rounded-full ${
+                        isAISpeaking || avatarVideoUrl ? 'bg-green-500 animate-pulse' : 
+                        loading || isGeneratingAvatar ? 'bg-yellow-500 animate-pulse' : 
+                        'bg-gray-400'
+                      }`} />
+                      <span className="text-xs text-gray-600">
+                        {isGeneratingAvatar ? 'Preparing...' :
+                         isAISpeaking || avatarVideoUrl ? 'Speaking...' : 
+                         loading ? 'Thinking...' : 
+                         'Listening'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
+              
+              <style jsx>{`
+                @keyframes breathe {
+                  0%, 100% { transform: scale(1); }
+                  50% { transform: scale(1.05); }
+                }
+                @keyframes wave {
+                  0%, 100% { transform: scaleY(0.5); }
+                  50% { transform: scaleY(1); }
+                }
+              `}</style>
 
               {/* User Video Feed */}
               <div className="absolute bottom-4 right-4 z-10">
@@ -1844,23 +2106,117 @@ export default function AIInterviewPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Overall Performance</h3>
               <div className="text-6xl font-bold text-purple-600 mb-2">{feedback.score || 7}/10</div>
               <p className="text-gray-600 mb-4">Great job! Keep practicing to reach the next level.</p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => {
-                    setCurrentStep('setup');
-                    setSession(null);
-                    setMessages([]);
-                    setFeedback(null);
-                  }}
-                  className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-all"
-                >
-                  Start New Interview
-                </button>
-                <button className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all">
-                  Download Report
-                </button>
+            </div>
+          </div>
+
+          {/* Personalized Study Plan */}
+          {feedback.studyPlan && (
+            <div className="mt-8 bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-8 shadow-lg">
+              <div className="text-center mb-6">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">📚 Your Personalized 30-Day Study Plan</h2>
+                <p className="text-gray-600">Based on your interview performance, here's a customized roadmap to improve</p>
+              </div>
+
+              {/* Daily Practice */}
+              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">⏰ Daily Practice Routine</h3>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-3xl font-bold text-purple-600">{feedback.studyPlan.dailyPractice.problems}</div>
+                    <div className="text-sm text-gray-600 mt-1">Coding Problems</div>
+                  </div>
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-600">{feedback.studyPlan.dailyPractice.readingTime} min</div>
+                    <div className="text-sm text-gray-600 mt-1">Reading</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-3xl font-bold text-green-600">{feedback.studyPlan.dailyPractice.videoTime} min</div>
+                    <div className="text-sm text-gray-600 mt-1">Videos</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Weekly Goals */}
+              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">🎯 Weekly Breakdown</h3>
+                <div className="space-y-4">
+                  {feedback.studyPlan.weeklyGoals.map((week: any, index: number) => (
+                    <div key={index} className="border-l-4 border-purple-500 pl-4 py-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">Week {week.week}</span>
+                        <h4 className="font-semibold text-gray-900">{week.focus}</h4>
+                      </div>
+                      <div className="mb-2">
+                        <p className="text-sm font-medium text-gray-700 mb-1">Goals:</p>
+                        <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                          {week.goals.map((goal: string, i: number) => (
+                            <li key={i}>{goal}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-1">Resources:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {week.resources.map((resource: string, i: number) => (
+                            <span key={i} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                              {resource}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Key Resources */}
+              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">📖 Recommended Resources</h3>
+                <div className="flex flex-wrap gap-2">
+                  {feedback.studyPlan.keyResources.map((resource: string, index: number) => (
+                    <span key={index} className="bg-purple-100 text-purple-700 px-3 py-2 rounded-lg text-sm font-medium">
+                      {resource}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Milestones */}
+              <div className="bg-white rounded-lg p-6 border border-purple-100">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">🏆 Milestones to Achieve</h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {feedback.studyPlan.milestones.map((milestone: string, index: number) => (
+                    <div key={index} className="flex items-start gap-2 p-3 bg-green-50 rounded-lg">
+                      <span className="text-green-600 mt-0.5">✓</span>
+                      <span className="text-sm text-gray-700">{milestone}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="mt-8 flex justify-center gap-4">
+            <button
+              onClick={() => {
+                setCurrentStep('setup');
+                setSession(null);
+                setMessages([]);
+                setFeedback(null);
+              }}
+              className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-all transform hover:scale-105 font-semibold"
+            >
+              Start New Interview
+            </button>
+            <button className="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-300 transition-all font-semibold">
+              Download Report
+            </button>
+            {feedback.studyPlan && (
+              <button className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 font-semibold">
+                Save Study Plan
+              </button>
+            )}
           </div>
         </div>
       </div>
