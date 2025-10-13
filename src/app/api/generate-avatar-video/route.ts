@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!response) {
-      return NextResponse.json({ error: 'D-ID request failed', details: String(lastError), fallback: true }, { status: 500 });
+      return NextResponse.json({ error: 'D-ID request failed', fallback: true }, { status: 500 });
     }
 
     console.log('D-ID response status:', response.status);
@@ -133,12 +133,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'talkId is required' }, { status: 400 });
     }
 
-      const statusResponse = await fetchWithTimeout(`https://api.d-id.com/talks/${talkId}`, {
-        headers: {
-          'Authorization': `Basic ${didToken}`,
-        },
-        timeoutMs: 15000,
-      });
+    const didToken = (DID_API_KEY && DID_API_KEY.includes(':'))
+      ? Buffer.from(DID_API_KEY).toString('base64')
+      : DID_API_KEY || '';
+
+    const statusResponse = await fetchWithTimeout(`https://api.d-id.com/talks/${talkId}`, {
+      headers: {
+        'Authorization': `Basic ${didToken}`,
+      },
+      timeoutMs: 15000,
+    });
 
     if (!statusResponse.ok) {
       const err = await statusResponse.text();
