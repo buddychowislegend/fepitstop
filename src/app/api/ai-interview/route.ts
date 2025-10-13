@@ -97,9 +97,6 @@ async function callGemini(messages: any[]) {
   
   console.log('callGemini - Sending request with', contents.length, 'messages');
   
-  // Track API usage
-  trackAPICall();
-  
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
@@ -481,13 +478,94 @@ Keep practicing and you'll continue to improve!`;
         
         console.log('Interview ended successfully, score:', session.score);
         
+        // Generate personalized study plan based on weak areas
+        const studyPlan = {
+          weeklyGoals: [
+            {
+              week: 1,
+              focus: 'JavaScript Fundamentals',
+              goals: [
+                'Master var, let, and const',
+                'Understand closures and scope',
+                'Practice array and object methods'
+              ],
+              resources: [
+                'MDN JavaScript Guide',
+                'JavaScript.info',
+                'Frontend Pitstop problems'
+              ]
+            },
+            {
+              week: 2,
+              focus: 'React Basics',
+              goals: [
+                'Understand component lifecycle',
+                'Master useState and useEffect',
+                'Practice props and state management'
+              ],
+              resources: [
+                'React Official Docs',
+                'React patterns',
+                'Build small projects'
+              ]
+            },
+            {
+              week: 3,
+              focus: 'Advanced Concepts',
+              goals: [
+                'Learn React Hooks in depth',
+                'Understand performance optimization',
+                'Practice system design basics'
+              ],
+              resources: [
+                'React Performance Guide',
+                'System Design Primer',
+                'Real-world projects'
+              ]
+            },
+            {
+              week: 4,
+              focus: 'Interview Preparation',
+              goals: [
+                'Practice mock interviews',
+                'Review common patterns',
+                'Build confidence'
+              ],
+              resources: [
+                'Frontend Pitstop AI Interview',
+                'LeetCode Frontend',
+                'Mock interview practice'
+              ]
+            }
+          ],
+          dailyPractice: {
+            problems: 2,
+            readingTime: 30,
+            videoTime: 20
+          },
+          keyResources: [
+            'MDN Web Docs',
+            'React Official Documentation',
+            'Frontend Pitstop Platform',
+            'JavaScript.info',
+            'CSS-Tricks'
+          ],
+          milestones: [
+            'Complete 50 coding problems',
+            'Build 3 portfolio projects',
+            'Pass 5 mock interviews with 8+ score',
+            'Master all weak areas identified'
+          ]
+        };
+        
         return NextResponse.json({
           feedback,
           score: session.score,
           duration,
           questionsAsked: session.currentQuestion,
           transcript: session.messages,
-          questionAnalysis // New: detailed per-question analysis
+          questionAnalysis, // Detailed per-question analysis with videos
+          studyPlan // Personalized 30-day study plan
         });
       }
       
