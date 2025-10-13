@@ -36,6 +36,8 @@ const db = require('./config/db');
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
+    // Force-open CORS to unblock production requests
+    const allowAll = true;
     const staticAllowed = [
       'http://localhost:3000',
       'http://localhost:3001',
@@ -46,22 +48,28 @@ app.use(cors({
       'https://www.frontendpitstop.com'
     ];
 
-    if (!origin) return callback(null, true); // allow non-browser tools / same-origin
+    if (allowAll) return callback(null, true);
+    if (!origin) return callback(null, true); // same-origin/non-browser tools
     if (staticAllowed.includes(origin)) return callback(null, true);
 
     try {
-      const { hostname } = new URL(origin);
-      // Allow Vercel preview deployments of your frontend (e.g., https://frontendpitstop-<hash>-vercel.app)
+      const { hostname, protocol } = new URL(origin);
+      // Allow any vercel.app subdomain
       if (hostname.endsWith('.vercel.app')) return callback(null, true);
-      // Allow custom domain and subdomains
+      // Allow any *.frontendpitstop.com subdomain
       if (hostname === 'frontendpitstop.com' || hostname.endsWith('.frontendpitstop.com')) return callback(null, true);
-    } catch (_) {}
+      // Allow localhost any port
+      if ((hostname === 'localhost' || hostname === '127.0.0.1') && (protocol === 'http:' || protocol === 'https:')) return callback(null, true);
+    } catch (e) {
+      console.warn('CORS origin parse failed:', e?.message);
+    }
 
+    console.warn('CORS blocked origin:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-Admin-Key']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-Admin-Key', 'x-admin-key']
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

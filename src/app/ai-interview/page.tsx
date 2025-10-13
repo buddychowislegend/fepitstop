@@ -50,6 +50,10 @@ export default function AIInterviewPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<any>(null);
+  // ElevenLabs/voice generation loading indicator
+  const [isAIAudioLoading, setIsAIAudioLoading] = useState(false);
+  // Track latest interviewer gender for TTS selection even if session is not yet set
+  const lastInterviewerGenderRef = useRef<'male' | 'female' | null>(null);
   const [analysisProgress, setAnalysisProgress] = useState<'uploading' | 'analyzing' | 'creating-feedback' | 'complete'>('uploading');
   
   // Voice recognition
@@ -266,7 +270,7 @@ export default function AIInterviewPage() {
 
   // Auto-scroll to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleVoiceInput = (transcript: string) => {
@@ -324,6 +328,7 @@ export default function AIInterviewPage() {
       };
 
       setSession(newSession);
+      lastInterviewerGenderRef.current = selectedInterviewer.gender;
       setMessages(newSession.messages);
       setCurrentStep('interview');
       setTimeRemaining(20 * 60);
@@ -724,6 +729,9 @@ export default function AIInterviewPage() {
 
   const speakTextOrVideo = async (text: string, sessionData?: InterviewSession) => {
     console.log('🎤 speakTextOrVideo called with text:', text.substring(0, 50));
+    if (sessionData?.interviewer?.gender) {
+      lastInterviewerGenderRef.current = sessionData.interviewer.gender;
+    }
     // Try D-ID video first, fall back to browser speech
     const videoUrl = await generateAvatarVideo(text, sessionData);
     console.log('🎥 D-ID video result:', videoUrl);
@@ -883,8 +891,10 @@ export default function AIInterviewPage() {
     // Prefer ElevenLabs TTS; fallback to browser SpeechSynthesis
     const tryEleven = async () => {
       try {
-        const vId = (session?.interviewer?.gender === 'male') ? 'pNInz6obpgDQGcFmaJgB' : '21m00Tcm4TlvDq8ikWAM';
+        const gender = session?.interviewer?.gender || lastInterviewerGenderRef.current || 'female';
+        const vId = (gender === 'male') ? 'Y6nOpHQlW4lnf9GRRc8f' : 'SZfY4K69FwXus87eayHK';
         console.log('🔊 ElevenLabs TTS: sending request', { voiceId: vId, textPreview: text.substring(0, 40) });
+        setIsAIAudioLoading(true);
         const resp = await fetch('/api/elevenlabs/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -896,14 +906,15 @@ export default function AIInterviewPage() {
           console.log('🔊 ElevenLabs TTS: payload keys', Object.keys(data || {}));
           if (data.audioUrl) {
             const audio = new Audio(data.audioUrl);
-            audio.onplay = () => { setIsAISpeaking(true); startAudioVisualization(); };
+            audio.onplay = () => { setIsAISpeaking(true); setIsAIAudioLoading(false); startAudioVisualization(); };
             audio.onended = () => { setIsAISpeaking(false); stopAudioVisualization(); };
-            audio.onerror = () => { setIsAISpeaking(false); stopAudioVisualization(); };
+            audio.onerror = () => { setIsAISpeaking(false); setIsAIAudioLoading(false); stopAudioVisualization(); };
             await audio.play();
             return true;
           }
         }
       } catch {}
+      finally { setIsAIAudioLoading(false); }
       return false;
     };
 
@@ -1411,17 +1422,14 @@ export default function AIInterviewPage() {
                     <p className="text-gray-600 text-xs">{session.interviewer.company}</p>
                     
                     {/* Status indicator */}
-                    <div className="mt-2 flex items-center justify-center gap-1">
+                    <div className="mt-2 flex items-center justify-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${
-                        isAISpeaking || avatarVideoUrl ? 'bg-green-500 animate-pulse' : 
-                        loading || isGeneratingAvatar ? 'bg-yellow-500 animate-pulse' : 
-                        'bg-gray-400'
+                        isAISpeaking ? 'bg-green-500 animate-pulse' : 
+                        isAIAudioLoading ? 'bg-blue-500 animate-pulse' : 
+                        loading ? 'bg-yellow-500 animate-pulse' : 'bg-gray-400'
                       }`} />
                       <span className="text-xs text-gray-600">
-                        {isGeneratingAvatar ? 'Preparing...' :
-                         isAISpeaking || avatarVideoUrl ? 'Speaking...' : 
-                         loading ? 'Thinking...' : 
-                         'Listening'}
+                        {isAIAudioLoading ? 'Generating voice…' : isAISpeaking ? 'Speaking…' : loading ? 'Thinking…' : 'Listening'}
                       </span>
                     </div>
                   </div>
@@ -1437,6 +1445,13 @@ export default function AIInterviewPage() {
                   0%, 100% { transform: scaleY(0.5); }
                   50% { transform: scaleY(1); }
                 }
+                .spinner {
+                  width: 18px; height: 18px; border-radius: 9999px;
+                  border: 2px solid rgba(59,130,246,.3);
+                  border-top-color: rgba(59,130,246,1);
+                  animation: spin .8s linear infinite;
+                }
+                @keyframes spin { to { transform: rotate(360deg); } }
               `}</style>
 
               {/* User Video Feed */}
