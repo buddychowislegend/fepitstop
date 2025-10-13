@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/config";
@@ -717,93 +717,8 @@ export default function AIInterviewPage() {
     setAudioLevel(0);
   };
 
-  const generateAvatarVideo = async (text: string, sessionData?: InterviewSession) => {
-    console.log('🎬 generateAvatarVideo called with:', text.substring(0, 30));
-    console.log('🔑 Token exists:', !!token);
-    console.log('👤 Session exists:', !!session);
-    console.log('👤 SessionData exists:', !!sessionData);
-    console.log('👤 Interviewer exists:', !!(sessionData?.interviewer || session?.interviewer));
-    
-    // Try D-ID API first, then fallback to speech synthesis
-    console.log('🎬 Attempting D-ID API call...');
-    
-    try {
-      setIsGeneratingAvatar(true);
-      setIsAISpeaking(true);
-      
-      // Determine voice based on gender
-      const voiceId = (sessionData?.interviewer?.gender || session?.interviewer?.gender) === 'female' 
-        ? 'en-US-JennyNeural' 
-        : 'en-US-GuyNeural';
-      
-      const response = await fetch('/api/generate-avatar-video', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          text,
-          avatarUrl: buildAvatarImageUrl(
-            sessionData?.interviewer?.avatar || session?.interviewer?.avatar,
-            (sessionData?.interviewer?.gender || session?.interviewer?.gender) === 'male' ? 'male' : 'female'
-          ),
-          voice: voiceId
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // New flow: we get talkId first, then poll for status
-        if (data.talkId) {
-          const talkId = data.talkId as string;
-          console.log('🆔 D-ID talk created, polling...', talkId);
-          let attempts = 0;
-          const maxAttempts = 90; // ~3 minutes (2s interval)
-          while (attempts < maxAttempts) {
-            await new Promise(res => setTimeout(res, 2000));
-            const statusRes = await fetch(`/api/generate-avatar-video?talkId=${encodeURIComponent(talkId)}`);
-            if (!statusRes.ok) {
-              attempts++;
-              continue;
-            }
-            const statusData = await statusRes.json();
-            if (statusData.status === 'done' && statusData.videoUrl) {
-              console.log('🎥 D-ID video ready:', statusData.videoUrl);
-              setAvatarVideoUrl(statusData.videoUrl);
-              if (avatarVideoRef.current) {
-                avatarVideoRef.current.src = statusData.videoUrl;
-                await avatarVideoRef.current.play();
-              }
-              setIsGeneratingAvatar(false);
-              return statusData.videoUrl;
-            }
-            if (statusData.status === 'error') {
-              console.error('D-ID status error:', statusData);
-              break;
-            }
-            attempts++;
-          }
-          console.log('⏱️ D-ID polling timeout, using speech synthesis');
-          setIsGeneratingAvatar(false);
-          speakText(text);
-          return null;
-        }
-      } else {
-        const error = await response.json();
-        if (error.fallback) {
-          console.log('🔄 D-ID API failed, using browser speech synthesis');
-          setIsGeneratingAvatar(false);
-          speakText(text);
-        }
-      }
-    } catch (error) {
-      console.error('❌ D-ID API error:', error);
-      setIsGeneratingAvatar(false);
-      setIsAISpeaking(false);
-      speakText(text);
-    }
-    
+  const generateAvatarVideo = async (_text: string, _sessionData?: InterviewSession) => {
+    // D-ID removed: always return null so TTS path is used
     return null;
   };
 
@@ -815,6 +730,8 @@ export default function AIInterviewPage() {
     if (!videoUrl) {
       // Fallback already handled in generateAvatarVideo
       console.log('🔄 Using fallback speech synthesis');
+      // Explicitly speak via TTS path (ElevenLabs → SpeechSynthesis)
+      speakText(text);
     }
   };
 
@@ -963,8 +880,41 @@ export default function AIInterviewPage() {
       console.log('⚠️ No voice selected, using default');
     }
 
-    speechSynthesisRef.current = utterance;
-    speechSynthesis.speak(utterance);
+    // Prefer ElevenLabs TTS; fallback to browser SpeechSynthesis
+    const tryEleven = async () => {
+      try {
+        const vId = (session?.interviewer?.gender === 'male') ? 'pNInz6obpgDQGcFmaJgB' : '21m00Tcm4TlvDq8ikWAM';
+        console.log('🔊 ElevenLabs TTS: sending request', { voiceId: vId, textPreview: text.substring(0, 40) });
+        const resp = await fetch('/api/elevenlabs/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, voiceId: vId })
+        });
+        console.log('🔊 ElevenLabs TTS: response status', resp.status);
+        if (resp.ok) {
+          const data = await resp.json();
+          console.log('🔊 ElevenLabs TTS: payload keys', Object.keys(data || {}));
+          if (data.audioUrl) {
+            const audio = new Audio(data.audioUrl);
+            audio.onplay = () => { setIsAISpeaking(true); startAudioVisualization(); };
+            audio.onended = () => { setIsAISpeaking(false); stopAudioVisualization(); };
+            audio.onerror = () => { setIsAISpeaking(false); stopAudioVisualization(); };
+            await audio.play();
+            return true;
+          }
+        }
+      } catch {}
+      return false;
+    };
+
+    (async () => {
+      const ok = await tryEleven();
+      if (!ok) {
+        console.log('🔊 ElevenLabs TTS fallback → using SpeechSynthesis');
+        speechSynthesisRef.current = utterance;
+        speechSynthesis.speak(utterance);
+      }
+    })();
     
     console.log('AI is speaking:', text);
   };
@@ -1385,7 +1335,7 @@ export default function AIInterviewPage() {
                   <div className="text-center">
                     {/* D-ID Talking Avatar Video or Animated Circle */}
                     <div className="relative mb-3">
-                      {avatarVideoUrl ? (
+                   {avatarVideoUrl ? (
                         // D-ID realistic talking avatar
                         <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-purple-400 shadow-xl">
                           <video
