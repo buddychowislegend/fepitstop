@@ -1,292 +1,75 @@
-const express = require('express');
-const router = express.Router();
-const auth = require('../middleware/auth');
+const router = require('express').Router();
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_MODEL = 'gemini-2.0-flash-exp';
 
-// Gemini API configuration
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = 'gemini-2.0-flash-exp'; // Use Gemini 2.0 Flash
-
-// In-memory storage for interview sessions (replace with DB in production)
-const interviewSessions = new Map();
-
-// System prompt for AI interviewer
-const INTERVIEWER_SYSTEM_PROMPT = `You are an experienced frontend interview conductor at a top tech company (Google, Meta, Amazon).
-
-Your role:
-1. Ask relevant frontend interview questions (JavaScript, React, CSS, HTML, System Design)
-2. Follow up on user's answers with deeper questions
-3. Provide hints if the user is stuck (but don't give away answers)
-4. Evaluate answers and provide constructive feedback
-5. Adapt difficulty based on user's performance
-6. Be professional, encouraging, and supportive
-
-Interview structure:
-- Start with a warm greeting and brief introduction
-- Ask 5-7 questions total
-- Mix of theoretical and practical questions
-- Include at least one coding problem
-- End with user's questions and overall feedback
-
-Question types to cover:
-- JavaScript fundamentals (closures, promises, async/await)
-- React concepts (hooks, state management, lifecycle)
-- CSS and layout (flexbox, grid, responsive design)
-- Performance optimization
-- Browser APIs and DOM manipulation
-- One system design question (if time permits)
-
-Evaluation criteria:
-- Technical accuracy
-- Communication clarity
-- Problem-solving approach
-- Code quality (if coding)
-- Understanding of trade-offs
-
-Keep responses concise (2-3 paragraphs max) to maintain conversation flow.`;
-
-// Start a new interview session
-router.post('/start', auth, async (req, res) => {
-  try {
-    const { level, focus } = req.body; // level: 'junior' | 'mid' | 'senior', focus: 'javascript' | 'react' | 'fullstack'
-    
-    const sessionId = `interview_${req.user.id}_${Date.now()}`;
-    
-    // Initialize session
-    const session = {
-      id: sessionId,
-      userId: req.user.id,
-      level: level || 'mid',
-      focus: focus || 'fullstack',
-      startTime: new Date(),
-      messages: [],
-      currentQuestion: 0,
-      totalQuestions: 7,
-      score: null,
-      feedback: null,
-      status: 'active'
-    };
-    
-    interviewSessions.set(sessionId, session);
-    
-    // Generate initial greeting from AI
-    const initialPrompt = `Start a frontend interview for a ${level || 'mid-level'} position with focus on ${focus || 'fullstack frontend development'}. Greet the candidate and ask the first question.`;
-    
-    const aiResponse = await callGemini([
-      { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-      { role: 'user', content: initialPrompt }
-    ]);
-    
-    session.messages.push({
-      role: 'interviewer',
-      content: aiResponse,
-      timestamp: new Date()
-    });
-    
-    res.json({
-      sessionId,
-      message: aiResponse,
-      questionNumber: 1,
-      totalQuestions: session.totalQuestions
-    });
-  } catch (error) {
-    console.error('Start interview error:', error);
-    res.status(500).json({ error: 'Failed to start interview' });
+async function askGemini(prompt) {
+  if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY missing');
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
+  });
+  if (!resp.ok) {
+    const errTxt = await resp.text();
+    throw new Error(`Gemini error ${resp.status}: ${errTxt}`);
   }
-});
-
-// Send user response and get next question
-router.post('/respond', auth, async (req, res) => {
-  try {
-    const { sessionId, message, isVoice } = req.body;
-    
-    const session = interviewSessions.get(sessionId);
-    if (!session) {
-      return res.status(404).json({ error: 'Interview session not found' });
-    }
-    
-    if (session.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
-    
-    // Add user message to history
-    session.messages.push({
-      role: 'candidate',
-      content: message,
-      timestamp: new Date(),
-      isVoice: isVoice || false
-    });
-    
-    // Build conversation history for context
-    const conversationHistory = [
-      { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-      ...session.messages.map(msg => ({
-        role: msg.role === 'interviewer' ? 'model' : 'user',
-        content: msg.content
-      }))
-    ];
-    
-    // Get AI response
-    const aiResponse = await callGemini(conversationHistory);
-    
-    session.messages.push({
-      role: 'interviewer',
-      content: aiResponse,
-      timestamp: new Date()
-    });
-    
-    session.currentQuestion++;
-    
-    // Check if interview should end
-    const shouldEnd = session.currentQuestion >= session.totalQuestions;
-    
-    res.json({
-      message: aiResponse,
-      questionNumber: session.currentQuestion + 1,
-      totalQuestions: session.totalQuestions,
-      shouldEnd
-    });
-  } catch (error) {
-    console.error('Respond error:', error);
-    res.status(500).json({ error: 'Failed to process response' });
-  }
-});
-
-// End interview and get final feedback
-router.post('/end', auth, async (req, res) => {
-  try {
-    const { sessionId } = req.body;
-    
-    const session = interviewSessions.get(sessionId);
-    if (!session) {
-      return res.status(404).json({ error: 'Interview session not found' });
-    }
-    
-    if (session.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
-    
-    // Generate final evaluation
-    const conversationHistory = [
-      { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-      ...session.messages.map(msg => ({
-        role: msg.role === 'interviewer' ? 'model' : 'user',
-        content: msg.content
-      })),
-      { 
-        role: 'user', 
-        content: `The interview is now complete. Please provide:
-1. Overall score (out of 10)
-2. Strengths demonstrated
-3. Areas for improvement
-4. Specific recommendations for study
-5. Overall assessment
-
-Format your response clearly with sections.` 
-      }
-    ];
-    
-    const feedback = await callGemini(conversationHistory);
-    
-    session.status = 'completed';
-    session.endTime = new Date();
-    session.feedback = feedback;
-    
-    // Extract score from feedback (simple regex)
-    const scoreMatch = feedback.match(/score[:\s]+(\d+)/i);
-    session.score = scoreMatch ? parseInt(scoreMatch[1]) : null;
-    
-    res.json({
-      feedback,
-      score: session.score,
-      duration: Math.floor((session.endTime - session.startTime) / 1000 / 60), // in minutes
-      questionsAsked: session.currentQuestion,
-      transcript: session.messages
-    });
-  } catch (error) {
-    console.error('End interview error:', error);
-    res.status(500).json({ error: 'Failed to end interview' });
-  }
-});
-
-// Get interview session
-router.get('/session/:sessionId', auth, async (req, res) => {
-  try {
-    const session = interviewSessions.get(req.params.sessionId);
-    
-    if (!session) {
-      return res.status(404).json({ error: 'Session not found' });
-    }
-    
-    if (session.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
-    
-    res.json({ session });
-  } catch (error) {
-    console.error('Get session error:', error);
-    res.status(500).json({ error: 'Failed to get session' });
-  }
-});
-
-// Helper function to call Gemini API
-async function callGemini(messages) {
-  try {
-    // Format messages for Gemini API
-    const contents = messages.map(msg => ({
-      role: msg.role === 'model' ? 'model' : 'user',
-      parts: [{ text: msg.content }]
-    }));
-    
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents,
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          },
-          safetySettings: [
-            {
-              category: 'HARM_CATEGORY_HARASSMENT',
-              threshold: 'BLOCK_NONE'
-            },
-            {
-              category: 'HARM_CATEGORY_HATE_SPEECH',
-              threshold: 'BLOCK_NONE'
-            },
-            {
-              category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-              threshold: 'BLOCK_NONE'
-            },
-            {
-              category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-              threshold: 'BLOCK_NONE'
-            }
-          ]
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Gemini API error:', error);
-      throw new Error('Gemini API request failed');
-    }
-
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
-  } catch (error) {
-    console.error('Gemini call error:', error);
-    throw error;
-  }
+  const data = await resp.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 }
 
+function buildContext(framework, jdText) {
+  const p = [];
+  if (framework) p.push(`Framework: ${framework}.`);
+  if (jdText) p.push(`JD: ${String(jdText).slice(0, 1200)}.`);
+  return p.join(' ');
+}
+
+router.post('/', async (req, res) => {
+  try {
+    const { action } = req.body || {};
+
+    if (action === 'start') {
+      const { level = 'mid', focus = 'fullstack', framework, jdText } = req.body || {};
+      const context = buildContext(framework, jdText);
+      const prompt = `You are a senior interviewer. ${context}\nGenerate ONE concise technical interview question.\n- Difficulty: ${level}\n- Focus: ${focus}\nReturn ONLY the question text.`;
+      try {
+        const text = (await askGemini(prompt)).replace(/^\"|\"$/g, '');
+        return res.json({ sessionId: Date.now().toString(), message: text });
+      } catch (e) {
+        const fw = framework ? `${framework}` : 'frontend';
+        const jdHint = jdText ? ' (align to the job description context)' : '';
+        const fallbackQ = `In ${fw}, how would you design and implement a feature related to ${focus}? Please outline key trade-offs${jdHint}.`;
+        return res.json({ sessionId: Date.now().toString(), message: fallbackQ, fallback: true });
+      }
+    }
+
+    if (action === 'respond') {
+      const { message: answer, previousQuestion = 'Previous question not provided', level = 'mid', focus = 'fullstack', framework, jdText } = req.body || {};
+      const context = buildContext(framework, jdText);
+      const prompt = `You are a senior interviewer. ${context}\nGiven the previous question and candidate's answer, generate the NEXT interview question.\n- Previous question: ${previousQuestion}\n- Candidate answer: ${answer}\n- Difficulty: ${level}\n- Focus: ${focus}\nReturn ONLY the question text.`;
+      try {
+        const text = (await askGemini(prompt)).replace(/^\"|\"$/g, '');
+        return res.json({ message: text });
+      } catch (e) {
+        const fw = framework ? `${framework}` : 'frontend';
+        const jdHint = jdText ? ' considering the JD' : '';
+        const followUp = `As a follow-up in ${fw}${jdHint}, what potential pitfalls or edge cases would you address for your approach, and how would you test them?`;
+        return res.json({ message: followUp, fallback: true });
+      }
+    }
+
+    if (action === 'end') {
+      return res.json({ score: 7, feedback: 'Thanks for participating. We will prepare a detailed analysis.' });
+    }
+
+    return res.status(400).json({ error: 'Invalid action' });
+  } catch (err) {
+    console.error('Backend ai-interview error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
+
 

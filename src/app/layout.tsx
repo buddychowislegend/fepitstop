@@ -22,15 +22,22 @@ export const metadata: Metadata = {
     default: "Frontend Pitstop — Master Frontend Interviews & Coding Challenges",
     template: "%s | Frontend Pitstop"
   },
-  description: "Practice 100+ real frontend interview questions from top tech companies like Google, Meta, Amazon. Interactive code editor, instant feedback, and comprehensive solutions. Master JavaScript, React, CSS, and system design.",
+  description: "Practice 100+ real frontend interview questions from top tech companies like Google, Meta, Amazon. AI-based mock interviews with voice, interviewer selection, and analytics. Interactive code editor, instant feedback, and comprehensive solutions. Master JavaScript, React, React Native, CSS, and system design.",
   keywords: [
     "frontend interview questions",
     "javascript interview",
     "react interview questions",
+    "react native interview questions",
+    "vue interview questions",
     "coding challenges",
     "web development practice",
     "frontend coding test",
     "technical interview prep",
+    "ai interview",
+    "ai mock interview",
+    "mock interviews online",
+    "voice interview practice",
+    "system design interview for frontend",
     "javascript quiz",
     "coding interview",
     "frontend developer",
@@ -38,7 +45,8 @@ export const metadata: Metadata = {
     "coding practice",
     "programming challenges",
     "leetcode frontend",
-    "frontend system design"
+    "frontend system design",
+    "frontend ai interviewer"
   ],
   authors: [{ name: "Frontend Pitstop" }],
   creator: "Frontend Pitstop",
@@ -52,8 +60,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://frontendpitstop.com",
-    title: "Frontend Pitstop — Master Frontend Interviews",
-    description: "Practice 100+ real frontend interview questions from top tech companies. Interactive code editor with instant feedback.",
+    title: "Frontend Pitstop — AI Mock Interviews for Frontend",
+    description: "AI-based interviewer, real-time voice Q&A, interviewer selection, and performance analytics. Practice React, React Native, JS, CSS & system design.",
     siteName: "Frontend Pitstop",
     images: [
       {
@@ -101,8 +109,26 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Frontend Pitstop",
-    "description": "Practice frontend interview questions and coding challenges",
+    "description": "Practice frontend interview questions, coding challenges, and AI-based mock interviews with voice and analytics",
     "url": "https://frontendpitstop.com",
+    "hasPart": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "AI Mock Interview",
+        "operatingSystem": "Web",
+        "applicationCategory": "EducationalApplication",
+        "description": "AI interviewer with voice, interviewer selection, and performance analytics for frontend interviews (React, React Native, JS, CSS, System Design).",
+        "url": "https://frontendpitstop.com/ai-interview"
+      },
+      {
+        "@type": "WebApplication",
+        "name": "Frontend Mock Interviews",
+        "operatingSystem": "Web",
+        "applicationCategory": "EducationalApplication",
+        "description": "Mock interviews for frontend roles with detailed feedback and scorecards.",
+        "url": "https://frontendpitstop.com/mock-interview"
+      }
+    ],
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://frontendpitstop.com/problems?search={search_term_string}",

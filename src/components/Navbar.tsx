@@ -16,6 +16,7 @@ export default function Navbar() {
     // { href: "/pricing", label: "Pricing", highlight: true }, // Hidden for now
     { href: "/prep-plans", label: "Prep Plans" },
     { href: "/system-design", label: "System Design" },
+    
     { href: "/community", label: "Community", comingSoon: true },
   ];
 

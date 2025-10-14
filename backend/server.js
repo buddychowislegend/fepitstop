@@ -86,9 +86,14 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 // app.use('/api/payment', paymentRoutes); // Temporarily disabled - causing mongoose conflicts
 
-// AI Interview - Temporarily disabled
-// app.use('/api/ai-interview', aiInterviewRoutes);
-// console.log('✅ AI Interview routes enabled');
+// AI Interview
+try {
+  const aiInterviewRoutes = require('./routes/ai-interview');
+  app.use('/api/ai-interview', aiInterviewRoutes);
+  console.log('✅ AI Interview routes enabled');
+} catch (e) {
+  console.warn('⚠️ Failed to enable AI Interview routes:', e?.message);
+}
 
 app.get('/api/health', async (req, res) => {
   try {

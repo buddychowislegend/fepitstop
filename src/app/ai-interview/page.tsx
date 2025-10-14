@@ -99,6 +99,9 @@ export default function AIInterviewPage() {
   // Settings
   const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>('mid');
   const [focus, setFocus] = useState<'javascript' | 'react' | 'fullstack'>('fullstack');
+  const [framework, setFramework] = useState<'react' | 'react-native' | 'vue' | 'angular' | 'svelte' | 'nextjs'>('react');
+  const [jdText, setJdText] = useState<string>('');
+  const [jdUploading, setJdUploading] = useState<boolean>(false);
   const [selectedInterviewer, setSelectedInterviewer] = useState<Interviewer | null>(null);
   
   // Mic check states
@@ -300,6 +303,8 @@ export default function AIInterviewPage() {
           action: 'start',
           level,
           focus,
+          framework,
+          jdText,
           interviewer: selectedInterviewer
         })
       });
@@ -531,7 +536,12 @@ export default function AIInterviewPage() {
           body: JSON.stringify({
             action: 'respond',
             sessionId: session.id,
-            message: answerToSubmit
+            message: answerToSubmit,
+            previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
+            level,
+            focus,
+            framework,
+            jdText
           })
         });
 
@@ -591,7 +601,12 @@ export default function AIInterviewPage() {
           body: JSON.stringify({
             action: 'respond',
             sessionId: session.id,
-            message: 'I need to think about this question.'
+            message: 'I need to think about this question.',
+            previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
+            level,
+            focus,
+            framework,
+            jdText
           })
         });
 
@@ -1000,6 +1015,37 @@ export default function AIInterviewPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Framework and JD Upload */}
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <div>
+                <label className="block text-sm font-semibold text-white mb-4">Framework</label>
+                <select
+                  value={framework}
+                  onChange={(e) => setFramework(e.target.value as any)}
+                  className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/20"
+                >
+                  <option className="text-black" value="react">React</option>
+                  <option className="text-black" value="react-native">React Native</option>
+                  <option className="text-black" value="nextjs">Next.js</option>
+                  <option className="text-black" value="vue">Vue</option>
+                  <option className="text-black" value="angular">Angular</option>
+                  <option className="text-black" value="svelte">Svelte</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-white mb-4">Paste JD (optional)</label>
+                <textarea
+                  value={jdText}
+                  onChange={(e) => setJdText(e.target.value)}
+                  placeholder="Paste the job description here to tailor questions."
+                  className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/20 min-h-[140px] resize-y"
+                />
+                {jdText && (
+                  <div className="mt-2 text-xs text-white/70">{jdText.length} characters</div>
+                )}
               </div>
             </div>
 
