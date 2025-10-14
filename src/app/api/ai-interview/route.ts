@@ -1,583 +1,139 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Types
-type Message = {
-  role: 'interviewer' | 'candidate';
-  content: string;
-  timestamp: Date;
-  isVoice?: boolean;
-};
+const CANDIDATE_MODELS = ['gemini-2.0-flash-exp', 'gemini-1.5-flash'];
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-type Interviewer = {
-  id: string;
-  name: string;
-  role: string;
-  company: string;
-  experience: string;
-  avatar: string;
-  specialties: string[];
-  gender: 'male' | 'female';
-};
+async function callGeminiWithRetry(prompt: string): Promise<string> {
+  const maxAttempts = 3;
+  const baseDelayMs = 500;
+  let lastError: any = null;
 
-type Session = {
-  id: string;
-  interviewer?: Interviewer;
-  level: string;
-  focus: string;
-  startTime: Date;
-  endTime?: Date;
-  messages: Message[];
-  currentQuestion: number;
-  totalQuestions: number;
-  score?: number | null;
-  feedback?: string;
-  status: 'active' | 'completed';
-};
-
-// Simple in-memory storage for dev (replace with DB in production)
-const sessions = new Map<string, Session>();
-
-// Mock interview questions for fallback when quota exceeded
-const mockQuestions = [
-  "Can you explain the difference between var, let, and const in JavaScript, and when would you use each one?",
-  "What is the Virtual DOM in React, and how does it improve performance?",
-  "Explain the concept of closures in JavaScript with an example.",
-  "What are React Hooks? Can you explain useState and useEffect?",
-  "How would you optimize the performance of a React application?",
-  "What is the difference between == and === in JavaScript?",
-  "Can you explain the concept of event bubbling and event capturing in JavaScript?",
-  "Thank you for your answers! That completes our interview. You demonstrated good knowledge of frontend concepts. Keep practicing and you'll continue to improve!"
-];
-
-function getMockResponse(questionNumber: number, userAnswer: string): string {
-  if (questionNumber >= mockQuestions.length - 1) {
-    return mockQuestions[mockQuestions.length - 1]; // Final message
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    for (const modelName of CANDIDATE_MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        const text = (await result.response).text().trim();
+        console.log('[Gemini][ok]', { modelName, attempt });
+        return text;
+      } catch (err: any) {
+        const msg = err?.message || String(err);
+        console.error('[Gemini][error]', { modelName, attempt, msg });
+        lastError = err;
+        // If 404 (model unsupported) or 429 (quota), try next model/attempt
+      }
+    }
+    // backoff
+    const delay = baseDelayMs * Math.pow(2, attempt - 1);
+    await new Promise((r) => setTimeout(r, delay));
   }
-  
-  return `Thank you for your answer. ${mockQuestions[questionNumber]} What's your answer?`;
+  throw lastError || new Error('Gemini failed after retries');
 }
 
-// System prompt for AI interviewer
-const INTERVIEWER_SYSTEM_PROMPT = `You are an experienced frontend interview conductor at a top tech company (Google, Meta, Amazon).
+function buildContextPrefix(framework?: string, jdText?: string) {
+  const fw = framework ? `Framework: ${framework}.` : '';
+  const jd = jdText ? ` Job Description Summary: ${jdText.slice(0, 1200)}.` : '';
+  return `${fw}${jd}`.trim();
+}
 
-Your role:
-1. Ask relevant frontend interview questions (JavaScript, React, CSS, HTML, System Design)
-2. Focus on THEORETICAL questions for this interview - NO CODING PROBLEMS
-3. Follow up on user's answers with deeper questions
-4. Provide hints if the user is stuck (but don't give away answers)
-5. Evaluate answers and provide constructive feedback
-6. Adapt difficulty based on user's performance
-7. Be professional, encouraging, and supportive
+async function generateQuestion(opts: { level: string; focus: string; framework?: string; jdText?: string; }) {
+  const { level, focus, framework, jdText } = opts;
+  const context = buildContextPrefix(framework, jdText);
+  const prompt = `You are a senior interviewer. ${context}
+Generate ONE concise technical interview question tailored to the candidate.
+- Difficulty: ${level}
+- Focus area: ${focus}
+- Keep it specific to the mentioned framework and JD when provided.
+Return ONLY the question text.`;
 
-Interview structure:
-- Start with a warm greeting and brief introduction
-- Ask 5-7 THEORETICAL questions total (concepts, best practices, architecture)
-- NO CODING PROBLEMS - focus on understanding and knowledge
-- Ask follow-up questions based on their answers
-- End with overall feedback and recommendations
-
-Keep responses concise (2-3 sentences max) to maintain conversation flow.
-Always end your response with "What's your answer?" to prompt the candidate.`;
-
-// Helper to call Gemini API
-async function callGemini(messages: any[]) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  
-  console.log('callGemini - API Key exists:', !!apiKey);
-  
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY not configured');
-  }
-  
-  // Format messages for Gemini
-  const contents = messages.map(msg => ({
-    role: msg.role === 'model' ? 'model' : 'user',
-    parts: [{ text: msg.content }]
-  }));
-  
-  console.log('callGemini - Sending request with', contents.length, 'messages');
-  
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents,
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          },
-        }),
-      }
-    );
-
-    console.log('callGemini - Response status:', response.status);
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error('Gemini API error response:', error);
-      
-      // Check if it's a quota error
-      if (response.status === 429) {
-        throw new Error('QUOTA_EXCEEDED');
-      }
-      
-      throw new Error(`Gemini API request failed: ${response.status} - ${error}`);
-    }
-
-    const data = await response.json();
-    console.log('callGemini - Response received, has candidates:', !!data.candidates);
-    
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      console.error('callGemini - Invalid response structure:', JSON.stringify(data));
-      throw new Error('Invalid response from Gemini API');
-    }
-    
-    return data.candidates[0].content.parts[0].text;
-  } catch (error: any) {
-    console.error('callGemini - Error:', error.message);
-    throw error;
+    const text = await callGeminiWithRetry(prompt);
+    return text.replace(/^"|"$/g, '');
+  } catch (err: any) {
+    console.error('[Gemini][start] error=', err?.message || err);
+    throw err;
   }
 }
 
-export async function POST(request: NextRequest) {
+async function generateFollowUp(opts: { answer: string; previousQuestion: string; framework?: string; jdText?: string; level: string; focus: string; }) {
+  const { answer, previousQuestion, framework, jdText, level, focus } = opts;
+  const context = buildContextPrefix(framework, jdText);
+  const prompt = `You are a senior interviewer. ${context}
+Given the previous question and the candidate's answer, generate the NEXT interview question.
+- Previous question: ${previousQuestion}
+- Candidate answer: ${answer}
+- Difficulty: ${level}
+- Focus: ${focus}
+Make the next question relevant to the framework/JD if given. Return ONLY the question text.`;
   try {
-    console.log('=== AI Interview API Called ===');
-    
-    const body = await request.json();
-    const { action, sessionId, message, level, focus, interviewer } = body;
-    
-    console.log('Action:', action);
-    console.log('Body keys:', Object.keys(body));
-    
-    // Get auth token from header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      console.error('No authorization header');
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
-    
-    const token = authHeader.replace('Bearer ', '');
-    
-    // Simple token validation (in production, verify with JWT)
-    if (!token) {
-      console.error('No token found');
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-    
-    console.log('Token validated');
-    
-    switch (action) {
-      case 'start': {
-        try {
-          const newSessionId = `interview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          
-          console.log('Starting new interview session:', newSessionId);
-          console.log('Interviewer:', interviewer?.name);
-          console.log('Level:', level, 'Focus:', focus);
-          
-          const session: Session = {
-            id: newSessionId,
-            interviewer: interviewer,
-            level: level || 'mid',
-            focus: focus || 'fullstack',
-            startTime: new Date(),
-            messages: [],
-            currentQuestion: 0,
-            totalQuestions: 7,
-            status: 'active' as const
-          };
-          
-          sessions.set(newSessionId, session);
-          console.log('Session created and stored');
-          
-          // Generate initial greeting
-          const initialPrompt = `Start a frontend interview for a ${level || 'mid-level'} position with focus on ${focus || 'fullstack frontend development'}. Greet the candidate warmly and ask the first question. Be encouraging and professional.`;
-          
-          console.log('Calling Gemini API for initial greeting...');
-          
-          let aiResponse: string;
-          
-          try {
-            aiResponse = await callGemini([
-              { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-              { role: 'user', content: initialPrompt }
-            ]);
-            console.log('Got initial AI response:', aiResponse.substring(0, 100) + '...');
-          } catch (geminiError: any) {
-            console.error('Gemini API error:', geminiError.message);
-            
-            // Use fallback mock interview if quota exceeded
-            if (geminiError.message === 'QUOTA_EXCEEDED') {
-              console.log('Quota exceeded, using mock interviewer');
-              aiResponse = `Hello! I'm ${interviewer?.name || 'your interviewer'} from ${interviewer?.company || 'a top tech company'}. Thank you for joining this ${level || 'mid-level'} frontend interview focusing on ${focus || 'fullstack development'}. I'm excited to learn about your experience and technical skills today.
-
-Let's start with a fundamental question: Can you explain the difference between var, let, and const in JavaScript, and when would you use each one? What's your answer?`;
-            } else {
-              throw geminiError;
-            }
-          }
-        
-          session.messages.push({
-            role: 'interviewer',
-            content: aiResponse,
-            timestamp: new Date()
-          });
-          
-          console.log('Returning success response');
-          
-          return NextResponse.json({
-            sessionId: newSessionId,
-            message: aiResponse,
-            questionNumber: 1,
-            totalQuestions: session.totalQuestions
-          });
-        } catch (error: any) {
-          console.error('Error in start action:', error);
-          return NextResponse.json({ 
-            error: 'Failed to start interview', 
-            details: error.message 
-          }, { status: 500 });
-        }
-      }
-      
-      case 'respond': {
-        const session = sessions.get(sessionId);
-        if (!session) {
-          return NextResponse.json({ error: 'Session not found' }, { status: 404 });
-        }
-        
-        // Add user message
-        session.messages.push({
-          role: 'candidate',
-          content: message,
-          timestamp: new Date()
-        });
-        
-        let aiResponse: string;
-        
-        try {
-          // Build conversation history
-          const conversationHistory = [
-            { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-            ...session.messages.map((msg: any) => ({
-              role: msg.role === 'interviewer' ? 'model' : 'user',
-              content: msg.content
-            }))
-          ];
-          
-          // Get AI response
-          console.log('Calling Gemini with conversation history:', conversationHistory.length, 'messages');
-          aiResponse = await callGemini(conversationHistory);
-          console.log('Got AI response:', aiResponse);
-        } catch (geminiError: any) {
-          console.error('Gemini API error in respond:', geminiError.message);
-          
-          // Use fallback mock interview if quota exceeded
-          if (geminiError.message === 'QUOTA_EXCEEDED') {
-            console.log('Quota exceeded, using mock response');
-            aiResponse = getMockResponse(session.currentQuestion, message);
-          } else {
-            throw geminiError;
-          }
-        }
-        
-        session.messages.push({
-          role: 'interviewer',
-          content: aiResponse,
-          timestamp: new Date()
-        });
-        
-        session.currentQuestion++;
-        
-        const shouldEnd = session.currentQuestion >= session.totalQuestions;
-        
-        return NextResponse.json({
-          message: aiResponse,
-          questionNumber: session.currentQuestion + 1,
-          totalQuestions: session.totalQuestions,
-          shouldEnd
-        });
-      }
-      
-      case 'end': {
-        const session = sessions.get(sessionId);
-        if (!session) {
-          return NextResponse.json({ error: 'Session not found' }, { status: 404 });
-        }
-        
-        console.log('Ending interview, session:', sessionId);
-        console.log('Messages count:', session.messages.length);
-        
-        // Generate per-question analysis
-        const questionAnalysis = [];
-        const qaExchanges: any[] = [];
-        
-        try {
-          // Group messages into Q&A pairs
-          for (let i = 0; i < session.messages.length; i++) {
-            if (session.messages[i].role === 'interviewer') {
-              const question = session.messages[i];
-              const answer = session.messages[i + 1];
-              
-              if (answer && answer.role === 'candidate') {
-                qaExchanges.push({
-                  question: question.content,
-                  answer: answer.content,
-                  questionNumber: qaExchanges.length + 1
-                });
-                i++; // Skip the answer in next iteration
-              }
-            }
-          }
-          
-          console.log('Found Q&A pairs:', qaExchanges.length);
-          
-          // Get detailed analysis for each Q&A pair (with timeout protection)
-          for (const qa of qaExchanges) {
-            try {
-              const analysisPrompt = `Analyze this interview question and answer. Respond ONLY with valid JSON:
-
-Question: ${qa.question}
-Answer: ${qa.answer}
-
-JSON format:
-{
-  "score": 7,
-  "strengths": ["strength1", "strength2"],
-  "improvements": ["improvement1", "improvement2"],
-  "feedback": "Brief constructive feedback"
-}`;
-
-              console.log(`Analyzing Q${qa.questionNumber}...`);
-              
-              const analysisText = await Promise.race([
-                callGemini([
-                  { role: 'user', content: analysisPrompt }
-                ]),
-                new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error('Analysis timeout')), 10000)
-                )
-              ]) as string;
-              
-              console.log(`Q${qa.questionNumber} analysis response:`, analysisText.substring(0, 100));
-              
-              // Try to parse JSON from response
-              const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
-              if (jsonMatch) {
-                try {
-                  const analysis = JSON.parse(jsonMatch[0]);
-                  questionAnalysis.push({
-                    questionNumber: qa.questionNumber,
-                    question: qa.question,
-                    answer: qa.answer,
-                    score: analysis.score || 7,
-                    strengths: analysis.strengths || ['Attempted to answer'],
-                    improvements: analysis.improvements || ['Could provide more detail'],
-                    feedback: analysis.feedback || 'Good effort'
-                  });
-                  console.log(`Q${qa.questionNumber} analyzed successfully`);
-                } catch (parseError) {
-                  console.error(`JSON parse error for Q${qa.questionNumber}:`, parseError);
-                  throw parseError;
-                }
-              } else {
-                console.warn(`No JSON found in response for Q${qa.questionNumber}`);
-                throw new Error('No JSON in response');
-              }
-            } catch (error) {
-              console.error(`Error analyzing Q${qa.questionNumber}:`, error);
-              // Add fallback analysis
-              questionAnalysis.push({
-                questionNumber: qa.questionNumber,
-                question: qa.question,
-                answer: qa.answer,
-                score: 7,
-                strengths: ['Participated in the interview', 'Attempted to answer the question'],
-                improvements: ['Could provide more detailed explanations'],
-                feedback: 'Good effort on this question. Keep practicing to improve your answers.'
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Error in per-question analysis:', error);
-          // Continue without per-question analysis if it fails
-        }
-        
-        // Generate overall feedback
-        let feedback = 'Great job completing the interview! You demonstrated good communication skills and technical knowledge.';
-        let overallScore = null;
-        
-        try {
-          console.log('Generating overall feedback...');
-          const conversationHistory = [
-            { role: 'user', content: INTERVIEWER_SYSTEM_PROMPT },
-            ...session.messages.map((msg: any) => ({
-              role: msg.role === 'interviewer' ? 'model' : 'user',
-              content: msg.content
-            })),
-            { 
-              role: 'user', 
-              content: `The interview is complete. Provide comprehensive overall feedback with:\n1. Overall score (out of 10)\n2. Key strengths (3-5 points)\n3. Areas for improvement (3-5 points)\n4. Specific study recommendations\n\nBe constructive and specific.`
-            }
-          ];
-          
-          feedback = await Promise.race([
-            callGemini(conversationHistory),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Feedback timeout')), 15000)
-            )
-          ]) as string;
-          
-          console.log('Overall feedback generated successfully');
-          
-          // Extract score from feedback
-          const scoreMatch = feedback.match(/score[:\s]+(\d+)/i);
-          if (scoreMatch) {
-            overallScore = parseInt(scoreMatch[1]);
-          }
-        } catch (error) {
-          console.error('Error generating overall feedback:', error);
-          // Use fallback feedback
-          feedback = `Thank you for completing the interview! 
-
-Key Strengths:
-- Demonstrated good communication skills
-- Showed willingness to engage with questions
-- Maintained professional demeanor throughout
-
-Areas for Improvement:
-- Continue practicing technical concepts
-- Work on providing more detailed explanations
-- Study common interview patterns
-
-Overall Score: 7/10
-
-Keep practicing and you'll continue to improve!`;
-          overallScore = 7;
-        }
-        
-        session.status = 'completed';
-        session.endTime = new Date();
-        session.feedback = feedback;
-        
-        // Calculate overall score from question scores
-        const avgScore = questionAnalysis.length > 0
-          ? Math.round(questionAnalysis.reduce((sum, qa) => sum + qa.score, 0) / questionAnalysis.length * 10) / 10
-          : null;
-        
-        session.score = avgScore || overallScore || 7;
-        
-        const duration = Math.floor((session.endTime.getTime() - session.startTime.getTime()) / 1000 / 60);
-        
-        console.log('Interview ended successfully, score:', session.score);
-        
-        // Generate personalized study plan based on weak areas
-        const studyPlan = {
-          weeklyGoals: [
-            {
-              week: 1,
-              focus: 'JavaScript Fundamentals',
-              goals: [
-                'Master var, let, and const',
-                'Understand closures and scope',
-                'Practice array and object methods'
-              ],
-              resources: [
-                'MDN JavaScript Guide',
-                'JavaScript.info',
-                'Frontend Pitstop problems'
-              ]
-            },
-            {
-              week: 2,
-              focus: 'React Basics',
-              goals: [
-                'Understand component lifecycle',
-                'Master useState and useEffect',
-                'Practice props and state management'
-              ],
-              resources: [
-                'React Official Docs',
-                'React patterns',
-                'Build small projects'
-              ]
-            },
-            {
-              week: 3,
-              focus: 'Advanced Concepts',
-              goals: [
-                'Learn React Hooks in depth',
-                'Understand performance optimization',
-                'Practice system design basics'
-              ],
-              resources: [
-                'React Performance Guide',
-                'System Design Primer',
-                'Real-world projects'
-              ]
-            },
-            {
-              week: 4,
-              focus: 'Interview Preparation',
-              goals: [
-                'Practice mock interviews',
-                'Review common patterns',
-                'Build confidence'
-              ],
-              resources: [
-                'Frontend Pitstop AI Interview',
-                'LeetCode Frontend',
-                'Mock interview practice'
-              ]
-            }
-          ],
-          dailyPractice: {
-            problems: 2,
-            readingTime: 30,
-            videoTime: 20
-          },
-          keyResources: [
-            'MDN Web Docs',
-            'React Official Documentation',
-            'Frontend Pitstop Platform',
-            'JavaScript.info',
-            'CSS-Tricks'
-          ],
-          milestones: [
-            'Complete 50 coding problems',
-            'Build 3 portfolio projects',
-            'Pass 5 mock interviews with 8+ score',
-            'Master all weak areas identified'
-          ]
-        };
-        
-        return NextResponse.json({
-          feedback,
-          score: session.score,
-          duration,
-          questionsAsked: session.currentQuestion,
-          transcript: session.messages,
-          questionAnalysis, // Detailed per-question analysis with videos
-          studyPlan // Personalized 30-day study plan
-        });
-      }
-      
-      default:
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-    }
-  } catch (error: any) {
-    console.error('AI Interview API error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    const text = await callGeminiWithRetry(prompt);
+    return text.replace(/^"|"$/g, '');
+  } catch (err: any) {
+    console.error('[Gemini][respond] error=', err?.message || err);
+    throw err;
   }
 }
 
+async function generateEndSummary(opts: { framework?: string; jdText?: string; }) {
+  const { framework, jdText } = opts;
+  const context = buildContextPrefix(framework, jdText);
+  const prompt = `You are a senior interviewer. ${context}
+Provide a short closing message thanking the candidate and indicating that a detailed analysis will be prepared.`;
+  try {
+    const text = await callGeminiWithRetry(prompt);
+    return text.trim();
+  } catch (err: any) {
+    console.error('[Gemini][end] error=', err?.message || err);
+    throw err;
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { action } = body || {};
+
+    if (action === 'start') {
+      const { level = 'mid', focus = 'fullstack', framework, jdText } = body || {};
+      try {
+        const question = await generateQuestion({ level, focus, framework, jdText });
+        return NextResponse.json({ sessionId: Date.now().toString(), message: question });
+      } catch (e: any) {
+        // Graceful fallback (e.g., Gemini quota)
+        const fw = framework || 'frontend';
+        const jdHint = jdText ? ' (align to the job description context)' : '';
+        const fallbackQ = `In ${fw}, how would you design and implement a feature related to ${focus}? Please outline key trade-offs${jdHint}.`;
+        return NextResponse.json({ sessionId: Date.now().toString(), message: fallbackQ, fallback: true });
+      }
+    }
+
+    if (action === 'respond') {
+      const { message: answer, previousQuestion, level = 'mid', focus = 'fullstack', framework, jdText } = body || {};
+      try {
+        const nextQ = await generateFollowUp({ answer, previousQuestion: previousQuestion || 'Previous question not provided', framework, jdText, level, focus });
+        return NextResponse.json({ message: nextQ });
+      } catch (e: any) {
+        const fw = framework || 'frontend';
+        const jdHint = jdText ? ' considering the JD' : '';
+        const followUp = `As a follow-up in ${fw}${jdHint}, what potential pitfalls or edge cases would you address for your approach, and how would you test them?`;
+        return NextResponse.json({ message: followUp, fallback: true });
+      }
+    }
+
+    if (action === 'end') {
+      const { framework, jdText } = body || {};
+      try {
+        const closing = await generateEndSummary({ framework, jdText });
+        return NextResponse.json({ score: 7, feedback: closing, questionAnalysis: [] });
+      } catch (e: any) {
+        return NextResponse.json({ score: 7, feedback: 'Thanks for participating. We will prepare a detailed analysis.', questionAnalysis: [], fallback: true });
+      }
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (err) {
+    console.error('ai-interview error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
