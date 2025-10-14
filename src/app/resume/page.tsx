@@ -1,5 +1,7 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 type ResumeData = {
   name: string;
@@ -244,6 +246,31 @@ export default function ResumeBuilderPage() {
   const [data, setData] = useState<ResumeData>(defaultData);
   const [accent, setAccent] = useState<string>("#2563eb");
   const [includePhoto, setIncludePhoto] = useState<boolean>(false);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const [exportMode, setExportMode] = useState<boolean>(false);
+
+  const handleDownloadPdf = async () => {
+    if (!previewRef.current) return;
+    try {
+      // Force plain-export rendering for capture
+      setExportMode(true);
+      await new Promise(r => setTimeout(r, 60));
+      const canvas = await html2canvas(previewRef.current, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const y = Math.max(0, (pageHeight - imgHeight) / 2);
+      pdf.addImage(imgData, "PNG", 0, y, imgWidth, imgHeight);
+      pdf.save("resume.pdf");
+    } catch (err: any) {
+      console.error('PDF export failed:', err?.message || err);
+      // Do not call window.print(); user only wants the resume canvas exported
+      if (typeof window !== 'undefined') alert('PDF export failed. Please try again.');
+    }
+  };
 
   // Additional premium templates
   function SimpleATSTemplate({ data, accent = "#2563eb" }: TemplateProps) {
@@ -434,6 +461,45 @@ export default function ResumeBuilderPage() {
     }
   }, [template]);
 
+  // Extremely safe plain template for export to avoid lab/oklch issues
+  function PlainTemplate({ data, accent = '#2563eb' }: TemplateProps) {
+    const textStyle = { color: '#111111' } as React.CSSProperties;
+    const subtleStyle = { color: '#444444' } as React.CSSProperties;
+    const borderStyle = { borderColor: '#e5e7eb' } as React.CSSProperties;
+    return (
+      <div style={{ background: '#ffffff', color: '#111111', padding: '28px', lineHeight: 1.6 }}>
+        <h1 style={{ ...textStyle, fontSize: '28px', fontWeight: 800, margin: 0, color: accent }}>{data.name}</h1>
+        <div style={{ ...subtleStyle, fontSize: '13px', marginTop: '2px' }}>{data.title} • {data.email} • {data.phone} • {data.location}</div>
+        <hr style={{ borderTop: `3px solid ${accent}`, margin: '12px 0' }} />
+        <h2 style={{ ...textStyle, fontSize: '18px', fontWeight: 700, marginBottom: '4px', color: accent }}>Summary</h2>
+        <p style={{ ...subtleStyle, fontSize: '14px', marginTop: 0 }}>{data.summary}</p>
+        <h2 style={{ ...textStyle, fontSize: '18px', fontWeight: 700, margin: '16px 0 4px', color: accent }}>Experience</h2>
+        {data.experience.map((exp, i) => (
+          <div key={i} style={{ marginBottom: '10px' }}>
+            <div style={{ ...textStyle, fontWeight: 600 }}>{exp.role} — {exp.company}</div>
+            <div style={{ ...subtleStyle, fontSize: '13px' }}>{exp.start} – {exp.end}</div>
+            <ul style={{ ...subtleStyle, fontSize: '14px', marginTop: '4px', marginBottom: 0, paddingLeft: '18px' }}>
+              {exp.bullets.map((b, j) => <li key={j}>{b}</li>)}
+            </ul>
+          </div>
+        ))}
+        <h2 style={{ ...textStyle, fontSize: '18px', fontWeight: 700, margin: '16px 0 4px', color: accent }}>Education</h2>
+        {data.education.map((ed, i) => (
+          <div key={i} style={{ marginBottom: '8px' }}>
+            <div style={{ ...textStyle, fontWeight: 600 }}>{ed.degree} — {ed.school}</div>
+            <div style={{ ...subtleStyle, fontSize: '13px' }}>{ed.start} – {ed.end}</div>
+          </div>
+        ))}
+        <h2 style={{ ...textStyle, fontSize: '18px', fontWeight: 700, margin: '16px 0 4px', color: accent }}>Skills</h2>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          {data.skills.map((s, i) => (
+            <span key={i} style={{ ...textStyle, fontSize: '12px', border: `1px solid ${accent}`, color: accent, borderRadius: '6px', padding: '2px 8px' }}>{s}</span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   const updateArray = (arr: any[], setter: (v: any[]) => void, i: number, field: string, value: any) => {
     const copy = [...arr];
     copy[i] = { ...copy[i], [field]: value };
@@ -573,8 +639,8 @@ export default function ResumeBuilderPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
-        <div>
+      <div className="max-w-[1400px] mx-auto px-6 py-6 grid lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-5">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-extrabold text-white">Resume Builder</h1>
             <button onClick={() => setStep("choose")} className="text-sm text-white/80 hover:text-white">Change Template</button>
@@ -646,26 +712,35 @@ export default function ResumeBuilderPage() {
           <div className="mt-4">
             <h2 className="font-semibold text-white mb-2">Education</h2>
             {data.education.map((ed, i) => (
-              <div key={i} className="rounded p-3 mb-2 bg_WHITE/10 border border_WHITE/20">
+              <div key={i} className="rounded p-3 mb-2 bg-white/10 border border-white/20">
                 <input className="w-full rounded p-2 mb-1 bg-white/10 text-white border border-white/20" placeholder="Degree" value={ed.degree} onChange={e => updateArray(data.education, v => setData({ ...data, education: v }), i, 'degree', e.target.value)} />
                 <input className="w-full rounded p-2 mb-1 bg-white/10 text-white border border-white/20" placeholder="School" value={ed.school} onChange={e => updateArray(data.education, v => setData({ ...data, education: v }), i, 'school', e.target.value)} />
                 <div className="grid grid-cols-2 gap-2 mb-1">
                   <input className="rounded p-2 bg-white/10 text-white border border-white/20" placeholder="Start" value={ed.start} onChange={e => updateArray(data.education, v => setData({ ...data, education: v }), i, 'start', e.target.value)} />
                   <input className="rounded p-2 bg-white/10 text-white border border-white/20" placeholder="End" value={ed.end} onChange={e => updateArray(data.education, v => setData({ ...data, education: v }), i, 'end', e.target.value)} />
                 </div>
-                <textarea className="w-full rounded p-2 bg-white/10 text_WHITE border border_WHITE/20" placeholder="Details" value={ed.details || ''} onChange={e => updateArray(data.education, v => setData({ ...data, education: v }), i, 'details', e.target.value)} />
+                <textarea className="w-full rounded p-2 bg-white/10 text-white border border-white/20" placeholder="Details" value={ed.details || ''} onChange={e => updateArray(data.education, v => setData({ ...data, education: v }), i, 'details', e.target.value)} />
               </div>
             ))}
             <button className="text-sm text-blue-300 hover:text-white" onClick={() => setData({ ...data, education: [...data.education, { school: '', degree: '', start: '', end: '' }] })}>+ Add education</button>
           </div>
+          <div className="mt-6 flex items-center gap-3">
+            <button onClick={handleDownloadPdf} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700">
+              Download PDF
+            </button>
+            <button onClick={() => setExportMode(v => !v)} className="text-sm text-white/80 hover:text-white">
+              {exportMode ? 'Exit Plain Export' : 'Plain Export Mode'}
+            </button>
+          </div>
         </div>
-        <div>
-          <div className="bg-white/10 p-4 rounded-xl border border-white/20 sticky top-4">
-            <div className="bg-white mx-auto" style={{ width: 794, minHeight: 1123 }}>
-              <Template data={data} />
+        <div className="lg:col-span-7">
+          <div className="bg-white/10 p-4 rounded-xl border border-white/20 sticky top-4 overflow-auto">
+            <div ref={previewRef} id="resume-export" className="bg-white" style={{ width: 794, minHeight: 1123 }}>
+              {exportMode ? <PlainTemplate data={data} /> : <Template data={data} />}
             </div>
           </div>
         </div>
+        {/* Removed print CSS since we export via canvas->PDF */}
       </div>
     </div>
   );
