@@ -166,12 +166,22 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Analytics />
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
+          {/* Global gradient shell */}
+          <div className="relative min-h-screen">
+            <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+              {/* Soft radial gradient background */}
+              <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[600px] w-[1200px] rounded-full blur-3xl opacity-30"
+                   style={{ background: 'radial-gradient(800px 300px at 50% 40%, var(--brand-start), transparent 60%)' }} />
+              <div className="absolute -bottom-40 right-1/2 translate-x-1/2 h-[600px] w-[1200px] rounded-full blur-3xl opacity-25"
+                   style={{ background: 'radial-gradient(800px 300px at 50% 60%, var(--brand-end), transparent 60%)' }} />
+            </div>
+            <div className="relative flex flex-col min-h-screen">
+              <Navbar />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
           </div>
         </AuthProvider>
       </body>
