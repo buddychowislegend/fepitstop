@@ -119,44 +119,44 @@ export default function AIInterviewPage() {
   const getInterviewersByProfile = (profile: string): Interviewer[] => {
     const interviewerPools = {
       frontend: [
-        {
-          id: 'sarah-chen',
-          name: 'Sarah Chen',
-          role: 'Senior Frontend Engineer',
-          company: 'Google',
-          experience: '8+ years',
-          avatar: '/api/placeholder/200/200',
-          specialties: ['React', 'TypeScript', 'System Design'],
+    {
+      id: 'sarah-chen',
+      name: 'Sarah Chen',
+      role: 'Senior Frontend Engineer',
+      company: 'Google',
+      experience: '8+ years',
+      avatar: '/api/placeholder/200/200',
+      specialties: ['React', 'TypeScript', 'System Design'],
           gender: 'female' as const
-        },
-        {
+    },
+    {
           id: 'arjun-patel',
           name: 'Arjun Patel',
-          role: 'Frontend Tech Lead',
+      role: 'Frontend Tech Lead',
           company: 'Microsoft',
-          experience: '10+ years',
-          avatar: '/api/placeholder/200/200',
-          specialties: ['JavaScript', 'React', 'Performance'],
+      experience: '10+ years',
+      avatar: '/api/placeholder/200/200',
+      specialties: ['JavaScript', 'React', 'Performance'],
           gender: 'male' as const
-        },
-        {
-          id: 'priya-sharma',
-          name: 'Priya Sharma',
-          role: 'Senior Software Engineer',
-          company: 'Amazon',
-          experience: '6+ years',
-          avatar: '/api/placeholder/200/200',
-          specialties: ['Full Stack', 'React', 'Node.js'],
+    },
+    {
+      id: 'priya-sharma',
+      name: 'Priya Sharma',
+      role: 'Senior Software Engineer',
+      company: 'Amazon',
+      experience: '6+ years',
+      avatar: '/api/placeholder/200/200',
+      specialties: ['Full Stack', 'React', 'Node.js'],
           gender: 'female' as const
-        },
-        {
+    },
+    {
           id: 'vikram-singh',
           name: 'Vikram Singh',
-          role: 'Principal Engineer',
+      role: 'Principal Engineer',
           company: 'Meta',
-          experience: '12+ years',
-          avatar: '/api/placeholder/200/200',
-          specialties: ['Frontend Architecture', 'React', 'Web Performance'],
+      experience: '12+ years',
+      avatar: '/api/placeholder/200/200',
+      specialties: ['Frontend Architecture', 'React', 'Web Performance'],
           gender: 'male' as const
         }
       ],
@@ -1097,7 +1097,7 @@ export default function AIInterviewPage() {
     
     // Priority 1: Look for Indian English voices (en-IN)
     if (!selectedVoice) {
-      selectedVoice = voices.find(voice => 
+        selectedVoice = voices.find(voice => 
         voice.lang && voice.lang.includes('en-IN')
       );
       if (selectedVoice) {
@@ -1106,8 +1106,8 @@ export default function AIInterviewPage() {
     }
     
     // Priority 2: Look for Indian voice by name (Google Play Services, Microsoft voices)
-    if (!selectedVoice) {
-      selectedVoice = voices.find(voice =>
+        if (!selectedVoice) {
+          selectedVoice = voices.find(voice => 
         voice.name.toLowerCase().includes('hindi') ||
         voice.name.toLowerCase().includes('indian') ||
         voice.name.toLowerCase().includes('veena') ||  // Google India voice
@@ -1123,7 +1123,7 @@ export default function AIInterviewPage() {
     // Priority 3: Handle gender-specific selection if needed
     if (!selectedVoice && session?.interviewer?.gender) {
       if (session.interviewer.gender === 'female') {
-        selectedVoice = voices.find(voice => 
+          selectedVoice = voices.find(voice => 
           voice.lang?.includes('en-IN') ||
           voice.name.toLowerCase().includes('female') ||
           voice.name.toLowerCase().includes('veena')
@@ -1131,7 +1131,7 @@ export default function AIInterviewPage() {
       } else {
         selectedVoice = voices.find(voice => 
           voice.lang?.includes('en-IN') ||
-          voice.name.toLowerCase().includes('male') ||
+          voice.name.toLowerCase().includes('male') || 
           voice.name.toLowerCase().includes('rishi')
         );
       }
@@ -1154,7 +1154,7 @@ export default function AIInterviewPage() {
       utterance.lang = 'en-IN'; // Set language even if no specific voice found
       console.log('⚠️ No voice selected, using browser default with en-IN locale');
     }
-  
+
     // Try FreeTTS first with Indian locale
     const tryFreeTTS = async () => {
       try {
@@ -1202,7 +1202,7 @@ export default function AIInterviewPage() {
       }
       return false;
     };
-  
+
     (async () => {
       const ok = await tryFreeTTS();
       if (!ok) {
@@ -1635,7 +1635,7 @@ export default function AIInterviewPage() {
 
               {/* User's Recent Answers */}
               <div className="space-y-4 mb-6">
-                <h4 className="font-semibold text-gray-700 text-sm">Your Recent Answers:</h4>
+                <h4 className="font-semibold text-sm">Your Recent Answers:</h4>
                 {messages.filter(msg => msg.role === 'candidate').slice(-3).map((message, index) => (
                   <div key={index} className="card p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -1672,13 +1672,7 @@ export default function AIInterviewPage() {
                 </div>
               )}
 
-              <button 
-                onClick={endInterview}
-                className="w-full btn btn-ghost border border-white/10 flex items-center justify-center gap-2"
-              >
-                <span>↻</span>
-                EXIT INTERVIEW
-              </button>
+         
             </div>
           </div>
 
@@ -1689,10 +1683,10 @@ export default function AIInterviewPage() {
             </div>
 
             {/* Video Feeds */}
-            <div className="relative flex-1 bg-gray-100">
+            <div className="relative flex-1 bg-[color:var(--surface)]">
               {/* Animated Interviewer Avatar with D-ID Video */}
               <div className="absolute top-4 left-4 z-10">
-                <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+                <div className="bg-[color:var(--surface)] backdrop-blur-sm rounded-lg p-4 shadow-lg border border-[color:var(--border)]">
                   <div className="text-center">
                     {/* D-ID Talking Avatar Video or Animated Circle */}
                     <div className="relative mb-3">
@@ -1870,9 +1864,9 @@ export default function AIInterviewPage() {
                 
                 {/* Current Answer Preview */}
                 {currentAnswer && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-left">
-                    <h4 className="text-sm font-semibold text-blue-800 mb-2">Your Answer:</h4>
-                    <p className="text-gray-700 text-sm">{currentAnswer}</p>
+                  <div className="bg-[color:var(--surface)] border border-blue-400/30 rounded-lg p-4 mb-4 text-left">
+                    <h4 className="text-sm font-semibold text-blue-400 mb-2">Your Answer:</h4>
+                    <p className="text-sm">{currentAnswer}</p>
                   </div>
                 )}
                 
@@ -1916,7 +1910,7 @@ export default function AIInterviewPage() {
 
                 {/* Text Input Fallback */}
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium mb-2">
                     Or type your answer:
                   </label>
                   <textarea
@@ -1946,23 +1940,22 @@ export default function AIInterviewPage() {
   // Thank You Screen
   if (currentStep === 'thank-you') {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-4xl">
+          <div className="card p-8">
         {/* Header */}
-        <div className="bg-purple-600 text-white p-4">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">FP</span>
               </div>
               <h1 className="text-xl font-bold">Frontend Pitstop</h1>
-            </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="max-w-4xl mx-auto p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold mb-2">
               Thank you {user?.name || 'sagar bhatnagar'}. You have completed the interview.
             </h1>
           </div>
@@ -1970,9 +1963,9 @@ export default function AIInterviewPage() {
           {/* Progress Steps */}
           <div className="max-w-2xl mx-auto mb-8">
             <div className="space-y-4">
-              <div className={`flex items-center gap-4 p-4 rounded-lg ${
-                analysisProgress === 'uploading' ? 'bg-purple-50 border-l-4 border-purple-500' : 
-                ['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-green-50 border-l-4 border-green-500' : 'bg-gray-50'
+                <div className={`flex items-center gap-4 p-4 rounded-lg border ${
+                  analysisProgress === 'uploading' ? 'bg-[color:var(--surface)] border-purple-400/30' : 
+                  ['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-[color:var(--surface)] border-green-400/30' : 'bg-[color:var(--surface)] border-[color:var(--border)]'
               }`}>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
                   analysisProgress === 'uploading' ? 'bg-purple-500' : 
@@ -2019,19 +2012,19 @@ export default function AIInterviewPage() {
 
           {/* Interview Summary Cards */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-2">Position</h3>
-              <p className="text-2xl font-bold text-purple-600">Frontend Developer</p>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold mb-2">Position</h3>
+              <p className="text-2xl font-bold text-purple-400">Frontend Developer</p>
             </div>
             
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-2">Round</h3>
-              <p className="text-2xl font-bold text-blue-600">Technical Interview</p>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold mb-2">Round</h3>
+              <p className="text-2xl font-bold text-blue-400">Technical Interview</p>
             </div>
             
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-2">Completed</h3>
-              <p className="text-2xl font-bold text-green-600">
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold mb-2">Completed</h3>
+              <p className="text-2xl font-bold text-green-400">
                 {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
               </p>
             </div>
@@ -2039,8 +2032,8 @@ export default function AIInterviewPage() {
 
           {/* Action Cards */}
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4">JD Based Interview</h3>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold mb-4">JD Based Interview</h3>
               <div className="space-y-3">
                 <input 
                   type="text" 
@@ -2058,8 +2051,8 @@ export default function AIInterviewPage() {
               </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4">AI-Powered Performance Review</h3>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold mb-4">AI-Powered Performance Review</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-medium text-sm mb-2">Generic Review</h4>
@@ -2090,16 +2083,17 @@ export default function AIInterviewPage() {
               </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4">Mock Interview for Salary Negotiation</h3>
-              <div className="bg-gray-100 rounded-lg p-4 mb-4">
-                <div className="w-full h-24 bg-gray-300 rounded flex items-center justify-center">
-                  <span className="text-gray-500">Video Preview</span>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="font-semibold mb-4">Mock Interview for Salary Negotiation</h3>
+              <div className="bg-[color:var(--surface)] rounded-lg p-4 mb-4 border border-[color:var(--border)]">
+                <div className="w-full h-24 bg-[color:var(--surface)] rounded flex items-center justify-center border border-[color:var(--border)]">
+                  <span className="text-white/60">Video Preview</span>
                 </div>
               </div>
               <button className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
                 Start Interview
               </button>
+            </div>
             </div>
           </div>
         </div>
@@ -2113,52 +2107,33 @@ export default function AIInterviewPage() {
     const technicalCompetency = feedback.score >= 8 ? 'Expert' : feedback.score >= 6 ? 'Advanced' : feedback.score >= 4 ? 'Professional' : 'Entry-Level';
     
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-6xl">
+          <div className="card p-8">
         {/* Header */}
-        <div className="bg-purple-600 text-white p-4">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">FP</span>
               </div>
               <h1 className="text-xl font-bold">Frontend Pitstop</h1>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm">Welcome, {user?.name || 'sagar'}</span>
-            </div>
           </div>
         </div>
 
         {/* Interview Details */}
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="text-purple-600 font-semibold">Position: Frontend Developer</p>
-              <p className="text-purple-600 font-semibold">Round: Technical Interview</p>
-              <p className="text-purple-600 font-semibold">Completed: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</p>
-            </div>
-            <div className="flex gap-4">
-              <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
-                TRY SAME INTERVIEW AGAIN
-              </button>
-              <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2">
-                <span>📄</span>
-                REPORT
-              </button>
-              <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
-                CERTIFICATE
-              </button>
-            </div>
-          </div>
+   
 
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">You Are Here</span>
-              <span className="text-sm font-medium text-gray-700">{interviewLevel}</span>
+              <span className="text-sm font-medium">You Are Here</span>
+              <span className="text-sm font-medium">{interviewLevel}</span>
             </div>
             <div className="relative">
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-[color:var(--surface)] rounded-full h-3 border border-[color:var(--border)]">
                 <div 
                   className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-1000"
                   style={{ width: `${Math.min((feedback.score / 10) * 100, 100)}%` }}
@@ -2178,8 +2153,8 @@ export default function AIInterviewPage() {
           {/* Performance Gauges */}
           <div className="grid md:grid-cols-2 gap-8 mb-8">
             {/* Interview Level Gauge */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Interview Level</h3>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 border-b border-[color:var(--border)] pb-2">Interview Level</h3>
               <div className="flex items-center justify-center">
                 <div className="relative w-32 h-32">
                   <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
@@ -2213,8 +2188,8 @@ export default function AIInterviewPage() {
             </div>
 
             {/* Technical Competency Gauge */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Technical Competency</h3>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 border-b border-[color:var(--border)] pb-2">Technical Competency</h3>
               <div className="flex items-center justify-center">
                 <div className="relative w-32 h-32">
                   <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
@@ -2251,7 +2226,7 @@ export default function AIInterviewPage() {
           {/* Per-Question Detailed Analysis with recorded videos */}
           {feedback.questionAnalysis && feedback.questionAnalysis.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Question-by-Question Analysis</h2>
+              <h2 className="text-2xl font-bold mb-6">Question-by-Question Analysis</h2>
               <div className="space-y-6">
                 {feedback.questionAnalysis.map((qa: any, index: number) => {
                   // Find the corresponding message with video
@@ -2261,13 +2236,13 @@ export default function AIInterviewPage() {
                   const candidateMsg = candidateMsgs[index] || null;
                   
                   return (
-                    <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <div key={index} className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg overflow-hidden shadow-sm">
                       {/* Question Header */}
-                      <div className="bg-purple-50 p-4 border-b border-gray-200">
+                      <div className="bg-[color:var(--surface)] p-4 border-b border-[color:var(--border)]">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-gray-900">Question {qa.questionNumber}</h3>
+                          <h3 className="font-semibold">Question {qa.questionNumber}</h3>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600">Score:</span>
+                            <span className="text-sm">Score:</span>
                             <span className={`text-lg font-bold ${
                               qa.score >= 8 ? 'text-green-600' : 
                               qa.score >= 6 ? 'text-blue-600' : 
@@ -2283,13 +2258,13 @@ export default function AIInterviewPage() {
                       <div className="p-6">
                         {/* Question */}
                         <div className="mb-4">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Question:</h4>
-                          <p className="text-gray-800 bg-gray-50 p-3 rounded">{qa.question}</p>
+                          <h4 className="text-sm font-semibold mb-2">Question:</h4>
+                          <p className="bg-[color:var(--surface)] p-3 rounded border border-[color:var(--border)]">{qa.question}</p>
                         </div>
 
                         {/* Answer with Video */}
                         <div className="mb-4">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Your Answer:</h4>
+                          <h4 className="text-sm font-semibold mb-2">Your Answer:</h4>
                           <div className="grid md:grid-cols-2 gap-4">
                             {/* Video Playback */}
                             {candidateMsg?.videoUrl && (
@@ -2307,15 +2282,15 @@ export default function AIInterviewPage() {
                             
                             {/* Answer Text */}
                             <div className={candidateMsg?.videoUrl ? '' : 'md:col-span-2'}>
-                              <p className="text-gray-800 bg-gray-50 p-3 rounded h-full">{qa.answer}</p>
+                              <p className="bg-[color:var(--surface)] p-3 rounded h-full border border-[color:var(--border)]">{qa.answer}</p>
                             </div>
                           </div>
                         </div>
 
                         {/* Feedback */}
                         <div className="mb-4">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Feedback:</h4>
-                          <p className="text-gray-700 bg-blue-50 p-3 rounded border-l-4 border-blue-500">{qa.feedback}</p>
+                          <h4 className="text-sm font-semibold mb-2">Feedback:</h4>
+                          <p className="bg-[color:var(--surface)] p-3 rounded border-l-4 border-blue-400 border border-[color:var(--border)]">{qa.feedback}</p>
                         </div>
 
                         {/* Strengths and Improvements */}
@@ -2323,11 +2298,11 @@ export default function AIInterviewPage() {
                           {/* Strengths */}
                           {qa.strengths && qa.strengths.length > 0 && (
                             <div>
-                              <h4 className="text-sm font-semibold text-green-700 mb-2">✓ Strengths:</h4>
+                              <h4 className="text-sm font-semibold text-green-400 mb-2">✓ Strengths:</h4>
                               <ul className="space-y-1">
                                 {qa.strengths.map((strength: string, i: number) => (
-                                  <li key={i} className="text-sm text-gray-700 bg-green-50 p-2 rounded flex items-start gap-2">
-                                    <span className="text-green-600 mt-0.5">•</span>
+                                  <li key={i} className="text-sm bg-[color:var(--surface)] p-2 rounded flex items-start gap-2 border border-[color:var(--border)]">
+                                    <span className="text-green-400 mt-0.5">•</span>
                                     <span>{strength}</span>
                                   </li>
                                 ))}
@@ -2338,11 +2313,11 @@ export default function AIInterviewPage() {
                           {/* Improvements */}
                           {qa.improvements && qa.improvements.length > 0 && (
                             <div>
-                              <h4 className="text-sm font-semibold text-yellow-700 mb-2">💡 Areas to Improve:</h4>
+                              <h4 className="text-sm font-semibold text-yellow-400 mb-2">💡 Areas to Improve:</h4>
                               <ul className="space-y-1">
                                 {qa.improvements.map((improvement: string, i: number) => (
-                                  <li key={i} className="text-sm text-gray-700 bg-yellow-50 p-2 rounded flex items-start gap-2">
-                                    <span className="text-yellow-600 mt-0.5">•</span>
+                                  <li key={i} className="text-sm bg-[color:var(--surface)] p-2 rounded flex items-start gap-2 border border-[color:var(--border)]">
+                                    <span className="text-yellow-400 mt-0.5">•</span>
                                     <span>{improvement}</span>
                                   </li>
                                 ))}
@@ -2361,7 +2336,7 @@ export default function AIInterviewPage() {
           {/* Fallback: Recorded Answers (video) paired by conversation order */}
           {(!feedback.questionAnalysis || feedback.questionAnalysis.length === 0) && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Recorded Answers</h2>
+              <h2 className="text-2xl font-bold text-white-900 mb-6">Recorded Answers</h2>
               <div className="space-y-6">
                 {(() => {
                   const pairs: { q: string; cand?: any }[] = [];
@@ -2418,7 +2393,7 @@ export default function AIInterviewPage() {
           )}
 
           {/* Overall Summary */}
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Overall Summary</h2>
+          <h2 className="text-2xl font-bold text-white-900 mb-6">Overall Summary</h2>
           
           {/* Detailed Analysis */}
           <div className="grid md:grid-cols-2 gap-8">
@@ -2611,14 +2586,13 @@ export default function AIInterviewPage() {
             >
               Start New Interview
             </button>
-            <button className="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-300 transition-all font-semibold">
-              Download Report
-            </button>
+      
             {feedback.studyPlan && (
               <button className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 font-semibold">
                 Save Study Plan
               </button>
             )}
+          </div>
           </div>
         </div>
       </div>
