@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const CANDIDATE_MODELS = ['gemini-2.0-flash-exp', 'gemini-1.5-flash'];
+const CANDIDATE_MODELS = ['gemini-2.0-flash-exp'];
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 async function callGeminiWithRetry(prompt: string): Promise<string> {
