@@ -197,10 +197,11 @@ export default function ProblemsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <div className="max-w-[1600px] mx-auto px-6 py-10">
-        {/* Header */}
-        <header className="mb-8">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-[1600px]">
+        <div className="card p-8">
+          {/* Header */}
+          <header className="mb-8">
           {/* Top Banner Ad */}
           <div className="mb-6">
             <AdSense
@@ -247,7 +248,7 @@ export default function ProblemsPage() {
           <aside className="w-64 flex-shrink-0 hidden lg:block">
             <div className="sticky top-6 space-y-6">
               {/* Difficulty Filter */}
-              <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+              <div className="bg-[color:var(--surface)] rounded-lg p-4 border border-[color:var(--border)]">
                 <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Difficulty</h3>
                 <div className="space-y-2">
                   {["All", "Easy", "Medium", "Hard"].map((diff) => (
@@ -268,7 +269,7 @@ export default function ProblemsPage() {
 
               {/* Status Filter */}
               {isAuthenticated && (
-                <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+                <div className="bg-[color:var(--surface)] rounded-lg p-4 border border-[color:var(--border)]">
                   <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Status</h3>
                   <div className="space-y-2">
                     {["All", "Completed", "Not Completed"].map((status) => (
@@ -289,7 +290,7 @@ export default function ProblemsPage() {
               )}
 
               {/* Tags Filter */}
-              <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+              <div className="bg-[color:var(--surface)] rounded-lg p-4 border border-[color:var(--border)]">
                 <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Tags</h3>
                 <div className="space-y-1 max-h-64 overflow-y-auto">
                   {allTags.slice(0, 15).map((tag) => (
@@ -310,9 +311,9 @@ export default function ProblemsPage() {
 
           {/* Main Content - Problems List */}
           <main className="flex-1 min-w-0">
-            <div className="bg-white/5 rounded-lg ring-1 ring-white/10 overflow-hidden">
+            <div className="bg-[color:var(--surface)] rounded-lg border border-[color:var(--border)] overflow-hidden">
               {/* List Header */}
-              <div className="bg-white/10 px-6 py-3 border-b border-white/10">
+              <div className="bg-[color:var(--surface)] px-6 py-3 border-b border-[color:var(--border)]">
                 <div className="flex items-center gap-4 text-sm font-semibold text-white/90">
                   <div className="w-12">Status</div>
                   <div className="flex-1">Title</div>
@@ -431,7 +432,7 @@ export default function ProblemsPage() {
 
               {/* Results count */}
               {!loading && (
-                <div className="px-6 py-3 bg-white/5 border-t border-white/10 text-center text-sm text-white/60">
+                <div className="px-6 py-3 bg-[color:var(--surface)] border-t border-[color:var(--border)] text-center text-sm text-white/60">
                   Showing {filtered.length} of {totalCount} problems
                 </div>
               )}
@@ -442,7 +443,7 @@ export default function ProblemsPage() {
           <aside className="w-72 flex-shrink-0 hidden xl:block">
             <div className="sticky top-6 space-y-4">
               {/* Sidebar Ad */}
-              <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+              <div className="bg-[color:var(--surface)] rounded-lg p-4 border border-[color:var(--border)]">
                 <AdSense
                   adSlot="1234567891"
                   adFormat="vertical"
@@ -450,7 +451,7 @@ export default function ProblemsPage() {
                 />
               </div>
 
-              <div className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+              <div className="bg-[color:var(--surface)] rounded-lg p-4 border border-[color:var(--border)]">
                 <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Filter by Company</h3>
                 <div className="space-y-1 max-h-[600px] overflow-y-auto">
                   <button
@@ -488,7 +489,7 @@ export default function ProblemsPage() {
 
         {/* Mobile filters (shown on small screens) */}
         <div className="lg:hidden mt-6 space-y-4">
-          <details className="bg-white/5 rounded-lg p-4 ring-1 ring-white/10">
+          <details className="bg-[color:var(--surface)] rounded-lg p-4 border border-[color:var(--border)]">
             <summary className="font-semibold cursor-pointer">Filters</summary>
             <div className="mt-4 space-y-4">
               {/* Mobile Difficulty */}
@@ -527,6 +528,7 @@ export default function ProblemsPage() {
               </div>
             </div>
           </details>
+        </div>
         </div>
       </div>
     </div>
