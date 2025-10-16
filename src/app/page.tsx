@@ -4,8 +4,9 @@ import AdSense from "@/components/AdSense";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <div className="max-w-6xl mx-auto px-6 pb-24 pt-8">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-6xl">
+        <div className="card p-8">
         {/* Top Banner Ad */}
         <div className="mb-6">
           <AdSense
@@ -78,7 +79,7 @@ export default function Home() {
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Problems */}
-            <a href="/problems" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+            <a href="/problems" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
               <div className="h-11 w-11 rounded-xl bg-[#6f5af6]/15 flex items-center justify-center">
                 <span className="text-2xl">💻</span>
               </div>
@@ -89,7 +90,7 @@ export default function Home() {
             </a>
 
             {/* System Design */}
-            <a href="/system-design" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+            <a href="/system-design" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
               <div className="h-11 w-11 rounded-xl bg-[#20c997]/15 flex items-center justify-center">
                 <span className="text-2xl">🏗️</span>
               </div>
@@ -100,7 +101,7 @@ export default function Home() {
             </a>
 
             {/* Prep Plans */}
-            <a href="/prep-plans" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+            <a href="/prep-plans" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
               <div className="h-11 w-11 rounded-xl bg-[#f59f00]/15 flex items-center justify-center">
                 <span className="text-2xl">📚</span>
               </div>
@@ -111,7 +112,7 @@ export default function Home() {
             </a>
 
             {/* Community */}
-            <a href="/community" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+            <a href="/community" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
               <div className="h-11 w-11 rounded-xl bg-[#5cd3ff]/15 flex items-center justify-center">
                 <span className="text-2xl">👥</span>
               </div>
@@ -122,7 +123,7 @@ export default function Home() {
             </a>
 
             {/* Progress & Leaderboard */}
-            <a href="/progress" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+            <a href="/progress" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
               <div className="h-11 w-11 rounded-xl bg-[#2ad17e]/15 flex items-center justify-center">
                 <span className="text-2xl">📊</span>
               </div>
@@ -133,7 +134,7 @@ export default function Home() {
             </a>
 
             {/* Quiz */}
-            <a href="/quiz" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+            <a href="/quiz" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
               <div className="h-11 w-11 rounded-xl bg-[#ff6b6b]/15 flex items-center justify-center">
                 <span className="text-2xl">🎯</span>
               </div>
@@ -144,7 +145,7 @@ export default function Home() {
             </a>
 
             {/* Mock Interview */}
-            <a href="/mock-interview" className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15 hover:bg-white/15 transition group">
+            <a href="/mock-interview" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
               <div className="h-11 w-11 rounded-xl bg-[#a78bfa]/15 flex items-center justify-center">
                 <span className="text-2xl">🎤</span>
               </div>
@@ -215,7 +216,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
+        </div>
       </div>
     </div>
   );

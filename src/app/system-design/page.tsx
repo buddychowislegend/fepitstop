@@ -267,7 +267,7 @@ export default function SystemDesignPlayground() {
   // Challenge selection view
   if (!showEditor) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
+      <div className="min-h-screen flex items-center justify-center text-white">
         <div className="max-w-7xl mx-auto px-6 py-6">
           {/* Header */}
           <div className="mb-8">
@@ -422,7 +422,7 @@ export default function SystemDesignPlayground() {
 
   // Editor view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
+    <div className="min-h-screen flex items-center justify-center text-white">
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Header with Back Button */}
         <div className="mb-6">

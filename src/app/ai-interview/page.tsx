@@ -182,7 +182,7 @@ export default function AIInterviewPage() {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'en-US';
+        recognition.lang = 'en-IN';
         recognition.maxAlternatives = 1;
         
         recognition.onresult = (event: any) => {
@@ -848,7 +848,7 @@ export default function AIInterviewPage() {
 
   const speakWithVoice = (text: string, voices: SpeechSynthesisVoice[]) => {
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0; // Increased speed by 20% (was 0.8, now 1.0)
+    utterance.rate = 0.9;      // Slightly slower for clarity
     utterance.pitch = 1;
     utterance.volume = 1;
     
@@ -868,109 +868,86 @@ export default function AIInterviewPage() {
       stopAudioVisualization();
     };
     
-    // Get all available voices and log them for debugging
     console.log('Available voices:', voices.map(v => ({ name: v.name, lang: v.lang })));
     
     let selectedVoice = null;
     
-    if (session?.interviewer) {
-      console.log(`Selecting voice for ${session.interviewer.name} (${session.interviewer.gender})`);
-      
-      if (session.interviewer.gender === 'female') {
-        // Try multiple strategies to find female voice
-        selectedVoice = voices.find(voice => 
-          voice.name.toLowerCase().includes('female') || 
-          voice.name.toLowerCase().includes('woman') ||
-          voice.name.toLowerCase().includes('samantha') ||
-          voice.name.toLowerCase().includes('karen') ||
-          voice.name.toLowerCase().includes('susan') ||
-          voice.name.toLowerCase().includes('victoria') ||
-          voice.name.toLowerCase().includes('zira') ||
-          voice.name.toLowerCase().includes('hazel') ||
-          voice.name.toLowerCase().includes('allison') ||
-          voice.name.toLowerCase().includes('monica') ||
-          voice.name.toLowerCase().includes('serena') ||
-          voice.name.toLowerCase().includes('tessa') ||
-          voice.name.toLowerCase().includes('veena') ||
-          voice.name.toLowerCase().includes('priya') ||
-          (voice.name.toLowerCase().includes('google') && voice.name.toLowerCase().includes('female')) ||
-          (voice.name.toLowerCase().includes('microsoft') && voice.name.toLowerCase().includes('female')) ||
-          (voice.name.toLowerCase().includes('samantha')) ||
-          (voice.name.toLowerCase().includes('karen'))
-        );
-        
-        // If no specific female voice found, try by checking voice properties
-        if (!selectedVoice) {
-          selectedVoice = voices.find(voice => 
-            voice.name.toLowerCase().includes('google') && 
-            !voice.name.toLowerCase().includes('male') &&
-            !voice.name.toLowerCase().includes('man')
-          );
-        }
-        
-        // Last resort: try any voice that's not explicitly male
-        if (!selectedVoice) {
-          selectedVoice = voices.find(voice => 
-            !voice.name.toLowerCase().includes('male') && 
-            !voice.name.toLowerCase().includes('man') &&
-            !voice.name.toLowerCase().includes('david') &&
-            !voice.name.toLowerCase().includes('mark') &&
-            !voice.name.toLowerCase().includes('daniel') &&
-            !voice.name.toLowerCase().includes('alex') &&
-            !voice.name.toLowerCase().includes('tom') &&
-            !voice.name.toLowerCase().includes('richard')
-          );
-        }
-      } else {
-        // Try multiple strategies to find male voice
-        selectedVoice = voices.find(voice => 
-          voice.name.toLowerCase().includes('male') || 
-          voice.name.toLowerCase().includes('man') ||
-          voice.name.toLowerCase().includes('david') ||
-          voice.name.toLowerCase().includes('mark') ||
-          voice.name.toLowerCase().includes('daniel') ||
-          voice.name.toLowerCase().includes('alex') ||
-          voice.name.toLowerCase().includes('tom') ||
-          voice.name.toLowerCase().includes('richard') ||
-          voice.name.toLowerCase().includes('john') ||
-          voice.name.toLowerCase().includes('michael') ||
-          voice.name.toLowerCase().includes('james') ||
-          voice.name.toLowerCase().includes('robert') ||
-          voice.name.toLowerCase().includes('william') ||
-          voice.name.toLowerCase().includes('charles') ||
-          (voice.name.toLowerCase().includes('google') && voice.name.toLowerCase().includes('male')) ||
-          (voice.name.toLowerCase().includes('microsoft') && voice.name.toLowerCase().includes('male'))
-        );
+    // Priority 1: Look for Indian English voices (en-IN)
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice => 
+        voice.lang && voice.lang.includes('en-IN')
+      );
+      if (selectedVoice) {
+        console.log(`✅ Selected Indian English voice: "${selectedVoice.name}"`);
       }
     }
     
-    // Fallback to any natural voice if gender-specific not found
+    // Priority 2: Look for Indian voice by name (Google Play Services, Microsoft voices)
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice =>
+        voice.name.toLowerCase().includes('hindi') ||
+        voice.name.toLowerCase().includes('indian') ||
+        voice.name.toLowerCase().includes('veena') ||  // Google India voice
+        voice.name.toLowerCase().includes('rishi') ||  // Rishi is male Indian
+        voice.name.toLowerCase().includes('priya') ||  // Female Indian name
+        (voice.name.toLowerCase().includes('google') && voice.lang?.includes('en-IN'))
+      );
+      if (selectedVoice) {
+        console.log(`✅ Selected Indian voice by name: "${selectedVoice.name}"`);
+      }
+    }
+    
+    // Priority 3: Handle gender-specific selection if needed
+    if (!selectedVoice && session?.interviewer?.gender) {
+      if (session.interviewer.gender === 'female') {
+        selectedVoice = voices.find(voice => 
+          voice.lang?.includes('en-IN') ||
+          voice.name.toLowerCase().includes('female') ||
+          voice.name.toLowerCase().includes('Lekha')
+        );
+      } else {
+        selectedVoice = voices.find(voice => 
+          voice.lang?.includes('en-IN') ||
+          voice.name.toLowerCase().includes('male') ||
+          voice.name.toLowerCase().includes('rishi')
+        );
+      }
+      if (selectedVoice) {
+        console.log(`✅ Selected ${session.interviewer.gender} Indian voice: "${selectedVoice.name}"`);
+      }
+    }
+    
+    // Priority 4: Fallback to any available voice
     if (!selectedVoice && voices.length > 0) {
-      selectedVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes('google') || 
-        voice.name.toLowerCase().includes('microsoft') || 
-        voice.name.toLowerCase().includes('natural') ||
-        voice.name.toLowerCase().includes('enhanced')
-      ) || voices[0]; // Use first available voice as last resort
+      selectedVoice = voices[1];
+      console.log(`⚠️ No Indian voice found, using default: "${selectedVoice.name}"`);
     }
     
     if (selectedVoice) {
       utterance.voice = selectedVoice;
-      console.log(`✅ Using voice: "${selectedVoice.name}" for ${session?.interviewer?.name} (${session?.interviewer?.gender})`);
+      utterance.lang = 'en-IN'; // Ensure language is set to Indian English
+      console.log(`🎤 Using voice: "${selectedVoice.name}" (${selectedVoice.lang})`);
     } else {
-      console.log('⚠️ No voice selected, using default');
+      utterance.lang = 'en-IN'; // Set language even if no specific voice found
+      console.log('⚠️ No voice selected, using browser default with en-IN locale');
     }
-
-    // Prefer FreeTTS; fallback to browser SpeechSynthesis
+  
+    // Try FreeTTS first with Indian locale
     const tryFreeTTS = async () => {
       try {
         const gender = session?.interviewer?.gender || lastInterviewerGenderRef.current || 'female';
-        console.log('🔊 FreeTTS: sending request', { voiceType: gender, textPreview: text.substring(0, 40) });
+        console.log('🔊 FreeTTS: sending request with Indian voice', { voiceType: gender, locale: 'en-IN' });
         setIsAIAudioLoading(true);
         const resp = await fetch('/api/freetts/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voiceType: gender })
+          body: JSON.stringify({ 
+            text, 
+            voiceType: gender,
+            locale: 'en-IN',  // Indian English locale
+            rate: 0.9,        // Clear speech
+            clearness: 'high' // High clarity
+          })
         });
         console.log('🔊 FreeTTS: response status', resp.status);
         if (resp.ok) {
@@ -978,22 +955,35 @@ export default function AIInterviewPage() {
           console.log('🔊 FreeTTS: payload keys', Object.keys(data || {}));
           if (data.audioUrl) {
             const audio = new Audio(data.audioUrl);
-            audio.onplay = () => { setIsAISpeaking(true); setIsAIAudioLoading(false); startAudioVisualization(); };
-            audio.onended = () => { setIsAISpeaking(false); stopAudioVisualization(); };
-            audio.onerror = () => { setIsAISpeaking(false); setIsAIAudioLoading(false); stopAudioVisualization(); };
+            audio.onplay = () => { 
+              setIsAISpeaking(true); 
+              setIsAIAudioLoading(false); 
+              startAudioVisualization(); 
+            };
+            audio.onended = () => { 
+              setIsAISpeaking(false); 
+              stopAudioVisualization(); 
+            };
+            audio.onerror = () => { 
+              setIsAISpeaking(false); 
+              setIsAIAudioLoading(false); 
+              stopAudioVisualization(); 
+            };
             await audio.play();
             return true;
           }
         }
       } catch {}
-      finally { setIsAIAudioLoading(false); }
+      finally { 
+        setIsAIAudioLoading(false); 
+      }
       return false;
     };
-
+  
     (async () => {
       const ok = await tryFreeTTS();
       if (!ok) {
-        console.log('🔊 FreeTTS fallback → using SpeechSynthesis');
+        console.log('🔊 FreeTTS fallback → using Browser SpeechSynthesis with Indian English');
         speechSynthesisRef.current = utterance;
         speechSynthesis.speak(utterance);
       }

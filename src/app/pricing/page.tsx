@@ -172,15 +172,18 @@ export default function PricingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
-        <p>Loading plans...</p>
+      <div className="min-h-screen flex items-center justify-center text-white">
+        <div className="card p-8">
+          <p>Loading plans...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <div className="max-w-7xl mx-auto px-6 py-16">
+    <div className="min-h-screen flex items-center justify-center text-white">
+      <div className="w-full max-w-7xl">
+        <div className="card p-8">
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-5xl font-extrabold mb-4">
@@ -259,7 +262,7 @@ export default function PricingPage() {
                 className={`w-full py-3 rounded-lg font-semibold transition ${
                   plan.popular
                     ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    : "bg-white/10 hover:bg-white/20"
+                    : "bg-[color:var(--surface)] hover:bg-white/20"
                 } ${
                   processing || (subscription?.plan === "premium" && plan.id === "premium")
                     ? "opacity-50 cursor-not-allowed"
@@ -346,12 +349,13 @@ export default function PricingPage() {
               </button>
               <Link
                 href="/problems"
-                className="bg-white/10 hover:bg-white/20 px-8 py-3 rounded-lg font-semibold transition inline-block"
+                className="bg-[color:var(--surface)] hover:bg-white/20 px-8 py-3 rounded-lg font-semibold transition inline-block"
               >
                 Try Free First
               </Link>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

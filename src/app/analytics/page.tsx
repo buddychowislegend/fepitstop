@@ -86,9 +86,9 @@ export default function AnalyticsPage() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center px-6">
         <div className="w-full max-w-md">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 ring-1 ring-white/15">
+          <div className="card p-8">
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +139,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
           <p>Loading analytics...</p>
@@ -149,8 +149,9 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-7xl">
+        <div className="card p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -206,7 +207,7 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Top Pages */}
-            <div className="rounded-2xl bg-white/10 p-6 ring-1 ring-white/15">
+            <div className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)]">
               <h2 className="text-2xl font-bold mb-6">📈 Most Visited Pages</h2>
               <div className="space-y-3">
                 {summary.topPages.map((page, index) => (
@@ -248,6 +249,7 @@ export default function AnalyticsPage() {
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
   );

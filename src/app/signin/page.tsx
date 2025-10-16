@@ -132,14 +132,15 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center text-white px-6">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className="card p-8">
+          <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold">Welcome Back</h1>
           <p className="mt-2 text-white/80">Sign in to continue your prep journey</p>
         </div>
 
-        <div className="rounded-2xl bg-white/10 p-8 ring-1 ring-white/15">
+        <div className="rounded-2xl bg-[color:var(--surface)] p-8 border border-[color:var(--border)]">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="p-3 rounded-lg bg-rose-500/15 ring-1 ring-rose-400/30 text-rose-200 text-sm">
@@ -223,6 +224,7 @@ export default function SignInPage() {
               Sign Up
             </Link>
           </div>
+        </div>
         </div>
       </div>
 

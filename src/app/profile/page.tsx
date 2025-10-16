@@ -219,7 +219,7 @@ export default function ProfilePage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center">
         <p>Loading profile...</p>
       </div>
     );
@@ -227,7 +227,7 @@ export default function ProfilePage() {
 
   if (!profile || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center">
         <div className="text-center">
           <p className="mb-4">Please sign in to view your profile</p>
           <Link href="/signin" className="px-4 py-2 rounded-lg bg-white text-[#3a1670] font-semibold">
@@ -247,7 +247,7 @@ export default function ProfilePage() {
   const hardCount = solvedProblems.filter(p => p.difficulty === 'Hard').length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
+    <div className="min-h-screen flex items-center justify-center text-white">
       <div className="max-w-4xl mx-auto px-6 py-10">
         {/* Top Banner Ad */}
         <div className="mb-6">
