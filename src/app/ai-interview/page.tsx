@@ -97,7 +97,7 @@ export default function AIInterviewPage() {
   const currentQuestionStartTimeRef = useRef<Date | null>(null);
   
   // Settings
-  const [profile, setProfile] = useState<'frontend' | 'product' | 'business' | 'qa' | 'hr'>('frontend');
+  const [profile, setProfile] = useState<'frontend' | 'product' | 'business' | 'qa' | 'hr' | 'backend'>(user?.profile as any || 'frontend');
   const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>('mid');
   const [focus, setFocus] = useState<'javascript' | 'react' | 'fullstack'>('fullstack');
   const [framework, setFramework] = useState<'react' | 'react-native' | 'vue' | 'angular' | 'svelte' | 'nextjs'>('react');
@@ -998,6 +998,10 @@ export default function AIInterviewPage() {
                 <button onClick={() => setProfile('frontend')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='frontend' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
                   <div className="font-semibold">Frontend Engineer</div>
                   <div className="text-sm opacity-80">UI engineering, JS/TS, frameworks</div>
+                </button>
+                <button onClick={() => setProfile('backend')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='backend' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
+                  <div className="font-semibold">Backend Spring Boot</div>
+                  <div className="text-sm opacity-80">Java, Spring, microservices, APIs</div>
                 </button>
                 <button onClick={() => setProfile('product')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='product' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
                   <div className="font-semibold">Product Manager</div>

@@ -14,6 +14,7 @@ type Problem = {
 
 
 import { api } from "@/lib/config";
+import { useAuth } from "@/context/AuthContext";
 
 const difficultyColors: Record<Problem["difficulty"], string> = {
   Easy: "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/20",
@@ -22,6 +23,7 @@ const difficultyColors: Record<Problem["difficulty"], string> = {
 };
 
 export default function ProblemsPage() {
+  const { user } = useAuth();
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -102,7 +104,22 @@ export default function ProblemsPage() {
           return hasValidTestCases;
         });
         
-        setProblems(validProblems);
+        // Optional: filter by user profile
+        let prof = (user as any)?.profile;
+        let filtered = validProblems;
+        if (prof && prof !== 'frontend') {
+          // Basic heuristic: map profiles to tags
+          const profileToTags: Record<string, string[]> = {
+            product: ['product', 'pm', 'strategy', 'metrics'],
+            business: ['sales', 'partnerships', 'negotiation', 'gtm'],
+            qa: ['qa', 'testing', 'automation'],
+            hr: ['behavioral', 'hr', 'culture'],
+            backend: ['java', 'spring', 'microservices', 'api', 'backend'],
+          };
+          const tags = profileToTags[prof] || [];
+          filtered = validProblems.filter((p: any) => p.tags?.some((t: string) => tags.includes((t||'').toLowerCase())));
+        }
+        setProblems(filtered);
         setLoading(false);
       })
       .catch(() => setLoading(false));
