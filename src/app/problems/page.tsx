@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdSense from "@/components/AdSense";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 type Problem = {
   id: string;
@@ -27,6 +28,7 @@ export default function ProblemsPage() {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const { trackProblemSolved } = useAnalytics();
   const [difficulty, setDifficulty] = useState<"All" | Problem["difficulty"]>("All");
   const [showCompleted, setShowCompleted] = useState<"All" | "Completed" | "Not Completed">("All");
   const [selectedCompany, setSelectedCompany] = useState<string>("All");

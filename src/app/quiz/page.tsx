@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AdSense from "@/components/AdSense";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 type Question = {
   id: string;

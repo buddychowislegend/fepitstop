@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { api } from "@/lib/config";
+import Script from "next/script";
 
 // Generate device fingerprint for unique user tracking
 function generateDeviceFingerprint(): string {
@@ -46,6 +47,7 @@ export default function Analytics() {
   const deviceIdRef = useRef<string>("");
   const pageLoadTimeRef = useRef<number>(0);
   const lastPathRef = useRef<string>("");
+  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   // Generate or retrieve device ID (persistent across sessions)
   useEffect(() => {
@@ -148,6 +150,161 @@ export default function Analytics() {
     };
   }, [pathname]);
 
-  // This component doesn't render anything
-  return null;
+  // Google Analytics tracking
+  useEffect(() => {
+    if (typeof window !== 'undefined' && GA_MEASUREMENT_ID) {
+      // Initialize Google Analytics
+      window.gtag = window.gtag || function() {
+        (window.gtag.q = window.gtag.q || []).push(arguments);
+      };
+      
+      // Track page views
+      window.gtag('config', GA_MEASUREMENT_ID, {
+        page_path: pathname,
+        custom_map: {
+          'custom_parameter_1': 'device_id',
+          'custom_parameter_2': 'time_spent'
+        }
+      });
+    }
+  }, [pathname, GA_MEASUREMENT_ID]);
+
+  // Track custom events
+  const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', eventName, {
+        event_category: 'engagement',
+        event_label: pathname,
+        value: 1,
+        ...parameters
+      });
+    }
+  };
+
+  // Track page-specific events
+  useEffect(() => {
+    // Track AI interview page
+    if (pathname === '/ai-interview') {
+      trackEvent('ai_interview_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track problems page
+    if (pathname === '/problems') {
+      trackEvent('problems_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track quiz page
+    if (pathname === '/quiz') {
+      trackEvent('quiz_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track resume page
+    if (pathname === '/resume') {
+      trackEvent('resume_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track community page
+    if (pathname === '/community') {
+      trackEvent('community_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track prep plans page
+    if (pathname === '/prep-plans') {
+      trackEvent('prep_plans_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track system design page
+    if (pathname === '/system-design') {
+      trackEvent('system_design_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track profile page
+    if (pathname === '/profile') {
+      trackEvent('profile_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track progress page
+    if (pathname === '/progress') {
+      trackEvent('progress_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track signup page
+    if (pathname === '/signup') {
+      trackEvent('signup_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track signin page
+    if (pathname === '/signin') {
+      trackEvent('signin_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+    
+    // Track home page
+    if (pathname === '/') {
+      trackEvent('home_page_view', {
+        custom_parameter_1: deviceIdRef.current,
+        custom_parameter_2: Date.now()
+      });
+    }
+  }, [pathname]);
+
+  return (
+    <>
+      {/* Google Analytics Script */}
+      {GA_MEASUREMENT_ID && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}', {
+                page_path: window.location.pathname,
+                custom_map: {
+                  'custom_parameter_1': 'device_id',
+                  'custom_parameter_2': 'time_spent'
+                }
+              });
+            `}
+          </Script>
+        </>
+      )}
+    </>
+  );
 }

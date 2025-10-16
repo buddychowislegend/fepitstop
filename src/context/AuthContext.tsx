@@ -13,6 +13,7 @@ type AuthContextType = {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string, profile?: User['profile']) => Promise<void>;
+  googleLogin: (userData: User, token: string) => void;
   logout: () => void;
   isLoading: boolean;
 };
@@ -27,8 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("fp_token");
-    const storedUser = localStorage.getItem("fp_user");
+    const storedToken = localStorage.getItem("fp_token") || localStorage.getItem("token");
+    const storedUser = localStorage.getItem("fp_user") || localStorage.getItem("user");
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
@@ -66,15 +67,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("fp_user", JSON.stringify(data.user));
   };
 
+  const googleLogin = (userData: User, token: string) => {
+    setUser(userData);
+    setToken(token);
+    localStorage.setItem("fp_token", token);
+    localStorage.setItem("fp_user", JSON.stringify(userData));
+    // Also store with the keys that might be used elsewhere
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
     localStorage.removeItem("fp_token");
     localStorage.removeItem("fp_user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, signup, googleLogin, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
