@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -7,6 +8,7 @@ import { usePathname } from "next/navigation";
 export default function Navbar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   const navLinks = [
     { href: "/problems", label: "Problems" },
@@ -21,14 +23,16 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="border-b border-white/10 bg-[#1f1144]/50 backdrop-blur-sm sticky top-0 z-50">
-      <div className="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+    <header className="sticky top-0 z-50">
+      {/* Glass shell */}
+      <div className="border-b border-white/10 bg-[color:var(--surface)] backdrop-blur-md">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
           <div className="h-9 w-9 flex items-center justify-center">
             <Image src="/logo-simple.svg" alt="Frontend Pitstop logo" width={36} height={36} />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+          <span className="text-xl font-bold bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] bg-clip-text text-transparent">
             Frontend Pitstop
           </span>
         </Link>
@@ -45,12 +49,12 @@ export default function Navbar() {
                 href={link.href}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition relative ${
                   isActive
-                    ? 'bg-white/15 text-white'
+                    ? 'bg-white/10 text-white'
                     : isComingSoon
                     ? 'text-white/50 cursor-not-allowed'
                     : isHighlight
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white hover:opacity-90'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {link.label}
@@ -65,7 +69,7 @@ export default function Navbar() {
         </nav>
 
         {/* User Menu */}
-        <div className="flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-3">
           {user ? (
             <>
               <Link 
@@ -94,42 +98,70 @@ export default function Navbar() {
               </Link>
               <Link 
                 href="/signup" 
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold hover:opacity-90 transition shadow-lg"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white font-semibold hover:opacity-90 transition shadow-lg"
               >
                 Get Started
               </Link>
             </>
           )}
         </div>
+
+        {/* Mobile menu button */}
+        <button
+          className="sm:hidden inline-flex items-center justify-center h-9 w-9 rounded-md bg-white/10 hover:bg-white/15"
+          onClick={() => setOpen(o => !o)}
+          aria-label="Toggle navigation"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/90">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
       </div>
 
-      {/* Mobile Navigation */}
-      <div className="lg:hidden border-t border-white/10 px-6 py-2 overflow-x-auto">
-        <div className="flex gap-2">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            const isComingSoon = 'comingSoon' in link && link.comingSoon;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition relative ${
-                  isActive
-                    ? 'bg-white/15 text-white'
-                    : isComingSoon
-                    ? 'text-white/50 cursor-not-allowed'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {link.label}
-                {isComingSoon && (
-                  <span className="ml-1 text-xs">🚀</span>
-                )}
-              </Link>
-            );
-          })}
+      {/* Mobile Navigation Drawer */}
+      {open && (
+        <div className="sm:hidden border-t border-white/10 bg-[color:var(--surface)] backdrop-blur-md">
+          <div className="px-4 py-3 space-y-1">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              const isComingSoon = 'comingSoon' in link && link.comingSoon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className={`block px-3 py-2 rounded-md text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-white/10 text-white'
+                      : isComingSoon
+                      ? 'text-white/50 cursor-not-allowed'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+
+            <div className="pt-2 flex gap-2">
+              {user ? (
+                <>
+                  <Link href="/profile" onClick={() => setOpen(false)} className="flex-1 btn btn-ghost text-center">Profile</Link>
+                  <button onClick={() => { setOpen(false); logout(); }} className="flex-1 btn btn-ghost">Logout</button>
+                </>
+              ) : (
+                <>
+                  <Link href="/signin" onClick={() => setOpen(false)} className="flex-1 btn btn-ghost text-center">Sign In</Link>
+                  <Link href="/signup" onClick={() => setOpen(false)} className="flex-1 btn btn-primary text-center">Get Started</Link>
+                </>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }

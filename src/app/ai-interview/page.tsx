@@ -981,20 +981,19 @@ export default function AIInterviewPage() {
   // Setup Screen
   if (currentStep === 'setup') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-5xl">
+          <div className="card p-8">
             <div className="text-center mb-8">
-              <div className="text-6xl mb-4">🤖</div>
-              <h1 className="text-4xl font-extrabold text-white mb-2">AI Mock Interview</h1>
-              <p className="text-xl text-white/80">
+              <h1 className="text-4xl font-extrabold mb-2">AI Mock Interview</h1>
+              <p className="text-xl">
                 Practice with professional AI interviewers from top tech companies
               </p>
             </div>
 
             {/* Profile */}
             <div className="mb-8">
-              <label className="block text-sm font-semibold text-white mb-4">Select Profile</label>
+              <label className="block text-sm font-semibold mb-4">Select Profile</label>
               <div className="grid md:grid-cols-3 gap-3">
                 <button onClick={() => setProfile('frontend')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='frontend' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
                   <div className="font-semibold">Frontend Engineer</div>
@@ -1021,7 +1020,7 @@ export default function AIInterviewPage() {
 
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div>
-                <label className="block text-sm font-semibold text-white mb-4">Experience Level</label>
+                <label className="block text-sm font-semibold mb-4">Experience Level</label>
                 <div className="space-y-3">
                   {(['junior', 'mid', 'senior'] as const).map((lvl) => (
                     <button
@@ -1046,7 +1045,7 @@ export default function AIInterviewPage() {
 
               {profile === 'frontend' && (
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-4">Focus Area</label>
+                  <label className="block text-sm font-semibold mb-4">Focus Area</label>
                   <div className="space-y-3">
                     {(['javascript', 'react', 'fullstack'] as const).map((foc) => (
                       <button
@@ -1075,11 +1074,11 @@ export default function AIInterviewPage() {
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               {profile === 'frontend' && (
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-4">Framework</label>
+                  <label className="block text-sm font-semibold mb-4">Framework</label>
                   <select
                     value={framework}
                     onChange={(e) => setFramework(e.target.value as any)}
-                    className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/20"
+                    className="w-full p-3 rounded-lg bg-white/10 border border-white/20"
                   >
                     <option className="text-black" value="react">React</option>
                     <option className="text-black" value="react-native">React Native</option>
@@ -1091,15 +1090,15 @@ export default function AIInterviewPage() {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-semibold text-white mb-4">Paste JD (optional)</label>
+                <label className="block text-sm font-semibold mb-4">Paste JD (optional)</label>
                 <textarea
                   value={jdText}
                   onChange={(e) => setJdText(e.target.value)}
                   placeholder="Paste the job description here to tailor questions."
-                  className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/20 min-h-[140px] resize-y"
+                  className="w-full p-3 rounded-lg bg-white/10 border border-white/20 min-h-[140px] resize-y"
                 />
                 {jdText && (
-                  <div className="mt-2 text-xs text-white/70">{jdText.length} characters</div>
+                  <div className="mt-2 text-xs opacity-70">{jdText.length} characters</div>
                 )}
               </div>
             </div>
@@ -1107,7 +1106,7 @@ export default function AIInterviewPage() {
             <div className="text-center">
               <button
                 onClick={() => setCurrentStep('interviewer-selection')}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-105"
+                className="btn btn-primary text-lg px-8 py-4"
               >
                 Continue to Interviewer Selection
               </button>
@@ -1121,11 +1120,11 @@ export default function AIInterviewPage() {
   // Interviewer Selection Screen
   if (currentStep === 'interviewer-selection') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
+      <div className="min-h-screen p-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-extrabold text-white mb-2">Choose Your Interviewer</h1>
-            <p className="text-xl text-white/80">Select from our team of AI interviewers</p>
+            <h1 className="text-4xl font-extrabold mb-2">Choose Your Interviewer</h1>
+            <p className="text-xl opacity-80">Select from our team of AI interviewers</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -1133,22 +1132,22 @@ export default function AIInterviewPage() {
               <div
                 key={interviewer.id}
                 onClick={() => setSelectedInterviewer(interviewer)}
-                className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 border-2 transition-all cursor-pointer hover:scale-105 ${
+                className={`card p-6 border-2 transition-all cursor-pointer hover:scale-[1.02] ${
                   selectedInterviewer?.id === interviewer.id
-                    ? 'border-purple-400 bg-purple-600/20'
-                    : 'border-white/20 hover:border-white/40'
+                    ? 'border-purple-400'
+                    : 'border-white/10 hover:border-white/30'
                 }`}
               >
                 <div className="text-center">
                   <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-white">
                     {interviewer.name.split(' ').map(n => n[0]).join('')}
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-1">{interviewer.name}</h3>
+                  <h3 className="text-xl font-bold mb-1">{interviewer.name}</h3>
                   <p className="text-purple-300 text-sm mb-2">{interviewer.role}</p>
-                  <p className="text-white/60 text-xs mb-3">{interviewer.company} • {interviewer.experience}</p>
+                  <p className="opacity-70 text-xs mb-3">{interviewer.company} • {interviewer.experience}</p>
                   <div className="flex flex-wrap gap-1 justify-center">
                     {interviewer.specialties.map((specialty) => (
-                      <span key={specialty} className="bg-white/20 text-white text-xs px-2 py-1 rounded">
+                      <span key={specialty} className="bg-white/10 text-white text-xs px-2 py-1 rounded border border-white/10">
                         {specialty}
                       </span>
                     ))}
@@ -1161,7 +1160,7 @@ export default function AIInterviewPage() {
           <div className="flex justify-center gap-4">
             <button
               onClick={() => setCurrentStep('setup')}
-              className="bg-white/20 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/30 transition-all"
+              className="btn btn-ghost px-6 py-3"
             >
               Back
             </button>
@@ -1171,7 +1170,7 @@ export default function AIInterviewPage() {
                 setCurrentStep('mic-check');
               }}
               disabled={!selectedInterviewer}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="btn btn-primary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue to Setup
             </button>
@@ -1184,12 +1183,12 @@ export default function AIInterviewPage() {
   // Mic & Quality Check Modal
   if (currentStep === 'mic-check') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-5xl">
+          <div className="card p-8">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-extrabold text-white mb-2">Practice Prerequisite</h1>
-              <p className="text-white/80">Let's ensure everything is working perfectly</p>
+              <h1 className="text-3xl font-extrabold mb-2">Practice Prerequisite</h1>
+              <p className="opacity-80">Let's ensure everything is working perfectly</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -1198,11 +1197,11 @@ export default function AIInterviewPage() {
                 <h2 className="text-xl font-bold text-white mb-4">Interview Practice Instructions</h2>
                 
                 {/* Video placeholder */}
-                <div className="bg-gray-800 rounded-lg p-8 mb-6 text-center">
+                <div className="card p-8 mb-6 text-center">
                   <div className="w-32 h-32 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl font-bold text-white">
                     {selectedInterviewer?.name.split(' ').map(n => n[0]).join('')}
                   </div>
-                  <p className="text-white/80 text-sm">AI Interviewer Video Feed</p>
+                  <p className="opacity-80 text-sm">AI Interviewer Video Feed</p>
                 </div>
 
                 <div className="space-y-4">
@@ -1233,9 +1232,9 @@ export default function AIInterviewPage() {
               <div>
                 <h2 className="text-xl font-bold text-white mb-4">Compatibility Test</h2>
                 
-                <div className="bg-white/5 rounded-lg p-6 mb-6">
+                <div className="card p-6 mb-6">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-white font-semibold">Setup Checklist (3/6)</span>
+                    <span className="font-semibold">Setup Checklist (3/6)</span>
                   </div>
                   
                   <div className="space-y-3">
@@ -1289,7 +1288,7 @@ export default function AIInterviewPage() {
                     <button
                       onClick={testMicrophone}
                       disabled={micTestPassed}
-                      className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {micTestPassed ? 'Microphone Test Passed ✓' : 'Test Microphone'}
                     </button>
@@ -1301,14 +1300,14 @@ export default function AIInterviewPage() {
             <div className="flex justify-center gap-4 mt-8">
               <button
                 onClick={() => setCurrentStep('interviewer-selection')}
-                className="bg-white/20 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/30 transition-all"
+                className="btn btn-ghost px-6 py-3"
               >
                 Back
               </button>
               <button
                 onClick={startInterview}
                 disabled={!micTestPassed || loading}
-                className="bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="btn btn-primary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Starting Interview...' : 'Start Interview'}
               </button>
@@ -1322,26 +1321,26 @@ export default function AIInterviewPage() {
   // Full-Screen Interview Interface
   if (currentStep === 'interview' && session) {
     return (
-      <div className="h-screen bg-gray-900 flex flex-col">
+      <div className="h-screen flex flex-col">
         {/* Header */}
-        <div className="bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between">
+        <div className="border-b border-white/10 bg-[color:var(--surface)] backdrop-blur-md p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
               {session.interviewer.name.split(' ').map(n => n[0]).join('')}
             </div>
             <div>
-              <h1 className="text-white font-semibold">{session.interviewer.name}</h1>
-              <p className="text-gray-400 text-sm">{session.interviewer.role} • {session.interviewer.company}</p>
+              <h1 className="font-semibold">{session.interviewer.name}</h1>
+              <p className="opacity-70 text-sm">{session.interviewer.role} • {session.interviewer.company}</p>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="text-white">
+            <div>
               <span className="text-2xl font-mono">{formatTime(timeRemaining)}</span>
             </div>
             <button
               onClick={endInterview}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all"
+              className="btn btn-ghost border border-white/10"
             >
               End Interview
             </button>
@@ -1351,8 +1350,8 @@ export default function AIInterviewPage() {
         {/* Main Content */}
         <div className="flex-1 flex">
           {/* Left Panel - Conversation */}
-          <div className="w-1/2 bg-white border-r border-gray-300 flex flex-col">
-            <div className="bg-gray-50 border-b border-gray-200 p-4">
+          <div className="w-1/2 flex flex-col border-r border-white/10 bg-[color:var(--surface)]">
+            <div className="border-b border-white/10 p-4">
               <div className="flex items-center gap-4">
                 <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
                   Frontend Interview
@@ -1367,17 +1366,17 @@ export default function AIInterviewPage() {
               {/* Current Question Display */}
               <div className="mb-6">
                 {messages.filter(msg => msg.role === 'interviewer').slice(-1).map((message, index) => (
-                  <div key={index} className="bg-purple-50 border-l-4 border-purple-500 p-6 rounded-lg">
+                  <div key={index} className="card p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
                         {session.interviewer.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-800">{session.interviewer.name}</h3>
-                        <p className="text-sm text-gray-600">{session.interviewer.role}</p>
+                        <h3 className="font-semibold">{session.interviewer.name}</h3>
+                        <p className="text-sm opacity-80">{session.interviewer.role}</p>
                       </div>
                     </div>
-                    <div className="text-gray-800 leading-relaxed">
+                    <div className="leading-relaxed">
                       {message.content}
                     </div>
                   </div>
@@ -1388,7 +1387,7 @@ export default function AIInterviewPage() {
               <div className="space-y-4 mb-6">
                 <h4 className="font-semibold text-gray-700 text-sm">Your Recent Answers:</h4>
                 {messages.filter(msg => msg.role === 'candidate').slice(-3).map((message, index) => (
-                  <div key={index} className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
+                  <div key={index} className="card p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
                         You
@@ -1400,7 +1399,7 @@ export default function AIInterviewPage() {
                         <span className="text-xs text-gray-500">🎤</span>
                       )}
                     </div>
-                    <p className="text-gray-800 text-sm">{message.content}</p>
+                    <p className="text-sm">{message.content}</p>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -1425,7 +1424,7 @@ export default function AIInterviewPage() {
 
               <button 
                 onClick={endInterview}
-                className="w-full bg-red-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+                className="w-full btn btn-ghost border border-white/10 flex items-center justify-center gap-2"
               >
                 <span>↻</span>
                 EXIT INTERVIEW
@@ -1434,9 +1433,9 @@ export default function AIInterviewPage() {
           </div>
 
           {/* Right Panel - Interviewer & User Video */}
-          <div className="w-1/2 bg-white flex flex-col">
-            <div className="bg-gray-50 border-b border-gray-200 p-4">
-              <h2 className="text-lg font-semibold text-gray-800">INTERVIEW ROOM</h2>
+          <div className="w-1/2 flex flex-col">
+            <div className="border-b border-white/10 p-4">
+              <h2 className="text-lg font-semibold">INTERVIEW ROOM</h2>
             </div>
 
             {/* Video Feeds */}
