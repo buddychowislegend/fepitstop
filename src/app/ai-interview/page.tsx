@@ -386,6 +386,25 @@ export default function AIInterviewPage() {
     
     setLoading(true);
     try {
+      // Build Q/A pairs from conversation
+      const qaPairs: Array<{ question: string; answer: string; hasVideo: boolean }> = [];
+      const candidateMsgs = messages.filter(m => m.role === 'candidate');
+      let ci = 0;
+      for (const m of messages) {
+        if (m.role === 'interviewer') {
+          const q = m.content;
+          // pick the next candidate message as answer
+          let a = '';
+          let hasVideo = false;
+          while (ci < candidateMsgs.length && a.trim().length === 0) {
+            const cand = candidateMsgs[ci++];
+            a = (cand.content || '').replace(/\[.*?\]/g, '').trim();
+            hasVideo = !!cand.videoUrl;
+          }
+          qaPairs.push({ question: q, answer: a, hasVideo });
+        }
+      }
+
       const response = await fetch('/api/ai-interview', {
         method: 'POST',
         headers: {
@@ -394,7 +413,11 @@ export default function AIInterviewPage() {
         },
         body: JSON.stringify({
           action: 'end',
-          sessionId: session.id
+          sessionId: session.id,
+          profile,
+          ...(profile === 'frontend' ? { framework } : {}),
+          jdText,
+          qaPairs
         })
       });
 
@@ -1976,16 +1999,17 @@ export default function AIInterviewPage() {
             </div>
           </div>
 
-          {/* Per-Question Detailed Analysis */}
+          {/* Per-Question Detailed Analysis with recorded videos */}
           {feedback.questionAnalysis && feedback.questionAnalysis.length > 0 && (
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Question-by-Question Analysis</h2>
               <div className="space-y-6">
                 {feedback.questionAnalysis.map((qa: any, index: number) => {
                   // Find the corresponding message with video
-                  const candidateMsg = messages.find((msg, i) => 
-                    msg.role === 'candidate' && msg.content === qa.answer
-                  );
+                  const interviewerQuestion = qa.question || messages.find(m => m.role==='interviewer' && m.content)?.content;
+                  // pair by order: take the Nth candidate video after the Nth interviewer question
+                  const candidateMsgs = messages.filter(m => m.role === 'candidate' && m.videoUrl);
+                  const candidateMsg = candidateMsgs[index] || null;
                   
                   return (
                     <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
@@ -2085,6 +2109,65 @@ export default function AIInterviewPage() {
             </div>
           )}
 
+          {/* Fallback: Recorded Answers (video) paired by conversation order */}
+          {(!feedback.questionAnalysis || feedback.questionAnalysis.length === 0) && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Recorded Answers</h2>
+              <div className="space-y-6">
+                {(() => {
+                  const pairs: { q: string; cand?: any }[] = [];
+                  const candQueue = messages.filter(m => m.role === 'candidate' && m.videoUrl);
+                  let ci = 0;
+                  for (let i = 0; i < messages.length; i++) {
+                    const m = messages[i];
+                    if (m.role === 'interviewer') {
+                      const q = m.content;
+                      // find next candidate with video
+                      let cand: any = undefined;
+                      while (ci < candQueue.length && !cand) {
+                        cand = candQueue[ci++];
+                      }
+                      pairs.push({ q, cand });
+                    }
+                  }
+                  return pairs
+                    .filter(p => p.cand && p.cand.videoUrl)
+                    .map((p, idx) => (
+                      <div key={idx} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                        <div className="bg-purple-50 p-4 border-b border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold text-gray-900">Question {idx + 1}</h3>
+                          </div>
+                        </div>
+                        <div className="p-6">
+                          <div className="mb-4">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-2">Question:</h4>
+                            <p className="text-gray-800 bg-gray-50 p-3 rounded">{p.q}</p>
+                          </div>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div className="bg-black rounded-lg overflow-hidden">
+                              <video 
+                                src={p.cand.videoUrl}
+                                controls 
+                                className="w-full h-auto"
+                                style={{ maxHeight: '300px' }}
+                              >
+                                Your browser does not support video playback.
+                              </video>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-gray-700 mb-2">Transcript (approx):</h4>
+                              <p className="text-gray-800 bg-gray-50 p-3 rounded">{p.cand.content}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ));
+                })()}
+              </div>
+            </div>
+          )}
+
           {/* Overall Summary */}
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Overall Summary</h2>
           
@@ -2094,7 +2177,7 @@ export default function AIInterviewPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Strengths</h3>
               <div className="space-y-3">
-                {feedback.strengths?.map((strength: string, index: number) => (
+                {(feedback.feedback?.strengths || feedback.strengths || []).map((strength: string, index: number) => (
                   <div key={index} className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
                     <div className="flex items-center gap-2">
                       <span className="text-green-500">✓</span>
@@ -2120,7 +2203,7 @@ export default function AIInterviewPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Areas for Improvement</h3>
               <div className="space-y-3">
-                {feedback.improvements?.map((improvement: string, index: number) => (
+                {(feedback.feedback?.improvements || feedback.improvements || []).map((improvement: string, index: number) => (
                   <div key={index} className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
                     <div className="flex items-center gap-2">
                       <span className="text-yellow-500">💡</span>
@@ -2142,6 +2225,33 @@ export default function AIInterviewPage() {
               </div>
             </div>
           </div>
+
+          {/* Profile-based Categories */}
+          {feedback.feedback?.categories && (
+            <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Category Ratings</h3>
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {Object.entries(feedback.feedback.categories).map(([k, v]: any) => {
+                  const isObj = v && typeof v === 'object';
+                  const rating = isObj ? (v.rating ?? v.score ?? v.value ?? null) : v;
+                  const desc = isObj ? (v.description ?? v.summary ?? '') : '';
+                  return (
+                    <div key={k} className="p-4 bg-gray-50 rounded border">
+                      <div className="text-sm text-gray-600 capitalize">{String(k).replace(/_/g, ' ')}</div>
+                      {rating !== null && rating !== undefined ? (
+                        <div className="text-xl font-bold text-purple-600">{rating}/10</div>
+                      ) : (
+                        <div className="text-sm text-gray-700">Not rated</div>
+                      )}
+                      {desc && (
+                        <div className="mt-1 text-xs text-gray-600">{desc}</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Overall Score */}
           <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
