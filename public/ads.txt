@@ -1,0 +1,5 @@
+# ads.txt file for frontendpitstop.com
+# This file helps prevent unauthorized inventory sales
+
+# Google AdSense
+google.com, pub-2772878798617814, DIRECT, f08c47fec0942fa0

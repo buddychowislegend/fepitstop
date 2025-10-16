@@ -411,6 +411,61 @@ router.post('/verify-reset-token', async (req, res) => {
   }
 });
 
+// Google Signup - Create user from Google OAuth
+router.post('/google-signup', async (req, res) => {
+  try {
+    const { googleId, email, name, picture, profile = 'frontend' } = req.body;
+
+    if (!googleId || !email || !name) {
+      return res.status(400).json({ error: 'Google ID, email, and name are required' });
+    }
+
+    // Check if user already exists
+    const existingUser = await db.findUserByEmail(email);
+    if (existingUser) {
+      // User exists, return existing user data
+      const { password, ...userWithoutPassword } = existingUser;
+      return res.json({
+        success: true,
+        user: userWithoutPassword,
+        message: 'User already exists'
+      });
+    }
+
+    // Create new user
+    const userData = {
+      id: googleId,
+      email,
+      name,
+      picture,
+      profile,
+      password: null, // No password for Google users
+      createdAt: new Date(),
+      completedProblems: [],
+      streak: 0,
+      rank: 0,
+      totalSolved: 0,
+      achievements: [],
+      activityHistory: []
+    };
+
+    const newUser = await db.createUser(userData);
+    if (!newUser) {
+      return res.status(500).json({ error: 'Failed to create user' });
+    }
+
+    const { password, ...userWithoutPassword } = newUser;
+    res.status(201).json({
+      success: true,
+      user: userWithoutPassword,
+      message: 'User created successfully'
+    });
+  } catch (error) {
+    console.error('Google signup error:', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
+
 // Reset password with token
 router.post('/reset-password', async (req, res) => {
   try {

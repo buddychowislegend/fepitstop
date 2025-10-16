@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo, useRef } from "react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 // Client-side canvas export kept as fallback if needed in future
 
 type ResumeData = {

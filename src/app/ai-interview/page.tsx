@@ -292,6 +292,13 @@ export default function AIInterviewPage() {
   const startInterview = async () => {
     if (!user || !token || !selectedInterviewer) return;
     
+    // Track interview start
+    trackAIEvent('interview_started', {
+      interviewer: selectedInterviewer.name,
+      profile: profile,
+      level: level
+    });
+    
     setLoading(true);
     try {
       const response = await fetch('/api/ai-interview', {
@@ -372,6 +379,14 @@ export default function AIInterviewPage() {
 
   const endInterview = async () => {
     if (!session || !token) return;
+    
+    // Track interview completion
+    trackAIEvent('interview_completed', {
+      interviewer: session.interviewer.name,
+      profile: profile,
+      level: level,
+      duration: Math.floor((Date.now() - (session.startTime ? new Date(session.startTime).getTime() : Date.now())) / 1000)
+    });
     
     // Stop camera stream when interview ends
     if (streamRef.current) {
@@ -522,6 +537,13 @@ export default function AIInterviewPage() {
   };
 
   const submitAnswerWithVideo = async (videoBlob?: Blob, videoUrl?: string) => {
+    // Track answer submission with video
+    trackAIEvent('answer_submitted_with_video', {
+      interviewer: session?.interviewer.name,
+      profile: profile,
+      has_video: !!videoBlob || !!videoUrl
+    });
+    
     // Wait a moment for any final speech recognition results
     await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -779,6 +801,18 @@ export default function AIInterviewPage() {
       console.log('🔄 Using fallback speech synthesis');
       // Explicitly speak via TTS path (FreeTTS → SpeechSynthesis)
       speakText(text);
+    }
+  };
+
+  // Track AI interview events
+  const trackAIEvent = (eventName: string, parameters?: Record<string, any>) => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', eventName, {
+        event_category: 'ai_interview',
+        event_label: eventName,
+        value: 1,
+        ...parameters
+      });
     }
   };
 
