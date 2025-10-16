@@ -35,6 +35,8 @@ function buildContextPrefix(framework?: string, jdText?: string, profile?: strin
   const role = profile
     ? profile === 'product' ? 'Role: Product Manager.'
       : profile === 'business' ? 'Role: Business Development.'
+      : profile === 'qa' ? 'Role: QA Engineer.'
+      : profile === 'hr' ? 'Role: HR.'
       : 'Role: Frontend Engineer.'
     : '';
   const fw = framework ? ` Framework: ${framework}.` : '';
