@@ -560,7 +560,7 @@ export default function ResumeBuilderPage() {
 
   if (step === "choose") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="text-center mb-10">
             <h1 className="text-4xl font-extrabold text-white mb-2">Create Your Resume</h1>
@@ -690,7 +690,7 @@ export default function ResumeBuilderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="max-w-[1400px] mx-auto px-6 py-6 grid lg:grid-cols-12 gap-6">
         <div className="lg:col-span-5">
           <div className="flex items-center justify-between mb-4">

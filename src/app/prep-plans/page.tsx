@@ -299,8 +299,9 @@ export default function PrepPlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="min-h-screen flex items-center justify-center text-white">
+      <div className="w-full max-w-7xl">
+        <div className="card p-8">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -316,7 +317,7 @@ export default function PrepPlansPage() {
           
           {/* Progress Stats */}
           <div className="flex justify-center gap-8 mb-8">
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-[color:var(--surface)] rounded-lg p-4 backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-2">
                 <Trophy className="w-5 h-5 text-yellow-400" />
                 <span className="font-semibold">Levels Completed</span>
@@ -325,7 +326,7 @@ export default function PrepPlansPage() {
                 {getTotalCompletedLevels()}
               </div>
             </div>
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-[color:var(--surface)] rounded-lg p-4 backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-2">
                 <Star className="w-5 h-5 text-blue-400" />
                 <span className="font-semibold">Total XP</span>
@@ -345,7 +346,7 @@ export default function PrepPlansPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer"
+              className="bg-[color:var(--surface)] rounded-2xl p-6 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer"
               onClick={() => setSelectedPlan(selectedPlan === plan.id ? null : plan.id)}
             >
               <div className="text-center">
@@ -374,7 +375,7 @@ export default function PrepPlansPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm border border-white/20 mb-8"
+              className="bg-[color:var(--surface)] rounded-2xl p-6 backdrop-blur-sm border border-white/20 mb-8"
             >
               {(() => {
                 const plan = prepPlans.find(p => p.id === selectedPlan);
@@ -423,7 +424,7 @@ export default function PrepPlansPage() {
                                       ? 'bg-green-500/20 border-green-500/50' 
                                       : status === 'locked'
                                       ? 'bg-gray-500/20 border-gray-500/50 opacity-50'
-                                      : 'bg-white/5 border-white/20 hover:bg-white/10'
+                                      : 'bg-white/5 border-white/20 hover:bg-[color:var(--surface)]'
                                   }`}
                                 >
                                   <div className="flex items-center justify-between mb-2">
@@ -465,7 +466,7 @@ export default function PrepPlansPage() {
                                     {level.topics.map((topic, topicIndex) => (
                                       <span
                                         key={topicIndex}
-                                        className="text-xs bg-white/10 px-2 py-1 rounded"
+                                        className="text-xs bg-[color:var(--surface)] px-2 py-1 rounded"
                                       >
                                         {topic}
                                       </span>
@@ -557,6 +558,7 @@ export default function PrepPlansPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );

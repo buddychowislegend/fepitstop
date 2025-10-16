@@ -17,7 +17,7 @@ export default function MockInterviewPage() {
   // Show coming soon if not enabled
   if (!aiInterviewEnabled) {
     return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
+    <div className="min-h-screen flex items-center justify-center text-white">
       <div className="max-w-4xl mx-auto px-6 py-20 text-center">
         {/* Coming Soon Icon */}
         <div className="mb-8">
@@ -90,7 +90,7 @@ export default function MockInterviewPage() {
 
   // Loading state while redirecting in dev
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center">
       <p>Redirecting to AI Interview...</p>
     </div>
   );

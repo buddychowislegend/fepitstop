@@ -2,8 +2,9 @@
 
 export default function CommunityPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      <div className="max-w-4xl mx-auto px-6 py-20 text-center">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-4xl">
+        <div className="card p-8 text-center">
         {/* Coming Soon Icon */}
         <div className="mb-8">
           <div className="w-24 h-24 mx-auto bg-white/10 rounded-full flex items-center justify-center ring-1 ring-white/15">
@@ -28,7 +29,7 @@ export default function CommunityPage() {
 
         {/* Features Preview */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-12">
-          <div className="bg-white/10 rounded-2xl p-6 ring-1 ring-white/15">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 border border-[color:var(--border)]">
             <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -38,7 +39,7 @@ export default function CommunityPage() {
             <p className="text-sm text-white/70">Browse community-verified solutions with detailed explanations and best practices</p>
           </div>
 
-          <div className="bg-white/10 rounded-2xl p-6 ring-1 ring-white/15">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 border border-[color:var(--border)]">
             <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -48,7 +49,7 @@ export default function CommunityPage() {
             <p className="text-sm text-white/70">Engage in real-time discussions about coding challenges and best practices</p>
           </div>
 
-          <div className="bg-white/10 rounded-2xl p-6 ring-1 ring-white/15">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 border border-[color:var(--border)]">
             <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -58,7 +59,7 @@ export default function CommunityPage() {
             <p className="text-sm text-white/70">Get guidance from experienced developers and industry professionals</p>
           </div>
 
-          <div className="bg-white/10 rounded-2xl p-6 ring-1 ring-white/15">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 border border-[color:var(--border)]">
             <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -68,7 +69,7 @@ export default function CommunityPage() {
             <p className="text-sm text-white/70">Submit your solutions for peer review and constructive feedback</p>
           </div>
 
-          <div className="bg-white/10 rounded-2xl p-6 ring-1 ring-white/15">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 border border-[color:var(--border)]">
             <div className="w-12 h-12 bg-pink-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <svg className="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -78,7 +79,7 @@ export default function CommunityPage() {
             <p className="text-sm text-white/70">Vote on the best solutions and help the community identify quality content</p>
           </div>
 
-          <div className="bg-white/10 rounded-2xl p-6 ring-1 ring-white/15">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 border border-[color:var(--border)]">
             <div className="w-12 h-12 bg-teal-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <svg className="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -97,6 +98,7 @@ export default function CommunityPage() {
           <p className="text-sm text-white/60 mt-4">
             We'll email you as soon as the Community Discussion feature is available!
           </p>
+        </div>
         </div>
       </div>
     </div>

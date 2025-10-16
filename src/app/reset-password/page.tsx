@@ -99,7 +99,7 @@ function ResetPasswordContent() {
 
   if (verifying) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
           <p>Verifying reset link...</p>
@@ -110,7 +110,7 @@ function ResetPasswordContent() {
 
   if (!validToken) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center px-6">
         <div className="w-full max-w-md text-center">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 ring-1 ring-white/15">
             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -134,7 +134,7 @@ function ResetPasswordContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center px-6">
         <div className="w-full max-w-md text-center">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 ring-1 ring-white/15">
             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -154,7 +154,7 @@ function ResetPasswordContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center px-6">
       <div className="w-full max-w-md">
         {/* Back to Sign In */}
         <Link 
@@ -243,7 +243,7 @@ function ResetPasswordContent() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
           <p>Loading...</p>

@@ -172,7 +172,7 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center">
         <p>Loading quiz...</p>
       </div>
     );
@@ -185,7 +185,7 @@ export default function QuizPage() {
     const seconds = totalTimeSpent % 60;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
+      <div className="min-h-screen flex items-center justify-center text-white">
         <div className="max-w-4xl mx-auto px-6 py-10">
           {/* Top Banner Ad */}
           <div className="mb-6">
@@ -383,7 +383,7 @@ export default function QuizPage() {
   const parsedQuestion = parseQuestion(q.question);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
+    <div className="min-h-screen flex items-center justify-center text-white">
       <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold">Curated Quiz & Trivia</h1>

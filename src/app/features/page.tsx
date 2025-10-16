@@ -269,11 +269,13 @@ export default function FeaturesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20"></div>
-        <div className="relative max-w-7xl mx-auto px-6 py-20 text-center">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-7xl">
+        <div className="card p-8">
+          {/* Hero Section */}
+          <div className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20"></div>
+            <div className="relative text-center">
           <h1 className="text-5xl sm:text-6xl font-extrabold mb-6">
             Everything You Need to
             <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -304,7 +306,7 @@ export default function FeaturesPage() {
       {/* Tab Selector */}
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="flex justify-center mb-12">
-          <div className="bg-white/5 rounded-lg p-1 inline-flex">
+          <div className="bg-[color:var(--surface)] rounded-lg p-1 inline-flex border border-[color:var(--border)]">
             <button
               onClick={() => setActiveTab('free')}
               className={`px-6 py-3 rounded-lg font-semibold transition ${
@@ -336,7 +338,7 @@ export default function FeaturesPage() {
               className={`rounded-2xl p-6 backdrop-blur-sm transition-all hover:scale-105 ${
                 feature.highlight
                   ? 'bg-gradient-to-br from-purple-600/20 to-pink-600/20 ring-2 ring-purple-400'
-                  : 'bg-white/5'
+                  : 'bg-[color:var(--surface)]'
               }`}
             >
               <div className="flex items-start justify-between mb-4">
@@ -358,7 +360,7 @@ export default function FeaturesPage() {
           <h2 className="text-4xl font-extrabold text-center mb-10">
             Free vs Pro Comparison
           </h2>
-          <div className="bg-white/5 rounded-2xl overflow-hidden backdrop-blur-sm">
+          <div className="bg-[color:var(--surface)] rounded-2xl overflow-hidden backdrop-blur-sm">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -375,7 +377,7 @@ export default function FeaturesPage() {
                     <tr
                       key={idx}
                       className={`border-b border-white/10 ${
-                        item.highlight ? 'bg-white/5' : ''
+                        item.highlight ? 'bg-[color:var(--surface)]' : ''
                       }`}
                     >
                       <td className="p-6">{item.feature}</td>
@@ -406,7 +408,7 @@ export default function FeaturesPage() {
             {addOns.map((addon, idx) => (
               <div
                 key={idx}
-                className="bg-white/5 rounded-2xl p-8 backdrop-blur-sm hover:bg-white/10 transition"
+                className="bg-[color:var(--surface)] rounded-2xl p-8 backdrop-blur-sm hover:bg-white/10 transition"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="text-5xl">{addon.icon}</div>
@@ -436,7 +438,7 @@ export default function FeaturesPage() {
             Success Stories
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+            <div className="bg-[color:var(--surface)] rounded-2xl p-6 backdrop-blur-sm">
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold">
                   R
@@ -451,7 +453,7 @@ export default function FeaturesPage() {
                 The Pro plan was worth every rupee!"
               </p>
             </div>
-            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+            <div className="bg-[color:var(--surface)] rounded-2xl p-6 backdrop-blur-sm">
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl font-bold">
                   P
@@ -465,7 +467,7 @@ export default function FeaturesPage() {
                 "The 1:1 mock interview gave me the confidence I needed. Got an offer from Meta within 2 months!"
               </p>
             </div>
-            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+            <div className="bg-[color:var(--surface)] rounded-2xl p-6 backdrop-blur-sm">
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center text-xl font-bold">
                   A
@@ -488,7 +490,7 @@ export default function FeaturesPage() {
             Frequently Asked Questions
           </h2>
           <div className="max-w-3xl mx-auto space-y-4">
-            <details className="bg-white/5 rounded-lg p-6 backdrop-blur-sm">
+            <details className="bg-[color:var(--surface)] rounded-lg p-6 backdrop-blur-sm">
               <summary className="font-semibold cursor-pointer">
                 What's the difference between Free and Pro?
               </summary>
@@ -498,7 +500,7 @@ export default function FeaturesPage() {
                 and priority support. It's designed for serious learners who want to land their dream job.
               </p>
             </details>
-            <details className="bg-white/5 rounded-lg p-6 backdrop-blur-sm">
+            <details className="bg-[color:var(--surface)] rounded-lg p-6 backdrop-blur-sm">
               <summary className="font-semibold cursor-pointer">
                 Can I upgrade from Free to Pro anytime?
               </summary>
@@ -507,7 +509,7 @@ export default function FeaturesPage() {
                 will be preserved. You'll instantly get access to all Pro features.
               </p>
             </details>
-            <details className="bg-white/5 rounded-lg p-6 backdrop-blur-sm">
+            <details className="bg-[color:var(--surface)] rounded-lg p-6 backdrop-blur-sm">
               <summary className="font-semibold cursor-pointer">
                 What if I'm not satisfied with Pro?
               </summary>
@@ -516,7 +518,7 @@ export default function FeaturesPage() {
                 contact us within 7 days for a full refund, no questions asked.
               </p>
             </details>
-            <details className="bg-white/5 rounded-lg p-6 backdrop-blur-sm">
+            <details className="bg-[color:var(--surface)] rounded-lg p-6 backdrop-blur-sm">
               <summary className="font-semibold cursor-pointer">
                 How do the mentorship add-ons work?
               </summary>
@@ -526,7 +528,7 @@ export default function FeaturesPage() {
                 You'll receive detailed feedback and recordings after each session.
               </p>
             </details>
-            <details className="bg-white/5 rounded-lg p-6 backdrop-blur-sm">
+            <details className="bg-[color:var(--surface)] rounded-lg p-6 backdrop-blur-sm">
               <summary className="font-semibold cursor-pointer">
                 Is Pro worth it for beginners?
               </summary>
@@ -566,6 +568,7 @@ export default function FeaturesPage() {
               No credit card required for Free tier • 7-day money-back guarantee on Pro
             </p>
           </div>
+        </div>
         </div>
       </div>
     </div>
