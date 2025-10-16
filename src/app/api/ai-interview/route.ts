@@ -37,6 +37,7 @@ function buildContextPrefix(framework?: string, jdText?: string, profile?: strin
       : profile === 'business' ? 'Role: Business Development.'
       : profile === 'qa' ? 'Role: QA Engineer.'
       : profile === 'hr' ? 'Role: HR.'
+      : profile === 'backend' ? 'Role: Backend Engineer (Java Spring Boot).'
       : 'Role: Frontend Engineer.'
     : '';
   const fw = framework ? ` Framework: ${framework}.` : '';
@@ -99,6 +100,8 @@ async function generateEndSummary(opts: { framework?: string; jdText?: string; p
     ? `Provide ratings for: manual_testing, automation, test_strategy, tooling.`
     : profile === 'hr'
     ? `Provide ratings for: behavioral, culture_fit, processes, compliance.`
+    : profile === 'backend'
+    ? `Provide ratings for: java_knowledge, spring_framework, microservices, database_design, system_architecture.`
     : `Provide ratings for: javascript, framework_knowledge, system_design, communication.`;
   const prompt = `You are a senior interviewer. ${context}
 Summarize the candidate's performance tailored to the selected role.

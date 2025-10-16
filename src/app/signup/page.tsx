@@ -13,6 +13,7 @@ export default function SignUpPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [profile, setProfile] = useState<'frontend' | 'product' | 'business' | 'qa' | 'hr' | 'backend'>('frontend');
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -131,7 +132,7 @@ export default function SignUpPage() {
       const res = await fetch(api('/auth/verify-otp-and-signup'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp: otpCode, password })
+        body: JSON.stringify({ email, otp: otpCode, password, profile })
       });
 
       const data = await res.json();
@@ -231,6 +232,22 @@ export default function SignUpPage() {
                   placeholder="John Doe"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Choose your profile</label>
+                <select
+                  value={profile}
+                  onChange={(e) => setProfile(e.target.value as any)}
+                  className="w-full rounded-lg bg-white/10 px-4 py-3 ring-1 ring-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
+                >
+                  <option value="frontend">Frontend Engineer</option>
+                  <option value="backend">Backend Spring Boot</option>
+                  <option value="product">Product Manager</option>
+                  <option value="business">Business Development</option>
+                  <option value="qa">QA Engineer</option>
+                  <option value="hr">HR</option>
+                </select>
               </div>
 
               <div>

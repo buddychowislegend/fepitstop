@@ -58,7 +58,9 @@ export default function QuizPage() {
     // Only fetch if user is authenticated
     if (!user) return;
     
-    fetch(api(`/quiz/random/10`))
+    const profile = (user as any)?.profile;
+    const url = profile ? api(`/quiz/random/10?profile=${encodeURIComponent(profile)}`) : api(`/quiz/random/10`);
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         setQuestions(data.questions || []);

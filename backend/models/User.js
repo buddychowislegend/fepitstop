@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  profile: {
+    type: String,
+    enum: ['frontend', 'product', 'business', 'qa', 'hr', 'backend'],
+    default: 'frontend'
+  },
   createdAt: {
     type: Date,
     default: Date.now,

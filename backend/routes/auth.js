@@ -57,7 +57,7 @@ router.post('/send-otp', async (req, res) => {
 // Verify OTP and Complete Signup (Step 2 of signup)
 router.post('/verify-otp-and-signup', async (req, res) => {
   try {
-    const { email, otp, password } = req.body;
+    const { email, otp, password, profile } = req.body;
 
     // Validation
     if (!email || !otp || !password) {
@@ -88,6 +88,7 @@ router.post('/verify-otp-and-signup', async (req, res) => {
       email: userData.email,
       name: userData.name,
       password: hashedPassword,
+      profile: ['frontend','product','business','qa','hr','backend'].includes(profile) ? profile : 'frontend',
     });
 
     // Send welcome email
@@ -101,7 +102,7 @@ router.post('/verify-otp-and-signup', async (req, res) => {
     res.status(201).json({
       message: 'User created successfully',
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, profile: user.profile },
     });
   } catch (error) {
     console.error('Verify OTP error:', error);
@@ -144,7 +145,7 @@ router.post('/resend-otp', async (req, res) => {
 // Sign Up (Original - kept for backward compatibility, but recommend using OTP flow)
 router.post('/signup', async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, profile } = req.body;
 
     // Validation
     if (!email || !password || !name) {
@@ -165,6 +166,7 @@ router.post('/signup', async (req, res) => {
       email,
       name,
       password: hashedPassword,
+      profile: ['frontend','product','business','qa','hr','backend'].includes(profile) ? profile : 'frontend',
     });
 
     // Generate token
@@ -175,7 +177,7 @@ router.post('/signup', async (req, res) => {
     res.status(201).json({
       message: 'User created successfully',
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, profile: user.profile },
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -213,7 +215,7 @@ router.post('/signin', async (req, res) => {
     res.json({
       message: 'Login successful',
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, profile: user.profile },
     });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });

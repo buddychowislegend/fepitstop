@@ -5,13 +5,14 @@ type User = {
   id: string;
   email: string;
   name: string;
+  profile?: 'frontend' | 'product' | 'business' | 'qa' | 'hr' | 'backend';
 };
 
 type AuthContextType = {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string) => Promise<void>;
+  signup: (email: string, password: string, name: string, profile?: User['profile']) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 };
@@ -35,11 +36,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const signup = async (email: string, password: string, name: string) => {
+  const signup = async (email: string, password: string, name: string, profile?: User['profile']) => {
     const res = await fetch(api(`/auth/signup`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, name, profile }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Signup failed");
