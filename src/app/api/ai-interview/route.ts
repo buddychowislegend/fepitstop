@@ -91,11 +91,43 @@ Make the next question relevant to the framework/JD if given. Return ONLY the qu
 async function generateEndSummary(opts: { framework?: string; jdText?: string; profile?: string; }) {
   const { framework, jdText, profile } = opts;
   const context = buildContextPrefix(framework, jdText, profile);
+  const profileCriteria = profile === 'product'
+    ? `Provide ratings for: product_sense, execution, strategy, communication.`
+    : profile === 'business'
+    ? `Provide ratings for: sales, partnerships, negotiation, GTM.`
+    : profile === 'qa'
+    ? `Provide ratings for: manual_testing, automation, test_strategy, tooling.`
+    : profile === 'hr'
+    ? `Provide ratings for: behavioral, culture_fit, processes, compliance.`
+    : `Provide ratings for: javascript, framework_knowledge, system_design, communication.`;
   const prompt = `You are a senior interviewer. ${context}
-Provide a short closing message thanking the candidate and indicating that a detailed analysis will be prepared.`;
+Summarize the candidate's performance tailored to the selected role.
+Return STRICT JSON with keys: {
+  "summary": string,
+  "strengths": string[],
+  "improvements": string[],
+  "categories": object // ${profileCriteria}
+}
+Do not include markdown fences or extra text.`;
   try {
     const text = await callGeminiWithRetry(prompt);
-    return text.trim();
+    let json: any = null;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      // attempt to extract JSON
+      const match = text.match(/\{[\s\S]*\}/);
+      json = match ? JSON.parse(match[0]) : null;
+    }
+    if (!json) {
+      return {
+        summary: 'Thanks for participating. We will prepare a detailed analysis.',
+        strengths: [],
+        improvements: [],
+        categories: {}
+      };
+    }
+    return json;
   } catch (err: any) {
     console.error('[Gemini][end] error=', err?.message || err);
     throw err;
@@ -135,10 +167,42 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'end') {
-      const { framework, jdText, profile } = body || {};
+      const { framework, jdText, profile, qaPairs } = body || {};
       try {
         const closing = await generateEndSummary({ framework, jdText, profile });
-        return NextResponse.json({ score: 7, feedback: closing, questionAnalysis: [] });
+        // Compute per-question scoring if qaPairs provided
+        const normalized: Array<{ question: string; answer: string }> = Array.isArray(qaPairs)
+          ? qaPairs.filter((p: any) => p && typeof p.question === 'string').map((p: any) => ({ question: p.question, answer: String(p.answer || '') }))
+          : [];
+        const questionAnalysis = normalized.map((qa, idx) => {
+          const len = qa.answer.trim().length;
+          const coverageScore = Math.max(0, Math.min(10, Math.floor(len / 100))); // 0–10 rough by length
+          // Simple heuristics for structure
+          const hasExamples = /(for example|e\.g\.|example|code|snippet|demo)/i.test(qa.answer) ? 2 : 0;
+          const hasTradeoffs = /(trade-?offs?|pros|cons|pitfalls|edge cases|limitations)/i.test(qa.answer) ? 2 : 0;
+          const structureBoost = Math.min(3, hasExamples + hasTradeoffs);
+          const score = Math.min(10, coverageScore + structureBoost);
+          const improvements: string[] = [];
+          if (len < 200) improvements.push('Provide more detail and concrete steps.');
+          if (hasExamples === 0) improvements.push('Add examples or code snippets.');
+          if (hasTradeoffs === 0) improvements.push('Discuss trade-offs and edge cases.');
+          return {
+            questionNumber: idx + 1,
+            question: qa.question,
+            answer: qa.answer,
+            score,
+            feedback: score >= 8 ? 'Strong, well-structured answer.' : score >= 6 ? 'Good answer with room to deepen.' : 'Needs more depth and clarity.',
+            strengths: score >= 7 ? ['Clear explanation'] : [],
+            improvements
+          };
+        });
+        const answeredCount = normalized.filter((qa: any) => qa.answer && qa.answer.trim().length > 0).length;
+        const avg = questionAnalysis.length > 0 ? Math.round(questionAnalysis.reduce((s, q) => s + (q.score || 0), 0) / questionAnalysis.length) : 7;
+        // Factor in number of questions answered: scale by coverage ratio
+        const coverage = normalized.length > 0 ? answeredCount / normalized.length : 1;
+        const overallScore = Math.max(1, Math.min(10, Math.round(avg * (0.6 + 0.4 * coverage))));
+
+        return NextResponse.json({ score: overallScore, feedback: closing, questionAnalysis });
       } catch (e: any) {
         return NextResponse.json({ score: 7, feedback: 'Thanks for participating. We will prepare a detailed analysis.', questionAnalysis: [], fallback: true });
       }
