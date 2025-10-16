@@ -115,49 +115,272 @@ export default function AIInterviewPage() {
   const [timeRemaining, setTimeRemaining] = useState(20 * 60); // 20 minutes
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Available interviewers
-  const interviewers: Interviewer[] = [
-    {
-      id: 'sarah-chen',
-      name: 'Sarah Chen',
-      role: 'Senior Frontend Engineer',
-      company: 'Google',
-      experience: '8+ years',
-      avatar: '/api/placeholder/200/200',
-      specialties: ['React', 'TypeScript', 'System Design'],
-      gender: 'female'
-    },
-    {
-      id: 'marcus-johnson',
-      name: 'Marcus Johnson',
-      role: 'Frontend Tech Lead',
-      company: 'Meta',
-      experience: '10+ years',
-      avatar: '/api/placeholder/200/200',
-      specialties: ['JavaScript', 'React', 'Performance'],
-      gender: 'male'
-    },
-    {
-      id: 'priya-sharma',
-      name: 'Priya Sharma',
-      role: 'Senior Software Engineer',
-      company: 'Amazon',
-      experience: '6+ years',
-      avatar: '/api/placeholder/200/200',
-      specialties: ['Full Stack', 'React', 'Node.js'],
-      gender: 'female'
-    },
-    {
-      id: 'alex-kim',
-      name: 'Alex Kim',
-      role: 'Principal Engineer',
-      company: 'Microsoft',
-      experience: '12+ years',
-      avatar: '/api/placeholder/200/200',
-      specialties: ['Frontend Architecture', 'React', 'Web Performance'],
-      gender: 'male'
-    }
-  ];
+  // Available interviewers by profile
+  const getInterviewersByProfile = (profile: string): Interviewer[] => {
+    const interviewerPools = {
+      frontend: [
+        {
+          id: 'sarah-chen',
+          name: 'Sarah Chen',
+          role: 'Senior Frontend Engineer',
+          company: 'Google',
+          experience: '8+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['React', 'TypeScript', 'System Design'],
+          gender: 'female' as const
+        },
+        {
+          id: 'arjun-patel',
+          name: 'Arjun Patel',
+          role: 'Frontend Tech Lead',
+          company: 'Microsoft',
+          experience: '10+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['JavaScript', 'React', 'Performance'],
+          gender: 'male' as const
+        },
+        {
+          id: 'priya-sharma',
+          name: 'Priya Sharma',
+          role: 'Senior Software Engineer',
+          company: 'Amazon',
+          experience: '6+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Full Stack', 'React', 'Node.js'],
+          gender: 'female' as const
+        },
+        {
+          id: 'vikram-singh',
+          name: 'Vikram Singh',
+          role: 'Principal Engineer',
+          company: 'Meta',
+          experience: '12+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Frontend Architecture', 'React', 'Web Performance'],
+          gender: 'male' as const
+        }
+      ],
+      backend: [
+        {
+          id: 'rajesh-kumar',
+          name: 'Rajesh Kumar',
+          role: 'Senior Backend Engineer',
+          company: 'Google',
+          experience: '9+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Java', 'Spring Boot', 'Microservices'],
+          gender: 'male' as const
+        },
+        {
+          id: 'deepika-reddy',
+          name: 'Deepika Reddy',
+          role: 'Backend Tech Lead',
+          company: 'Amazon',
+          experience: '11+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Java', 'Spring', 'AWS'],
+          gender: 'female' as const
+        },
+        {
+          id: 'suresh-mishra',
+          name: 'Suresh Mishra',
+          role: 'Principal Backend Engineer',
+          company: 'Microsoft',
+          experience: '13+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Java', 'Spring Boot', 'Distributed Systems'],
+          gender: 'male' as const
+        },
+        {
+          id: 'anita-desai',
+          name: 'Anita Desai',
+          role: 'Senior Software Engineer',
+          company: 'Netflix',
+          experience: '7+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Java', 'Spring', 'API Design'],
+          gender: 'female' as const
+        }
+      ],
+      product: [
+        {
+          id: 'rohit-agarwal',
+          name: 'Rohit Agarwal',
+          role: 'Senior Product Manager',
+          company: 'Google',
+          experience: '8+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Product Strategy', 'User Research', 'Metrics'],
+          gender: 'male' as const
+        },
+        {
+          id: 'kavya-nair',
+          name: 'Kavya Nair',
+          role: 'Principal Product Manager',
+          company: 'Meta',
+          experience: '10+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Product Vision', 'Growth', 'Analytics'],
+          gender: 'female' as const
+        },
+        {
+          id: 'manish-gupta',
+          name: 'Manish Gupta',
+          role: 'Senior Product Manager',
+          company: 'Amazon',
+          experience: '9+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Product Planning', 'Stakeholder Management', 'Roadmaps'],
+          gender: 'male' as const
+        },
+        {
+          id: 'shreya-bansal',
+          name: 'Shreya Bansal',
+          role: 'Group Product Manager',
+          company: 'Microsoft',
+          experience: '12+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Product Leadership', 'Strategy', 'Team Building'],
+          gender: 'female' as const
+        }
+      ],
+      business: [
+        {
+          id: 'aditya-malhotra',
+          name: 'Aditya Malhotra',
+          role: 'Senior Business Development Manager',
+          company: 'Google',
+          experience: '8+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Partnerships', 'Sales Strategy', 'Market Analysis'],
+          gender: 'male' as const
+        },
+        {
+          id: 'rashmi-iyer',
+          name: 'Rashmi Iyer',
+          role: 'Business Development Director',
+          company: 'Microsoft',
+          experience: '11+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Enterprise Sales', 'Strategic Partnerships', 'GTM'],
+          gender: 'female' as const
+        },
+        {
+          id: 'nitin-chopra',
+          name: 'Nitin Chopra',
+          role: 'Senior BD Manager',
+          company: 'Amazon',
+          experience: '9+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Channel Partnerships', 'Sales Operations', 'Revenue Growth'],
+          gender: 'male' as const
+        },
+        {
+          id: 'meera-krishnan',
+          name: 'Meera Krishnan',
+          role: 'Business Development Lead',
+          company: 'Meta',
+          experience: '7+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Strategic Sales', 'Partnership Development', 'Market Expansion'],
+          gender: 'female' as const
+        }
+      ],
+      qa: [
+        {
+          id: 'pradeep-sharma',
+          name: 'Pradeep Sharma',
+          role: 'Senior QA Engineer',
+          company: 'Google',
+          experience: '8+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Test Automation', 'Quality Strategy', 'Performance Testing'],
+          gender: 'male' as const
+        },
+        {
+          id: 'swati-mehta',
+          name: 'Swati Mehta',
+          role: 'QA Tech Lead',
+          company: 'Amazon',
+          experience: '10+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Test Engineering', 'CI/CD', 'Quality Assurance'],
+          gender: 'female' as const
+        },
+        {
+          id: 'amit-verma',
+          name: 'Amit Verma',
+          role: 'Principal QA Engineer',
+          company: 'Microsoft',
+          experience: '12+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Test Architecture', 'Quality Metrics', 'Process Improvement'],
+          gender: 'male' as const
+        },
+        {
+          id: 'poonam-singh',
+          name: 'Poonam Singh',
+          role: 'Senior QA Engineer',
+          company: 'Netflix',
+          experience: '7+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Manual Testing', 'Test Planning', 'Bug Tracking'],
+          gender: 'female' as const
+        }
+      ],
+      hr: [
+        {
+          id: 'neha-kapoor',
+          name: 'Neha Kapoor',
+          role: 'Senior HR Manager',
+          company: 'Google',
+          experience: '9+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Talent Acquisition', 'Culture Building', 'Employee Relations'],
+          gender: 'female' as const
+        },
+        {
+          id: 'rahul-jain',
+          name: 'Rahul Jain',
+          role: 'HR Business Partner',
+          company: 'Microsoft',
+          experience: '8+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['HR Strategy', 'Performance Management', 'Organizational Development'],
+          gender: 'male' as const
+        },
+        {
+          id: 'sneha-reddy',
+          name: 'Sneha Reddy',
+          role: 'Senior HR Manager',
+          company: 'Amazon',
+          experience: '10+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Recruitment', 'HR Operations', 'Policy Development'],
+          gender: 'female' as const
+        },
+        {
+          id: 'vivek-sharma',
+          name: 'Vivek Sharma',
+          role: 'HR Director',
+          company: 'Meta',
+          experience: '12+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Leadership Development', 'Change Management', 'HR Analytics'],
+          gender: 'male' as const
+        }
+      ]
+    };
+
+    return interviewerPools[profile as keyof typeof interviewerPools] || interviewerPools.frontend;
+  };
+
+  const interviewers = getInterviewersByProfile(profile);
+
+  // Reset selected interviewer when profile changes
+  useEffect(() => {
+    setSelectedInterviewer(null);
+  }, [profile]);
 
   // Check authentication
   useEffect(() => {
@@ -903,7 +1126,7 @@ export default function AIInterviewPage() {
         selectedVoice = voices.find(voice => 
           voice.lang?.includes('en-IN') ||
           voice.name.toLowerCase().includes('female') ||
-          voice.name.toLowerCase().includes('Lekha')
+          voice.name.toLowerCase().includes('veena')
         );
       } else {
         selectedVoice = voices.find(voice => 
