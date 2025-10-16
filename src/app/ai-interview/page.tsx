@@ -50,7 +50,7 @@ export default function AIInterviewPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<any>(null);
-  // ElevenLabs/voice generation loading indicator
+  // FreeTTS/voice generation loading indicator
   const [isAIAudioLoading, setIsAIAudioLoading] = useState(false);
   // Track latest interviewer gender for TTS selection even if session is not yet set
   const lastInterviewerGenderRef = useRef<'male' | 'female' | null>(null);
@@ -777,7 +777,7 @@ export default function AIInterviewPage() {
     if (!videoUrl) {
       // Fallback already handled in generateAvatarVideo
       console.log('🔄 Using fallback speech synthesis');
-      // Explicitly speak via TTS path (ElevenLabs → SpeechSynthesis)
+      // Explicitly speak via TTS path (FreeTTS → SpeechSynthesis)
       speakText(text);
     }
   };
@@ -927,22 +927,21 @@ export default function AIInterviewPage() {
       console.log('⚠️ No voice selected, using default');
     }
 
-    // Prefer ElevenLabs TTS; fallback to browser SpeechSynthesis
-    const tryEleven = async () => {
+    // Prefer FreeTTS; fallback to browser SpeechSynthesis
+    const tryFreeTTS = async () => {
       try {
         const gender = session?.interviewer?.gender || lastInterviewerGenderRef.current || 'female';
-        const vId = (gender === 'male') ? 'Y6nOpHQlW4lnf9GRRc8f' : 'SZfY4K69FwXus87eayHK';
-        console.log('🔊 ElevenLabs TTS: sending request', { voiceId: vId, textPreview: text.substring(0, 40) });
+        console.log('🔊 FreeTTS: sending request', { voiceType: gender, textPreview: text.substring(0, 40) });
         setIsAIAudioLoading(true);
-        const resp = await fetch('/api/elevenlabs/tts', {
+        const resp = await fetch('/api/freetts/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voiceId: vId })
+          body: JSON.stringify({ text, voiceType: gender })
         });
-        console.log('🔊 ElevenLabs TTS: response status', resp.status);
+        console.log('🔊 FreeTTS: response status', resp.status);
         if (resp.ok) {
           const data = await resp.json();
-          console.log('🔊 ElevenLabs TTS: payload keys', Object.keys(data || {}));
+          console.log('🔊 FreeTTS: payload keys', Object.keys(data || {}));
           if (data.audioUrl) {
             const audio = new Audio(data.audioUrl);
             audio.onplay = () => { setIsAISpeaking(true); setIsAIAudioLoading(false); startAudioVisualization(); };
@@ -958,9 +957,9 @@ export default function AIInterviewPage() {
     };
 
     (async () => {
-      const ok = await tryEleven();
+      const ok = await tryFreeTTS();
       if (!ok) {
-        console.log('🔊 ElevenLabs TTS fallback → using SpeechSynthesis');
+        console.log('🔊 FreeTTS fallback → using SpeechSynthesis');
         speechSynthesisRef.current = utterance;
         speechSynthesis.speak(utterance);
       }
