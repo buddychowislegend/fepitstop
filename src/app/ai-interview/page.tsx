@@ -97,7 +97,7 @@ export default function AIInterviewPage() {
   const currentQuestionStartTimeRef = useRef<Date | null>(null);
   
   // Settings
-  const [profile, setProfile] = useState<'frontend' | 'product' | 'business'>('frontend');
+  const [profile, setProfile] = useState<'frontend' | 'product' | 'business' | 'qa' | 'hr'>('frontend');
   const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>('mid');
   const [focus, setFocus] = useState<'javascript' | 'react' | 'fullstack'>('fullstack');
   const [framework, setFramework] = useState<'react' | 'react-native' | 'vue' | 'angular' | 'svelte' | 'nextjs'>('react');
@@ -984,6 +984,14 @@ export default function AIInterviewPage() {
                 <button onClick={() => setProfile('business')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='business' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
                   <div className="font-semibold">Business Development</div>
                   <div className="text-sm opacity-80">Sales, partnerships, GTM</div>
+                </button>
+                <button onClick={() => setProfile('qa')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='qa' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
+                  <div className="font-semibold">QA Engineer</div>
+                  <div className="text-sm opacity-80">Manual/Automation testing, QA strategy</div>
+                </button>
+                <button onClick={() => setProfile('hr')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='hr' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
+                  <div className="font-semibold">HR</div>
+                  <div className="text-sm opacity-80">Behavioral, culture fit, processes</div>
                 </button>
               </div>
             </div>
