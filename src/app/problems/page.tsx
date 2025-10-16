@@ -203,13 +203,7 @@ export default function ProblemsPage() {
           {/* Header */}
           <header className="mb-8">
           {/* Top Banner Ad */}
-          <div className="mb-6">
-            <AdSense
-              adSlot="1234567890"
-              adFormat="horizontal"
-              style={{ display: "block", minHeight: "90px" }}
-            />
-          </div>
+   
 
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -443,13 +437,7 @@ export default function ProblemsPage() {
           <aside className="w-72 flex-shrink-0 hidden xl:block">
             <div className="sticky top-6 space-y-4">
               {/* Sidebar Ad */}
-              <div className="bg-[color:var(--surface)] rounded-lg p-4 border border-[color:var(--border)]">
-                <AdSense
-                  adSlot="1234567891"
-                  adFormat="vertical"
-                  style={{ display: "block", minHeight: "250px" }}
-                />
-              </div>
+          
 
               <div className="bg-[color:var(--surface)] rounded-lg p-4 border border-[color:var(--border)]">
                 <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide">Filter by Company</h3>
