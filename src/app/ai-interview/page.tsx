@@ -97,6 +97,7 @@ export default function AIInterviewPage() {
   const currentQuestionStartTimeRef = useRef<Date | null>(null);
   
   // Settings
+  const [profile, setProfile] = useState<'frontend' | 'product' | 'business'>('frontend');
   const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>('mid');
   const [focus, setFocus] = useState<'javascript' | 'react' | 'fullstack'>('fullstack');
   const [framework, setFramework] = useState<'react' | 'react-native' | 'vue' | 'angular' | 'svelte' | 'nextjs'>('react');
@@ -301,9 +302,9 @@ export default function AIInterviewPage() {
         },
         body: JSON.stringify({
           action: 'start',
+          profile,
           level,
-          focus,
-          framework,
+          ...(profile === 'frontend' ? { focus, framework } : {}),
           jdText,
           interviewer: selectedInterviewer
         })
@@ -538,9 +539,9 @@ export default function AIInterviewPage() {
             sessionId: session.id,
             message: answerToSubmit,
             previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
+            profile,
             level,
-            focus,
-            framework,
+            ...(profile === 'frontend' ? { focus, framework } : {}),
             jdText
           })
         });
@@ -603,9 +604,9 @@ export default function AIInterviewPage() {
             sessionId: session.id,
             message: 'I need to think about this question.',
             previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
+            profile,
             level,
-            focus,
-            framework,
+            ...(profile === 'frontend' ? { focus, framework } : {}),
             jdText
           })
         });
@@ -968,6 +969,25 @@ export default function AIInterviewPage() {
               </p>
             </div>
 
+            {/* Profile */}
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-white mb-4">Select Profile</label>
+              <div className="grid md:grid-cols-3 gap-3">
+                <button onClick={() => setProfile('frontend')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='frontend' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
+                  <div className="font-semibold">Frontend Engineer</div>
+                  <div className="text-sm opacity-80">UI engineering, JS/TS, frameworks</div>
+                </button>
+                <button onClick={() => setProfile('product')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='product' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
+                  <div className="font-semibold">Product Manager</div>
+                  <div className="text-sm opacity-80">Product sense, metrics, prioritization</div>
+                </button>
+                <button onClick={() => setProfile('business')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='business' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
+                  <div className="font-semibold">Business Development</div>
+                  <div className="text-sm opacity-80">Sales, partnerships, GTM</div>
+                </button>
+              </div>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div>
                 <label className="block text-sm font-semibold text-white mb-4">Experience Level</label>
@@ -993,48 +1013,52 @@ export default function AIInterviewPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-white mb-4">Focus Area</label>
-                <div className="space-y-3">
-                  {(['javascript', 'react', 'fullstack'] as const).map((foc) => (
-                    <button
-                      key={foc}
-                      onClick={() => setFocus(foc)}
-                      className={`w-full p-4 rounded-lg text-left transition-all ${
-                        focus === foc
-                          ? 'bg-purple-600 text-white border-2 border-purple-400'
-                          : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'
-                      }`}
-                    >
-                      <div className="font-semibold capitalize">{foc}</div>
-                      <div className="text-sm opacity-80">
-                        {foc === 'javascript' && 'Core JavaScript concepts'}
-                        {foc === 'react' && 'React ecosystem & patterns'}
-                        {foc === 'fullstack' && 'Full-stack development'}
-                      </div>
-                    </button>
-                  ))}
+              {profile === 'frontend' && (
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-4">Focus Area</label>
+                  <div className="space-y-3">
+                    {(['javascript', 'react', 'fullstack'] as const).map((foc) => (
+                      <button
+                        key={foc}
+                        onClick={() => setFocus(foc)}
+                        className={`w-full p-4 rounded-lg text-left transition-all ${
+                          focus === foc
+                            ? 'bg-purple-600 text-white border-2 border-purple-400'
+                            : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'
+                        }`}
+                      >
+                        <div className="font-semibold capitalize">{foc}</div>
+                        <div className="text-sm opacity-80">
+                          {foc === 'javascript' && 'Core JavaScript concepts'}
+                          {foc === 'react' && 'React ecosystem & patterns'}
+                          {foc === 'fullstack' && 'Full-stack development'}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Framework and JD Upload */}
             <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <div>
-                <label className="block text-sm font-semibold text-white mb-4">Framework</label>
-                <select
-                  value={framework}
-                  onChange={(e) => setFramework(e.target.value as any)}
-                  className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/20"
-                >
-                  <option className="text-black" value="react">React</option>
-                  <option className="text-black" value="react-native">React Native</option>
-                  <option className="text-black" value="nextjs">Next.js</option>
-                  <option className="text-black" value="vue">Vue</option>
-                  <option className="text-black" value="angular">Angular</option>
-                  <option className="text-black" value="svelte">Svelte</option>
-                </select>
-              </div>
+              {profile === 'frontend' && (
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-4">Framework</label>
+                  <select
+                    value={framework}
+                    onChange={(e) => setFramework(e.target.value as any)}
+                    className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/20"
+                  >
+                    <option className="text-black" value="react">React</option>
+                    <option className="text-black" value="react-native">React Native</option>
+                    <option className="text-black" value="nextjs">Next.js</option>
+                    <option className="text-black" value="vue">Vue</option>
+                    <option className="text-black" value="angular">Angular</option>
+                    <option className="text-black" value="svelte">Svelte</option>
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-semibold text-white mb-4">Paste JD (optional)</label>
                 <textarea

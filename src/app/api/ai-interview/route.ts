@@ -31,19 +31,27 @@ async function callGeminiWithRetry(prompt: string): Promise<string> {
   throw lastError || new Error('Gemini failed after retries');
 }
 
-function buildContextPrefix(framework?: string, jdText?: string) {
-  const fw = framework ? `Framework: ${framework}.` : '';
+function buildContextPrefix(framework?: string, jdText?: string, profile?: string) {
+  const role = profile
+    ? profile === 'product' ? 'Role: Product Manager.'
+      : profile === 'business' ? 'Role: Business Development.'
+      : 'Role: Frontend Engineer.'
+    : '';
+  const fw = framework ? ` Framework: ${framework}.` : '';
   const jd = jdText ? ` Job Description Summary: ${jdText.slice(0, 1200)}.` : '';
-  return `${fw}${jd}`.trim();
+  return `${role}${fw}${jd}`.trim();
 }
 
-async function generateQuestion(opts: { level: string; focus: string; framework?: string; jdText?: string; }) {
-  const { level, focus, framework, jdText } = opts;
-  const context = buildContextPrefix(framework, jdText);
+async function generateQuestion(opts: { level: string; focus?: string; framework?: string; jdText?: string; profile?: string; }) {
+  const { level, focus, framework, jdText, profile } = opts;
+  const context = buildContextPrefix(framework, jdText, profile);
   const prompt = `You are a senior interviewer. ${context}
 Generate ONE concise technical interview question tailored to the candidate.
 - Difficulty: ${level}
-- Focus area: ${focus}
+${focus ? `- Focus area: ${focus}
+` : ''}
+${profile ? `- Target profile: ${profile}.
+` : ''}
 - Keep it specific to the mentioned framework and JD when provided.
 Return ONLY the question text.`;
 
@@ -56,15 +64,18 @@ Return ONLY the question text.`;
   }
 }
 
-async function generateFollowUp(opts: { answer: string; previousQuestion: string; framework?: string; jdText?: string; level: string; focus: string; }) {
-  const { answer, previousQuestion, framework, jdText, level, focus } = opts;
-  const context = buildContextPrefix(framework, jdText);
+async function generateFollowUp(opts: { answer: string; previousQuestion: string; framework?: string; jdText?: string; level: string; focus?: string; profile?: string; }) {
+  const { answer, previousQuestion, framework, jdText, level, focus, profile } = opts;
+  const context = buildContextPrefix(framework, jdText, profile);
   const prompt = `You are a senior interviewer. ${context}
 Given the previous question and the candidate's answer, generate the NEXT interview question.
 - Previous question: ${previousQuestion}
 - Candidate answer: ${answer}
 - Difficulty: ${level}
-- Focus: ${focus}
+${focus ? `- Focus: ${focus}
+` : ''}
+${profile ? `- Target profile: ${profile}.
+` : ''}
 Make the next question relevant to the framework/JD if given. Return ONLY the question text.`;
   try {
     const text = await callGeminiWithRetry(prompt);
@@ -75,9 +86,9 @@ Make the next question relevant to the framework/JD if given. Return ONLY the qu
   }
 }
 
-async function generateEndSummary(opts: { framework?: string; jdText?: string; }) {
-  const { framework, jdText } = opts;
-  const context = buildContextPrefix(framework, jdText);
+async function generateEndSummary(opts: { framework?: string; jdText?: string; profile?: string; }) {
+  const { framework, jdText, profile } = opts;
+  const context = buildContextPrefix(framework, jdText, profile);
   const prompt = `You are a senior interviewer. ${context}
 Provide a short closing message thanking the candidate and indicating that a detailed analysis will be prepared.`;
   try {
@@ -95,36 +106,36 @@ export async function POST(req: NextRequest) {
     const { action } = body || {};
 
     if (action === 'start') {
-      const { level = 'mid', focus = 'fullstack', framework, jdText } = body || {};
+      const { level = 'mid', focus, framework, jdText, profile } = body || {};
       try {
-        const question = await generateQuestion({ level, focus, framework, jdText });
+        const question = await generateQuestion({ level, focus, framework, jdText, profile });
         return NextResponse.json({ sessionId: Date.now().toString(), message: question });
       } catch (e: any) {
         // Graceful fallback (e.g., Gemini quota)
-        const fw = framework || 'frontend';
+        const fw = profile ? profile : (framework || 'frontend');
         const jdHint = jdText ? ' (align to the job description context)' : '';
-        const fallbackQ = `In ${fw}, how would you design and implement a feature related to ${focus}? Please outline key trade-offs${jdHint}.`;
+        const fallbackQ = `In ${fw}, how would you approach a relevant scenario${focus ? ` focused on ${focus}` : ''}? Please outline key trade-offs${jdHint}.`;
         return NextResponse.json({ sessionId: Date.now().toString(), message: fallbackQ, fallback: true });
       }
     }
 
     if (action === 'respond') {
-      const { message: answer, previousQuestion, level = 'mid', focus = 'fullstack', framework, jdText } = body || {};
+      const { message: answer, previousQuestion, level = 'mid', focus, framework, jdText, profile } = body || {};
       try {
-        const nextQ = await generateFollowUp({ answer, previousQuestion: previousQuestion || 'Previous question not provided', framework, jdText, level, focus });
+        const nextQ = await generateFollowUp({ answer, previousQuestion: previousQuestion || 'Previous question not provided', framework, jdText, level, focus, profile });
         return NextResponse.json({ message: nextQ });
       } catch (e: any) {
-        const fw = framework || 'frontend';
+        const fw = profile ? profile : (framework || 'frontend');
         const jdHint = jdText ? ' considering the JD' : '';
-        const followUp = `As a follow-up in ${fw}${jdHint}, what potential pitfalls or edge cases would you address for your approach, and how would you test them?`;
+        const followUp = `As a follow-up in ${fw}${jdHint}${focus ? ` focused on ${focus}` : ''}, what potential pitfalls or edge cases would you address, and how would you test them?`;
         return NextResponse.json({ message: followUp, fallback: true });
       }
     }
 
     if (action === 'end') {
-      const { framework, jdText } = body || {};
+      const { framework, jdText, profile } = body || {};
       try {
-        const closing = await generateEndSummary({ framework, jdText });
+        const closing = await generateEndSummary({ framework, jdText, profile });
         return NextResponse.json({ score: 7, feedback: closing, questionAnalysis: [] });
       } catch (e: any) {
         return NextResponse.json({ score: 7, feedback: 'Thanks for participating. We will prepare a detailed analysis.', questionAnalysis: [], fallback: true });

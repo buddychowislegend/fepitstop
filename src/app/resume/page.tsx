@@ -1,7 +1,6 @@
 "use client";
 import { useState, useMemo, useRef } from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+// Client-side canvas export kept as fallback if needed in future
 
 type ResumeData = {
   name: string;
@@ -248,26 +247,49 @@ export default function ResumeBuilderPage() {
   const [includePhoto, setIncludePhoto] = useState<boolean>(false);
   const previewRef = useRef<HTMLDivElement | null>(null);
   const [exportMode, setExportMode] = useState<boolean>(false);
+  const [analyzeFile, setAnalyzeFile] = useState<File | null>(null);
+  const [analyzeLoading, setAnalyzeLoading] = useState<boolean>(false);
+  const [analyzeResult, setAnalyzeResult] = useState<{
+    score: number;
+    strengths: string[];
+    improvements: string[];
+    textPreview?: string;
+    ai?: {
+      score: number | null;
+      strengths: string[] | null;
+      improvements: string[] | null;
+      missingKeywords: string[] | null;
+      sectionScores: Record<string, number> | null;
+      summary: string | null;
+    } | null;
+  } | null>(null);
+  const [pastedResumeText, setPastedResumeText] = useState<string>('');
 
   const handleDownloadPdf = async () => {
     if (!previewRef.current) return;
     try {
-      // Force plain-export rendering for capture
-      setExportMode(true);
-      await new Promise(r => setTimeout(r, 60));
-      const canvas = await html2canvas(previewRef.current, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const y = Math.max(0, (pageHeight - imgHeight) / 2);
-      pdf.addImage(imgData, "PNG", 0, y, imgWidth, imgHeight);
-      pdf.save("resume.pdf");
+      const node = previewRef.current;
+      const origin = window.location.origin;
+      const linkHrefs = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+        .map((l: any) => (l.href.startsWith('http') ? l.href : origin + l.getAttribute('href')));
+      const inlineStyles = Array.from(document.querySelectorAll('style'))
+        .map(s => s.innerHTML)
+        .join('\n');
+      const headHTML = `\n${linkHrefs.map(h => `<link rel="stylesheet" href="${h}" />`).join('\n')}\n<style>body{background:#ffffff}</style>\n<style>${inlineStyles}</style>`;
+      const docHtml = `<!doctype html><html><head><meta charSet="utf-8" />${headHTML}</head><body>${node.outerHTML}</body></html>`;
+      const resp = await fetch('/api/resume/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: docHtml, width: 794, height: 1123 })
+      });
+      if (!resp.ok) throw new Error('PDF render failed');
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'resume.pdf'; a.click();
+      URL.revokeObjectURL(url);
     } catch (err: any) {
       console.error('PDF export failed:', err?.message || err);
-      // Do not call window.print(); user only wants the resume canvas exported
       if (typeof window !== 'undefined') alert('PDF export failed. Please try again.');
     }
   };
@@ -506,6 +528,35 @@ export default function ResumeBuilderPage() {
     setter(copy);
   };
 
+  const handleAnalyze = async () => {
+    if (!analyzeFile && !pastedResumeText.trim()) return;
+    try {
+      setAnalyzeLoading(true);
+      setAnalyzeResult(null);
+      let resp: Response;
+      if (pastedResumeText.trim()) {
+        resp = await fetch('/api/resume/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: pastedResumeText.trim() })
+        });
+      } else {
+        const fd = new FormData();
+        if (analyzeFile) fd.append('file', analyzeFile);
+        resp = await fetch('/api/resume/analyze', { method: 'POST', body: fd });
+      }
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json?.error || 'Analyze failed');
+      const heuristic = json.heuristic || { score: json.score, strengths: json.strengths, improvements: json.improvements };
+      setAnalyzeResult({ score: heuristic.score, strengths: heuristic.strengths || [], improvements: heuristic.improvements || [], textPreview: json.textPreview, ai: json.ai || null });
+    } catch (e: any) {
+      console.error('Analyze error:', e?.message || e);
+      if (typeof window !== 'undefined') alert('Failed to analyze resume. Please try another PDF.');
+    } finally {
+      setAnalyzeLoading(false);
+    }
+  };
+
   if (step === "choose") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -732,6 +783,111 @@ export default function ResumeBuilderPage() {
               {exportMode ? 'Exit Plain Export' : 'Plain Export Mode'}
             </button>
           </div>
+
+        {/* Analyze existing resume */}
+        <div className="mt-6 rounded-xl border border-white/20 bg-white/10 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-white">Analyze existing resume (PDF)</h2>
+          </div>
+          <input
+            type="file"
+            accept="application/pdf"
+            className="w-full rounded p-2 bg-white/10 text-white border border-white/20"
+            onChange={(e) => setAnalyzeFile(e.target.files?.[0] || null)}
+          />
+          <div className="mt-3">
+            <label className="block text-sm font-semibold text-white mb-1">Or paste resume text</label>
+            <textarea
+              className="w-full rounded p-2 bg-white/10 text-white border border-white/20 min-h-28"
+              placeholder="Paste your resume text here to analyze without uploading a PDF"
+              value={pastedResumeText}
+              onChange={e => setPastedResumeText(e.target.value)}
+            />
+          </div>
+          <div className="mt-3 flex items-center gap-3">
+            <button
+              onClick={handleAnalyze}
+              disabled={(!analyzeFile && !pastedResumeText.trim()) || analyzeLoading}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 disabled:opacity-60 text-white px-4 py-2 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700"
+            >
+              {analyzeLoading ? 'Analyzing…' : 'Analyze Resume'}
+            </button>
+            {analyzeResult && (
+              <div className="text-white/90 text-sm">Score: <span className="font-bold">{analyzeResult.score}/100</span></div>
+            )}
+          </div>
+          {analyzeResult && (
+            <div className="mt-4 grid grid-cols-1 gap-4">
+              <div className="rounded-lg bg-white/5 border border-white/10 p-3">
+                <div className="text-white font-semibold mb-1">Strengths</div>
+                <ul className="list-disc ml-5 text-white/90 text-sm">
+                  {analyzeResult.strengths.length ? analyzeResult.strengths.map((s, i) => (<li key={i}>{s}</li>)) : <li>No major strengths detected.</li>}
+                </ul>
+              </div>
+              <div className="rounded-lg bg-white/5 border border-white/10 p-3">
+                <div className="text-white font-semibold mb-1">Improvements</div>
+                <ul className="list-disc ml-5 text-white/90 text-sm">
+                  {analyzeResult.improvements.length ? analyzeResult.improvements.map((s, i) => (<li key={i}>{s}</li>)) : <li>No suggestions at this time.</li>}
+                </ul>
+              </div>
+              {analyzeResult.ai && (
+                <div className="rounded-lg bg-white/5 border border-white/10 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-white font-semibold">AI ATS Analysis</div>
+                    {typeof analyzeResult.ai.score === 'number' && (
+                      <div className="text-white/90 text-sm">AI Score: <span className="font-bold">{analyzeResult.ai.score}/100</span></div>
+                    )}
+                  </div>
+                  {analyzeResult.ai.summary && (
+                    <p className="text-white/80 text-sm mt-1">{analyzeResult.ai.summary}</p>
+                  )}
+                  {analyzeResult.ai.sectionScores && (
+                    <div className="mt-2 grid grid-cols-2 gap-2 text-white/90 text-sm">
+                      {Object.entries(analyzeResult.ai.sectionScores).map(([k, v]) => (
+                        <div key={k} className="flex items-center justify-between bg-white/5 rounded px-2 py-1">
+                          <span className="capitalize">{k}</span>
+                          <span className="font-semibold">{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {analyzeResult.ai.missingKeywords && analyzeResult.ai.missingKeywords.length > 0 && (
+                    <div className="mt-2">
+                      <div className="text-white font-semibold text-sm mb-1">Suggested keywords</div>
+                      <div className="flex flex-wrap gap-1">
+                        {analyzeResult.ai.missingKeywords.map((kw, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-white/10 border border-white/20 text-white/90 text-xs rounded">{kw}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {analyzeResult.ai.strengths && analyzeResult.ai.strengths.length > 0 && (
+                    <div className="mt-2">
+                      <div className="text-white font-semibold text-sm mb-1">AI Strengths</div>
+                      <ul className="list-disc ml-5 text-white/90 text-sm">
+                        {analyzeResult.ai.strengths.map((s, i) => (<li key={i}>{s}</li>))}
+                      </ul>
+                    </div>
+                  )}
+                  {analyzeResult.ai.improvements && analyzeResult.ai.improvements.length > 0 && (
+                    <div className="mt-2">
+                      <div className="text-white font-semibold text-sm mb-1">AI Improvements</div>
+                      <ul className="list-disc ml-5 text-white/90 text-sm">
+                        {analyzeResult.ai.improvements.map((s, i) => (<li key={i}>{s}</li>))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+              {analyzeResult.textPreview && (
+                <div className="rounded-lg bg-white/5 border border-white/10 p-3">
+                  <div className="text-white font-semibold mb-1">Extracted preview</div>
+                  <pre className="text-white/80 text-xs whitespace-pre-wrap max-h-48 overflow-auto">{analyzeResult.textPreview}</pre>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         </div>
         <div className="lg:col-span-7">
           <div className="bg-white/10 p-4 rounded-xl border border-white/20 sticky top-4 overflow-auto">
