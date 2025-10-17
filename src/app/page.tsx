@@ -8,13 +8,7 @@ export default function Home() {
       <div className="w-full max-w-6xl">
         <div className="card p-8">
         {/* Top Banner Ad */}
-        <div className="mb-6">
-          <AdSense
-            adSlot="1234567895"
-            adFormat="horizontal"
-            style={{ display: "block", minHeight: "90px" }}
-          />
-        </div>
+ 
         <section className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="py-8">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 ring-1 ring-white/15">Interactive</div>
