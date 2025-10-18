@@ -30,10 +30,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
           <div className="h-9 w-9 flex items-center justify-center">
-            <Image src="/logo-simple.svg" alt="Frontend Pitstop logo" width={36} height={36} />
+            <Image src="/logo-simple.svg" alt="HireOG logo" width={36} height={36} />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] bg-clip-text text-transparent">
-            Frontend Pitstop
+            HireOG
           </span>
         </Link>
 

@@ -1,4 +1,4 @@
-# Frontend Pitstop
+# HireOG
 
 A comprehensive platform for mastering frontend interviews with real questions, interactive code editor, and AI-powered features.
 
@@ -83,7 +83,7 @@ User data is stored in-memory (replace with database in production).
 ## Project Structure
 
 ```
-frontendpitstop/
+hireog/
 ├── src/
 │   ├── app/              # Next.js pages
 │   ├── components/       # Reusable components

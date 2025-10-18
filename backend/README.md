@@ -1,6 +1,6 @@
-# Frontend Pitstop Backend
+# HireOG Backend
 
-Express.js backend with MongoDB for Frontend Pitstop platform.
+Express.js backend with MongoDB for HireOG platform.
 
 ## Setup
 

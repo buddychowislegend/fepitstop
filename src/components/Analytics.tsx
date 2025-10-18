@@ -24,7 +24,7 @@ function generateDeviceFingerprint(): string {
   if (ctx) {
     ctx.textBaseline = 'top';
     ctx.font = '14px Arial';
-    ctx.fillText('FrontendPitstop', 2, 2);
+    ctx.fillText('HireOG', 2, 2);
     components.push(canvas.toDataURL());
   }
   

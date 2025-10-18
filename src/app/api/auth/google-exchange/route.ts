@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     try {
       const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
         headers: {
-          'Authorization': `Bearer ${jwt.sign({ userId: googleId }, process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_in_production_frontendpitstop_2025', { expiresIn: '1h' })}`
+          'Authorization': `Bearer ${jwt.sign({ userId: googleId }, process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_in_production_hireog_2025', { expiresIn: '1h' })}`
         }
       });
       
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create our backend JWT token
-    const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_in_production_frontendpitstop_2025';
+    const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_in_production_hireog_2025';
     const backendToken = jwt.sign(
       { 
         userId: googleId, 

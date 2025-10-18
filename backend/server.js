@@ -43,9 +43,9 @@ app.use(cors({
       'http://localhost:3001',
       'http://localhost:3002',
       'https://fepitstop.onrender.com',
-      'https://frontendpitstop.vercel.app',
-      'https://frontendpitstop.com',
-      'https://www.frontendpitstop.com'
+      'https://hireog.vercel.app',
+      'https://hireog.com',
+      'https://www.hireog.com'
     ];
 
     if (allowAll) return callback(null, true);
@@ -57,7 +57,7 @@ app.use(cors({
       // Allow any vercel.app subdomain
       if (hostname.endsWith('.vercel.app')) return callback(null, true);
       // Allow any *.frontendpitstop.com subdomain
-      if (hostname === 'frontendpitstop.com' || hostname.endsWith('.frontendpitstop.com')) return callback(null, true);
+      if (hostname === 'hireog.com' || hostname.endsWith('.hireog.com')) return callback(null, true);
       // Allow localhost any port
       if ((hostname === 'localhost' || hostname === '127.0.0.1') && (protocol === 'http:' || protocol === 'https:')) return callback(null, true);
     } catch (e) {

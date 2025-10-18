@@ -1,7 +1,7 @@
 {
-  "name": "frontendpitstop-backend",
+  "name": "hireog-backend",
   "version": "1.0.0",
-  "description": "Backend API for Frontend Pitstop",
+  "description": "Backend API for HireOG",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

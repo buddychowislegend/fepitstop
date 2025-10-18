@@ -17,10 +17,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://frontendpitstop.com'),
+  metadataBase: new URL('https://hireog.com'),
   title: {
-    default: "Frontend Pitstop — Master Frontend Interviews & Coding Challenges",
-    template: "%s | Frontend Pitstop"
+    default: "HireOG — Master Frontend Interviews & Coding Challenges",
+    template: "%s | HireOG"
   },
   description: "Practice 100+ real frontend interview questions from top tech companies like Google, Meta, Amazon. AI-based mock interviews with voice, interviewer selection, and analytics. Interactive code editor, instant feedback, and comprehensive solutions. Master JavaScript, React, React Native, CSS, and system design. #1 AI Interview Platform for Frontend Developers.",
   keywords: [
@@ -66,9 +66,9 @@ export const metadata: Metadata = {
     "frontend system design",
     "frontend ai interviewer"
   ],
-  authors: [{ name: "Frontend Pitstop" }],
-  creator: "Frontend Pitstop",
-  publisher: "Frontend Pitstop",
+  authors: [{ name: "HireOG" }],
+  creator: "HireOG",
+  publisher: "HireOG",
   formatDetection: {
     email: false,
     address: false,
@@ -77,25 +77,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://frontendpitstop.com",
-    title: "Frontend Pitstop — AI Mock Interviews for Frontend",
+    url: "https://hireog.com",
+    title: "HireOG — AI Mock Interviews for Frontend",
     description: "AI-based interviewer, real-time voice Q&A, interviewer selection, and performance analytics. Practice React, React Native, JS, CSS & system design.",
-    siteName: "Frontend Pitstop",
+    siteName: "HireOG",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Frontend Pitstop - Master Frontend Interviews"
+        alt: "HireOG - Master Frontend Interviews"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "Frontend Pitstop — Master Frontend Interviews",
+    title: "HireOG — Master Frontend Interviews",
     description: "Practice 100+ real frontend interview questions from top tech companies. Interactive code editor with instant feedback.",
     images: ["/og-image.png"],
-    creator: "@frontendpitstop"
+    creator: "@hireog"
   },
   robots: {
     index: true,
@@ -112,7 +112,7 @@ export const metadata: Metadata = {
     google: "your-google-verification-code",
   },
   alternates: {
-    canonical: "https://frontendpitstop.com"
+    canonical: "https://hireog.com"
   }
 };
 
@@ -126,9 +126,9 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Frontend Pitstop",
+    "name": "HireOG",
     "description": "Practice frontend interview questions, coding challenges, and AI-based mock interviews with voice and analytics",
-    "url": "https://frontendpitstop.com",
+    "url": "https://hireog.com",
     "hasPart": [
       {
         "@type": "SoftwareApplication",
@@ -136,7 +136,7 @@ export default function RootLayout({
         "operatingSystem": "Web",
         "applicationCategory": "EducationalApplication",
         "description": "AI interviewer with voice, interviewer selection, and performance analytics for frontend interviews (React, React Native, JS, CSS, System Design).",
-        "url": "https://frontendpitstop.com/ai-interview"
+        "url": "https://hireog.com/ai-interview"
       },
       {
         "@type": "WebApplication",
@@ -144,21 +144,21 @@ export default function RootLayout({
         "operatingSystem": "Web",
         "applicationCategory": "EducationalApplication",
         "description": "Mock interviews for frontend roles with detailed feedback and scorecards.",
-        "url": "https://frontendpitstop.com/mock-interview"
+        "url": "https://hireog.com/mock-interview"
       }
     ],
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://frontendpitstop.com/problems?search={search_term_string}",
+      "target": "https://hireog.com/problems?search={search_term_string}",
       "query-input": "required name=search_term_string"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "Frontend Pitstop",
-      "url": "https://frontendpitstop.com",
+      "name": "HireOG",
+      "url": "https://hireog.com",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://frontendpitstop.com/logo.svg"
+        "url": "https://hireog.com/logo.svg"
       }
     }
   };

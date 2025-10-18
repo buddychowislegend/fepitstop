@@ -1,4 +1,4 @@
-# ads.txt file for frontendpitstop.com
+# ads.txt file for hireog.com
 # This file helps prevent unauthorized inventory sales
 
 # Google AdSense

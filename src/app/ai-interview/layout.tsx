@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "AI Mock Interview - Practice with AI Interviewers | Frontend Pitstop",
+  title: "AI Mock Interview - Practice with AI Interviewers | HireOG",
   description: "Practice AI-based mock interviews with professional AI interviewers from top tech companies. Get personalized feedback, video recording, and comprehensive analysis. Perfect for frontend, backend, product manager, and HR interview preparation.",
   keywords: [
     "ai based mock interview",
@@ -231,16 +231,16 @@ export const metadata: Metadata = {
     "ai based mock interview"
   ],
   openGraph: {
-    title: "AI Mock Interview - Practice with AI Interviewers | Frontend Pitstop",
+    title: "AI Mock Interview - Practice with AI Interviewers | HireOG",
     description: "Practice AI-based mock interviews with professional AI interviewers from top tech companies. Get personalized feedback, video recording, and comprehensive analysis.",
-    url: "https://frontendpitstop.com/ai-interview",
-    siteName: "Frontend Pitstop",
+    url: "https://hireog.com/ai-interview",
+    siteName: "HireOG",
     images: [
       {
-        url: "https://frontendpitstop.com/og-ai-interview.jpg",
+        url: "https://hireog.com/og-ai-interview.jpg",
         width: 1200,
         height: 630,
-        alt: "AI Mock Interview Platform - Frontend Pitstop",
+        alt: "AI Mock Interview Platform - HireOG",
       },
     ],
     locale: "en_US",
@@ -248,9 +248,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Mock Interview - Practice with AI Interviewers | Frontend Pitstop",
+    title: "AI Mock Interview - Practice with AI Interviewers | HireOG",
     description: "Practice AI-based mock interviews with professional AI interviewers from top tech companies. Get personalized feedback, video recording, and comprehensive analysis.",
-    images: ["https://frontendpitstop.com/og-ai-interview.jpg"],
+    images: ["https://hireog.com/og-ai-interview.jpg"],
   },
   robots: {
     index: true,
@@ -264,7 +264,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://frontendpitstop.com/ai-interview",
+    canonical: "https://hireog.com/ai-interview",
   },
 };
 

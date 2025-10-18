@@ -154,7 +154,7 @@ export default function Home() {
         {/* Why Choose Section */}
         <section className="mt-20 sm:mt-24">
           <div className="text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Why Frontend Pitstop?</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Why HireOG?</h2>
             <p className="mt-3 text-white/80 max-w-3xl mx-auto">
               Our platform provides comprehensive preparation tools for frontend engineering interviews
             </p>
