@@ -25,7 +25,7 @@ export default function Footer() {
     "Resources": [
       { href: "https://github.com", label: "GitHub", external: true },
       { href: "https://twitter.com", label: "Twitter", external: true },
-      { href: "mailto:support@frontendpitstop.com", label: "Contact", external: true },
+      { href: "mailto:support@hireog.com", label: "Contact", external: true },
     ],
   };
 
@@ -59,9 +59,9 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Image src="/logo-simple.svg" alt="Frontend Pitstop" width={32} height={32} />
+            <Image src="/logo-simple.svg" alt="HireOG" width={32} height={32} />
             <p className="text-sm text-white/60">
-              © {currentYear} Frontend Pitstop. All rights reserved.
+              © {currentYear} HireOG. All rights reserved.
             </p>
           </div>
           <div className="flex items-center gap-6 text-sm text-white/60">

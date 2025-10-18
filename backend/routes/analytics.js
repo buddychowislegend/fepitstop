@@ -5,7 +5,7 @@ const db = require('../config/db');
 // Admin auth middleware
 const adminAuth = (req, res, next) => {
   const adminKey = req.header('X-Admin-Key') || req.headers['x-admin-key'];
-  const expectedKey = process.env.ADMIN_KEY || 'admin_key_frontendpitstop_secure_2025';
+  const expectedKey = process.env.ADMIN_KEY || 'admin_key_hireog_secure_2025';
   
   console.log('Analytics auth check:', {
     keyProvided: !!adminKey,

@@ -187,5 +187,5 @@ If you want to save costs, you can:
 Need help? Check:
 - D-ID Docs: https://docs.d-id.com/
 - D-ID Support: support@d-id.com
-- Frontend Pitstop: Your platform is ready to go!
+- HireOG: Your platform is ready to go!
 

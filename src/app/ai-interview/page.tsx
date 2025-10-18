@@ -1949,7 +1949,7 @@ export default function AIInterviewPage() {
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">FP</span>
               </div>
-              <h1 className="text-xl font-bold">Frontend Pitstop</h1>
+              <h1 className="text-xl font-bold">HireOG</h1>
           </div>
         </div>
 
@@ -2116,7 +2116,7 @@ export default function AIInterviewPage() {
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">FP</span>
               </div>
-              <h1 className="text-xl font-bold">Frontend Pitstop</h1>
+              <h1 className="text-xl font-bold">HireOG</h1>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm">Welcome, {user?.name || 'sagar'}</span>

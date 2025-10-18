@@ -5,7 +5,7 @@ const db = require('../config/db');
 // Simple admin authentication (you should enhance this with proper admin roles)
 const adminAuth = (req, res, next) => {
   const adminKey = req.headers['x-admin-key'];
-  const expectedKey = process.env.ADMIN_KEY || 'admin_key_frontendpitstop_secure_2025';
+  const expectedKey = process.env.ADMIN_KEY || 'admin_key_hireog_secure_2025';
   
   if (adminKey !== expectedKey) {
     console.log('Admin auth failed:', { 
@@ -28,7 +28,7 @@ const adminAuth = (req, res, next) => {
 
 // Check admin key configuration (for debugging)
 router.get('/check-key', (req, res) => {
-  const expectedKey = process.env.ADMIN_KEY || 'admin_key_frontendpitstop_secure_2025';
+  const expectedKey = process.env.ADMIN_KEY || 'admin_key_hireog_secure_2025';
   res.json({
     keyConfigured: !!process.env.ADMIN_KEY,
     keySource: process.env.ADMIN_KEY ? 'environment variable' : 'default fallback',

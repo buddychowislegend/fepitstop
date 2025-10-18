@@ -145,7 +145,7 @@ Response: {
 
 **With Vercel Dev:**
 ```bash
-cd /Users/sagar/Documents/FePitStop/frontendpitstop
+cd /Users/sagar/Documents/FePitStop/hireog
 vercel dev
 ```
 Then visit: http://localhost:3000/mock-interview
@@ -230,7 +230,7 @@ Then visit: http://localhost:3000/mock-interview
 When you're ready to launch publicly:
 
 ```bash
-cd /Users/sagar/Documents/FePitStop/frontendpitstop
+cd /Users/sagar/Documents/FePitStop/hireog
 
 # Enable AI interview for all users
 vercel env add NEXT_PUBLIC_AI_INTERVIEW_ENABLED production
@@ -242,7 +242,7 @@ git push origin main
 ```
 
 Then the feature will be live at:
-- https://frontendpitstop.com/mock-interview → redirects to /ai-interview
+- https://hireog.com/mock-interview → redirects to /ai-interview
 
 ---
 

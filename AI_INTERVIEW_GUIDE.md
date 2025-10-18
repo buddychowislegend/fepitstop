@@ -2,7 +2,7 @@
 
 ## 🤖 Overview
 
-Your Frontend Pitstop now has an **AI-powered mock interview system** using Google's Gemini 2.0 Flash model. This feature provides realistic interview practice with intelligent follow-up questions, adaptive difficulty, and comprehensive feedback.
+Your HireOG now has an **AI-powered mock interview system** using Google's Gemini 2.0 Flash model. This feature provides realistic interview practice with intelligent follow-up questions, adaptive difficulty, and comprehensive feedback.
 
 **Current Status:** Development mode only
 

@@ -114,7 +114,7 @@ export default function PricingPage() {
           key: orderData.keyId,
           amount: orderData.amount,
           currency: orderData.currency,
-          name: "Frontend Pitstop",
+          name: "HireOG",
           description: "Premium Subscription",
           order_id: orderData.orderId,
           handler: async function (response: any) {
@@ -337,7 +337,7 @@ export default function PricingPage() {
               Ready to Ace Your Interviews?
             </h2>
             <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-              Join thousands of developers who have landed their dream jobs with Frontend Pitstop.
+              Join thousands of developers who have landed their dream jobs with HireOG.
             </p>
             <div className="flex gap-4 justify-center">
               <button
