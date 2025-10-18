@@ -188,13 +188,7 @@ export default function QuizPage() {
       <div className="min-h-screen flex items-center justify-center text-white">
         <div className="max-w-4xl mx-auto px-6 py-10">
           {/* Top Banner Ad */}
-          <div className="mb-6">
-            <AdSense
-              adSlot="1234567896"
-              adFormat="horizontal"
-              style={{ display: "block", minHeight: "90px" }}
-            />
-          </div>
+     
 
           {/* Rating Screen */}
           {showRating && (
