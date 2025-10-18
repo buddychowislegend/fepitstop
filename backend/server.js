@@ -12,6 +12,7 @@ const systemDesignRoutes = require('./routes/systemDesign');
 const submissionsRoutes = require('./routes/submissions');
 const adminRoutes = require('./routes/admin');
 const analyticsRoutes = require('./routes/analytics');
+const companyRoutes = require('./routes/company-simple');
 // const paymentRoutes = require('./routes/payment'); // Temporarily disabled - causing mongoose conflicts
 
 // AI Interview - Temporarily disabled to fix server crash
@@ -43,6 +44,7 @@ app.use(cors({
       'http://localhost:3001',
       'http://localhost:3002',
       'https://fepitstop.onrender.com',
+      'https://fepit.vercel.app',
       'https://hireog.vercel.app',
       'https://hireog.com',
       'https://www.hireog.com'
@@ -69,7 +71,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-Admin-Key', 'x-admin-key']
+  allowedHeaders: ['Content-Type', 'Authorization', 'authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-Admin-Key', 'x-admin-key', 'X-Company-ID', 'X-Company-Password', 'x-company-id', 'x-company-password']
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -84,6 +86,16 @@ app.use('/api/system-design', systemDesignRoutes);
 app.use('/api/submissions', submissionsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
+// Handle CORS preflight for company routes
+app.options('/api/company/*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Company-ID, X-Company-Password');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
+
+app.use('/api/company', companyRoutes);
 // app.use('/api/payment', paymentRoutes); // Temporarily disabled - causing mongoose conflicts
 
 // AI Interview
