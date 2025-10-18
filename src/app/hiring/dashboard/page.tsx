@@ -48,8 +48,9 @@ export default function CompanyDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      // Use local API routes
-      const response = await fetch('/api/company/dashboard', {
+      // Use backend API routes
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/dashboard`, {
         headers: {
           'X-Company-ID': 'hireog',
           'X-Company-Password': 'manasi22'
@@ -61,7 +62,7 @@ export default function CompanyDashboard() {
         console.log('Dashboard data received:', data);
         console.log('Debug info:', data.debug);
         
-        setCandidates(data.candidates.map(c => ({
+        setCandidates(data.candidates.map((c: any) => ({
           id: c.id,
           name: c.name,
           email: c.email,
@@ -69,7 +70,7 @@ export default function CompanyDashboard() {
           status: c.status,
           addedDate: c.createdAt.split('T')[0]
         })));
-        setInterviewDrives(data.interviewDrives.map(d => ({
+        setInterviewDrives(data.interviewDrives.map((d: any) => ({
           id: d.id,
           name: d.name,
           status: d.status,
@@ -107,7 +108,8 @@ export default function CompanyDashboard() {
   const handleAddCandidate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/company/candidates', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/candidates`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -218,9 +220,9 @@ export default function CompanyDashboard() {
     }
   };
 
-  const handleExcelUpload = (candidates: Candidate[]) => {
+  const handleExcelUpload = (excelCandidates: { name: string; email: string; profile: string; }[]) => {
     // Add candidates from Excel upload
-    const newCandidates = candidates.map(candidate => ({
+    const newCandidates = excelCandidates.map(candidate => ({
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       name: candidate.name,
       email: candidate.email,

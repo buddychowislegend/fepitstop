@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
-
-// In-memory storage for demo purposes
-let companyData = {
-  candidates: [],
-  interviewDrives: [],
-  interviewTokens: []
-};
+const MongoDatabase = require('../config/mongodb');
+const db = new MongoDatabase();
 
 // Test endpoint to verify CORS
 router.get('/test', (req, res) => {
@@ -39,11 +34,11 @@ router.get('/dashboard', companyAuth, async (req, res) => {
     console.log('Dashboard request from:', req.headers.origin);
     console.log('Company ID:', companyId);
     
-    // Get candidates for this company
-    const candidates = companyData.candidates.filter(c => c.companyId === companyId);
+    // Get candidates for this company from MongoDB
+    const candidates = await db.getCandidatesByCompany(companyId);
     
-    // Get interview drives for this company
-    const drives = companyData.interviewDrives.filter(d => d.companyId === companyId);
+    // Get interview drives for this company from MongoDB
+    const drives = await db.getDrivesByCompany(companyId);
     
     console.log('Returning candidates:', candidates.length, 'drives:', drives.length);
     
@@ -68,16 +63,17 @@ router.post('/candidates', companyAuth, async (req, res) => {
       return res.status(400).json({ error: 'Name, email, and profile are required' });
     }
     
-    // Check if candidate already exists
-    const existingCandidate = companyData.candidates.find(
-      c => c.email === email && c.companyId === companyId
+    // Check if candidate already exists in MongoDB
+    const existingCandidates = await db.getCandidatesByCompany(companyId);
+    const existingCandidate = existingCandidates.find(
+      c => c.email === email
     );
     
     if (existingCandidate) {
       return res.status(400).json({ error: 'Candidate with this email already exists' });
     }
     
-    // Add new candidate
+    // Add new candidate to MongoDB
     const candidate = {
       id: Date.now().toString(),
       companyId: companyId,
@@ -88,7 +84,7 @@ router.post('/candidates', companyAuth, async (req, res) => {
       createdAt: new Date().toISOString()
     };
     
-    companyData.candidates.push(candidate);
+    await db.addCandidate(candidate);
     
     res.json({
       id: candidate.id,
@@ -107,23 +103,17 @@ router.put('/candidates/:id', companyAuth, async (req, res) => {
     const { name, email, profile, status } = req.body;
     const companyId = req.companyId;
     
-    // Find candidate
-    const candidateIndex = companyData.candidates.findIndex(
-      c => c.id === candidateId && c.companyId === companyId
-    );
-    
-    if (candidateIndex === -1) {
-      return res.status(404).json({ error: 'Candidate not found' });
-    }
-    
-    // Update candidate
-    companyData.candidates[candidateIndex] = {
-      ...companyData.candidates[candidateIndex],
+    // Update candidate in MongoDB
+    const result = await db.updateCandidate(candidateId, {
       name: name,
       email: email,
       profile: profile,
       status: status
-    };
+    });
+    
+    if (!result) {
+      return res.status(404).json({ error: 'Candidate not found' });
+    }
     
     res.json({ message: 'Candidate updated successfully' });
   } catch (error) {
@@ -138,17 +128,12 @@ router.delete('/candidates/:id', companyAuth, async (req, res) => {
     const candidateId = req.params.id;
     const companyId = req.companyId;
     
-    // Find candidate
-    const candidateIndex = companyData.candidates.findIndex(
-      c => c.id === candidateId && c.companyId === companyId
-    );
+    // Delete candidate from MongoDB
+    const result = await db.deleteCandidate(candidateId, companyId);
     
-    if (candidateIndex === -1) {
+    if (!result) {
       return res.status(404).json({ error: 'Candidate not found' });
     }
-    
-    // Remove candidate
-    companyData.candidates.splice(candidateIndex, 1);
     
     res.json({ message: 'Candidate deleted successfully' });
   } catch (error) {
@@ -177,7 +162,8 @@ router.post('/drives', companyAuth, async (req, res) => {
       createdAt: new Date().toISOString()
     };
     
-    companyData.interviewDrives.push(drive);
+    // Add drive to MongoDB
+    await db.addInterviewDrive(drive);
     
     res.json({
       id: drive.id,
@@ -195,19 +181,17 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
     const driveId = req.params.id;
     const companyId = req.companyId;
     
-    // Find drive
-    const drive = companyData.interviewDrives.find(
-      d => d.id === driveId && d.companyId === companyId
-    );
+    // Get drive from MongoDB
+    const drives = await db.getDrivesByCompany(companyId);
+    const drive = drives.find(d => d.id === driveId);
     
     if (!drive) {
       return res.status(404).json({ error: 'Interview drive not found' });
     }
     
-    // Get candidates for this drive
-    const candidates = companyData.candidates.filter(
-      c => drive.candidateIds.includes(c.id)
-    );
+    // Get candidates for this drive from MongoDB
+    const allCandidates = await db.getCandidatesByCompany(companyId);
+    const candidates = allCandidates.filter(c => drive.candidateIds.includes(c.id));
     
     // Generate interview tokens and links
     const interviewLinks = [];
@@ -216,7 +200,7 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
       // Generate unique token for each candidate
       const token = Buffer.from(`${candidate.id}-${driveId}-${Date.now()}`).toString('base64');
       
-      // Store token
+      // Store token in MongoDB
       const tokenData = {
         id: Date.now().toString(),
         candidateId: candidate.id,
@@ -226,7 +210,7 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
         createdAt: new Date().toISOString()
       };
       
-      companyData.interviewTokens.push(tokenData);
+      await db.addInterviewToken(tokenData);
       
       const interviewLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/hiring/candidate-interview/${token}`;
       interviewLinks.push({
@@ -238,8 +222,8 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
       console.log(`Interview link for ${candidate.name} (${candidate.email}): ${interviewLink}`);
     }
     
-    // Update drive status to active
-    drive.status = 'active';
+    // Update drive status to active in MongoDB
+    await db.updateInterviewDrive(driveId, { status: 'active' });
     
     res.json({
       message: 'Interview links generated successfully',
@@ -257,19 +241,17 @@ router.get('/drives/:id', companyAuth, async (req, res) => {
     const driveId = req.params.id;
     const companyId = req.companyId;
     
-    // Find drive
-    const drive = companyData.interviewDrives.find(
-      d => d.id === driveId && d.companyId === companyId
-    );
+    // Get drive from MongoDB
+    const drives = await db.getDrivesByCompany(companyId);
+    const drive = drives.find(d => d.id === driveId);
     
     if (!drive) {
       return res.status(404).json({ error: 'Interview drive not found' });
     }
     
-    // Get candidates for this drive
-    const candidates = companyData.candidates.filter(
-      c => drive.candidateIds.includes(c.id)
-    );
+    // Get candidates for this drive from MongoDB
+    const allCandidates = await db.getCandidatesByCompany(companyId);
+    const candidates = allCandidates.filter(c => drive.candidateIds.includes(c.id));
     
     res.json({
       drive: drive,
@@ -286,16 +268,16 @@ router.get('/interview/:token', async (req, res) => {
   try {
     const token = req.params.token;
     
-    // Find token data
-    const tokenData = companyData.interviewTokens.find(t => t.token === token);
+    // Get token data from MongoDB
+    const tokenData = await db.getTokenData(token);
     
     if (!tokenData) {
       return res.status(404).json({ error: 'Invalid interview token' });
     }
     
-    // Get candidate data
-    const candidate = companyData.candidates.find(c => c.id === tokenData.candidateId);
-    const drive = companyData.interviewDrives.find(d => d.id === tokenData.driveId);
+    // Get candidate and drive data from MongoDB
+    const candidate = await db.getCandidateById(tokenData.candidateId);
+    const drive = await db.getDriveById(tokenData.driveId);
     
     if (!candidate || !drive) {
       return res.status(404).json({ error: 'Candidate or drive not found' });
@@ -322,22 +304,29 @@ router.post('/interview/:token/submit', async (req, res) => {
     const token = req.params.token;
     const { answers } = req.body;
     
-    // Find token data
-    const tokenData = companyData.interviewTokens.find(t => t.token === token);
+    // Get token data from MongoDB
+    const tokenData = await db.getTokenData(token);
     
     if (!tokenData) {
       return res.status(404).json({ error: 'Invalid interview token' });
     }
     
-    // Mark token as used
-    tokenData.used = true;
+    // Mark token as used in MongoDB
+    await db.updateToken(token, { used: true });
     
-    // Store interview response (in a real app, this would go to a database)
-    console.log('Interview response submitted:', {
+    // Store interview response in MongoDB
+    const responseData = {
+      id: Date.now().toString(),
       candidateId: tokenData.candidateId,
       driveId: tokenData.driveId,
-      answers: answers
-    });
+      token: token,
+      answers: answers,
+      submittedAt: new Date().toISOString()
+    };
+    
+    await db.addInterviewResponse(responseData);
+    
+    console.log('Interview response submitted:', responseData);
     
     res.json({ message: 'Interview response submitted successfully' });
   } catch (error) {

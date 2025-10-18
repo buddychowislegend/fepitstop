@@ -45,7 +45,7 @@ export default function ExcelUpload({ onUpload, onClose }: ExcelUploadProps) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
         // Skip header row and convert to candidates
-        const candidates: Candidate[] = jsonData.slice(1).map((row: any[]) => {
+        const candidates: Candidate[] = jsonData.slice(1).map((row: any) => {
           return {
             name: row[0] || "",
             email: row[1] || "",

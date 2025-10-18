@@ -621,6 +621,110 @@ class MongoDatabase {
     await this.db.collection('passwordResets').deleteMany({ email });
   }
 
+  // Company Data Operations
+  async addCandidate(candidate) {
+    await this.ensureConnection();
+    const result = await this.db.collection('candidates').insertOne(candidate);
+    console.log('Candidate added to MongoDB:', result.insertedId);
+    return { ...candidate, _id: result.insertedId };
+  }
+
+  async getCandidatesByCompany(companyId) {
+    await this.ensureConnection();
+    const candidates = await this.db.collection('candidates').find({ companyId }).toArray();
+    console.log(`Found ${candidates.length} candidates for company ${companyId}`);
+    return candidates;
+  }
+
+  async updateCandidate(candidateId, updates) {
+    await this.ensureConnection();
+    const result = await this.db.collection('candidates').updateOne(
+      { id: candidateId },
+      { $set: updates }
+    );
+    console.log('Candidate updated in MongoDB:', result.modifiedCount);
+    return result;
+  }
+
+  async deleteCandidate(candidateId) {
+    await this.ensureConnection();
+    const result = await this.db.collection('candidates').deleteOne({ id: candidateId });
+    console.log('Candidate deleted from MongoDB:', result.deletedCount);
+    return result;
+  }
+
+  async addInterviewDrive(drive) {
+    await this.ensureConnection();
+    const result = await this.db.collection('interviewDrives').insertOne(drive);
+    console.log('Interview drive added to MongoDB:', result.insertedId);
+    return { ...drive, _id: result.insertedId };
+  }
+
+  async getDrivesByCompany(companyId) {
+    await this.ensureConnection();
+    const drives = await this.db.collection('interviewDrives').find({ companyId }).toArray();
+    console.log(`Found ${drives.length} drives for company ${companyId}`);
+    return drives;
+  }
+
+  async addInterviewToken(token) {
+    await this.ensureConnection();
+    const result = await this.db.collection('interviewTokens').insertOne(token);
+    console.log('Interview token added to MongoDB:', result.insertedId);
+    return { ...token, _id: result.insertedId };
+  }
+
+  async getTokenData(token) {
+    await this.ensureConnection();
+    const tokenData = await this.db.collection('interviewTokens').findOne({ token });
+    console.log('Token data retrieved from MongoDB:', tokenData ? 'Found' : 'Not found');
+    return tokenData;
+  }
+
+  async updateToken(token, updates) {
+    await this.ensureConnection();
+    const result = await this.db.collection('interviewTokens').updateOne(
+      { token },
+      { $set: updates }
+    );
+    console.log('Token updated in MongoDB:', result.modifiedCount);
+    return result;
+  }
+
+  async addInterviewResponse(response) {
+    await this.ensureConnection();
+    const result = await this.db.collection('interviewResponses').insertOne(response);
+    console.log('Interview response added to MongoDB:', result.insertedId);
+    return { ...response, _id: result.insertedId };
+  }
+
+  async getInterviewResponses(companyId) {
+    await this.ensureConnection();
+    const responses = await this.db.collection('interviewResponses').find({ companyId }).toArray();
+    console.log(`Found ${responses.length} interview responses for company ${companyId}`);
+    return responses;
+  }
+
+  // Additional company methods
+  async getCandidateById(candidateId) {
+    await this.ensureConnection();
+    return await this.db.collection('candidates').findOne({ id: candidateId });
+  }
+
+  async getDriveById(driveId) {
+    await this.ensureConnection();
+    return await this.db.collection('interviewDrives').findOne({ id: driveId });
+  }
+
+  async updateInterviewDrive(driveId, updateData) {
+    await this.ensureConnection();
+    const result = await this.db.collection('interviewDrives').updateOne(
+      { id: driveId },
+      { $set: updateData }
+    );
+    return result.modifiedCount > 0;
+  }
+
   // Compatibility properties
   get isServerless() {
     return true;
