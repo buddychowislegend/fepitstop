@@ -250,13 +250,7 @@ export default function ProfilePage() {
     <div className="min-h-screen flex items-center justify-center text-white">
       <div className="max-w-4xl mx-auto px-6 py-10">
         {/* Top Banner Ad */}
-        <div className="mb-6">
-          <AdSense
-            adSlot="1234567897"
-            adFormat="horizontal"
-            style={{ display: "block", minHeight: "90px" }}
-          />
-        </div>
+
 
         <div className="flex items-center justify-between">
           <h1 className="text-3xl sm:text-4xl font-extrabold">My Profile</h1>
