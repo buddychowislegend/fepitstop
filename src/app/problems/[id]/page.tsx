@@ -661,13 +661,7 @@ export default function ProblemDetailPage() {
     <div className="min-h-screen bg-gradient-to-br from-[#1f1144] via-[#3a1670] to-[#6a2fb5] text-white">
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Top Banner Ad */}
-        <div className="mb-4">
-          <AdSense
-            adSlot="1234567894"
-            adFormat="horizontal"
-            style={{ display: "block", minHeight: "90px" }}
-          />
-        </div>
+
 
         {/* Top Navigation */}
         <div className="flex items-center gap-6 mb-6 border-b border-white/10 pb-4">

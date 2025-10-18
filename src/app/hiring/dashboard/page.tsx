@@ -151,7 +151,8 @@ export default function CompanyDashboard() {
   const handleCreateDrive = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/company/drives', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/drives`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -194,7 +195,8 @@ export default function CompanyDashboard() {
 
   const handleSendLinks = async (driveId: string) => {
     try {
-      const response = await fetch(`/api/company/drives/${driveId}/send-links`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/drives/${driveId}/send-links`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

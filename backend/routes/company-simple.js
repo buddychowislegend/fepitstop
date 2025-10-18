@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const MongoDatabase = require('../config/mongodb');
-const db = new MongoDatabase();
+const db = require('../config/db');
+const emailService = require('../services/emailService');
 
 // Test endpoint to verify CORS
 router.get('/test', (req, res) => {
@@ -191,7 +191,8 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
     
     // Get candidates for this drive from MongoDB
     const allCandidates = await db.getCandidatesByCompany(companyId);
-    const candidates = allCandidates.filter(c => drive.candidateIds.includes(c.id));
+    const candidateIds = drive.candidates || drive.candidateIds || [];
+    const candidates = allCandidates.filter(c => candidateIds.includes(c.id));
     
     // Generate interview tokens and links
     const interviewLinks = [];
@@ -218,8 +219,24 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
         link: interviewLink
       });
       
-      // Log the interview link (in production, this would send an email)
-      console.log(`Interview link for ${candidate.name} (${candidate.email}): ${interviewLink}`);
+      // Send email to candidate using the same service that works for OTP
+      try {
+        const emailResult = await emailService.sendInterviewInvite(
+          candidate.email,
+          candidate.name,
+          interviewLink,
+          'HireOG',
+          drive.name
+        );
+        if (emailResult.success) {
+          console.log(`Email sent to ${candidate.name} (${candidate.email})`);
+        } else {
+          console.error(`Failed to send email to ${candidate.email}:`, emailResult.error);
+        }
+      } catch (emailError) {
+        console.error(`Failed to send email to ${candidate.email}:`, emailError);
+        // Continue even if email fails
+      }
     }
     
     // Update drive status to active in MongoDB

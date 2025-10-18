@@ -19,7 +19,12 @@ let inMemoryDB = {
   quizQuestions: [],
   communitySolutions: [],
   systemDesignScenarios: [],
-  submissions: []
+  submissions: [],
+  // Company-related data
+  candidates: [],
+  interviewDrives: [],
+  interviewTokens: [],
+  interviewResponses: []
 };
 
 try {
@@ -37,7 +42,12 @@ try {
       quizQuestions: [],
       communitySolutions: [],
       systemDesignScenarios: [],
-      submissions: []
+      submissions: [],
+      // Company-related data
+      candidates: [],
+      interviewDrives: [],
+      interviewTokens: [],
+      interviewResponses: []
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
     console.log(`✅ Database initialized at: ${DB_FILE}`);
@@ -667,6 +677,178 @@ class Database {
     }
     db.passwordResets = db.passwordResets.filter(r => r.email !== email);
     this.write(db);
+  }
+
+  // Company-related methods
+  async addCandidate(candidateData) {
+    const db = this.read();
+    if (!db.candidates) {
+      db.candidates = [];
+    }
+    const candidate = {
+      id: Date.now().toString(),
+      companyId: candidateData.companyId,
+      name: candidateData.name,
+      email: candidateData.email,
+      profile: candidateData.profile,
+      status: 'active',
+      createdAt: new Date().toISOString()
+    };
+    
+    db.candidates.push(candidate);
+    this.write(db);
+    return candidate;
+  }
+
+  async getCandidatesByCompany(companyId) {
+    const db = this.read();
+    if (!db.candidates) {
+      db.candidates = [];
+      this.write(db);
+    }
+    return db.candidates.filter(c => c.companyId === companyId);
+  }
+
+  async updateCandidate(candidateId, updateData) {
+    const db = this.read();
+    if (!db.candidates) {
+      db.candidates = [];
+    }
+    const index = db.candidates.findIndex(c => c.id === candidateId);
+    if (index !== -1) {
+      db.candidates[index] = { ...db.candidates[index], ...updateData };
+      this.write(db);
+      return db.candidates[index];
+    }
+    return null;
+  }
+
+  async deleteCandidate(candidateId) {
+    const db = this.read();
+    if (!db.candidates) {
+      db.candidates = [];
+    }
+    db.candidates = db.candidates.filter(c => c.id !== candidateId);
+    this.write(db);
+    return true;
+  }
+
+  async addInterviewDrive(driveData) {
+    const db = this.read();
+    if (!db.interviewDrives) {
+      db.interviewDrives = [];
+    }
+    const drive = {
+      id: Date.now().toString(),
+      companyId: driveData.companyId,
+      name: driveData.name,
+      status: 'draft',
+      candidates: driveData.candidateIds || [],
+      createdAt: new Date().toISOString()
+    };
+    
+    db.interviewDrives.push(drive);
+    this.write(db);
+    return drive;
+  }
+
+  async getDrivesByCompany(companyId) {
+    const db = this.read();
+    if (!db.interviewDrives) {
+      db.interviewDrives = [];
+      this.write(db);
+    }
+    return db.interviewDrives.filter(d => d.companyId === companyId);
+  }
+
+  async updateInterviewDrive(driveId, updateData) {
+    const db = this.read();
+    if (!db.interviewDrives) {
+      db.interviewDrives = [];
+    }
+    const index = db.interviewDrives.findIndex(d => d.id === driveId);
+    if (index !== -1) {
+      db.interviewDrives[index] = { ...db.interviewDrives[index], ...updateData };
+      this.write(db);
+      return db.interviewDrives[index];
+    }
+    return null;
+  }
+
+  async addInterviewToken(tokenData) {
+    const db = this.read();
+    if (!db.interviewTokens) {
+      db.interviewTokens = [];
+    }
+    const token = {
+      id: Date.now().toString(),
+      ...tokenData
+    };
+    
+    db.interviewTokens.push(token);
+    this.write(db);
+    return token;
+  }
+
+  async getTokenData(token) {
+    const db = this.read();
+    if (!db.interviewTokens) {
+      db.interviewTokens = [];
+    }
+    return db.interviewTokens.find(t => t.token === token);
+  }
+
+  async updateToken(token, updateData) {
+    const db = this.read();
+    if (!db.interviewTokens) {
+      db.interviewTokens = [];
+    }
+    const index = db.interviewTokens.findIndex(t => t.token === token);
+    if (index !== -1) {
+      db.interviewTokens[index] = { ...db.interviewTokens[index], ...updateData };
+      this.write(db);
+      return db.interviewTokens[index];
+    }
+    return null;
+  }
+
+  async addInterviewResponse(responseData) {
+    const db = this.read();
+    if (!db.interviewResponses) {
+      db.interviewResponses = [];
+    }
+    const response = {
+      id: Date.now().toString(),
+      ...responseData
+    };
+    
+    db.interviewResponses.push(response);
+    this.write(db);
+    return response;
+  }
+
+  async getInterviewResponses(token) {
+    const db = this.read();
+    if (!db.interviewResponses) {
+      db.interviewResponses = [];
+    }
+    return db.interviewResponses.filter(r => r.token === token);
+  }
+
+  async getCandidateById(candidateId) {
+    const db = this.read();
+    if (!db.candidates) {
+      db.candidates = [];
+    }
+    return db.candidates.find(c => c.id === candidateId);
+  }
+
+  async getDriveById(driveId) {
+    const db = this.read();
+    if (!db.interviewDrives) {
+      db.interviewDrives = [];
+    }
+    return db.interviewDrives.find(d => d.id === driveId);
   }
 }
 

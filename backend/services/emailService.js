@@ -6,7 +6,7 @@ class EmailService {
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER || 'your-email@gmail.com',
-        pass: process.env.EMAIL_PASS || 'your-app-password'
+        pass: process.env.EMAIL_PASSWORD || 'your-app-password'
       }
     });
   }
@@ -169,4 +169,130 @@ class EmailService {
   }
 }
 
-module.exports = new EmailService();
+// Create instance
+const emailService = new EmailService();
+
+// Export individual functions for backward compatibility
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+const sendOTPEmail = async (email, otp, name = 'User') => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'noreply@hireog.com',
+      to: email,
+      subject: 'Your OTP for HireOG',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">HireOG</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Your OTP Code</p>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 20px;">
+            <h2 style="color: #333; margin-top: 0;">Hello ${name}!</h2>
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+              Your OTP code for HireOG is:
+            </p>
+            <div style="background: #667eea; color: white; font-size: 32px; font-weight: bold; text-align: center; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              ${otp}
+            </div>
+            <p style="color: #666; font-size: 14px;">
+              This code will expire in 10 minutes. Please do not share this code with anyone.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    const result = await emailService.transporter.sendMail(mailOptions);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('Error sending OTP email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+const sendWelcomeEmail = async (email, name) => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'noreply@hireog.com',
+      to: email,
+      subject: 'Welcome to HireOG!',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to HireOG!</h1>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 20px;">
+            <h2 style="color: #333; margin-top: 0;">Hello ${name}!</h2>
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+              Welcome to HireOG! Your account has been successfully created. You can now start practicing with our AI-powered mock interviews and coding challenges.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    const result = await emailService.transporter.sendMail(mailOptions);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+const generateResetToken = () => {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
+const sendPasswordResetEmail = async (email, resetToken, name) => {
+  try {
+    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'noreply@hireog.com',
+      to: email,
+      subject: 'Password Reset - HireOG',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">Password Reset</h1>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 20px;">
+            <h2 style="color: #333; margin-top: 0;">Hello ${name}!</h2>
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+              You requested a password reset for your HireOG account. Click the button below to reset your password:
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetLink}" style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block;">
+                Reset Password
+              </a>
+            </div>
+            <p style="color: #666; font-size: 14px;">
+              This link will expire in 1 hour. If you didn't request this reset, please ignore this email.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    const result = await emailService.transporter.sendMail(mailOptions);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+module.exports = {
+  ...emailService,
+  generateOTP,
+  sendOTPEmail,
+  sendWelcomeEmail,
+  generateResetToken,
+  sendPasswordResetEmail,
+  sendInterviewInvite: emailService.sendInterviewInvite.bind(emailService)
+};
