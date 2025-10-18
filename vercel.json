@@ -4,7 +4,14 @@
     "src/app/api/resume/pdf/route.ts": {
       "includeFiles": "node_modules/@sparticuz/chromium/bin/**"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/mock-interview",
+      "destination": "/ai-interview",
+      "permanent": true
+    }
+  ]
 }
 
 
