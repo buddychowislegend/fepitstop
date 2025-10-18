@@ -64,7 +64,7 @@ export const getAllData = () => {
 // Debug function to log current state
 export const logDataState = (label: string) => {
   console.log(`${label} - Current data state:`, {
-    candidates: companyData.candidates.length,
+    candidatesCount: companyData.candidates.length,
     drives: companyData.interviewDrives.length,
     tokens: companyData.interviewTokens.length,
     candidates: companyData.candidates

@@ -17,7 +17,7 @@ export default function CompanyAPITest() {
         setResult({ success: false, error: `HTTP ${response.status}: ${response.statusText}` });
       }
     } catch (error) {
-      setResult({ success: false, error: error.message });
+      setResult({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
     }
     setLoading(false);
   };
@@ -40,7 +40,7 @@ export default function CompanyAPITest() {
         setResult({ success: false, error: `HTTP ${response.status}: ${errorText}` });
       }
     } catch (error) {
-      setResult({ success: false, error: error.message });
+      setResult({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
     }
     setLoading(false);
   };

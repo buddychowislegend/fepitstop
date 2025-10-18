@@ -50,12 +50,15 @@ export default function CandidateInterview() {
   useEffect(() => {
     // Fetch candidate data from backend using token
     const token = params.token;
-    fetchCandidateData(token);
+    if (token && typeof token === 'string') {
+      fetchCandidateData(token);
+    }
   }, [params.token]);
 
   const fetchCandidateData = async (token: string) => {
     try {
-      const response = await fetch(`/api/company/interview/${token}`);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/interview/${token}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -105,7 +108,8 @@ export default function CandidateInterview() {
 
   const submitInterviewResponse = async (finalAnswers: string[]) => {
     try {
-      const response = await fetch(`/api/company/interview/${params.token}/submit`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/interview/${params.token}/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
