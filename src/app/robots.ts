@@ -6,20 +6,60 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/analytics/', '/profile/'],
+        disallow: [
+          '/api/',
+          '/analytics/',
+          '/profile/',
+          '/admin/',
+          '/_next/',
+          '/private/',
+          '/dashboard/',
+          '/settings/',
+          '/billing/',
+          '/payment/',
+          '/reset-password/',
+          '/forgot-password/'
+        ],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/api/', '/analytics/', '/profile/'],
+        disallow: [
+          '/api/',
+          '/analytics/',
+          '/profile/',
+          '/admin/',
+          '/_next/',
+          '/private/',
+          '/dashboard/',
+          '/settings/',
+          '/billing/',
+          '/payment/',
+          '/reset-password/',
+          '/forgot-password/'
+        ],
       },
       {
         userAgent: 'Bingbot',
         allow: '/',
-        disallow: ['/api/', '/analytics/', '/profile/'],
+        disallow: [
+          '/api/',
+          '/analytics/',
+          '/profile/',
+          '/admin/',
+          '/_next/',
+          '/private/',
+          '/dashboard/',
+          '/settings/',
+          '/billing/',
+          '/payment/',
+          '/reset-password/',
+          '/forgot-password/'
+        ],
       },
     ],
-    sitemap: 'https://frontendpitstop.com/sitemap.xml',
+    sitemap: 'https://hireog.com/sitemap.xml',
+    host: 'https://hireog.com'
   }
 }
 

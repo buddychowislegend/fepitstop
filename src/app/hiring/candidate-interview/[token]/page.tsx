@@ -40,7 +40,13 @@ type InterviewSession = {
   timeRemaining: number;
 };
 
-export default function CandidateInterviewPage({ params }: { params: { token: string } }) {
+export default async function CandidateInterviewPage({ params }: { params: Promise<{ token: string }> }) {
+  const resolvedParams = await params;
+  
+  return <CandidateInterviewPageClient params={resolvedParams} />;
+}
+
+function CandidateInterviewPageClient({ params }: { params: { token: string } }) {
   const { user, token, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();

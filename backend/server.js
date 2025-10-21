@@ -58,7 +58,7 @@ app.use(cors({
       const { hostname, protocol } = new URL(origin);
       // Allow any vercel.app subdomain
       if (hostname.endsWith('.vercel.app')) return callback(null, true);
-      // Allow any *.frontendpitstop.com subdomain
+      // Allow any *.hireog.com subdomain
       if (hostname === 'hireog.com' || hostname.endsWith('.hireog.com')) return callback(null, true);
       // Allow localhost any port
       if ((hostname === 'localhost' || hostname === '127.0.0.1') && (protocol === 'http:' || protocol === 'https:')) return callback(null, true);

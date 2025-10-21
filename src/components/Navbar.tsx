@@ -19,7 +19,6 @@ export default function Navbar() {
     { href: "/prep-plans", label: "Prep Plans" },
     { href: "/system-design", label: "System Design" },
     { href: "/resume", label: "Resume" },
-    { href: "/community", label: "Community", comingSoon: true },
     { href: "/hiring", label: "For Companies", highlight: true },
   ];
 

@@ -22,49 +22,48 @@ export const metadata: Metadata = {
     default: "HireOG — Master Frontend Interviews & Coding Challenges",
     template: "%s | HireOG"
   },
-  description: "Practice 100+ real frontend interview questions from top tech companies like Google, Meta, Amazon. AI-based mock interviews with voice, interviewer selection, and analytics. Interactive code editor, instant feedback, and comprehensive solutions. Master JavaScript, React, React Native, CSS, and system design. #1 AI Interview Platform for Frontend Developers.",
+  description: "Master frontend interviews with HireOG - AI-powered mock interviews, 500+ real coding challenges from Google, Meta, Amazon. Interactive code editor, voice analysis, confidence tracking, and personalized feedback. Practice JavaScript, React, React Native, CSS, and system design. Join 10,000+ developers who aced their interviews.",
   keywords: [
-    "ai based mock interview",
-    "ai interview",
     "ai mock interview",
-    "artificial intelligence interview",
     "ai interview practice",
-    "ai interview questions",
-    "ai interview platform",
-    "ai interview simulator",
-    "ai interview prep",
-    "ai interview training",
-    "ai interview coach",
-    "ai interview assistant",
-    "ai interview bot",
-    "ai interview system",
-    "ai interview software",
-    "ai interview tool",
-    "ai interview app",
-    "ai interview website",
-    "ai interview service",
-    "ai interview solution",
     "frontend interview questions",
     "javascript interview",
     "react interview questions",
-    "react native interview questions",
-    "vue interview questions",
     "coding challenges",
-    "web development practice",
-    "frontend coding test",
-    "technical interview prep",
     "mock interviews online",
-    "voice interview practice",
-    "system design interview for frontend",
-    "javascript quiz",
-    "coding interview",
-    "frontend developer",
+    "technical interview prep",
+    "frontend developer interview",
     "web developer interview",
-    "coding practice",
-    "programming challenges",
-    "leetcode frontend",
+    "coding interview practice",
+    "system design interview",
+    "ai interview feedback",
+    "voice interview practice",
+    "interview confidence building",
+    "frontend coding test",
+    "javascript coding challenges",
+    "react coding interview",
     "frontend system design",
-    "frontend ai interviewer"
+    "interview preparation platform",
+    "coding interview simulator",
+    "technical interview practice",
+    "frontend interview prep",
+    "javascript interview questions",
+    "react interview prep",
+    "frontend coding interview",
+    "web development interview",
+    "frontend engineer interview",
+    "software engineer interview",
+    "frontend developer prep",
+    "coding interview questions",
+    "frontend interview simulator",
+    "ai interview coach",
+    "interview practice platform",
+    "frontend interview training",
+    "coding interview prep",
+    "technical interview simulator",
+    "frontend interview questions and answers",
+    "javascript interview prep",
+    "react interview questions and answers"
   ],
   authors: [{ name: "HireOG" }],
   creator: "HireOG",
@@ -78,24 +77,25 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://hireog.com",
-    title: "HireOG — AI Mock Interviews for Frontend",
-    description: "AI-based interviewer, real-time voice Q&A, interviewer selection, and performance analytics. Practice React, React Native, JS, CSS & system design.",
+    title: "HireOG — Master Frontend Interviews with AI",
+    description: "AI-powered mock interviews with voice analysis, confidence tracking, and personalized feedback. Practice 500+ real coding challenges from Google, Meta, Amazon. Interactive code editor, system design prep, and interview analytics.",
     siteName: "HireOG",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://hireog.com/og-image.png",
         width: 1200,
         height: 630,
-        alt: "HireOG - Master Frontend Interviews"
+        alt: "HireOG - Master Frontend Interviews with AI"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "HireOG — Master Frontend Interviews",
-    description: "Practice 100+ real frontend interview questions from top tech companies. Interactive code editor with instant feedback.",
-    images: ["/og-image.png"],
-    creator: "@hireog"
+    title: "HireOG — Master Frontend Interviews with AI",
+    description: "AI-powered mock interviews with voice analysis and confidence tracking. Practice 500+ real coding challenges from Google, Meta, Amazon with interactive code editor.",
+    images: ["https://hireog.com/og-image.png"],
+    creator: "@hireog",
+    site: "@hireog"
   },
   robots: {
     index: true,
@@ -127,24 +127,49 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "HireOG",
-    "description": "Practice frontend interview questions, coding challenges, and AI-based mock interviews with voice and analytics",
+    "description": "Master frontend interviews with AI-powered mock interviews, voice analysis, confidence tracking, and personalized feedback. Practice 500+ real coding challenges from Google, Meta, Amazon.",
     "url": "https://hireog.com",
+    "inLanguage": "en-US",
+    "isAccessibleForFree": true,
     "hasPart": [
       {
         "@type": "SoftwareApplication",
         "name": "AI Mock Interview",
         "operatingSystem": "Web",
         "applicationCategory": "EducationalApplication",
-        "description": "AI interviewer with voice, interviewer selection, and performance analytics for frontend interviews (React, React Native, JS, CSS, System Design).",
-        "url": "https://hireog.com/ai-interview"
+        "description": "AI interviewer with voice analysis, confidence tracking, and performance analytics for frontend interviews (React, React Native, JS, CSS, System Design).",
+        "url": "https://hireog.com/ai-interview",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
       },
       {
         "@type": "WebApplication",
-        "name": "Frontend Mock Interviews",
+        "name": "Frontend Coding Challenges",
         "operatingSystem": "Web",
         "applicationCategory": "EducationalApplication",
-        "description": "Mock interviews for frontend roles with detailed feedback and scorecards.",
-        "url": "https://hireog.com/mock-interview"
+        "description": "500+ real frontend interview questions from top tech companies with interactive code editor and instant feedback.",
+        "url": "https://hireog.com/problems",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "WebApplication",
+        "name": "System Design Interview Prep",
+        "operatingSystem": "Web",
+        "applicationCategory": "EducationalApplication",
+        "description": "Step-by-step system design scenarios for frontend engineers with scalable UI components and architecture patterns.",
+        "url": "https://hireog.com/system-design",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
       }
     ],
     "potentialAction": {
@@ -158,7 +183,46 @@ export default function RootLayout({
       "url": "https://hireog.com",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://hireog.com/logo.svg"
+        "url": "https://hireog.com/logo.svg",
+        "width": 200,
+        "height": 200
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@hireog.com",
+        "contactType": "customer service"
+      },
+      "sameAs": [
+        "https://twitter.com/hireog",
+        "https://linkedin.com/company/hireog"
+      ]
+    },
+    "mainEntity": {
+      "@type": "EducationalOrganization",
+      "name": "HireOG",
+      "description": "AI-powered interview preparation platform for frontend developers",
+      "url": "https://hireog.com",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Interview Preparation Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "AI Mock Interviews",
+              "description": "Practice interviews with AI feedback on voice, confidence, and technical skills"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Coding Challenges",
+              "description": "500+ real interview questions from top tech companies with interactive code editor"
+            }
+          }
+        ]
       }
     }
   };

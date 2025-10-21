@@ -97,11 +97,7 @@ export default function CompanyLogin() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-white/60 text-sm">
-              Demo Credentials: hireog / manasi22
-            </p>
-          </div>
+      
         </div>
 
         {/* Back to main site */}

@@ -5,9 +5,19 @@ import { ArrowRight, Target, Brain, ClipboardList } from "lucide-react";
 
 export default function NewLandingPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <motion.div 
+      className="min-h-screen flex items-center justify-center p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="w-full max-w-6xl">
-        <div className="bg-[#0f1720] rounded-2xl p-8 shadow-2xl ring-1 ring-white/10">
+        <motion.div 
+          className="bg-[#0f1720] rounded-2xl p-8 shadow-2xl ring-1 ring-white/10"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
       {/* NAVBAR */}
    
 
@@ -64,6 +74,77 @@ export default function NewLandingPage() {
         </div>
       </section>
 
+      {/* WE UNDERSTAND YOUR STRUGGLE */}
+      <section className="mt-20 sm:mt-24">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">We Understand Your Struggle</h2>
+        </div>
+
+        <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
+          {/* For Freshers */}
+          <motion.div 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
+            <h3 className="text-xl font-bold group-hover:text-[#ffb21e] transition mb-4">For Freshers</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#2ad17e] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span className="text-white/70">Unsure how to express your potential during interviews</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#2ad17e] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span className="text-white/70">Struggle to handle unexpected questions</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#2ad17e] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span className="text-white/70">Lack of feedback and guidance after rejection</span>
+              </li>
+            </ul>
+          </motion.div>
+
+          {/* For Experienced Professionals */}
+          <motion.div 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
+            <h3 className="text-xl font-bold group-hover:text-[#ffb21e] transition mb-4">For Experienced Professionals</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#2ad17e] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span className="text-white/70">Low confidence despite deep expertise</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#2ad17e] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span className="text-white/70">Difficulty framing achievements clearly</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#2ad17e] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span className="text-white/70">Missed roles due to weak communication or storytelling</span>
+              </li>
+            </ul>
+          </motion.div>
+        </div>
+      </section>
+
       {/* WHY HIREOG */}
       <section className="mt-20 sm:mt-24">
         <div className="text-center">
@@ -75,7 +156,13 @@ export default function NewLandingPage() {
 
         <div className="mt-10 grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Card 1 */}
-          <div className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.div 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <div className="h-11 w-11 rounded-xl bg-[#6f5af6]/15 flex items-center justify-center">
               <Target className="w-6 h-6 text-[#6f5af6]" />
             </div>
@@ -88,10 +175,16 @@ export default function NewLandingPage() {
               <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Confidence tracking</li>
               <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Technical assessment</li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Card 2 */}
-          <div className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.div 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <div className="h-11 w-11 rounded-xl bg-[#20c997]/15 flex items-center justify-center">
               <Brain className="w-6 h-6 text-[#20c997]" />
             </div>
@@ -104,10 +197,16 @@ export default function NewLandingPage() {
               <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Adaptive difficulty</li>
               <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Instant feedback</li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Card 3 */}
-          <div className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.div 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <div className="h-11 w-11 rounded-xl bg-[#f59f00]/15 flex items-center justify-center">
               <ClipboardList className="w-6 h-6 text-[#f59f00]" />
             </div>
@@ -120,7 +219,7 @@ export default function NewLandingPage() {
               <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Performance analytics</li>
               <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#2ad17e]"></span>Growth insights</li>
             </ul>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -135,7 +234,14 @@ export default function NewLandingPage() {
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* AI Interview Feedback */}
-          <a href="/ai-interview" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.a 
+            href="/ai-interview" 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <div className="h-11 w-11 rounded-xl bg-[#6f5af6]/15 flex items-center justify-center">
               <span className="text-2xl">🤖</span>
             </div>
@@ -143,10 +249,17 @@ export default function NewLandingPage() {
             <p className="mt-2 text-white/70">
               Tone, pacing, clarity, facial cues, and confidence — analyzed instantly by AI.
             </p>
-          </a>
+          </motion.a>
 
           {/* Role-Specific Questions */}
-          <a href="/prep-plans" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.a 
+            href="/prep-plans" 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <div className="h-11 w-11 rounded-xl bg-[#20c997]/15 flex items-center justify-center">
               <span className="text-2xl">🎯</span>
             </div>
@@ -154,10 +267,17 @@ export default function NewLandingPage() {
             <p className="mt-2 text-white/70">
               Curated prompts for software, product, sales, and marketing roles.
             </p>
-          </a>
+          </motion.a>
 
           {/* Performance Analytics */}
-          <a href="/progress" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.a 
+            href="/progress" 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <div className="h-11 w-11 rounded-xl bg-[#2ad17e]/15 flex items-center justify-center">
               <span className="text-2xl">📊</span>
             </div>
@@ -165,10 +285,17 @@ export default function NewLandingPage() {
             <p className="mt-2 text-white/70">
               Measure improvement across communication, accuracy, and confidence.
             </p>
-          </a>
+          </motion.a>
 
           {/* Mock Interviews */}
-          <a href="/mock-interview" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.a 
+            href="/mock-interview" 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <div className="h-11 w-11 rounded-xl bg-[#a78bfa]/15 flex items-center justify-center">
               <span className="text-2xl">🎤</span>
             </div>
@@ -176,7 +303,7 @@ export default function NewLandingPage() {
             <p className="mt-2 text-white/70">
               Schedule practice interviews and get targeted feedback
             </p>
-          </a>
+          </motion.a>
 
           {/* Resume Builder */}
           <a href="/resume" className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
@@ -410,22 +537,40 @@ export default function NewLandingPage() {
 
         <div className="mt-10 grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Testimonial 1 */}
-          <div className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.div 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.3 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <p className="text-white/70 italic mb-4">"HireOG gave me the clarity and confidence I needed. I aced my next three interviews effortlessly!"</p>
             <p className="font-semibold text-white group-hover:text-[#ffb21e] transition">— Rohit, Software Engineer</p>
-          </div>
+          </motion.div>
 
           {/* Testimonial 2 */}
-          <div className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.div 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.4 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <p className="text-white/70 italic mb-4">"AI insights helped me fix communication gaps I wasn't even aware of. This platform truly works!"</p>
             <p className="font-semibold text-white group-hover:text-[#ffb21e] transition">— Priya, Product Manager</p>
-          </div>
+          </motion.div>
 
           {/* Testimonial 3 */}
-          <div className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.div 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.5 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <p className="text-white/70 italic mb-4">"Within two weeks, I went from anxious to assured — and landed my dream role in fintech!"</p>
             <p className="font-semibold text-white group-hover:text-[#ffb21e] transition">— Ankit, Sales Professional</p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -451,25 +596,49 @@ export default function NewLandingPage() {
         </div>
 
         <div className="mt-10 max-w-3xl mx-auto space-y-4">
-          <details className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.details 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.6 }}
+            whileHover={{ y: -2, scale: 1.01 }}
+          >
             <summary className="font-medium cursor-pointer text-white hover:text-[#ffb21e] transition">Is HireOG free to use?</summary>
             <p className="text-white/70 mt-3">Yes, you can start practicing for free. Advanced analytics and recruiter features are part of premium plans.</p>
-          </details>
+          </motion.details>
 
-          <details className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.details 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.7 }}
+            whileHover={{ y: -2, scale: 1.01 }}
+          >
             <summary className="font-medium cursor-pointer text-white hover:text-[#ffb21e] transition">How accurate is AI feedback?</summary>
             <p className="text-white/70 mt-3">Our models use NLP, speech and vision AI to provide reliable, bias-aware assessments for each response.</p>
-          </details>
+          </motion.details>
 
-          <details className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.details 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.8 }}
+            whileHover={{ y: -2, scale: 1.01 }}
+          >
             <summary className="font-medium cursor-pointer text-white hover:text-[#ffb21e] transition">Can I use HireOG for specific roles?</summary>
             <p className="text-white/70 mt-3">Yes! Practice tailored interviews for Software, Product, Sales, Marketing, Operations and more.</p>
-          </details>
+          </motion.details>
 
-          <details className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group">
+          <motion.details 
+            className="rounded-2xl bg-[color:var(--surface)] p-6 border border-[color:var(--border)] hover:bg-white/15 transition group"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.9 }}
+            whileHover={{ y: -2, scale: 1.01 }}
+          >
             <summary className="font-medium cursor-pointer text-white hover:text-[#ffb21e] transition">Will HireOG help me find a job?</summary>
             <p className="text-white/70 mt-3">HireOG partners with recruiters to connect job-ready candidates with real opportunities and provides shareable scorecards.</p>
-          </details>
+          </motion.details>
         </div>
       </section>
 
@@ -507,8 +676,8 @@ export default function NewLandingPage() {
         </div>
         <div className="mt-10 text-center text-xs text-slate-500 border-t border-slate-700 pt-6">© 2025 HireOG — All rights reserved.</div>
       </footer>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
