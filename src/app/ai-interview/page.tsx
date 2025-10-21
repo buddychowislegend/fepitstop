@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/config";
+import AzureTTSPlayer from "@/components/AzureTTSPlayer";
 
 type Message = {
   role: 'interviewer' | 'candidate';
@@ -1098,15 +1099,8 @@ function AIInterviewContent() {
     if (sessionData?.interviewer?.gender) {
       lastInterviewerGenderRef.current = sessionData.interviewer.gender;
     }
-    // Try D-ID video first, fall back to browser speech
-    const videoUrl = await generateAvatarVideo(text, sessionData);
-    console.log('🎥 D-ID video result:', videoUrl);
-    if (!videoUrl) {
-      // Fallback already handled in generateAvatarVideo
-      console.log('🔄 Using fallback speech synthesis');
-      // Explicitly speak via TTS path (FreeTTS → SpeechSynthesis)
-      speakText(text);
-    }
+    // Azure TTS will be handled by the AzureTTSPlayer component
+    console.log('🔄 Azure TTS will be handled by component');
   };
 
   // Track AI interview events
@@ -1708,8 +1702,20 @@ function AIInterviewContent() {
                         <p className="text-sm opacity-80">{session.interviewer.role}</p>
                       </div>
                     </div>
-                    <div className="leading-relaxed">
+                    <div className="leading-relaxed mb-3">
                       {message.content}
+                    </div>
+                    
+                    {/* Azure TTS Player for interviewer messages */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">Listen:</span>
+                      <AzureTTSPlayer 
+                        text={message.content}
+                        autoPlay={index === messages.filter(msg => msg.role === 'interviewer').length - 1} // Auto-play latest message
+                        voice={session.interviewer.gender === 'female' ? 'en-US-AriaNeural' : 'en-US-GuyNeural'}
+                        rate={0.9}
+                        pitch={0}
+                      />
                     </div>
                   </div>
                 ))}

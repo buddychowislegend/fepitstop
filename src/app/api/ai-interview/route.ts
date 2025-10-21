@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const CANDIDATE_MODELS = ['gemini-2.0-flash-exp'];
+const CANDIDATE_MODELS = ['gemini-2.0-flash-exp', 'gemini-1.5-flash-001', 'gemini-1.5-pro-001'];
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 async function callGeminiWithRetry(prompt: string): Promise<string> {
@@ -19,9 +19,14 @@ async function callGeminiWithRetry(prompt: string): Promise<string> {
         return text;
       } catch (err: any) {
         const msg = err?.message || String(err);
-        console.error('[Gemini][error]', { modelName, attempt, msg });
+        const status = err?.status || err?.code;
+        console.error('[Gemini][error]', { modelName, attempt, msg, status });
         lastError = err;
         // If 404 (model unsupported) or 429 (quota), try next model/attempt
+        if (status === 404 || status === 429) {
+          console.log(`[Gemini] Skipping ${modelName} due to ${status === 404 ? 'model not found' : 'quota exceeded'}`);
+          continue;
+        }
       }
     }
     // backoff

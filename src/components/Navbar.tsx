@@ -41,8 +41,8 @@ export default function Navbar() {
         <nav className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
-            const isComingSoon = 'comingSoon' in link && link.comingSoon;
-            const isHighlight = 'highlight' in link && link.highlight;
+            const isComingSoon = 'comingSoon' in link && (link as any).comingSoon;
+            const isHighlight = 'highlight' in link && (link as any).highlight;
             return (
               <Link
                 key={link.href}
@@ -127,7 +127,7 @@ export default function Navbar() {
           <div className="px-4 py-3 space-y-1">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
-              const isComingSoon = 'comingSoon' in link && link.comingSoon;
+              const isComingSoon = 'comingSoon' in link && (link as any).comingSoon;
               return (
                 <Link
                   key={link.href}
