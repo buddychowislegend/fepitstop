@@ -1,8 +1,119 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
+// Llama 3.x Provider Configuration
+const LLAMA_PROVIDERS = [
+  {
+    name: 'groq',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    apiKey: process.env.GROQ_API_KEY,
+    model: 'llama-3.3-70b-versatile'
+  },
+  {
+    name: 'together',
+    baseUrl: 'https://api.together.xyz/v1',
+    apiKey: process.env.TOGETHER_API_KEY,
+    model: 'meta-llama/Llama-3.1-70B-Instruct-Turbo'
+  },
+  {
+    name: 'replicate',
+    baseUrl: 'https://api.replicate.com/v1',
+    apiKey: process.env.REPLICATE_API_KEY,
+    model: 'meta/llama-3.1-70b-instruct'
+  }
+];
+
+// Fallback to Gemini if Llama fails
 const CANDIDATE_MODELS = ['gemini-2.0-flash-exp', 'gemini-1.5-flash-001', 'gemini-1.5-pro-001'];
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+// Llama 3.x API call function
+async function callLlamaWithRetry(prompt: string): Promise<string> {
+  const maxAttempts = 3;
+  const baseDelayMs = 500;
+  let lastError: any = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    for (const provider of LLAMA_PROVIDERS) {
+      if (!provider.apiKey) {
+        console.log(`[Llama] Skipping ${provider.name} - no API key`);
+        continue;
+      }
+
+      try {
+        const response = await fetch(`${provider.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${provider.apiKey}`
+          },
+          body: JSON.stringify({
+            model: provider.model,
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a professional technical interviewer with 10+ years of experience. You conduct thorough, fair, and engaging interviews. You help candidates when they\'re stuck but maintain high standards.'
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 1000,
+            top_p: 0.9
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const text = data.choices[0]?.message?.content?.trim();
+        
+        if (!text) {
+          throw new Error('No response content from Llama');
+        }
+
+        console.log('[Llama][ok]', { provider: provider.name, attempt });
+        return text;
+      } catch (err: any) {
+        const msg = err?.message || String(err);
+        console.error('[Llama][error]', { provider: provider.name, attempt, msg });
+        lastError = err;
+        
+        // If rate limit or quota exceeded, try next provider
+        if (msg.includes('rate limit') || msg.includes('quota') || msg.includes('429')) {
+          console.log(`[Llama] Skipping ${provider.name} due to rate limit/quota`);
+          continue;
+        }
+      }
+    }
+    
+    // Exponential backoff
+    const delay = baseDelayMs * Math.pow(2, attempt - 1);
+    await new Promise((r) => setTimeout(r, delay));
+  }
+  
+  throw lastError || new Error('All Llama providers failed');
+}
+
+// Hybrid function: Try Llama first, fallback to Gemini
+async function callAIWithRetry(prompt: string): Promise<string> {
+  try {
+    // Try Llama 3.x first
+    return await callLlamaWithRetry(prompt);
+  } catch (llamaError) {
+    console.log('[AI] Llama failed, falling back to Gemini:', llamaError.message);
+    
+    // Fallback to Gemini
+    try {
+      return await callGeminiWithRetry(prompt);
+    } catch (geminiError) {
+      console.error('[AI] Both Llama and Gemini failed');
+      throw new Error(`AI service unavailable: ${geminiError.message}`);
+    }
+  }
+}
 
 async function callGeminiWithRetry(prompt: string): Promise<string> {
   const maxAttempts = 3;
@@ -79,10 +190,10 @@ ${profile ? `- Target profile: ${profile}.
 Return ONLY the question text.`;
 
   try {
-    const text = await callGeminiWithRetry(prompt);
+    const text = await callAIWithRetry(prompt);
     return text.replace(/^"|"$/g, '');
   } catch (err: any) {
-    console.error('[Gemini][start] error=', err?.message || err);
+    console.error('[AI][start] error=', err?.message || err);
     throw err;
   }
 }
@@ -270,10 +381,10 @@ Return ONLY the question text.`;
   }
   
   try {
-    const text = await callGeminiWithRetry(prompt);
+    const text = await callAIWithRetry(prompt);
     return text.replace(/^"|"$/g, '');
   } catch (err: any) {
-    console.error('[Gemini][respond] error=', err?.message || err);
+    console.error('[AI][respond] error=', err?.message || err);
     throw err;
   }
 }
@@ -302,7 +413,7 @@ Return STRICT JSON with keys: {
 }
 Do not include markdown fences or extra text.`;
   try {
-    const text = await callGeminiWithRetry(prompt);
+    const text = await callAIWithRetry(prompt);
     let json: any = null;
     try {
       json = JSON.parse(text);
@@ -321,7 +432,7 @@ Do not include markdown fences or extra text.`;
     }
     return json;
   } catch (err: any) {
-    console.error('[Gemini][end] error=', err?.message || err);
+    console.error('[AI][end] error=', err?.message || err);
     throw err;
   }
 }
