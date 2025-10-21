@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/config";
 
 type Message = {
@@ -40,9 +40,20 @@ type InterviewSession = {
   timeRemaining: number;
 };
 
-export default function AIInterviewPage() {
+function AIInterviewContent() {
   const { user, token, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Company interview parameters
+  const [companyParams, setCompanyParams] = useState<{
+    token?: string;
+    company?: string;
+    profile?: string;
+    level?: string;
+    candidateName?: string;
+    candidateEmail?: string;
+  } | null>(null);
   
   // Interview flow states
   const [currentStep, setCurrentStep] = useState<'setup' | 'interviewer-selection' | 'mic-check' | 'interview' | 'thank-you' | 'analysis'>('setup');
@@ -389,6 +400,40 @@ export default function AIInterviewPage() {
     }
   }, [authLoading, user, router]);
 
+  // Handle company interview parameters
+  useEffect(() => {
+    if (searchParams) {
+      const token = searchParams.get('token');
+      const company = searchParams.get('company');
+      const profile = searchParams.get('profile');
+      const level = searchParams.get('level');
+      const candidateName = searchParams.get('candidateName');
+      const candidateEmail = searchParams.get('candidateEmail');
+
+      if (token && company) {
+        setCompanyParams({
+          token,
+          company,
+          profile: profile || 'frontend',
+          level: level || 'mid',
+          candidateName: candidateName || undefined,
+          candidateEmail: candidateEmail || undefined
+        });
+
+        // Auto-select profile and level for company interviews
+        if (profile) {
+          setProfile(profile as any);
+        }
+        if (level) {
+          setLevel(level as any);
+        }
+
+        // Skip setup and go directly to interviewer selection for company interviews
+        setCurrentStep('interviewer-selection');
+      }
+    }
+  }, [searchParams]);
+
   // Initialize speech recognition and load voices
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -643,6 +688,43 @@ export default function AIInterviewPage() {
         }
       }
 
+      // Handle company interviews differently
+      if (companyParams) {
+        // Submit to backend company interview API
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+        const response = await fetch(`${backendUrl}/api/company/interview/${companyParams.token}/submit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Company-ID': 'hireog',
+            'X-Company-Password': 'manasi22'
+          },
+          body: JSON.stringify({
+            candidateName: companyParams.candidateName,
+            candidateEmail: companyParams.candidateEmail,
+            profile: companyParams.profile,
+            level: companyParams.level,
+            company: companyParams.company,
+            qaPairs,
+            score: 0, // Will be calculated by backend
+            feedback: '',
+            completedAt: new Date().toISOString()
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to submit company interview');
+        }
+
+        const data = await response.json();
+        setFeedback(data);
+        setCurrentStep('thank-you');
+        
+        // For company interviews, don't show analysis - just thank you
+        return;
+      }
+
+      // Regular interview submission
       const response = await fetch('/api/ai-interview', {
         method: 'POST',
         headers: {
@@ -1956,9 +2038,22 @@ export default function AIInterviewPage() {
         {/* Main Content */}
           <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-2">
-              Thank you {user?.name || 'sagar bhatnagar'}. You have completed the interview.
-            </h1>
-          </div>
+                {companyParams ? (
+                  <>
+                    Thank you {companyParams.candidateName || user?.name || 'Candidate'}. 
+                    <br />
+                    You have completed the interview for {companyParams.company}.
+                  </>
+                ) : (
+                  `Thank you ${user?.name || 'sagar bhatnagar'}. You have completed the interview.`
+                )}
+              </h1>
+              {companyParams && (
+                <p className="text-lg text-gray-600 mt-4">
+                  The HR team will get back to you with the results. This interview link has now expired.
+                </p>
+              )}
+            </div>
 
           {/* Progress Steps */}
           <div className="max-w-2xl mx-auto mb-8">
@@ -2600,4 +2695,12 @@ export default function AIInterviewPage() {
   }
 
   return null;
+}
+
+export default function AIInterviewPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AIInterviewContent />
+    </Suspense>
+  );
 }

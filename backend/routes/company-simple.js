@@ -213,7 +213,16 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
       
       await db.addInterviewToken(tokenData);
       
-      const interviewLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/hiring/candidate-interview/${token}`;
+      // Generate interview link with company parameters
+      const interviewParams = new URLSearchParams({
+        token: token,
+        company: 'HireOG',
+        profile: candidate.profile,
+        level: 'intermediate', // Default level, can be made configurable
+        candidateName: candidate.name,
+        candidateEmail: candidate.email
+      });
+      const interviewLink = `${process.env.FRONTEND_URL || 'https://hireog.com'}/ai-interview?${interviewParams.toString()}`;
       interviewLinks.push({
         candidate: candidate,
         link: interviewLink
@@ -319,7 +328,7 @@ router.get('/interview/:token', async (req, res) => {
 router.post('/interview/:token/submit', async (req, res) => {
   try {
     const token = req.params.token;
-    const { answers } = req.body;
+    const { candidateName, candidateEmail, profile, level, company, qaPairs, score, feedback, completedAt } = req.body;
     
     // Get token data from MongoDB
     const tokenData = await db.getTokenData(token);
@@ -328,8 +337,12 @@ router.post('/interview/:token/submit', async (req, res) => {
       return res.status(404).json({ error: 'Invalid interview token' });
     }
     
+    if (tokenData.used) {
+      return res.status(400).json({ error: 'Interview token has already been used' });
+    }
+    
     // Mark token as used in MongoDB
-    await db.updateToken(token, { used: true });
+    await db.updateToken(token, { used: true, usedAt: new Date().toISOString() });
     
     // Store interview response in MongoDB
     const responseData = {
@@ -337,7 +350,15 @@ router.post('/interview/:token/submit', async (req, res) => {
       candidateId: tokenData.candidateId,
       driveId: tokenData.driveId,
       token: token,
-      answers: answers,
+      candidateName,
+      candidateEmail,
+      profile,
+      level,
+      company,
+      qaPairs,
+      score: score || 0,
+      feedback: feedback || '',
+      completedAt: completedAt || new Date().toISOString(),
       submittedAt: new Date().toISOString()
     };
     
@@ -345,7 +366,11 @@ router.post('/interview/:token/submit', async (req, res) => {
     
     console.log('Interview response submitted:', responseData);
     
-    res.json({ message: 'Interview response submitted successfully' });
+    res.json({ 
+      message: 'Interview response submitted successfully',
+      score: responseData.score,
+      feedback: responseData.feedback
+    });
   } catch (error) {
     console.error('Error submitting interview response:', error);
     res.status(500).json({ error: 'Failed to submit interview response' });
