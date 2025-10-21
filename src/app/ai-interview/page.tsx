@@ -1711,7 +1711,8 @@ function AIInterviewContent() {
                       <span className="text-sm text-gray-500">Listen:</span>
                       <AzureTTSPlayer 
                         text={message.content}
-                        autoPlay={index === messages.filter(msg => msg.role === 'interviewer').length - 1} // Auto-play latest message
+                        key={message.content}
+                        autoPlay={true} // Auto-play latest message
                         voice={session.interviewer.gender === 'female' ? 'en-US-AriaNeural' : 'en-US-GuyNeural'}
                         rate={0.9}
                         pitch={0}
