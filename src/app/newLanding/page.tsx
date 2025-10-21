@@ -9,29 +9,7 @@ export default function NewLandingPage() {
       <div className="w-full max-w-6xl">
         <div className="bg-[#0f1720] rounded-2xl p-8 shadow-2xl ring-1 ring-white/10">
       {/* NAVBAR */}
-      <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto flex items-center justify-between py-4 px-6">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-gradient-to-br from-indigo-600 to-sky-500 rounded-md flex items-center justify-center text-white font-bold text-lg">OG</div>
-            <div>
-              <h1 className="font-semibold text-lg tracking-tight">HireOG</h1>
-              <p className="text-xs text-slate-500">AI Interview & Career Growth Platform</p>
-            </div>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <a href="#why" className="hover:text-indigo-600 transition">Why</a>
-            <a href="#features" className="hover:text-indigo-600 transition">Features</a>
-            <a href="#how" className="hover:text-indigo-600 transition">How</a>
-            <a href="#tools" className="hover:text-indigo-600 transition">Tools</a>
-            <a href="#scenarios" className="hover:text-indigo-600 transition">Roles</a>
-            <a href="#reviews" className="hover:text-indigo-600 transition">Reviews</a>
-            <a href="#faq" className="hover:text-indigo-600 transition">FAQ</a>
-            <a href="/signin" className="px-3 py-2 bg-white rounded-md border border-slate-200 hover:bg-slate-100">Log in</a>
-            <a href="/signup" className="px-3 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 flex items-center gap-2">Get Started <ArrowRight size={14} /></a>
-          </nav>
-        </div>
-      </header>
+   
 
       {/* HERO */}
       <section className="grid lg:grid-cols-2 gap-10 items-center">
