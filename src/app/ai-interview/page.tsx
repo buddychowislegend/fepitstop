@@ -1713,7 +1713,7 @@ function AIInterviewContent() {
                         text={message.content}
                         key={message.content}
                         autoPlay={true} // Auto-play latest message
-                        voice={session.interviewer.gender === 'female' ? 'en-US-AriaNeural' : 'en-US-GuyNeural'}
+                        voice={session.interviewer.gender === 'female' ? 'en-IN-AnanyaNeural' : 'en-IN-KunalNeural'}
                         rate={0.9}
                         pitch={0}
                       />
