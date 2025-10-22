@@ -82,11 +82,12 @@ function AIInterviewContent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   // Ensure avatar URLs sent to D-ID are absolute and end with image extensions
   const buildAvatarImageUrl = (rawUrl?: string, gender: 'male' | 'female' = 'female'): string => {
-    // Use a known-good photorealistic face that D-ID accepts (ends with .jpeg)
+    // Prefer local assets placed in public/
+    const localFemale = '/female-interviewer.jpg';
+    const localMale = '/male-interviewer.jpg';
+    // Remote safe fallback image that D-ID accepts
     const didSampleFace = 'https://create-images-results.d-id.com/google-oauth2%7C117408431483365796674/upl_kF-rKCg5Ym8RMgqrXxRnl/image.jpeg';
-    const fallbackFemale = didSampleFace;
-    const fallbackMale = didSampleFace;
-    const defaultUrl = gender === 'female' ? fallbackFemale : fallbackMale;
+    const defaultUrl = gender === 'female' ? localFemale : localMale;
 
     if (!rawUrl) return defaultUrl;
 
@@ -95,8 +96,8 @@ function AIInterviewContent() {
     const isAbsolute = /^https?:\/\//i.test(rawUrl);
     if (isAbsolute && hasValidExt) return rawUrl;
 
-    // If it's a relative path or missing extension, fall back to a valid stock image
-    return defaultUrl;
+    // If it's a relative path or missing extension, prefer local default; otherwise remote fallback
+    return defaultUrl || didSampleFace;
   };
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -1465,9 +1466,17 @@ function AIInterviewContent() {
                 }`}
               >
                 <div className="text-center">
-                  <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-white">
-                    {interviewer.name.split(' ').map(n => n[0]).join('')}
-                  </div>
+                  {interviewer.gender === 'female' ? (
+                    <img
+                      src={buildAvatarImageUrl(interviewer.avatar, 'female')}
+                      alt={`${interviewer.name} avatar`}
+                      className="w-44 h-44 rounded-full mx-auto mb-4 object-cover"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-white">
+                      {interviewer.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                  )}
                   <h3 className="text-xl font-bold mb-1">{interviewer.name}</h3>
                   <p className="text-purple-300 text-sm mb-2">{interviewer.role}</p>
                   <p className="opacity-70 text-xs mb-3">{interviewer.company} • {interviewer.experience}</p>
@@ -1651,9 +1660,17 @@ function AIInterviewContent() {
         {/* Header */}
         <div className="border-b border-white/10 bg-[color:var(--surface)] backdrop-blur-md p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-              {session.interviewer.name.split(' ').map(n => n[0]).join('')}
-            </div>
+            {session.interviewer.gender === 'female' ? (
+              <img
+                src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
+                alt={`${session.interviewer.name} avatar`}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+              </div>
+            )}
             <div>
               <h1 className="font-semibold">{session.interviewer.name}</h1>
               <p className="opacity-70 text-sm">{session.interviewer.role} • {session.interviewer.company}</p>
@@ -1694,9 +1711,17 @@ function AIInterviewContent() {
                 {messages.filter(msg => msg.role === 'interviewer').slice(-1).map((message, index) => (
                   <div key={index} className="card p-6">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
-                        {session.interviewer.name.split(' ').map(n => n[0]).join('')}
-                      </div>
+                      {session.interviewer.gender === 'female' ? (
+                        <img
+                          src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
+                          alt={`${session.interviewer.name} avatar`}
+                          className="w-23 h-23 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
+                          {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                      )}
                       <div>
                         <h3 className="font-semibold">{session.interviewer.name}</h3>
                         <p className="text-sm opacity-80">{session.interviewer.role}</p>
@@ -1748,9 +1773,17 @@ function AIInterviewContent() {
                 <div className="flex justify-start mb-4">
                   <div className="bg-purple-100 border-l-4 border-purple-500 p-4 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-xs font-bold text-white">
-                        {session.interviewer.name.split(' ').map(n => n[0]).join('')}
-                      </div>
+                      {session.interviewer.gender === 'female' ? (
+                        <img
+                          src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
+                          alt={`${session.interviewer.name} avatar`}
+                          className="w-23 h-23 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-xs font-bold text-white">
+                          {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                      )}
                       <div className="flex gap-1">
                         <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
                         <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
@@ -1819,16 +1852,29 @@ function AIInterviewContent() {
                           />
                           
                           {/* Main avatar circle */}
-                          <div 
-                            className={`relative w-20 h-20 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto flex items-center justify-center text-2xl font-bold text-white shadow-lg transition-all duration-300 ${
-                              isAISpeaking ? 'scale-110' : 'scale-100'
-                            }`}
-                            style={{
-                              animation: isAISpeaking ? 'none' : 'breathe 3s ease-in-out infinite'
-                            }}
-                          >
-                            {session.interviewer.name.split(' ').map(n => n[0]).join('')}
-                          </div>
+                          {session.interviewer.gender === 'female' ? (
+                            <img
+                              src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
+                              alt={`${session.interviewer.name} avatar`}
+                              className={`relative w-40 h-40 rounded-full mx-auto object-cover shadow-lg transition-all duration-300 ${
+                                isAISpeaking ? 'scale-110' : 'scale-100'
+                              }`}
+                              style={{
+                                animation: isAISpeaking ? 'none' : 'breathe 3s ease-in-out infinite'
+                              }}
+                            />
+                          ) : (
+                            <div 
+                              className={`relative w-20 h-20 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto flex items-center justify-center text-2xl font-bold text-white shadow-lg transition-all duration-300 ${
+                                isAISpeaking ? 'scale-110' : 'scale-100'
+                              }`}
+                              style={{
+                                animation: isAISpeaking ? 'none' : 'breathe 3s ease-in-out infinite'
+                              }}
+                            >
+                              {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                          )}
                           
                           {/* Audio waveform bars */}
                           {isAISpeaking && (
@@ -1850,7 +1896,7 @@ function AIInterviewContent() {
                       )}
                     </div>
                     
-                    <h3 className="text-sm font-bold text-gray-800">{session.interviewer.name}</h3>
+                    <h3 className="text-sm font-bold text-white-800">{session.interviewer.name}</h3>
                     <p className="text-purple-600 text-xs font-semibold">{session.interviewer.role}</p>
                     <p className="text-gray-600 text-xs">{session.interviewer.company}</p>
                     
@@ -1861,7 +1907,7 @@ function AIInterviewContent() {
                         isAIAudioLoading ? 'bg-blue-500 animate-pulse' : 
                         loading ? 'bg-yellow-500 animate-pulse' : 'bg-gray-400'
                       }`} />
-                      <span className="text-xs text-gray-600">
+                      <span className="text-xs text-white-600">
                         {isAIAudioLoading ? 'Generating voice…' : isAISpeaking ? 'Speaking…' : loading ? 'Thinking…' : 'Listening'}
                       </span>
                     </div>
@@ -1947,9 +1993,9 @@ function AIInterviewContent() {
             </div>
 
             {/* Voice Controls */}
-            <div className="bg-gray-50 border-t border-gray-200 p-6">
+            <div className="bg-[color:var(--surface)] border-t border-gray-200 p-6">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Voice Controls</h3>
+                <h3 className="text-lg font-semibold text-white-800 mb-4">Voice Controls</h3>
                 
                 {/* Current Answer Preview */}
                 {currentAnswer && (
