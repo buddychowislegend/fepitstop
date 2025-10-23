@@ -184,7 +184,7 @@ function AIInterviewContent() {
           experience: '9+ years',
           avatar: '/interviewer-5.jpg',
           specialties: ['Java', 'Spring Boot', 'Microservices'],
-          gender: 'male' as const
+          gender: 'female' as const
         },
         {
           id: 'rajesh-kumar',
@@ -194,7 +194,7 @@ function AIInterviewContent() {
           experience: '11+ years',
           avatar: '/interviewer-6.jpg',
           specialties: ['Java', 'Spring', 'AWS'],
-          gender: 'female' as const
+          gender: 'male' as const
         },
         {
           id: 'Anna Gunn',
@@ -204,7 +204,7 @@ function AIInterviewContent() {
           experience: '13+ years',
           avatar: '/interviewer-7.jpg',
           specialties: ['Java', 'Spring Boot', 'Distributed Systems'],
-          gender: 'male' as const
+          gender: 'female' as const
         },
         {
           id: 'Gaurav kapoor',

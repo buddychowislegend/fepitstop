@@ -24,7 +24,6 @@ export default function Home() {
       {/* HERO */}
       <section className="grid lg:grid-cols-2 gap-10 items-center">
         <div className="py-8">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 ring-1 ring-white/15">Interactive</div>
           <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
             Turn Anxiety into <span className="text-[#ffb21e]">Confidence</span>
           </h1>
@@ -33,7 +32,7 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <a 
-              href="/signup"
+              href="/ai-interview"
               className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2ad17e] text-[#0e1a12] px-5 py-3 font-semibold hover:opacity-95 transition"
             >
               <span>Start Free Practice</span>

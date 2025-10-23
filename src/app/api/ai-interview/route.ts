@@ -428,6 +428,7 @@ async function generateQuestion(opts: { level: string; focus?: string; framework
   
   const prompt = buildEnhancedInterviewPrompt(context, 'question');
 
+  console.log('prompt received is ', prompt);
   try {
     const text = await callAIWithRetry(prompt);
     return text.replace(/^"|"$/g, '');
