@@ -59,10 +59,13 @@ export default function CompanyDashboard() {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       const response = await fetch(`${backendUrl}/api/company/dashboard`, {
+        method: 'GET',
         headers: {
           'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
-        }
+          'X-Company-Password': 'manasi22',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
       });
       
       if (response.ok) {
@@ -147,6 +150,7 @@ export default function CompanyDashboard() {
           'X-Company-ID': 'hireog',
           'X-Company-Password': 'manasi22'
         },
+        credentials: 'include',
         body: JSON.stringify(newCandidate)
       });
       
@@ -187,6 +191,7 @@ export default function CompanyDashboard() {
           'X-Company-ID': 'hireog',
           'X-Company-Password': 'manasi22'
         },
+        credentials: 'include',
         body: JSON.stringify({
           name: newDrive.name,
           candidateIds: newDrive.selectedCandidates

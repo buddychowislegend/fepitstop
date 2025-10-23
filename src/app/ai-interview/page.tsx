@@ -703,6 +703,7 @@ function AIInterviewContent() {
             'X-Company-ID': 'hireog',
             'X-Company-Password': 'manasi22'
           },
+          credentials: 'include',
           body: JSON.stringify({
             candidateName: companyParams.candidateName,
             candidateEmail: companyParams.candidateEmail,
