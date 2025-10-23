@@ -91,12 +91,14 @@ function AIInterviewContent() {
 
     if (!rawUrl) return defaultUrl;
 
-    // If already absolute and has valid image extension, use as is
+    // If already has valid image extension, accept it (both absolute and relative paths)
     const hasValidExt = /(\.jpg|\.jpeg|\.png)(\?.*)?$/i.test(rawUrl);
-    const isAbsolute = /^https?:\/\//i.test(rawUrl);
-    if (isAbsolute && hasValidExt) return rawUrl;
+    if (hasValidExt) return rawUrl;
 
-    // If it's a relative path or missing extension, prefer local default; otherwise remote fallback
+    // If it's a relative path without extension, fall back to gender-based image
+    if (rawUrl.startsWith('/')) return defaultUrl;
+
+    // Otherwise use gender-based default
     return defaultUrl || didSampleFace;
   };
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -138,7 +140,7 @@ function AIInterviewContent() {
       role: 'Senior Frontend Engineer',
       company: 'Google',
       experience: '8+ years',
-      avatar: '/api/placeholder/200/200',
+      avatar: '/interviewer-1.jpg',
       specialties: ['React', 'TypeScript', 'System Design'],
           gender: 'female' as const
     },
@@ -148,7 +150,7 @@ function AIInterviewContent() {
       role: 'Frontend Tech Lead',
           company: 'Microsoft',
       experience: '10+ years',
-      avatar: '/api/placeholder/200/200',
+      avatar: '/interviewer-2.jpg',
       specialties: ['JavaScript', 'React', 'Performance'],
           gender: 'male' as const
     },
@@ -158,7 +160,7 @@ function AIInterviewContent() {
       role: 'Senior Software Engineer',
       company: 'Amazon',
       experience: '6+ years',
-      avatar: '/api/placeholder/200/200',
+      avatar: '/female-interviewer.jpg',
       specialties: ['Full Stack', 'React', 'Node.js'],
           gender: 'female' as const
     },
@@ -168,49 +170,49 @@ function AIInterviewContent() {
       role: 'Principal Engineer',
           company: 'Meta',
       experience: '12+ years',
-      avatar: '/api/placeholder/200/200',
+      avatar: '/male-interviewer.jpg',
       specialties: ['Frontend Architecture', 'React', 'Web Performance'],
           gender: 'male' as const
         }
       ],
       backend: [
         {
-          id: 'rajesh-kumar',
-          name: 'Rajesh Kumar',
+          id: 'deepika-reddy',
+          name: 'Deepika Reddy',
           role: 'Senior Backend Engineer',
           company: 'Google',
           experience: '9+ years',
-          avatar: '/api/placeholder/200/200',
+          avatar: '/interviewer-5.jpg',
           specialties: ['Java', 'Spring Boot', 'Microservices'],
           gender: 'male' as const
         },
         {
-          id: 'deepika-reddy',
-          name: 'Deepika Reddy',
+          id: 'rajesh-kumar',
+          name: 'Walter White',
           role: 'Backend Tech Lead',
           company: 'Amazon',
           experience: '11+ years',
-          avatar: '/api/placeholder/200/200',
+          avatar: '/interviewer-6.jpg',
           specialties: ['Java', 'Spring', 'AWS'],
           gender: 'female' as const
         },
         {
-          id: 'suresh-mishra',
-          name: 'Suresh Mishra',
+          id: 'Anna Gunn',
+          name: 'Anna Gunn',
           role: 'Principal Backend Engineer',
           company: 'Microsoft',
           experience: '13+ years',
-          avatar: '/api/placeholder/200/200',
+          avatar: '/interviewer-7.jpg',
           specialties: ['Java', 'Spring Boot', 'Distributed Systems'],
           gender: 'male' as const
         },
         {
-          id: 'anita-desai',
-          name: 'Anita Desai',
+          id: 'Gaurav kapoor',
+          name: 'Gaurav Kapoor',
           role: 'Senior Software Engineer',
           company: 'Netflix',
           experience: '7+ years',
-          avatar: '/api/placeholder/200/200',
+          avatar: '/interviewer-8.jpg',
           specialties: ['Java', 'Spring', 'API Design'],
           gender: 'female' as const
         }
