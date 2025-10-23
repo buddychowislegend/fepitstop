@@ -1,1813 +1,2216 @@
 const quizQuestions = [
-  // JavaScript Fundamentals
-  {
-    id: "1",
-    question: "What does `null == undefined` return?",
-    options: ["true", "false", "TypeError", "undefined"],
-    correct: 0,
-    category: "JavaScript Basics",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "2",
-    question: "What is the result of `typeof NaN`?",
-    options: ["'NaN'", "'number'", "'undefined'", "'object'"],
-    correct: 1,
-    category: "JavaScript Basics",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "3",
-    question: "What does the `===` operator check?",
-    options: ["Value only", "Type only", "Both value and type", "Reference"],
-    correct: 2,
-    category: "JavaScript Basics",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "4",
-    question: "Which method adds elements to the end of an array?",
-    options: ["shift()", "unshift()", "push()", "pop()"],
-    correct: 2,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "5",
-    question: "What is the output? `console.log(typeof typeof 1)`",
-    options: ["'number'", "'string'", "'object'", "'undefined'"],
-    correct: 1,
-    category: "JavaScript Basics",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  
-  // Code Snippet Questions
-  {
-    id: "6",
-    question: "What is the output?\n```js\nconsole.log(1 + '2' + 3);\n```",
-    options: ["'123'", "6", "'15'", "NaN"],
-    correct: 0,
-    category: "Type Coercion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "7",
-    question: "What is the output?\n```js\nconsole.log([1, 2, 3] + [4, 5, 6]);\n```",
-    options: ["[1,2,3,4,5,6]", "'1,2,34,5,6'", "'1,2,3,4,5,6'", "Error"],
-    correct: 1,
-    category: "Type Coercion",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "8",
-    question: "What is the output?\n```js\nlet a = [1, 2, 3];\nlet b = a;\nb.push(4);\nconsole.log(a);\n```",
-    options: ["[1, 2, 3]", "[1, 2, 3, 4]", "undefined", "Error"],
-    correct: 1,
-    category: "References",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "9",
-    question: "What is the output?\n```js\nconsole.log(0.1 + 0.2 === 0.3);\n```",
-    options: ["true", "false", "undefined", "NaN"],
-    correct: 1,
-    category: "Numbers",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "10",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\nObject.freeze(obj);\nobj.a = 2;\nconsole.log(obj.a);\n```",
-    options: ["1", "2", "undefined", "Error"],
-    correct: 0,
-    category: "Objects",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "11",
-    question: "What is the output?\n```js\nconsole.log([] == ![]);\n```",
-    options: ["true", "false", "undefined", "Error"],
-    correct: 0,
-    category: "Type Coercion",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "12",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\narr[10] = 99;\nconsole.log(arr.length);\n```",
-    options: ["3", "4", "10", "11"],
-    correct: 3,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "13",
-    question: "What is the output?\n```js\nfunction test() {\n  console.log(a);\n  var a = 1;\n}\ntest();\n```",
-    options: ["1", "undefined", "ReferenceError", "null"],
-    correct: 1,
-    category: "Hoisting",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "14",
-    question: "What is the output?\n```js\nconst obj = { a: 1, b: 2, a: 3 };\nconsole.log(obj.a);\n```",
-    options: ["1", "2", "3", "Error"],
-    correct: 2,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "15",
-    question: "What is the output?\n```js\nconsole.log(+'10' + +'20');\n```",
-    options: ["'1020'", "30", "'30'", "NaN"],
-    correct: 1,
-    category: "Type Coercion",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "16",
-    question: "What is the output?\n```js\nlet x = 1;\nfunction test() {\n  console.log(x);\n  let x = 2;\n}\ntest();\n```",
-    options: ["1", "2", "undefined", "ReferenceError"],
-    correct: 3,
-    category: "Hoisting",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "17",
-    question: "What is the output?\n```js\nconsole.log([...'hello']);\n```",
-    options: ["'hello'", "['hello']", "['h','e','l','l','o']", "Error"],
-    correct: 2,
-    category: "Spread Operator",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "18",
-    question: "What is the output?\n```js\nconst obj = { x: 1 };\nconst arr = [obj, obj];\narr[0].x = 2;\nconsole.log(arr[1].x);\n```",
-    options: ["1", "2", "undefined", "Error"],
-    correct: 1,
-    category: "References",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "19",
-    question: "What is the output?\n```js\nconsole.log(1 < 2 < 3);\nconsole.log(3 > 2 > 1);\n```",
-    options: ["true, true", "true, false", "false, true", "false, false"],
-    correct: 1,
-    category: "Comparisons",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "20",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\ndelete arr[1];\nconsole.log(arr.length);\n```",
-    options: ["2", "3", "undefined", "Error"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "21",
-    question: "What is the output?\n```js\nconst a = {};\nconst b = { key: 'b' };\na[b] = 123;\nconsole.log(a['[object Object]']);\n```",
-    options: ["undefined", "123", "'[object Object]'", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "22",
-    question: "What is the output?\n```js\nconsole.log(!!null);\n```",
-    options: ["true", "false", "null", "undefined"],
-    correct: 1,
-    category: "Boolean Conversion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "23",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3].map(num => {\n  if (typeof num === 'number') return;\n  return num * 2;\n});\nconsole.log(arr);\n```",
-    options: ["[2, 4, 6]", "[undefined, undefined, undefined]", "[]", "Error"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "24",
-    question: "What is the output?\n```js\nconst person = { name: 'John' };\nObject.seal(person);\nperson.age = 30;\nconsole.log(person.age);\n```",
-    options: ["30", "undefined", "null", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "25",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3, 4, 5];\narr.length = 2;\nconsole.log(arr);\n```",
-    options: ["[1, 2, 3, 4, 5]", "[1, 2]", "[3, 4, 5]", "Error"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "26",
-    question: "What is the output?\n```js\nconst x = 1;\n(() => {\n  x = 2;\n  console.log(x);\n})();\n```",
-    options: ["1", "2", "undefined", "Error"],
-    correct: 3,
-    category: "Scope",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "27",
-    question: "What is the output?\n```js\nconsole.log(3 + 4 + '5');\n```",
-    options: ["'345'", "'75'", "12", "NaN"],
-    correct: 1,
-    category: "Type Coercion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "28",
-    question: "What is the output?\n```js\nconst obj = { a: 1, b: 2 };\nconst { a, ...rest } = obj;\nconsole.log(rest);\n```",
-    options: ["{ a: 1, b: 2 }", "{ b: 2 }", "{ a: 1 }", "Error"],
-    correct: 1,
-    category: "Destructuring",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "29",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst [a, , c] = arr;\nconsole.log(c);\n```",
-    options: ["1", "2", "3", "undefined"],
-    correct: 2,
-    category: "Destructuring",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "30",
-    question: "What is the output?\n```js\nconst func = () => arguments;\nconsole.log(func(1, 2, 3));\n```",
-    options: ["[1, 2, 3]", "{ 0: 1, 1: 2, 2: 3 }", "undefined", "ReferenceError"],
-    correct: 3,
-    category: "Arrow Functions",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "31",
-    question: "What is the output?\n```js\nconst num = 123;\nconsole.log(num.toString(2));\n```",
-    options: ["'123'", "'1111011'", "123", "Error"],
-    correct: 1,
-    category: "Numbers",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "32",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\narr.forEach((num, i) => {\n  arr[i] = num * 2;\n});\nconsole.log(arr);\n```",
-    options: ["[1, 2, 3]", "[2, 4, 6]", "[1, 2, 3, 2, 4, 6]", "Infinite loop"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "33",
-    question: "What is the output?\n```js\nconst promise = new Promise((resolve) => {\n  console.log(1);\n  resolve(2);\n});\npromise.then(console.log);\nconsole.log(3);\n```",
-    options: ["1, 2, 3", "1, 3, 2", "3, 1, 2", "2, 1, 3"],
-    correct: 1,
-    category: "Promises",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "34",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst result = arr.map(x => x * 2).filter(x => x > 3);\nconsole.log(result);\n```",
-    options: ["[2, 4, 6]", "[4, 6]", "[2, 3]", "[1, 2, 3]"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "35",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\nconst copy = obj;\ncopy.a = 2;\nconsole.log(obj.a);\n```",
-    options: ["1", "2", "undefined", "Error"],
-    correct: 1,
-    category: "References",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "36",
-    question: "What is the output?\n```js\nconst str = 'hello';\nstr[0] = 'H';\nconsole.log(str);\n```",
-    options: ["'Hello'", "'hello'", "Error", "undefined"],
-    correct: 1,
-    category: "Strings",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "37",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.slice(1, 2));\n```",
-    options: ["[1]", "[2]", "[1, 2]", "[2, 3]"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "38",
-    question: "What is the output?\n```js\nconst x = 10;\nfunction test() {\n  console.log(x);\n  const x = 20;\n}\ntest();\n```",
-    options: ["10", "20", "undefined", "ReferenceError"],
-    correct: 3,
-    category: "Hoisting",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "39",
-    question: "What is the output?\n```js\nconsole.log([...[1, 2], ...[3, 4]]);\n```",
-    options: ["[[1, 2], [3, 4]]", "[1, 2, 3, 4]", "Error", "undefined"],
-    correct: 1,
-    category: "Spread Operator",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "40",
-    question: "What is the output?\n```js\nconst obj = { x: 1, y: 2 };\nconst { x: a, y: b } = obj;\nconsole.log(a, b);\n```",
-    options: ["undefined undefined", "x y", "1 2", "Error"],
-    correct: 2,
-    category: "Destructuring",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "41",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3, 4, 5];\nconsole.log(arr.splice(2, 1));\n```",
-    options: ["[1, 2]", "[3]", "[4, 5]", "[1, 2, 4, 5]"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "42",
-    question: "What is the output?\n```js\nconst x = { a: 1 };\nconst y = { a: 1 };\nconsole.log(x == y);\n```",
-    options: ["true", "false", "undefined", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "43",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.includes(2));\n```",
-    options: ["true", "false", "1", "undefined"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "44",
-    question: "What is the output?\n```js\nconst func = (a, b = a) => a + b;\nconsole.log(func(5));\n```",
-    options: ["5", "10", "NaN", "Error"],
-    correct: 1,
-    category: "Functions",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "45",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\narr.length = 0;\nconsole.log(arr);\n```",
-    options: ["[1, 2, 3]", "[]", "[0]", "undefined"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "46",
-    question: "What is the output?\n```js\nconsole.log(typeof null);\n```",
-    options: ["'null'", "'object'", "'undefined'", "'number'"],
-    correct: 1,
-    category: "JavaScript Basics",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "47",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst newArr = arr.reverse();\nconsole.log(arr === newArr);\n```",
-    options: ["true", "false", "undefined", "Error"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "48",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\ndelete obj.a;\nconsole.log(obj.a);\n```",
-    options: ["1", "null", "undefined", "Error"],
-    correct: 2,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "49",
-    question: "What is the output?\n```js\nconsole.log(parseInt('10', 2));\n```",
-    options: ["10", "2", "5", "Error"],
-    correct: 1,
-    category: "Numbers",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "50",
-    question: "What is the output?\n```js\nconst x = [1, 2, 3];\nconst y = x;\ny = [4, 5, 6];\nconsole.log(x);\n```",
-    options: ["[1, 2, 3]", "[4, 5, 6]", "Error", "undefined"],
-    correct: 2,
-    category: "References",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "51",
-    question: "What is the output?\n```js\nconsole.log('5' - 3);\n```",
-    options: ["'53'", "2", "'2'", "NaN"],
-    correct: 1,
-    category: "Type Coercion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "52",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.find(x => x > 1));\n```",
-    options: ["[2, 3]", "2", "true", "undefined"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "53",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\nconst arr = [obj];\narr[0].a = 2;\nconsole.log(obj.a);\n```",
-    options: ["1", "2", "undefined", "Error"],
-    correct: 1,
-    category: "References",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "54",
-    question: "What is the output?\n```js\nconsole.log([] + []);\n```",
-    options: ["[]", "''", "'[][]'", "Error"],
-    correct: 1,
-    category: "Type Coercion",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "55",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.indexOf(2));\n```",
-    options: ["0", "1", "2", "-1"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "56",
-    question: "What is the output?\n```js\nconst x = 5;\nconst y = x++;\nconsole.log(x, y);\n```",
-    options: ["5 5", "6 5", "5 6", "6 6"],
-    correct: 1,
-    category: "Operators",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "57",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.some(x => x > 2));\n```",
-    options: ["true", "false", "[3]", "3"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "58",
-    question: "What is the output?\n```js\nconst obj = { a: 1, b: 2 };\nfor (let key in obj) {\n  console.log(key);\n}\n```",
-    options: ["1 2", "a b", "'a' 'b'", "undefined"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "59",
-    question: "What is the output?\n```js\nconsole.log(Math.max());\n```",
-    options: ["0", "undefined", "-Infinity", "Infinity"],
-    correct: 2,
-    category: "Math",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "60",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.every(x => x > 0));\n```",
-    options: ["true", "false", "[1, 2, 3]", "undefined"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "61",
-    question: "What is the output?\n```js\nconst str = 'hello';\nconsole.log(str.repeat(2));\n```",
-    options: ["'hello'", "'hellohello'", "'hheelllloo'", "Error"],
-    correct: 1,
-    category: "Strings",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "62",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3, 2, 1];\nconsole.log([...new Set(arr)]);\n```",
-    options: ["[1, 2, 3, 2, 1]", "[1, 2, 3]", "[1, 2]", "Error"],
-    correct: 1,
-    category: "Sets",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "63",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\nconst copy = { ...obj };\ncopy.a = 2;\nconsole.log(obj.a);\n```",
-    options: ["1", "2", "undefined", "Error"],
-    correct: 0,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "64",
-    question: "What is the output?\n```js\nconsole.log(!'');\n```",
-    options: ["true", "false", "''", "undefined"],
-    correct: 0,
-    category: "Boolean Conversion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "65",
-    question: "What is the output?\n```js\nconst arr = [1, [2, [3]]];\nconsole.log(arr.flat());\n```",
-    options: ["[1, 2, 3]", "[1, [2, [3]]]", "[1, 2, [3]]", "Error"],
-    correct: 2,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "66",
-    question: "What is the output?\n```js\nconst x = 1;\nconst y = '1';\nconsole.log(x == y && x === y);\n```",
-    options: ["true", "false", "undefined", "Error"],
-    correct: 1,
-    category: "Comparisons",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "67",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.join('-'));\n```",
-    options: ["'1-2-3'", "'123'", "[1-2-3]", "Error"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "68",
-    question: "What is the output?\n```js\nconst obj = { a: { b: 1 } };\nconst copy = { ...obj };\ncopy.a.b = 2;\nconsole.log(obj.a.b);\n```",
-    options: ["1", "2", "undefined", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "69",
-    question: "What is the output?\n```js\nconsole.log(true + false);\n```",
-    options: ["'truefalse'", "1", "0", "NaN"],
-    correct: 1,
-    category: "Type Coercion",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "70",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.reduce((a, b) => a + b, 0));\n```",
-    options: ["0", "6", "[1, 2, 3]", "Error"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "71",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\nObject.preventExtensions(obj);\nobj.b = 2;\nconsole.log(obj.b);\n```",
-    options: ["2", "undefined", "null", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "72",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.at(-1));\n```",
-    options: ["1", "2", "3", "undefined"],
-    correct: 2,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "73",
-    question: "What is the output?\n```js\nconst x = 10;\nconst y = x.toString();\nconsole.log(typeof y);\n```",
-    options: ["'number'", "'string'", "'object'", "'undefined'"],
-    correct: 1,
-    category: "Type Conversion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "74",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst [, b] = arr;\nconsole.log(b);\n```",
-    options: ["1", "2", "3", "undefined"],
-    correct: 1,
-    category: "Destructuring",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "75",
-    question: "What is the output?\n```js\nconsole.log([] == false);\n```",
-    options: ["true", "false", "undefined", "Error"],
-    correct: 0,
-    category: "Type Coercion",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "76",
-    question: "What is the output?\n```js\nconst func = function test() {};\nconsole.log(typeof test);\n```",
-    options: ["'function'", "'undefined'", "'object'", "ReferenceError"],
-    correct: 1,
-    category: "Functions",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "77",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.fill(0, 1, 2));\n```",
-    options: ["[0, 0, 0]", "[1, 0, 3]", "[0, 2, 3]", "[1, 2, 0]"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "78",
-    question: "What is the output?\n```js\nconst x = { a: 1 };\nconst y = Object.create(x);\nconsole.log(y.a);\n```",
-    options: ["undefined", "1", "null", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "79",
-    question: "What is the output?\n```js\nconsole.log('5' * '2');\n```",
-    options: ["'52'", "10", "'10'", "NaN"],
-    correct: 1,
-    category: "Type Coercion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "80",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.concat([4, 5]));\n```",
-    options: ["[1, 2, 3, 4, 5]", "[[1,2,3],[4,5]]", "[1, 2, 3]", "Error"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "81",
-    question: "What is the output?\n```js\nconst x = 1;\nconst y = 2;\nconsole.log(`${x}${y}`);\n```",
-    options: ["3", "'12'", "12", "Error"],
-    correct: 1,
-    category: "Template Literals",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "82",
-    question: "What is the output?\n```js\nconst obj = { a: 1, b: 2 };\nconsole.log(Object.keys(obj));\n```",
-    options: ["[1, 2]", "['a', 'b']", "{ a: 1, b: 2 }", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "83",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.flatMap(x => [x, x * 2]));\n```",
-    options: ["[1, 2, 2, 4, 3, 6]", "[[1, 2], [2, 4], [3, 6]]", "[1, 2, 3]", "Error"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "84",
-    question: "What is the output?\n```js\nconsole.log(Number(''));\n```",
-    options: ["0", "NaN", "undefined", "null"],
-    correct: 0,
-    category: "Type Conversion",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "85",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst result = arr.filter(() => false);\nconsole.log(result);\n```",
-    options: ["[1, 2, 3]", "[]", "false", "undefined"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "86",
-    question: "What is the output?\n```js\nconst x = { a: 1 };\nconst y = { b: 2 };\nconst z = { ...x, ...y };\nconsole.log(z);\n```",
-    options: ["{ a: 1 }", "{ b: 2 }", "{ a: 1, b: 2 }", "Error"],
-    correct: 2,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "87",
-    question: "What is the output?\n```js\nconsole.log(Boolean('false'));\n```",
-    options: ["true", "false", "'false'", "undefined"],
-    correct: 0,
-    category: "Boolean Conversion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "88",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.lastIndexOf(2));\n```",
-    options: ["0", "1", "2", "-1"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "89",
-    question: "What is the output?\n```js\nconst x = null;\nconsole.log(x ?? 'default');\n```",
-    options: ["null", "'default'", "undefined", "Error"],
-    correct: 1,
-    category: "Nullish Coalescing",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "90",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.shift());\n```",
-    options: ["1", "[1]", "[2, 3]", "3"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "91",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\nconsole.log('a' in obj);\n```",
-    options: ["true", "false", "1", "undefined"],
-    correct: 0,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "92",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\narr.unshift(0);\nconsole.log(arr);\n```",
-    options: ["[0, 1, 2, 3]", "[1, 2, 3, 0]", "[1, 2, 3]", "Error"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "93",
-    question: "What is the output?\n```js\nconsole.log(10 / 0);\n```",
-    options: ["0", "NaN", "Infinity", "Error"],
-    correct: 2,
-    category: "Numbers",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "94",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.slice(-2));\n```",
-    options: ["[1]", "[2, 3]", "[3]", "[-2]"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "95",
-    question: "What is the output?\n```js\nconst x = 'hello';\nconsole.log(x.charAt(0));\n```",
-    options: ["'h'", "0", "'hello'", "undefined"],
-    correct: 0,
-    category: "Strings",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "96",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.pop());\n```",
-    options: ["1", "2", "3", "[1, 2]"],
-    correct: 2,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "97",
-    question: "What is the output?\n```js\nconsole.log(Object.values({ a: 1, b: 2 }));\n```",
-    options: ["['a', 'b']", "[1, 2]", "{ a: 1, b: 2 }", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "98",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.findIndex(x => x > 1));\n```",
-    options: ["0", "1", "2", "-1"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "99",
-    question: "What is the output?\n```js\nconsole.log(String(123));\n```",
-    options: ["123", "'123'", "Error", "undefined"],
-    correct: 1,
-    category: "Type Conversion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "100",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3, 4, 5];\nconsole.log(arr.slice(1, -1));\n```",
-    options: ["[2, 3, 4]", "[1, 2, 3, 4]", "[2, 3, 4, 5]", "[1]"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "101",
-    question: "What is the output?\n```js\nconst x = [1, 2];\nconst y = [3, 4];\nconsole.log([...x, ...y]);\n```",
-    options: ["[[1,2],[3,4]]", "[1, 2, 3, 4]", "Error", "undefined"],
-    correct: 1,
-    category: "Spread Operator",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "102",
-    question: "What is the output?\n```js\nconsole.log(parseInt('10px'));\n```",
-    options: ["10", "NaN", "'10px'", "Error"],
-    correct: 0,
-    category: "Numbers",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "103",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\nconsole.log(obj.hasOwnProperty('a'));\n```",
-    options: ["true", "false", "1", "undefined"],
-    correct: 0,
-    category: "Objects",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "104",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.toString());\n```",
-    options: ["'[1,2,3]'", "'1,2,3'", "[1, 2, 3]", "Error"],
-    correct: 1,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "105",
-    question: "What is the output?\n```js\nconsole.log(!!0);\n```",
-    options: ["true", "false", "0", "undefined"],
-    correct: 1,
-    category: "Boolean Conversion",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "106",
-    question: "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.copyWithin(0, 1, 2));\n```",
-    options: ["[2, 2, 3]", "[1, 1, 2]", "[1, 2, 3]", "Error"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "107",
-    question: "What is the output?\n```js\nconsole.log(Array.isArray([]));\n```",
-    options: ["true", "false", "undefined", "Error"],
-    correct: 0,
-    category: "Arrays",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "108",
-    question: "What is the output?\n```js\nconst x = 5;\nconsole.log(x.toFixed(2));\n```",
-    options: ["5", "'5.00'", "5.00", "Error"],
-    correct: 1,
-    category: "Numbers",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "109",
-    question: "What is the output?\n```js\nconst obj = { a: 1 };\nconsole.log(Object.entries(obj));\n```",
-    options: ["['a', 1]", "[['a', 1]]", "{ a: 1 }", "Error"],
-    correct: 1,
-    category: "Objects",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "110",
-    question: "What is the output?\n```js\nconsole.log('hello'.toUpperCase());\n```",
-    options: ["'hello'", "'HELLO'", "'Hello'", "Error"],
-    correct: 1,
-    category: "Strings",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  
-  // CSS Questions
-  {
-    id: "C1",
-    question: "Which CSS property controls text size?",
-    options: ["font-style", "text-style", "font-size", "text-size"],
-    correct: 2,
-    category: "CSS",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "C2",
-    question: "What does 'display: flex' do?",
-    options: ["Makes text flexible", "Creates a flexbox container", "Hides element", "Makes element inline"],
-    correct: 1,
-    category: "CSS",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  {
-    id: "C3",
-    question: "Which property controls element stacking order?",
-    options: ["z-index", "stack-order", "layer", "position"],
-    correct: 0,
-    category: "CSS",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-  
-  // Riddles
-  {
-    id: "R1",
-    question: "Bridge and torch: 1,2,7,10 min to cross; one torch; two max per trip; slowest sets pace. Minimum total time?",
-    options: ["17 minutes", "19 minutes", "21 minutes", "23 minutes"],
-    correct: 0,
-    category: "Logic Puzzles",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "R2",
-    question: "You see a boat filled with people, yet there isn't a single person on board. How?",
-    options: ["They are invisible", "They are all married", "It's a ghost ship", "It's a painting"],
-    correct: 1,
-    category: "Logic Puzzles",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "R3",
-    question: "A farmer needs to carry a wolf, a goat, and a cabbage across a river with a boat that holds one item at a time. He can't leave the wolf with the goat or the goat with the cabbage. Minimum number of crossings?",
-    options: ["7 crossings", "9 crossings", "11 crossings", "13 crossings"],
-    correct: 0,
-    category: "Logic Puzzles",
-    difficulty: "Hard",
-    profile: 'frontend'
-  },
-  {
-    id: "R4",
-    question: "I speak without a mouth and hear without ears. I have nobody, but I come alive with wind. What am I?",
-    options: ["Echo", "Whistle", "Shadow", "Thought"],
-    correct: 0,
-    category: "Logic Puzzles",
-    difficulty: "Medium",
-    profile: 'frontend'
-  },
-  {
-    id: "R5",
-    question: "What gets wetter the more it dries?",
-    options: ["Sponge", "Towel", "Sun", "Cloud"],
-    correct: 1,
-    category: "Logic Puzzles",
-    difficulty: "Easy",
-    profile: 'frontend'
-  },
-
-  // ============ BACKEND (Java, Spring Boot) QUESTIONS ============
-  {
-    id: "B1",
-    question: "What is the difference between == and equals() in Java?",
-    options: ["No difference", "== compares references, equals() compares values", "== compares values, equals() compares references", "Both are identical"],
-    correct: 1,
-    category: "Java Basics",
-    difficulty: "Medium",
-    profile: "backend"
-  },
-  {
-    id: "B2",
-    question: "What does @Autowired annotation do in Spring?",
-    options: ["Creates a bean manually", "Injects dependencies automatically", "Marks a class as a service", "Defines a database transaction"],
-    correct: 1,
-    category: "Spring Boot",
-    difficulty: "Easy",
-    profile: "backend"
-  },
-  {
-    id: "B3",
-    question: "What is a microservice architecture?",
-    options: ["A monolithic application", "Breaking an app into small, independent services", "A single large service", "Only for large companies"],
-    correct: 1,
-    category: "Microservices",
-    difficulty: "Easy",
-    profile: "backend"
-  },
-  {
-    id: "B4",
-    question: "What is the difference between ArrayList and LinkedList in Java?",
-    options: ["No difference", "ArrayList uses arrays, LinkedList uses linked nodes", "LinkedList is faster", "ArrayList can only store strings"],
-    correct: 1,
-    category: "Data Structures",
-    difficulty: "Medium",
-    profile: "backend"
-  },
-  {
-    id: "B5",
-    question: "What does REST stand for?",
-    options: ["Rapid Execution Service Token", "Representational State Transfer", "Remote Exchange Service Terminal", "Resource Entry Service Tier"],
-    correct: 1,
-    category: "API Design",
-    difficulty: "Easy",
-    profile: "backend"
-  },
-  {
-    id: "B6",
-    question: "What is a transaction in databases?",
-    options: ["A payment", "A sequence of operations treated as a single unit", "A data backup", "A query result"],
-    correct: 1,
-    category: "Database",
-    difficulty: "Medium",
-    profile: "backend"
-  },
-  {
-    id: "B7",
-    question: "What is the purpose of Spring Data JPA?",
-    options: ["UI framework", "Simplifies database access through repositories", "API gateway", "Load balancing"],
-    correct: 1,
-    category: "Spring Boot",
-    difficulty: "Easy",
-    profile: "backend"
-  },
-  {
-    id: "B8",
-    question: "What is the difference between checked and unchecked exceptions in Java?",
-    options: ["No difference", "Checked must be declared/handled, unchecked don't need to be", "Checked are for bugs, unchecked are for errors", "They're the same"],
-    correct: 1,
-    category: "Exception Handling",
-    difficulty: "Medium",
-    profile: "backend"
-  },
-  {
-    id: "B9",
-    question: "What does ACID stand for in database transactions?",
-    options: ["Automatic Coding In Database", "Atomicity, Consistency, Isolation, Durability", "Application Control & Isolation Data", "None of the above"],
-    correct: 1,
-    category: "Database",
-    difficulty: "Hard",
-    profile: "backend"
-  },
-  {
-    id: "B10",
-    question: "What is dependency injection?",
-    options: ["Adding more features", "Providing objects their dependencies instead of creating them", "Reducing dependencies", "A design anti-pattern"],
-    correct: 1,
-    category: "Design Patterns",
-    difficulty: "Medium",
-    profile: "backend"
-  },
-  {
-    id: "P1",
-    question: "What does 'product-market fit' mean?",
-    options: ["Product matches company size", "Product satisfies strong market demand", "Product has good marketing", "Product is profitable"],
-    correct: 1,
-    category: "Product Strategy",
-    difficulty: "Easy",
-    profile: "product"
-  },
-  {
-    id: "P2",
-    question: "What is a KPI?",
-    options: ["A type of software", "Key Performance Indicator", "A project management tool", "A pricing model"],
-    correct: 1,
-    category: "Metrics",
-    difficulty: "Easy",
-    profile: "product"
-  },
-  {
-    id: "P3",
-    question: "What is the purpose of a PRD (Product Requirements Document)?",
-    options: ["To define the product vision and requirements", "To replace the CEO", "To be a legal document", "None of the above"],
-    correct: 0,
-    category: "Documentation",
-    difficulty: "Easy",
-    profile: "product"
-  },
-  {
-    id: "P4",
-    question: "What is user segmentation?",
-    options: ["Splitting the code", "Dividing users into groups based on characteristics", "Removing inactive users", "Ranking users by activity"],
-    correct: 1,
-    category: "User Research",
-    difficulty: "Medium",
-    profile: "product"
-  },
-  {
-    id: "P5",
-    question: "What does DAU stand for?",
-    options: ["Data Analysis Unit", "Daily Active Users", "Design Architecture Update", "Data Access URL"],
-    correct: 1,
-    category: "Metrics",
-    difficulty: "Easy",
-    profile: "product"
-  },
-  {
-    id: "P6",
-    question: "What is a feature roadmap?",
-    options: ["A physical map", "A timeline of planned features to be released", "A bug list", "User feedback"],
-    correct: 1,
-    category: "Planning",
-    difficulty: "Easy",
-    profile: "product"
-  },
-  {
-    id: "P7",
-    question: "What is cohort analysis?",
-    options: ["Team meeting format", "Analyzing groups of users with shared characteristics over time", "Revenue analysis", "Competitor analysis"],
-    correct: 1,
-    category: "Analytics",
-    difficulty: "Hard",
-    profile: "product"
-  },
-  {
-    id: "P8",
-    question: "What is an MoM (Month-over-Month) growth rate?",
-    options: ["Management style", "Change in a metric from one month to the next", "Team size change", "Budget allocation"],
-    correct: 1,
-    category: "Metrics",
-    difficulty: "Medium",
-    profile: "product"
-  },
-  {
-    id: "P9",
-    question: "What is a product pivot?",
-    options: ["Turning the product physically", "Changing the product strategy based on market feedback", "Hiring new staff", "Increasing price"],
-    correct: 1,
-    category: "Strategy",
-    difficulty: "Medium",
-    profile: "product"
-  },
-  {
-    id: "P10",
-    question: "What is NPS (Net Promoter Score)?",
-    options: ["Net Product Sales", "Measure of customer loyalty and satisfaction", "New Product Strategy", "Number of Project Stakeholders"],
-    correct: 1,
-    category: "Metrics",
-    difficulty: "Medium",
-    profile: "product"
-  },
-  {
-    id: "H1",
-    question: "What is employer branding?",
-    options: ["Company logo design", "How a company is perceived as an employer", "Marketing campaigns", "Social media presence"],
-    correct: 1,
-    category: "Recruitment",
-    difficulty: "Easy",
-    profile: "hr"
-  },
-  {
-    id: "H2",
-    question: "What is employee retention?",
-    options: ["Storing employee data", "Keeping valuable employees in the organization", "Employee training", "Performance reviews"],
-    correct: 1,
-    category: "Talent Management",
-    difficulty: "Easy",
-    profile: "hr"
-  },
-  {
-    id: "H3",
-    question: "What does 'at-will employment' mean?",
-    options: ["Employee can work when they want", "Either party can end employment without cause", "Only for executives", "A European concept"],
-    correct: 1,
-    category: "Employment Law",
-    difficulty: "Medium",
-    profile: "hr"
-  },
-  {
-    id: "H4",
-    question: "What is an onboarding process?",
-    options: ["Shipping products", "Process of integrating new employees", "Training veterans", "Retirement program"],
-    correct: 1,
-    category: "Talent Management",
-    difficulty: "Easy",
-    profile: "hr"
-  },
-  {
-    id: "H5",
-    question: "What is employee engagement?",
-    options: ["Hiring process", "Level of commitment and involvement employees have", "Office parties", "Salary increases"],
-    correct: 1,
-    category: "Culture",
-    difficulty: "Easy",
-    profile: "hr"
-  },
-  {
-    id: "H6",
-    question: "What is a 360-degree feedback?",
-    options: ["Circular office layout", "Feedback from managers, peers, and subordinates", "Monthly reviews", "Customer feedback"],
-    correct: 1,
-    category: "Performance Management",
-    difficulty: "Medium",
-    profile: "hr"
-  },
-  {
-    id: "H7",
-    question: "What does ATS stand for in recruitment?",
-    options: ["Application Training System", "Applicant Tracking System", "Average Test Score", "Automatic Task System"],
-    correct: 1,
-    category: "Recruitment",
-    difficulty: "Easy",
-    profile: "hr"
-  },
-  {
-    id: "H8",
-    question: "What is succession planning?",
-    options: ["Planning company events", "Preparing employees for future leadership roles", "Sales strategy", "Marketing plan"],
-    correct: 1,
-    category: "Talent Management",
-    difficulty: "Medium",
-    profile: "hr"
-  },
-  {
-    id: "H9",
-    question: "What is organizational culture?",
-    options: ["Company art collection", "Shared values, beliefs, and behaviors of an organization", "Office decoration", "Holiday celebrations"],
-    correct: 1,
-    category: "Culture",
-    difficulty: "Medium",
-    profile: "hr"
-  },
-  {
-    id: "H10",
-    question: "What is employee turnover?",
-    options: ["Staff rotation", "Rate at which employees leave a company", "Shift changes", "Promotion"],
-    correct: 1,
-    category: "Talent Management",
-    difficulty: "Easy",
-    profile: "hr"
-  },
-  {
-    id: "S1",
-    question: "What is a sales pipeline?",
-    options: ["Physical pipes for products", "Stages of potential sales from prospect to close", "Marketing funnel", "Distribution channel"],
-    correct: 1,
-    category: "Sales Strategy",
-    difficulty: "Easy",
-    profile: "business"
-  },
-  {
-    id: "S2",
-    question: "What does CRM stand for?",
-    options: ["Customer Relationship Management", "Corporate Revenue Model", "Client Resources Module", "Commercial Retail Management"],
-    correct: 0,
-    category: "Sales Tools",
-    difficulty: "Easy",
-    profile: "business"
-  },
-  {
-    id: "S3",
-    question: "What is a sales quota?",
-    options: ["Company policy", "Target amount a salesperson is expected to sell", "Discount percentage", "Commission rate"],
-    correct: 1,
-    category: "Sales Metrics",
-    difficulty: "Easy",
-    profile: "business"
-  },
-  {
-    id: "S4",
-    question: "What is B2B sales?",
-    options: ["Business to Business", "Business to Bitcoin", "Business to Buyer", "Bulk to Business"],
-    correct: 0,
-    category: "Sales Models",
-    difficulty: "Easy",
-    profile: "business"
-  },
-  {
-    id: "S5",
-    question: "What is customer acquisition cost (CAC)?",
-    options: ["Total company profit", "Average cost to acquire a new customer", "Customer loyalty cost", "Product development cost"],
-    correct: 1,
-    category: "Business Metrics",
-    difficulty: "Medium",
-    profile: "business"
-  },
-  {
-    id: "S6",
-    question: "What is LTV (Lifetime Value)?",
-    options: ["Latest Transaction Value", "Total revenue from a customer over their relationship", "Line Transaction Value", "Loan Transaction Value"],
-    correct: 1,
-    category: "Business Metrics",
-    difficulty: "Medium",
-    profile: "business"
-  },
-  {
-    id: "S7",
-    question: "What is a channel partner?",
-    options: ["TV network", "Organization that sells your products/services", "Sales manager", "Marketing team"],
-    correct: 1,
-    category: "Partnerships",
-    difficulty: "Medium",
-    profile: "business"
-  },
-  {
-    id: "S8",
-    question: "What is enterprise sales?",
-    options: ["Selling computers", "Selling to large organizations with complex needs", "Retail sales", "Online sales"],
-    correct: 1,
-    category: "Sales Models",
-    difficulty: "Medium",
-    profile: "business"
-  },
-  {
-    id: "S9",
-    question: "What does SLA stand for?",
-    options: ["Sales Leadership Agreement", "Service Level Agreement", "Sales Level Analysis", "Strategic Learning Agreement"],
-    correct: 1,
-    category: "Contracts",
-    difficulty: "Medium",
-    profile: "business"
-  },
-  {
-    id: "S10",
-    question: "What is churn rate?",
-    options: ["Product mixing", "Percentage of customers who stop using service", "Sales growth", "Market expansion"],
-    correct: 1,
-    category: "Business Metrics",
-    difficulty: "Medium",
-    profile: "business"
-  },
-
-  // ============ ADDITIONAL BACKEND QUESTIONS (90 more) ============
-  {"id":"B11","question":"What is the purpose of the synchronized keyword?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B12","question":"What is the purpose of the volatile keyword?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B13","question":"What is the purpose of the final keyword?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Easy","profile":"backend"},
-  {"id":"B14","question":"What is the purpose of the static keyword?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B15","question":"What is the purpose of the transient keyword?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Hard","profile":"backend"},
-  {"id":"B16","question":"What is the purpose of the interface?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Easy","profile":"backend"},
-  {"id":"B17","question":"What is the purpose of the abstract class?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B18","question":"What is the purpose of the enum?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Easy","profile":"backend"},
-  {"id":"B19","question":"What is the purpose of the annotation?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B20","question":"What is the purpose of the generics?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B21","question":"What is the purpose of the reflection?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Hard","profile":"backend"},
-  {"id":"B22","question":"What is the purpose of the serialization?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B23","question":"What is the purpose of the multithreading?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B24","question":"What is the purpose of the lambda expression?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Medium","profile":"backend"},
-  {"id":"B25","question":"What is the purpose of the stream api?","options":["Thread safety","Enables thread sync","Speeds up code","Allows defaults","Skips serialization","Multiple inheritance","Template pattern","All of above","Metadata support","Flexible collections","Method inspection","All of above","Multiple threads","Concise syntax","Lazy evaluation"],"correct":0,"category":"Java Advanced","difficulty":"Hard","profile":"backend"},
-  {"id":"B26","question":"Explain Spring MVC?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Easy","profile":"backend"},
-  {"id":"B27","question":"Explain Spring Boot?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Easy","profile":"backend"},
-  {"id":"B28","question":"Explain Spring Cloud?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Medium","profile":"backend"},
-  {"id":"B29","question":"Explain API Gateway?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Medium","profile":"backend"},
-  {"id":"B30","question":"Explain Service Registry?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Medium","profile":"backend"},
-  {"id":"B31","question":"Explain Circuit Breaker?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Hard","profile":"backend"},
-  {"id":"B32","question":"Explain Load Balancing?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Medium","profile":"backend"},
-  {"id":"B33","question":"Explain Message Queue?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Medium","profile":"backend"},
-  {"id":"B34","question":"Explain Caching Strategy?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Medium","profile":"backend"},
-  {"id":"B35","question":"Explain Security?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Medium","profile":"backend"},
-  {"id":"B36","question":"Explain OAuth 2.0?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Hard","profile":"backend"},
-  {"id":"B37","question":"Explain JWT tokens?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Hard","profile":"backend"},
-  {"id":"B38","question":"Explain Docker?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Medium","profile":"backend"},
-  {"id":"B39","question":"Explain Kubernetes?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Hard","profile":"backend"},
-  {"id":"B40","question":"Explain CI/CD?","options":["MVC pattern","Embedded server","Microservices","All of above","Service discovery","Request fallback","Fault tolerance","All of above","Redis","Authorization","Third-party auth","All of above","Containerization","Container management","Automation"],"correct":3,"category":"Spring & Microservices","difficulty":"Hard","profile":"backend"},
-  {"id":"B41","question":"What is Normalization?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Easy","profile":"backend"},
-  {"id":"B42","question":"What is Denormalization?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Medium","profile":"backend"},
-  {"id":"B43","question":"What is Indexing?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Easy","profile":"backend"},
-  {"id":"B44","question":"What is Primary Key?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Easy","profile":"backend"},
-  {"id":"B45","question":"What is Foreign Key?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Easy","profile":"backend"},
-  {"id":"B46","question":"What is JOIN?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Easy","profile":"backend"},
-  {"id":"B47","question":"What is Trigger?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Medium","profile":"backend"},
-  {"id":"B48","question":"What is Stored Procedure?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Medium","profile":"backend"},
-  {"id":"B49","question":"What is View?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Easy","profile":"backend"},
-  {"id":"B50","question":"What is Constraint?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Medium","profile":"backend"},
-  {"id":"B51","question":"What is ACID?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Easy","profile":"backend"},
-  {"id":"B52","question":"What is Partitioning?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Hard","profile":"backend"},
-  {"id":"B53","question":"What is Replication?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Hard","profile":"backend"},
-  {"id":"B54","question":"What is Backup?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Medium","profile":"backend"},
-  {"id":"B55","question":"What is Query Optimization?","options":["Data organization","Improve performance","Sort optimization","All of above","Table relationship","Inner/Outer/Cross","Business logic","All of above","Virtual table","Data validation","Isolation","All of above","Data copying","Disaster recovery","Execution plan"],"correct":3,"category":"Database & SQL","difficulty":"Hard","profile":"backend"},
-  {"id":"B56","question":"Describe the Singleton pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Easy","profile":"backend"},
-  {"id":"B57","question":"Describe the Factory pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Easy","profile":"backend"},
-  {"id":"B58","question":"Describe the Builder pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Medium","profile":"backend"},
-  {"id":"B59","question":"Describe the Observer pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Medium","profile":"backend"},
-  {"id":"B60","question":"Describe the Strategy pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Medium","profile":"backend"},
-  {"id":"B61","question":"Describe the Adapter pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Medium","profile":"backend"},
-  {"id":"B62","question":"Describe the Facade pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Medium","profile":"backend"},
-  {"id":"B63","question":"Describe the Proxy pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Medium","profile":"backend"},
-  {"id":"B64","question":"Describe the Repository pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Hard","profile":"backend"},
-  {"id":"B65","question":"Describe the DAO pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Medium","profile":"backend"},
-  {"id":"B66","question":"Describe the MVC pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Easy","profile":"backend"},
-  {"id":"B67","question":"Describe the SOLID pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Hard","profile":"backend"},
-  {"id":"B68","question":"Describe the DDD pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Hard","profile":"backend"},
-  {"id":"B69","question":"Describe the Event-Driven pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Hard","profile":"backend"},
-  {"id":"B70","question":"Describe the Reactive pattern/principle","options":["One instance","Hide complexity","Immutability","All of above","Algorithm selection","Wrapper pattern","Subsystem wrapper","All of above","Data abstraction","Persistence layer","Maintainability","All of above","Domain-Driven","Loose coupling","High throughput"],"correct":3,"category":"Design Patterns","difficulty":"Hard","profile":"backend"},
-  {"id":"B71","question":"What is Unit Testing?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Easy","profile":"backend"},
-  {"id":"B72","question":"What is Integration Testing?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Easy","profile":"backend"},
-  {"id":"B73","question":"What is JUnit?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Easy","profile":"backend"},
-  {"id":"B74","question":"What is Mockito?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Easy","profile":"backend"},
-  {"id":"B75","question":"What is Maven?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Easy","profile":"backend"},
-  {"id":"B76","question":"What is Gradle?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Medium","profile":"backend"},
-  {"id":"B77","question":"What is Jenkins?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Medium","profile":"backend"},
-  {"id":"B78","question":"What is Git?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Easy","profile":"backend"},
-  {"id":"B79","question":"What is REST API Testing?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Medium","profile":"backend"},
-  {"id":"B80","question":"What is Performance Testing?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Medium","profile":"backend"},
-  {"id":"B81","question":"What is Security Testing?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Hard","profile":"backend"},
-  {"id":"B82","question":"What is Load Testing?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Hard","profile":"backend"},
-  {"id":"B83","question":"What is Deployment?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Medium","profile":"backend"},
-  {"id":"B84","question":"What is Blue-Green?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Hard","profile":"backend"},
-  {"id":"B85","question":"What is Monitoring?","options":["Test individual units","System testing","Assertions","All of above","Build automation","Groovy DSL","Deployment","All of above","HTTP requests","Load capacity","Security audit","All of above","Release to production","Quick rollback","Alert triggers"],"correct":3,"category":"Testing & DevOps","difficulty":"Medium","profile":"backend"},
-  {"id":"B86","question":"How would you handle Scaling a monolith?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B87","question":"How would you handle Database bottleneck?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B88","question":"How would you handle Memory leak?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B89","question":"How would you handle Deadlock?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B90","question":"How would you handle Race condition?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B91","question":"How would you handle Timeout issue?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B92","question":"How would you handle OutOfMemory?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B93","question":"How would you handle High latency?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B94","question":"How would you handle Data consistency?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B95","question":"How would you handle Concurrent requests?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B96","question":"How would you handle Session management?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B97","question":"How would you handle Error recovery?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B98","question":"How would you handle Code review?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Medium","profile":"backend"},
-  {"id":"B99","question":"How would you handle Technical debt?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-  {"id":"B100","question":"How would you handle Performance issue?","options":["Break into microservices","Query optimization","Object references","All of above","Synchronization","Increase timeout","Memory profiling","All of above","ACID compliance","Queue management","Token-based","All of above","Peer review","Documentation","Caching"],"correct":3,"category":"Scenario-based","difficulty":"Hard","profile":"backend"},
-
-  // ============ ADDITIONAL PRODUCT MANAGER QUESTIONS (90 more) ============
-  {"id":"P11","question":"What is Minimum Viable Product?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Easy","profile":"product"},
-  {"id":"P12","question":"What is User Stories?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Easy","profile":"product"},
-  {"id":"P13","question":"What is Acceptance Criteria?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Easy","profile":"product"},
-  {"id":"P14","question":"What is Wireframe?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Easy","profile":"product"},
-  {"id":"P15","question":"What is Prototype?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P16","question":"What is A/B Testing?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P17","question":"What is Conversion Rate?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Easy","profile":"product"},
-  {"id":"P18","question":"What is Retention Rate?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Easy","profile":"product"},
-  {"id":"P19","question":"What is Funnel Analysis?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P20","question":"What is Competitive Analysis?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P21","question":"What is Market Segmentation?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P22","question":"What is Value Proposition?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Easy","profile":"product"},
-  {"id":"P23","question":"What is Feature Prioritization?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P24","question":"What is RICE Framework?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P25","question":"What is MoSCoW Method?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P26","question":"What is Stakeholder Map?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P27","question":"What is User Journey?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P28","question":"What is Jobs to be Done?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P29","question":"What is OKRs?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P30","question":"What is SMART Goals?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Easy","profile":"product"},
-  {"id":"P31","question":"What is Pivot?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P32","question":"What is Scale?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P33","question":"What is Monetization?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P34","question":"What is Subscription Model?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P35","question":"What is Freemium?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P36","question":"What is In-app Purchase?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P37","question":"What is Customer Lifetime Value?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P38","question":"What is Unit Economics?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P39","question":"What is Burn Rate?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Medium","profile":"product"},
-  {"id":"P40","question":"What is Runway?","options":["Minimum features","Behavior scenarios","Success definition","All of above","Working model","Test changes","Success measure","All of above","User drop points","Market position","Psychographics","All of above","User impact","Scoring method","Ranking","All of above","User flow","Pain points","Alignment","All of above","Strategic change","Market expansion","Pricing strategy","All of above","Free + Premium","Monetization","Payback period","All of above","Money spent monthly","Timeline planning"],"correct":3,"category":"Product Management","difficulty":"Hard","profile":"product"},
-  {"id":"P41","question":"How do you handle Feature requests?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P42","question":"How do you handle Scope creep?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P43","question":"How do you handle Changing requirements?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P44","question":"How do you handle User feedback conflict?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P45","question":"How do you handle Technical constraints?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P46","question":"How do you handle Timeline pressure?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P47","question":"How do you handle Budget limitations?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P48","question":"How do you handle Team disagreement?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P49","question":"How do you handle Market research?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P50","question":"How do you handle Competitor threat?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P51","question":"How do you handle Product launch?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P52","question":"How do you handle Post-launch issues?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P53","question":"How do you handle User churn?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P54","question":"How do you handle Pricing strategy?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P55","question":"How do you handle Platform decision?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","difficulty":"Hard","profile":"product"},
-  {"id":"P56","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P57","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P58","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P59","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P60","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P61","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P62","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P63","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P64","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P65","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P66","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P67","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P68","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P69","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P70","question":"How do you handle undefined?","options":["Evaluate impact","Stakeholder alignment","Stakeholder meeting","All of above","Find workarounds","Set realistic goals","MVP strategy","All of above","Surveys","Feature comparison","Feedback collection","All of above","Retention analysis","Customer research","Resource planning"],"correct":3,"category":"Problem-Solving","profile":"product"},
-  {"id":"P71","question":"Explain the Product Lifecycle stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P72","question":"Explain the Introduction stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P73","question":"Explain the Growth stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P74","question":"Explain the Maturity stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P75","question":"Explain the Decline stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P76","question":"Explain the Tech Stack Decision stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P77","question":"Explain the Platform Scaling stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P78","question":"Explain the Data Privacy stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P79","question":"Explain the Accessibility stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P80","question":"Explain the Internationalization stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P81","question":"Explain the SEO Strategy stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P82","question":"Explain the Content Strategy stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P83","question":"Explain the Community Building stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P84","question":"Explain the Partnership stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P85","question":"Explain the Acquisition Strategy stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P86","question":"Explain the Retention Strategy stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P87","question":"Explain the Engagement Metrics stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P88","question":"Explain the Product Roadmap stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P89","question":"Explain the Vision Statement stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P90","question":"Explain the Mission Statement stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P91","question":"Explain the Innovation stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P92","question":"Explain the Experimentation stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P93","question":"Explain the Agile Methodology stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P94","question":"Explain the Scrum stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-  {"id":"P95","question":"Explain the Kanban stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Easy","profile":"product"},
-  {"id":"P96","question":"Explain the Design Thinking stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P97","question":"Explain the Lean Startup stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P98","question":"Explain the Growth Hacking stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P99","question":"Explain the Viral Coefficient stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Hard","profile":"product"},
-  {"id":"P100","question":"Explain the Net Promoter Score stage/concept?","options":["Stages of product","Build awareness","Competition","All of above","Product obsolescence","Architecture","Stability","All of above","Inclusive design","Regional features","Discoverability","All of above","User connection","Growth opportunity","Revenue growth","All of above","Usage patterns","Timeline","Core mission","All of above","New ideas","Data validation","Team collaboration","All of above","Continuous flow","User-centric","Learning","All of above","User recommends","Satisfaction score"],"correct":3,"category":"Product Concepts","difficulty":"Medium","profile":"product"},
-
-  // ============ ADDITIONAL HR QUESTIONS (90 more) ============
-  {"id":"H11","question":"What is Job Description?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H12","question":"What is Job Analysis?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H13","question":"What is Competency Framework?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H14","question":"What is HRIS?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H15","question":"What is Performance Appraisal?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H16","question":"What is Calibration?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Hard","profile":"hr"},
-  {"id":"H17","question":"What is Feedback?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H18","question":"What is 360 Degree Review?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H19","question":"What is Skip Level Meeting?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H20","question":"What is Town Hall?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H21","question":"What is Compensation?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H22","question":"What is Benefits?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H23","question":"What is Equity/Stock Options?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Hard","profile":"hr"},
-  {"id":"H24","question":"What is Bonus Structure?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H25","question":"What is Incentive Plan?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H26","question":"What is Career Development?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Hard","profile":"hr"},
-  {"id":"H27","question":"What is Mentorship?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H28","question":"What is Coaching?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Hard","profile":"hr"},
-  {"id":"H29","question":"What is Training?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H30","question":"What is Learning Path?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Hard","profile":"hr"},
-  {"id":"H31","question":"What is Conflict Resolution?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H32","question":"What is Disciplinary Action?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H33","question":"What is Separation?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H34","question":"What is Exit Interview?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Medium","profile":"hr"},
-  {"id":"H35","question":"What is Reference Check?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","difficulty":"Easy","profile":"hr"},
-  {"id":"H36","question":"What is undefined?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","profile":"hr"},
-  {"id":"H37","question":"What is undefined?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","profile":"hr"},
-  {"id":"H38","question":"What is undefined?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","profile":"hr"},
-  {"id":"H39","question":"What is undefined?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","profile":"hr"},
-  {"id":"H40","question":"What is undefined?","options":["Role definition","Requirements analysis","Knowledge","All of above","Performance evaluation","Consensus","Recognition","All of above","Manager meeting","Leadership talk","Benefits","All of above","Employee ownership","Incentive","Performance drive","All of above","Learning guide","Skill development","Competency development","All of above","Dispute resolution","Warning","Termination","All of above","Employer verification"],"correct":3,"category":"HR Processes","profile":"hr"},
-  {"id":"H41","question":"How do you address Low employee engagement?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H42","question":"How do you address High turnover?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H43","question":"How do you address Toxic culture?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H44","question":"How do you address Lack of diversity?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H45","question":"How do you address Poor communication?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H46","question":"How do you address Compensation issues?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H47","question":"How do you address Work-life balance?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H48","question":"How do you address Burnout?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H49","question":"How do you address Conflict between teams?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H50","question":"How do you address Resistance to change?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H51","question":"How do you address Skills gap?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H52","question":"How do you address Remote work challenges?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H53","question":"How do you address Performance issues?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H54","question":"How do you address Absence management?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H55","question":"How do you address Wellness program?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","difficulty":"Hard","profile":"hr"},
-  {"id":"H56","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H57","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H58","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H59","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H60","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H61","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H62","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H63","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H64","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H65","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H66","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H67","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H68","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H69","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H70","question":"How do you address undefined?","options":["Survey","Retention strategy","Accountability","All of above","Regular updates","Adjustment","Boundary setting","All of above","Mediation","Training","Development","All of above","Clear goals","Rehabilitation","Preventive care"],"correct":3,"category":"HR Challenges","profile":"hr"},
-  {"id":"H71","question":"Explain the role of HR in Employer Branding?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Medium","profile":"hr"},
-  {"id":"H72","question":"Explain the role of HR in Onboarding Process?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Easy","profile":"hr"},
-  {"id":"H73","question":"Explain the role of HR in Employee Handbook?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Easy","profile":"hr"},
-  {"id":"H74","question":"Explain the role of HR in Code of Conduct?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Easy","profile":"hr"},
-  {"id":"H75","question":"Explain the role of HR in Confidentiality Agreements?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H76","question":"Explain the role of HR in Non-Compete Clause?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H77","question":"Explain the role of HR in Labor Laws?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H78","question":"Explain the role of HR in FMLA?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H79","question":"Explain the role of HR in ADA?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H80","question":"Explain the role of HR in EEOC?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H81","question":"Explain the role of HR in Payroll?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Easy","profile":"hr"},
-  {"id":"H82","question":"Explain the role of HR in Tax Compliance?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H83","question":"Explain the role of HR in Insurance?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Easy","profile":"hr"},
-  {"id":"H84","question":"Explain the role of HR in Pension?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H85","question":"Explain the role of HR in Workforce Planning?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H86","question":"Explain the role of HR in Succession Planning?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H87","question":"Explain the role of HR in Talent Pipeline?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Medium","profile":"hr"},
-  {"id":"H88","question":"Explain the role of HR in Internal Mobility?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H89","question":"Explain the role of HR in Promotion Criteria?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H90","question":"Explain the role of HR in Leadership Development?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","difficulty":"Hard","profile":"hr"},
-  {"id":"H91","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H92","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H93","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H94","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H95","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H96","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H97","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H98","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H99","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-  {"id":"H100","question":"Explain the role of HR in undefined?","options":["Company reputation","Training","Guidelines","All of above","Trade secrets protection","Legal enforcement","Protection","All of above","Disability accommodation","Equal treatment","Accuracy","All of above","Health coverage","Financial security","Budget planning","All of above","Internal candidates","Growth opportunities","Fairness","All of above"],"correct":3,"category":"HR Strategy","profile":"hr"},
-
-  // ============ QA QUESTIONS (100 new) ============
-  {"id":"Q1","question":"What is Quality Assurance?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q2","question":"What is Test Case?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q3","question":"What is Test Plan?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q4","question":"What is Test Suite?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q5","question":"What is Regression Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q6","question":"What is Smoke Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q7","question":"What is Sanity Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q8","question":"What is Exploratory Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Medium","profile":"qa"},
-  {"id":"Q9","question":"What is Ad-hoc Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Medium","profile":"qa"},
-  {"id":"Q10","question":"What is Functional Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q11","question":"What is Non-functional Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q12","question":"What is Performance Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Medium","profile":"qa"},
-  {"id":"Q13","question":"What is Security Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q14","question":"What is Usability Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Medium","profile":"qa"},
-  {"id":"Q15","question":"What is Compatibility Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q16","question":"What is API Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Medium","profile":"qa"},
-  {"id":"Q17","question":"What is UI Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q18","question":"What is Database Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q19","question":"What is Integration Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q20","question":"What is System Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q21","question":"What is User Acceptance Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q22","question":"What is Alpha Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q23","question":"What is Beta Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q24","question":"What is Localization Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q25","question":"What is Accessibility Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q26","question":"What is Load Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Medium","profile":"qa"},
-  {"id":"Q27","question":"What is Stress Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q28","question":"What is Volume Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q29","question":"What is Endurance Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q30","question":"What is Spike Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q31","question":"What is Break Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q32","question":"What is Chaos Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q33","question":"What is Mutation Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Hard","profile":"qa"},
-  {"id":"Q34","question":"What is Static Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q35","question":"What is Dynamic Testing?","options":["Quality process","Steps to follow","Schedule","All of above","Repeat tests","Critical path","Post-build","All of above","Random testing","Requirements","Stress testing","All of above","Vulnerability testing","Ease of use","Devices","All of above","User interface","Queries","Data flow","All of above","User acceptance","Feature complete","Before release","All of above","Disabled user access","Traffic handling","Extreme conditions","All of above","Long duration","System behavior","Extreme stress","All of above","Code modification","Code review","Observe behavior"],"correct":3,"category":"QA Concepts","difficulty":"Easy","profile":"qa"},
-  {"id":"Q36","question":"How do you handle Bug reporting?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Easy","profile":"qa"},
-  {"id":"Q37","question":"How do you handle Bug severity?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q38","question":"How do you handle Bug priority?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q39","question":"How do you handle Defect lifecycle?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q40","question":"How do you handle Root cause analysis?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q41","question":"How do you handle Defect prevention?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q42","question":"How do you handle Test data management?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q43","question":"How do you handle Test automation?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q44","question":"How do you handle CI/CD integration?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q45","question":"How do you handle Version control?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Easy","profile":"qa"},
-  {"id":"Q46","question":"How do you handle Test documentation?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Easy","profile":"qa"},
-  {"id":"Q47","question":"How do you handle Traceability?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q48","question":"How do you handle Coverage analysis?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q49","question":"How do you handle Boundary value analysis?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q50","question":"How do you handle Equivalence partitioning?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q51","question":"How do you handle Pairwise testing?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q52","question":"How do you handle Decision table testing?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q53","question":"How do you handle State transition?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q54","question":"How do you handle Error guessing?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q55","question":"How do you handle Critical path analysis?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q56","question":"How do you handle Risk assessment?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q57","question":"How do you handle Test matrix?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q58","question":"How do you handle Defect clustering?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q59","question":"How do you handle Test completion?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q60","question":"How do you handle Sign-off?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Easy","profile":"qa"},
-  {"id":"Q61","question":"How do you handle Escalation?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q62","question":"How do you handle Test metrics?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q63","question":"How do you handle Reliability?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q64","question":"How do you handle Test optimization?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q65","question":"How do you handle Cost-benefit analysis?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q66","question":"How do you handle Vendor evaluation?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q67","question":"How do you handle Tool selection?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q68","question":"How do you handle Team training?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Medium","profile":"qa"},
-  {"id":"Q69","question":"How do you handle Best practices?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Easy","profile":"qa"},
-  {"id":"Q70","question":"How do you handle Continuous improvement?","options":["Document issue","Critical/High/Low","Business impact","All of above","Why bug occurred","Quality gates","Validity","All of above","Test in pipeline","Branching","Results","All of above","Test execution","Edge cases","Testing efficiency","All of above","Decision matrix","Transitions","Creative","All of above","Potential issues","Tracking","Root cause","All of above","Stakeholder approval","Management","Quality metrics","All of above","Efficiency improvement","Resource vs benefit","Integration","All of above","Knowledge sharing","Standards","Effectiveness"],"correct":3,"category":"QA Processes","difficulty":"Hard","profile":"qa"},
-  {"id":"Q71","question":"Explain the importance of Test Independence?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q72","question":"Explain the importance of Test Repeatability?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Easy","profile":"qa"},
-  {"id":"Q73","question":"Explain the importance of Test Isolation?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q74","question":"Explain the importance of Test Maintainability?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q75","question":"Explain the importance of Test Scalability?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q76","question":"Explain the importance of Defect Prioritization?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q77","question":"Explain the importance of Test Environment?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Easy","profile":"qa"},
-  {"id":"Q78","question":"Explain the importance of Sanity Check?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Easy","profile":"qa"},
-  {"id":"Q79","question":"Explain the importance of Baseline Testing?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Easy","profile":"qa"},
-  {"id":"Q80","question":"Explain the importance of Retesting?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q81","question":"Explain the importance of Confirmation Testing?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q82","question":"Explain the importance of Test Estimation?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q83","question":"Explain the importance of Resource Planning?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q84","question":"Explain the importance of Test Coverage?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Easy","profile":"qa"},
-  {"id":"Q85","question":"Explain the importance of Code Coverage?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q86","question":"Explain the importance of Branch Coverage?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q87","question":"Explain the importance of Condition Coverage?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q88","question":"Explain the importance of Path Coverage?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q89","question":"Explain the importance of Traceability Matrix?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q90","question":"Explain the importance of Requirement Mapping?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q91","question":"Explain the importance of Test-to-Bug Ratio?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q92","question":"Explain the importance of Escape Rate?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q93","question":"Explain the importance of Quality Gates?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q94","question":"Explain the importance of Milestone Criteria?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q95","question":"Explain the importance of Release Criteria?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"},
-  {"id":"Q96","question":"Explain the importance of Acceptance Testing?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Easy","profile":"qa"},
-  {"id":"Q97","question":"Explain the importance of Batch Testing?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q98","question":"Explain the importance of Adhoc Testing Documentation?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q99","question":"Explain the importance of Test Summary Report?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Medium","profile":"qa"},
-  {"id":"Q100","question":"Explain the importance of Lessons Learned?","options":["No bias","Consistency","Clear results","All of above","Handle growth","Resource focus","Accuracy","All of above","Initial measurement","Previously failed","Confidence","All of above","Staffing needs","Completeness","Quality","All of above","Conditions tested","All possible","Validation","All of above","Defect discovery","Process evaluation","Risk mitigation","All of above","Go/no-go decision","Real-world scenario","Volume","All of above","Results overview","Prevent repeat"],"correct":3,"category":"QA Importance","difficulty":"Hard","profile":"qa"}
+  {
+    "id": "1",
+    "question": "What does `null == undefined` return?",
+    "options": [
+      "true",
+      "false",
+      "TypeError",
+      "undefined"
+    ],
+    "correct": 0,
+    "category": "JavaScript Basics",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "10",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\nObject.freeze(obj);\nobj.a = 2;\nconsole.log(obj.a);\n```",
+    "options": [
+      "1",
+      "2",
+      "undefined",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Objects",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "100",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3, 4, 5];\nconsole.log(arr.slice(1, -1));\n```",
+    "options": [
+      "[2, 3, 4]",
+      "[1, 2, 3, 4]",
+      "[2, 3, 4, 5]",
+      "[1]"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "101",
+    "question": "What is the output?\n```js\nconst x = [1, 2];\nconst y = [3, 4];\nconsole.log([...x, ...y]);\n```",
+    "options": [
+      "[[1,2],[3,4]]",
+      "[1, 2, 3, 4]",
+      "Error",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Spread Operator",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "102",
+    "question": "What is the output?\n```js\nconsole.log(parseInt('10px'));\n```",
+    "options": [
+      "10",
+      "NaN",
+      "'10px'",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Numbers",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "103",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\nconsole.log(obj.hasOwnProperty('a'));\n```",
+    "options": [
+      "true",
+      "false",
+      "1",
+      "undefined"
+    ],
+    "correct": 0,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "104",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.toString());\n```",
+    "options": [
+      "'[1,2,3]'",
+      "'1,2,3'",
+      "[1, 2, 3]",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "105",
+    "question": "What is the output?\n```js\nconsole.log(!!0);\n```",
+    "options": [
+      "true",
+      "false",
+      "0",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Boolean Conversion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "106",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.copyWithin(0, 1, 2));\n```",
+    "options": [
+      "[2, 2, 3]",
+      "[1, 1, 2]",
+      "[1, 2, 3]",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "107",
+    "question": "What is the output?\n```js\nconsole.log(Array.isArray([]));\n```",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "108",
+    "question": "What is the output?\n```js\nconst x = 5;\nconsole.log(x.toFixed(2));\n```",
+    "options": [
+      "5",
+      "'5.00'",
+      "5.00",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Numbers",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "109",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\nconsole.log(Object.entries(obj));\n```",
+    "options": [
+      "['a', 1]",
+      "[['a', 1]]",
+      "{ a: 1 }",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "11",
+    "question": "What is the output?\n```js\nconsole.log([] == ![]);\n```",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Type Coercion",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "110",
+    "question": "What is the output?\n```js\nconsole.log('hello'.toUpperCase());\n```",
+    "options": [
+      "'hello'",
+      "'HELLO'",
+      "'Hello'",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Strings",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "12",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\narr[10] = 99;\nconsole.log(arr.length);\n```",
+    "options": [
+      "3",
+      "4",
+      "10",
+      "11"
+    ],
+    "correct": 3,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "13",
+    "question": "What is the output?\n```js\nfunction test() {\n  console.log(a);\n  var a = 1;\n}\ntest();\n```",
+    "options": [
+      "1",
+      "undefined",
+      "ReferenceError",
+      "null"
+    ],
+    "correct": 1,
+    "category": "Hoisting",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "14",
+    "question": "What is the output?\n```js\nconst obj = { a: 1, b: 2, a: 3 };\nconsole.log(obj.a);\n```",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "Error"
+    ],
+    "correct": 2,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "15",
+    "question": "What is the output?\n```js\nconsole.log(+'10' + +'20');\n```",
+    "options": [
+      "'1020'",
+      "30",
+      "'30'",
+      "NaN"
+    ],
+    "correct": 1,
+    "category": "Type Coercion",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "16",
+    "question": "What is the output?\n```js\nlet x = 1;\nfunction test() {\n  console.log(x);\n  let x = 2;\n}\ntest();\n```",
+    "options": [
+      "1",
+      "2",
+      "undefined",
+      "ReferenceError"
+    ],
+    "correct": 3,
+    "category": "Hoisting",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "17",
+    "question": "What is the output?\n```js\nconsole.log([...'hello']);\n```",
+    "options": [
+      "'hello'",
+      "['hello']",
+      "['h','e','l','l','o']",
+      "Error"
+    ],
+    "correct": 2,
+    "category": "Spread Operator",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "18",
+    "question": "What is the output?\n```js\nconst obj = { x: 1 };\nconst arr = [obj, obj];\narr[0].x = 2;\nconsole.log(arr[1].x);\n```",
+    "options": [
+      "1",
+      "2",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "References",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "19",
+    "question": "What is the output?\n```js\nconsole.log(1 < 2 < 3);\nconsole.log(3 > 2 > 1);\n```",
+    "options": [
+      "true, true",
+      "true, false",
+      "false, true",
+      "false, false"
+    ],
+    "correct": 1,
+    "category": "Comparisons",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "2",
+    "question": "What is the result of `typeof NaN`?",
+    "options": [
+      "'NaN'",
+      "'number'",
+      "'undefined'",
+      "'object'"
+    ],
+    "correct": 1,
+    "category": "JavaScript Basics",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "20",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\ndelete arr[1];\nconsole.log(arr.length);\n```",
+    "options": [
+      "2",
+      "3",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "21",
+    "question": "What is the output?\n```js\nconst a = {};\nconst b = { key: 'b' };\na[b] = 123;\nconsole.log(a['[object Object]']);\n```",
+    "options": [
+      "undefined",
+      "123",
+      "'[object Object]'",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "22",
+    "question": "What is the output?\n```js\nconsole.log(!!null);\n```",
+    "options": [
+      "true",
+      "false",
+      "null",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Boolean Conversion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "23",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3].map(num => {\n  if (typeof num === 'number') return;\n  return num * 2;\n});\nconsole.log(arr);\n```",
+    "options": [
+      "[2, 4, 6]",
+      "[undefined, undefined, undefined]",
+      "[]",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "24",
+    "question": "What is the output?\n```js\nconst person = { name: 'John' };\nObject.seal(person);\nperson.age = 30;\nconsole.log(person.age);\n```",
+    "options": [
+      "30",
+      "undefined",
+      "null",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "25",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3, 4, 5];\narr.length = 2;\nconsole.log(arr);\n```",
+    "options": [
+      "[1, 2, 3, 4, 5]",
+      "[1, 2]",
+      "[3, 4, 5]",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "26",
+    "question": "What is the output?\n```js\nconst x = 1;\n(() => {\n  x = 2;\n  console.log(x);\n})();\n```",
+    "options": [
+      "1",
+      "2",
+      "undefined",
+      "Error"
+    ],
+    "correct": 3,
+    "category": "Scope",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "27",
+    "question": "What is the output?\n```js\nconsole.log(3 + 4 + '5');\n```",
+    "options": [
+      "'345'",
+      "'75'",
+      "12",
+      "NaN"
+    ],
+    "correct": 1,
+    "category": "Type Coercion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "28",
+    "question": "What is the output?\n```js\nconst obj = { a: 1, b: 2 };\nconst { a, ...rest } = obj;\nconsole.log(rest);\n```",
+    "options": [
+      "{ a: 1, b: 2 }",
+      "{ b: 2 }",
+      "{ a: 1 }",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Destructuring",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "29",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst [a, , c] = arr;\nconsole.log(c);\n```",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "undefined"
+    ],
+    "correct": 2,
+    "category": "Destructuring",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "3",
+    "question": "What does the `===` operator check?",
+    "options": [
+      "Value only",
+      "Type only",
+      "Both value and type",
+      "Reference"
+    ],
+    "correct": 2,
+    "category": "JavaScript Basics",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "30",
+    "question": "What is the output?\n```js\nconst func = () => arguments;\nconsole.log(func(1, 2, 3));\n```",
+    "options": [
+      "[1, 2, 3]",
+      "{ 0: 1, 1: 2, 2: 3 }",
+      "undefined",
+      "ReferenceError"
+    ],
+    "correct": 3,
+    "category": "Arrow Functions",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "31",
+    "question": "What is the output?\n```js\nconst num = 123;\nconsole.log(num.toString(2));\n```",
+    "options": [
+      "'123'",
+      "'1111011'",
+      "123",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Numbers",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "32",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\narr.forEach((num, i) => {\n  arr[i] = num * 2;\n});\nconsole.log(arr);\n```",
+    "options": [
+      "[1, 2, 3]",
+      "[2, 4, 6]",
+      "[1, 2, 3, 2, 4, 6]",
+      "Infinite loop"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "33",
+    "question": "What is the output?\n```js\nconst promise = new Promise((resolve) => {\n  console.log(1);\n  resolve(2);\n});\npromise.then(console.log);\nconsole.log(3);\n```",
+    "options": [
+      "1, 2, 3",
+      "1, 3, 2",
+      "3, 1, 2",
+      "2, 1, 3"
+    ],
+    "correct": 1,
+    "category": "Promises",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "34",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst result = arr.map(x => x * 2).filter(x => x > 3);\nconsole.log(result);\n```",
+    "options": [
+      "[2, 4, 6]",
+      "[4, 6]",
+      "[2, 3]",
+      "[1, 2, 3]"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "35",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\nconst copy = obj;\ncopy.a = 2;\nconsole.log(obj.a);\n```",
+    "options": [
+      "1",
+      "2",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "References",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "36",
+    "question": "What is the output?\n```js\nconst str = 'hello';\nstr[0] = 'H';\nconsole.log(str);\n```",
+    "options": [
+      "'Hello'",
+      "'hello'",
+      "Error",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Strings",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "37",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.slice(1, 2));\n```",
+    "options": [
+      "[1]",
+      "[2]",
+      "[1, 2]",
+      "[2, 3]"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "38",
+    "question": "What is the output?\n```js\nconst x = 10;\nfunction test() {\n  console.log(x);\n  const x = 20;\n}\ntest();\n```",
+    "options": [
+      "10",
+      "20",
+      "undefined",
+      "ReferenceError"
+    ],
+    "correct": 3,
+    "category": "Hoisting",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "39",
+    "question": "What is the output?\n```js\nconsole.log([...[1, 2], ...[3, 4]]);\n```",
+    "options": [
+      "[[1, 2], [3, 4]]",
+      "[1, 2, 3, 4]",
+      "Error",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Spread Operator",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "4",
+    "question": "Which method adds elements to the end of an array?",
+    "options": [
+      "shift()",
+      "unshift()",
+      "push()",
+      "pop()"
+    ],
+    "correct": 2,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "40",
+    "question": "What is the output?\n```js\nconst obj = { x: 1, y: 2 };\nconst { x: a, y: b } = obj;\nconsole.log(a, b);\n```",
+    "options": [
+      "undefined undefined",
+      "x y",
+      "1 2",
+      "Error"
+    ],
+    "correct": 2,
+    "category": "Destructuring",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "41",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3, 4, 5];\nconsole.log(arr.splice(2, 1));\n```",
+    "options": [
+      "[1, 2]",
+      "[3]",
+      "[4, 5]",
+      "[1, 2, 4, 5]"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "42",
+    "question": "What is the output?\n```js\nconst x = { a: 1 };\nconst y = { a: 1 };\nconsole.log(x == y);\n```",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "43",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.includes(2));\n```",
+    "options": [
+      "true",
+      "false",
+      "1",
+      "undefined"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "44",
+    "question": "What is the output?\n```js\nconst func = (a, b = a) => a + b;\nconsole.log(func(5));\n```",
+    "options": [
+      "5",
+      "10",
+      "NaN",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Functions",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "45",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\narr.length = 0;\nconsole.log(arr);\n```",
+    "options": [
+      "[1, 2, 3]",
+      "[]",
+      "[0]",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "46",
+    "question": "What is the output?\n```js\nconsole.log(typeof null);\n```",
+    "options": [
+      "'null'",
+      "'object'",
+      "'undefined'",
+      "'number'"
+    ],
+    "correct": 1,
+    "category": "JavaScript Basics",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "47",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst newArr = arr.reverse();\nconsole.log(arr === newArr);\n```",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "48",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\ndelete obj.a;\nconsole.log(obj.a);\n```",
+    "options": [
+      "1",
+      "null",
+      "undefined",
+      "Error"
+    ],
+    "correct": 2,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "49",
+    "question": "What is the output?\n```js\nconsole.log(parseInt('10', 2));\n```",
+    "options": [
+      "10",
+      "2",
+      "5",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Numbers",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "5",
+    "question": "What is the output? `console.log(typeof typeof 1)`",
+    "options": [
+      "'number'",
+      "'string'",
+      "'object'",
+      "'undefined'"
+    ],
+    "correct": 1,
+    "category": "JavaScript Basics",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "50",
+    "question": "What is the output?\n```js\nconst x = [1, 2, 3];\nconst y = x;\ny = [4, 5, 6];\nconsole.log(x);\n```",
+    "options": [
+      "[1, 2, 3]",
+      "[4, 5, 6]",
+      "Error",
+      "undefined"
+    ],
+    "correct": 2,
+    "category": "References",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "51",
+    "question": "What is the output?\n```js\nconsole.log('5' - 3);\n```",
+    "options": [
+      "'53'",
+      "2",
+      "'2'",
+      "NaN"
+    ],
+    "correct": 1,
+    "category": "Type Coercion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "52",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.find(x => x > 1));\n```",
+    "options": [
+      "[2, 3]",
+      "2",
+      "true",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "53",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\nconst arr = [obj];\narr[0].a = 2;\nconsole.log(obj.a);\n```",
+    "options": [
+      "1",
+      "2",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "References",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "54",
+    "question": "What is the output?\n```js\nconsole.log([] + []);\n```",
+    "options": [
+      "[]",
+      "''",
+      "'[][]'",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Type Coercion",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "55",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.indexOf(2));\n```",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "-1"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "56",
+    "question": "What is the output?\n```js\nconst x = 5;\nconst y = x++;\nconsole.log(x, y);\n```",
+    "options": [
+      "5 5",
+      "6 5",
+      "5 6",
+      "6 6"
+    ],
+    "correct": 1,
+    "category": "Operators",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "57",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.some(x => x > 2));\n```",
+    "options": [
+      "true",
+      "false",
+      "[3]",
+      "3"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "58",
+    "question": "What is the output?\n```js\nconst obj = { a: 1, b: 2 };\nfor (let key in obj) {\n  console.log(key);\n}\n```",
+    "options": [
+      "1 2",
+      "a b",
+      "'a' 'b'",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "59",
+    "question": "What is the output?\n```js\nconsole.log(Math.max());\n```",
+    "options": [
+      "0",
+      "undefined",
+      "-Infinity",
+      "Infinity"
+    ],
+    "correct": 2,
+    "category": "Math",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "6",
+    "question": "What is the output?\n```js\nconsole.log(1 + '2' + 3);\n```",
+    "options": [
+      "'123'",
+      "6",
+      "'15'",
+      "NaN"
+    ],
+    "correct": 0,
+    "category": "Type Coercion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "60",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.every(x => x > 0));\n```",
+    "options": [
+      "true",
+      "false",
+      "[1, 2, 3]",
+      "undefined"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "61",
+    "question": "What is the output?\n```js\nconst str = 'hello';\nconsole.log(str.repeat(2));\n```",
+    "options": [
+      "'hello'",
+      "'hellohello'",
+      "'hheelllloo'",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Strings",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "62",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3, 2, 1];\nconsole.log([...new Set(arr)]);\n```",
+    "options": [
+      "[1, 2, 3, 2, 1]",
+      "[1, 2, 3]",
+      "[1, 2]",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Sets",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "63",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\nconst copy = { ...obj };\ncopy.a = 2;\nconsole.log(obj.a);\n```",
+    "options": [
+      "1",
+      "2",
+      "undefined",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "64",
+    "question": "What is the output?\n```js\nconsole.log(!'');\n```",
+    "options": [
+      "true",
+      "false",
+      "''",
+      "undefined"
+    ],
+    "correct": 0,
+    "category": "Boolean Conversion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "65",
+    "question": "What is the output?\n```js\nconst arr = [1, [2, [3]]];\nconsole.log(arr.flat());\n```",
+    "options": [
+      "[1, 2, 3]",
+      "[1, [2, [3]]]",
+      "[1, 2, [3]]",
+      "Error"
+    ],
+    "correct": 2,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "66",
+    "question": "What is the output?\n```js\nconst x = 1;\nconst y = '1';\nconsole.log(x == y && x === y);\n```",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Comparisons",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "67",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.join('-'));\n```",
+    "options": [
+      "'1-2-3'",
+      "'123'",
+      "[1-2-3]",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "68",
+    "question": "What is the output?\n```js\nconst obj = { a: { b: 1 } };\nconst copy = { ...obj };\ncopy.a.b = 2;\nconsole.log(obj.a.b);\n```",
+    "options": [
+      "1",
+      "2",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "69",
+    "question": "What is the output?\n```js\nconsole.log(true + false);\n```",
+    "options": [
+      "'truefalse'",
+      "1",
+      "0",
+      "NaN"
+    ],
+    "correct": 1,
+    "category": "Type Coercion",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "7",
+    "question": "What is the output?\n```js\nconsole.log([1, 2, 3] + [4, 5, 6]);\n```",
+    "options": [
+      "[1,2,3,4,5,6]",
+      "'1,2,34,5,6'",
+      "'1,2,3,4,5,6'",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Type Coercion",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "70",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.reduce((a, b) => a + b, 0));\n```",
+    "options": [
+      "0",
+      "6",
+      "[1, 2, 3]",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "71",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\nObject.preventExtensions(obj);\nobj.b = 2;\nconsole.log(obj.b);\n```",
+    "options": [
+      "2",
+      "undefined",
+      "null",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "72",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.at(-1));\n```",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "undefined"
+    ],
+    "correct": 2,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "73",
+    "question": "What is the output?\n```js\nconst x = 10;\nconst y = x.toString();\nconsole.log(typeof y);\n```",
+    "options": [
+      "'number'",
+      "'string'",
+      "'object'",
+      "'undefined'"
+    ],
+    "correct": 1,
+    "category": "Type Conversion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "74",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst [, b] = arr;\nconsole.log(b);\n```",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Destructuring",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "75",
+    "question": "What is the output?\n```js\nconsole.log([] == false);\n```",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Type Coercion",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "76",
+    "question": "What is the output?\n```js\nconst func = function test() {};\nconsole.log(typeof test);\n```",
+    "options": [
+      "'function'",
+      "'undefined'",
+      "'object'",
+      "ReferenceError"
+    ],
+    "correct": 1,
+    "category": "Functions",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "77",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.fill(0, 1, 2));\n```",
+    "options": [
+      "[0, 0, 0]",
+      "[1, 0, 3]",
+      "[0, 2, 3]",
+      "[1, 2, 0]"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "78",
+    "question": "What is the output?\n```js\nconst x = { a: 1 };\nconst y = Object.create(x);\nconsole.log(y.a);\n```",
+    "options": [
+      "undefined",
+      "1",
+      "null",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "79",
+    "question": "What is the output?\n```js\nconsole.log('5' * '2');\n```",
+    "options": [
+      "'52'",
+      "10",
+      "'10'",
+      "NaN"
+    ],
+    "correct": 1,
+    "category": "Type Coercion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "8",
+    "question": "What is the output?\n```js\nlet a = [1, 2, 3];\nlet b = a;\nb.push(4);\nconsole.log(a);\n```",
+    "options": [
+      "[1, 2, 3]",
+      "[1, 2, 3, 4]",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "References",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "80",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.concat([4, 5]));\n```",
+    "options": [
+      "[1, 2, 3, 4, 5]",
+      "[[1,2,3],[4,5]]",
+      "[1, 2, 3]",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "81",
+    "question": "What is the output?\n```js\nconst x = 1;\nconst y = 2;\nconsole.log(`${x}${y}`);\n```",
+    "options": [
+      "3",
+      "'12'",
+      "12",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Template Literals",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "82",
+    "question": "What is the output?\n```js\nconst obj = { a: 1, b: 2 };\nconsole.log(Object.keys(obj));\n```",
+    "options": [
+      "[1, 2]",
+      "['a', 'b']",
+      "{ a: 1, b: 2 }",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "83",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.flatMap(x => [x, x * 2]));\n```",
+    "options": [
+      "[1, 2, 2, 4, 3, 6]",
+      "[[1, 2], [2, 4], [3, 6]]",
+      "[1, 2, 3]",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "84",
+    "question": "What is the output?\n```js\nconsole.log(Number(''));\n```",
+    "options": [
+      "0",
+      "NaN",
+      "undefined",
+      "null"
+    ],
+    "correct": 0,
+    "category": "Type Conversion",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "85",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconst result = arr.filter(() => false);\nconsole.log(result);\n```",
+    "options": [
+      "[1, 2, 3]",
+      "[]",
+      "false",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "86",
+    "question": "What is the output?\n```js\nconst x = { a: 1 };\nconst y = { b: 2 };\nconst z = { ...x, ...y };\nconsole.log(z);\n```",
+    "options": [
+      "{ a: 1 }",
+      "{ b: 2 }",
+      "{ a: 1, b: 2 }",
+      "Error"
+    ],
+    "correct": 2,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "87",
+    "question": "What is the output?\n```js\nconsole.log(Boolean('false'));\n```",
+    "options": [
+      "true",
+      "false",
+      "'false'",
+      "undefined"
+    ],
+    "correct": 0,
+    "category": "Boolean Conversion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "88",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.lastIndexOf(2));\n```",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "-1"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "89",
+    "question": "What is the output?\n```js\nconst x = null;\nconsole.log(x ?? 'default');\n```",
+    "options": [
+      "null",
+      "'default'",
+      "undefined",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Nullish Coalescing",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "9",
+    "question": "What is the output?\n```js\nconsole.log(0.1 + 0.2 === 0.3);\n```",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "NaN"
+    ],
+    "correct": 1,
+    "category": "Numbers",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "90",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.shift());\n```",
+    "options": [
+      "1",
+      "[1]",
+      "[2, 3]",
+      "3"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "91",
+    "question": "What is the output?\n```js\nconst obj = { a: 1 };\nconsole.log('a' in obj);\n```",
+    "options": [
+      "true",
+      "false",
+      "1",
+      "undefined"
+    ],
+    "correct": 0,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "92",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\narr.unshift(0);\nconsole.log(arr);\n```",
+    "options": [
+      "[0, 1, 2, 3]",
+      "[1, 2, 3, 0]",
+      "[1, 2, 3]",
+      "Error"
+    ],
+    "correct": 0,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "93",
+    "question": "What is the output?\n```js\nconsole.log(10 / 0);\n```",
+    "options": [
+      "0",
+      "NaN",
+      "Infinity",
+      "Error"
+    ],
+    "correct": 2,
+    "category": "Numbers",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "94",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.slice(-2));\n```",
+    "options": [
+      "[1]",
+      "[2, 3]",
+      "[3]",
+      "[-2]"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "95",
+    "question": "What is the output?\n```js\nconst x = 'hello';\nconsole.log(x.charAt(0));\n```",
+    "options": [
+      "'h'",
+      "0",
+      "'hello'",
+      "undefined"
+    ],
+    "correct": 0,
+    "category": "Strings",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "96",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.pop());\n```",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "[1, 2]"
+    ],
+    "correct": 2,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "97",
+    "question": "What is the output?\n```js\nconsole.log(Object.values({ a: 1, b: 2 }));\n```",
+    "options": [
+      "['a', 'b']",
+      "[1, 2]",
+      "{ a: 1, b: 2 }",
+      "Error"
+    ],
+    "correct": 1,
+    "category": "Objects",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "98",
+    "question": "What is the output?\n```js\nconst arr = [1, 2, 3];\nconsole.log(arr.findIndex(x => x > 1));\n```",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "-1"
+    ],
+    "correct": 1,
+    "category": "Arrays",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "99",
+    "question": "What is the output?\n```js\nconsole.log(String(123));\n```",
+    "options": [
+      "123",
+      "'123'",
+      "Error",
+      "undefined"
+    ],
+    "correct": 1,
+    "category": "Type Conversion",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "B1",
+    "question": "What is the difference between == and equals() in Java?",
+    "options": [
+      "No difference",
+      "== compares references, equals() compares values",
+      "== compares values, equals() compares references",
+      "Both are identical"
+    ],
+    "correct": 1,
+    "category": "Java Basics",
+    "difficulty": "Medium",
+    "profile": "backend"
+  },
+  {
+    "id": "B10",
+    "question": "What is dependency injection?",
+    "options": [
+      "Adding more features",
+      "Providing objects their dependencies instead of creating them",
+      "Reducing dependencies",
+      "A design anti-pattern"
+    ],
+    "correct": 1,
+    "category": "Design Patterns",
+    "difficulty": "Medium",
+    "profile": "backend"
+  },
+  {
+    "id": "B2",
+    "question": "What does @Autowired annotation do in Spring?",
+    "options": [
+      "Creates a bean manually",
+      "Injects dependencies automatically",
+      "Marks a class as a service",
+      "Defines a database transaction"
+    ],
+    "correct": 1,
+    "category": "Spring Boot",
+    "difficulty": "Easy",
+    "profile": "backend"
+  },
+  {
+    "id": "B3",
+    "question": "What is a microservice architecture?",
+    "options": [
+      "A monolithic application",
+      "Breaking an app into small, independent services",
+      "A single large service",
+      "Only for large companies"
+    ],
+    "correct": 1,
+    "category": "Microservices",
+    "difficulty": "Easy",
+    "profile": "backend"
+  },
+  {
+    "id": "B4",
+    "question": "What is the difference between ArrayList and LinkedList in Java?",
+    "options": [
+      "No difference",
+      "ArrayList uses arrays, LinkedList uses linked nodes",
+      "LinkedList is faster",
+      "ArrayList can only store strings"
+    ],
+    "correct": 1,
+    "category": "Data Structures",
+    "difficulty": "Medium",
+    "profile": "backend"
+  },
+  {
+    "id": "B5",
+    "question": "What does REST stand for?",
+    "options": [
+      "Rapid Execution Service Token",
+      "Representational State Transfer",
+      "Remote Exchange Service Terminal",
+      "Resource Entry Service Tier"
+    ],
+    "correct": 1,
+    "category": "API Design",
+    "difficulty": "Easy",
+    "profile": "backend"
+  },
+  {
+    "id": "B6",
+    "question": "What is a transaction in databases?",
+    "options": [
+      "A payment",
+      "A sequence of operations treated as a single unit",
+      "A data backup",
+      "A query result"
+    ],
+    "correct": 1,
+    "category": "Database",
+    "difficulty": "Medium",
+    "profile": "backend"
+  },
+  {
+    "id": "B7",
+    "question": "What is the purpose of Spring Data JPA?",
+    "options": [
+      "UI framework",
+      "Simplifies database access through repositories",
+      "API gateway",
+      "Load balancing"
+    ],
+    "correct": 1,
+    "category": "Spring Boot",
+    "difficulty": "Easy",
+    "profile": "backend"
+  },
+  {
+    "id": "B8",
+    "question": "What is the difference between checked and unchecked exceptions in Java?",
+    "options": [
+      "No difference",
+      "Checked must be declared/handled, unchecked don't need to be",
+      "Checked are for bugs, unchecked are for errors",
+      "They're the same"
+    ],
+    "correct": 1,
+    "category": "Exception Handling",
+    "difficulty": "Medium",
+    "profile": "backend"
+  },
+  {
+    "id": "B9",
+    "question": "What does ACID stand for in database transactions?",
+    "options": [
+      "Automatic Coding In Database",
+      "Atomicity, Consistency, Isolation, Durability",
+      "Application Control & Isolation Data",
+      "None of the above"
+    ],
+    "correct": 1,
+    "category": "Database",
+    "difficulty": "Hard",
+    "profile": "backend"
+  },
+  {
+    "id": "C1",
+    "question": "Which CSS property controls text size?",
+    "options": [
+      "font-style",
+      "text-style",
+      "font-size",
+      "text-size"
+    ],
+    "correct": 2,
+    "category": "CSS",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "C2",
+    "question": "What does 'display: flex' do?",
+    "options": [
+      "Makes text flexible",
+      "Creates a flexbox container",
+      "Hides element",
+      "Makes element inline"
+    ],
+    "correct": 1,
+    "category": "CSS",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "C3",
+    "question": "Which property controls element stacking order?",
+    "options": [
+      "z-index",
+      "stack-order",
+      "layer",
+      "position"
+    ],
+    "correct": 0,
+    "category": "CSS",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "H1",
+    "question": "What is employer branding?",
+    "options": [
+      "Company logo design",
+      "How a company is perceived as an employer",
+      "Marketing campaigns",
+      "Social media presence"
+    ],
+    "correct": 1,
+    "category": "Recruitment",
+    "difficulty": "Easy",
+    "profile": "hr"
+  },
+  {
+    "id": "H10",
+    "question": "What is employee turnover?",
+    "options": [
+      "Staff rotation",
+      "Rate at which employees leave a company",
+      "Shift changes",
+      "Promotion"
+    ],
+    "correct": 1,
+    "category": "Talent Management",
+    "difficulty": "Easy",
+    "profile": "hr"
+  },
+  {
+    "id": "H2",
+    "question": "What is employee retention?",
+    "options": [
+      "Storing employee data",
+      "Keeping valuable employees in the organization",
+      "Employee training",
+      "Performance reviews"
+    ],
+    "correct": 1,
+    "category": "Talent Management",
+    "difficulty": "Easy",
+    "profile": "hr"
+  },
+  {
+    "id": "H3",
+    "question": "What does 'at-will employment' mean?",
+    "options": [
+      "Employee can work when they want",
+      "Either party can end employment without cause",
+      "Only for executives",
+      "A European concept"
+    ],
+    "correct": 1,
+    "category": "Employment Law",
+    "difficulty": "Medium",
+    "profile": "hr"
+  },
+  {
+    "id": "H4",
+    "question": "What is an onboarding process?",
+    "options": [
+      "Shipping products",
+      "Process of integrating new employees",
+      "Training veterans",
+      "Retirement program"
+    ],
+    "correct": 1,
+    "category": "Talent Management",
+    "difficulty": "Easy",
+    "profile": "hr"
+  },
+  {
+    "id": "H5",
+    "question": "What is employee engagement?",
+    "options": [
+      "Hiring process",
+      "Level of commitment and involvement employees have",
+      "Office parties",
+      "Salary increases"
+    ],
+    "correct": 1,
+    "category": "Culture",
+    "difficulty": "Easy",
+    "profile": "hr"
+  },
+  {
+    "id": "H6",
+    "question": "What is a 360-degree feedback?",
+    "options": [
+      "Circular office layout",
+      "Feedback from managers, peers, and subordinates",
+      "Monthly reviews",
+      "Customer feedback"
+    ],
+    "correct": 1,
+    "category": "Performance Management",
+    "difficulty": "Medium",
+    "profile": "hr"
+  },
+  {
+    "id": "H7",
+    "question": "What does ATS stand for in recruitment?",
+    "options": [
+      "Application Training System",
+      "Applicant Tracking System",
+      "Average Test Score",
+      "Automatic Task System"
+    ],
+    "correct": 1,
+    "category": "Recruitment",
+    "difficulty": "Easy",
+    "profile": "hr"
+  },
+  {
+    "id": "H8",
+    "question": "What is succession planning?",
+    "options": [
+      "Planning company events",
+      "Preparing employees for future leadership roles",
+      "Sales strategy",
+      "Marketing plan"
+    ],
+    "correct": 1,
+    "category": "Talent Management",
+    "difficulty": "Medium",
+    "profile": "hr"
+  },
+  {
+    "id": "H9",
+    "question": "What is organizational culture?",
+    "options": [
+      "Company art collection",
+      "Shared values, beliefs, and behaviors of an organization",
+      "Office decoration",
+      "Holiday celebrations"
+    ],
+    "correct": 1,
+    "category": "Culture",
+    "difficulty": "Medium",
+    "profile": "hr"
+  },
+  {
+    "id": "P1",
+    "question": "What does 'product-market fit' mean?",
+    "options": [
+      "Product matches company size",
+      "Product satisfies strong market demand",
+      "Product has good marketing",
+      "Product is profitable"
+    ],
+    "correct": 1,
+    "category": "Product Strategy",
+    "difficulty": "Easy",
+    "profile": "product"
+  },
+  {
+    "id": "P10",
+    "question": "What is NPS (Net Promoter Score)?",
+    "options": [
+      "Net Product Sales",
+      "Measure of customer loyalty and satisfaction",
+      "New Product Strategy",
+      "Number of Project Stakeholders"
+    ],
+    "correct": 1,
+    "category": "Metrics",
+    "difficulty": "Medium",
+    "profile": "product"
+  },
+  {
+    "id": "P2",
+    "question": "What is a KPI?",
+    "options": [
+      "A type of software",
+      "Key Performance Indicator",
+      "A project management tool",
+      "A pricing model"
+    ],
+    "correct": 1,
+    "category": "Metrics",
+    "difficulty": "Easy",
+    "profile": "product"
+  },
+  {
+    "id": "P3",
+    "question": "What is the purpose of a PRD (Product Requirements Document)?",
+    "options": [
+      "To define the product vision and requirements",
+      "To replace the CEO",
+      "To be a legal document",
+      "None of the above"
+    ],
+    "correct": 0,
+    "category": "Documentation",
+    "difficulty": "Easy",
+    "profile": "product"
+  },
+  {
+    "id": "P4",
+    "question": "What is user segmentation?",
+    "options": [
+      "Splitting the code",
+      "Dividing users into groups based on characteristics",
+      "Removing inactive users",
+      "Ranking users by activity"
+    ],
+    "correct": 1,
+    "category": "User Research",
+    "difficulty": "Medium",
+    "profile": "product"
+  },
+  {
+    "id": "P5",
+    "question": "What does DAU stand for?",
+    "options": [
+      "Data Analysis Unit",
+      "Daily Active Users",
+      "Design Architecture Update",
+      "Data Access URL"
+    ],
+    "correct": 1,
+    "category": "Metrics",
+    "difficulty": "Easy",
+    "profile": "product"
+  },
+  {
+    "id": "P6",
+    "question": "What is a feature roadmap?",
+    "options": [
+      "A physical map",
+      "A timeline of planned features to be released",
+      "A bug list",
+      "User feedback"
+    ],
+    "correct": 1,
+    "category": "Planning",
+    "difficulty": "Easy",
+    "profile": "product"
+  },
+  {
+    "id": "P7",
+    "question": "What is cohort analysis?",
+    "options": [
+      "Team meeting format",
+      "Analyzing groups of users with shared characteristics over time",
+      "Revenue analysis",
+      "Competitor analysis"
+    ],
+    "correct": 1,
+    "category": "Analytics",
+    "difficulty": "Hard",
+    "profile": "product"
+  },
+  {
+    "id": "P8",
+    "question": "What is an MoM (Month-over-Month) growth rate?",
+    "options": [
+      "Management style",
+      "Change in a metric from one month to the next",
+      "Team size change",
+      "Budget allocation"
+    ],
+    "correct": 1,
+    "category": "Metrics",
+    "difficulty": "Medium",
+    "profile": "product"
+  },
+  {
+    "id": "P9",
+    "question": "What is a product pivot?",
+    "options": [
+      "Turning the product physically",
+      "Changing the product strategy based on market feedback",
+      "Hiring new staff",
+      "Increasing price"
+    ],
+    "correct": 1,
+    "category": "Strategy",
+    "difficulty": "Medium",
+    "profile": "product"
+  },
+  {
+    "id": "R1",
+    "question": "Bridge and torch: 1,2,7,10 min to cross; one torch; two max per trip; slowest sets pace. Minimum total time?",
+    "options": [
+      "17 minutes",
+      "19 minutes",
+      "21 minutes",
+      "23 minutes"
+    ],
+    "correct": 0,
+    "category": "Logic Puzzles",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "R2",
+    "question": "You see a boat filled with people, yet there isn't a single person on board. How?",
+    "options": [
+      "They are invisible",
+      "They are all married",
+      "It's a ghost ship",
+      "It's a painting"
+    ],
+    "correct": 1,
+    "category": "Logic Puzzles",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "R3",
+    "question": "A farmer needs to carry a wolf, a goat, and a cabbage across a river with a boat that holds one item at a time. He can't leave the wolf with the goat or the goat with the cabbage. Minimum number of crossings?",
+    "options": [
+      "7 crossings",
+      "9 crossings",
+      "11 crossings",
+      "13 crossings"
+    ],
+    "correct": 0,
+    "category": "Logic Puzzles",
+    "difficulty": "Hard",
+    "profile": "frontend"
+  },
+  {
+    "id": "R4",
+    "question": "I speak without a mouth and hear without ears. I have nobody, but I come alive with wind. What am I?",
+    "options": [
+      "Echo",
+      "Whistle",
+      "Shadow",
+      "Thought"
+    ],
+    "correct": 0,
+    "category": "Logic Puzzles",
+    "difficulty": "Medium",
+    "profile": "frontend"
+  },
+  {
+    "id": "R5",
+    "question": "What gets wetter the more it dries?",
+    "options": [
+      "Sponge",
+      "Towel",
+      "Sun",
+      "Cloud"
+    ],
+    "correct": 1,
+    "category": "Logic Puzzles",
+    "difficulty": "Easy",
+    "profile": "frontend"
+  },
+  {
+    "id": "S1",
+    "question": "What is a sales pipeline?",
+    "options": [
+      "Physical pipes for products",
+      "Stages of potential sales from prospect to close",
+      "Marketing funnel",
+      "Distribution channel"
+    ],
+    "correct": 1,
+    "category": "Sales Strategy",
+    "difficulty": "Easy",
+    "profile": "business"
+  },
+  {
+    "id": "S10",
+    "question": "What is churn rate?",
+    "options": [
+      "Product mixing",
+      "Percentage of customers who stop using service",
+      "Sales growth",
+      "Market expansion"
+    ],
+    "correct": 1,
+    "category": "Business Metrics",
+    "difficulty": "Medium",
+    "profile": "business"
+  },
+  {
+    "id": "S2",
+    "question": "What does CRM stand for?",
+    "options": [
+      "Customer Relationship Management",
+      "Corporate Revenue Model",
+      "Client Resources Module",
+      "Commercial Retail Management"
+    ],
+    "correct": 0,
+    "category": "Sales Tools",
+    "difficulty": "Easy",
+    "profile": "business"
+  },
+  {
+    "id": "S3",
+    "question": "What is a sales quota?",
+    "options": [
+      "Company policy",
+      "Target amount a salesperson is expected to sell",
+      "Discount percentage",
+      "Commission rate"
+    ],
+    "correct": 1,
+    "category": "Sales Metrics",
+    "difficulty": "Easy",
+    "profile": "business"
+  },
+  {
+    "id": "S4",
+    "question": "What is B2B sales?",
+    "options": [
+      "Business to Business",
+      "Business to Bitcoin",
+      "Business to Buyer",
+      "Bulk to Business"
+    ],
+    "correct": 0,
+    "category": "Sales Models",
+    "difficulty": "Easy",
+    "profile": "business"
+  },
+  {
+    "id": "S5",
+    "question": "What is customer acquisition cost (CAC)?",
+    "options": [
+      "Total company profit",
+      "Average cost to acquire a new customer",
+      "Customer loyalty cost",
+      "Product development cost"
+    ],
+    "correct": 1,
+    "category": "Business Metrics",
+    "difficulty": "Medium",
+    "profile": "business"
+  },
+  {
+    "id": "S6",
+    "question": "What is LTV (Lifetime Value)?",
+    "options": [
+      "Latest Transaction Value",
+      "Total revenue from a customer over their relationship",
+      "Line Transaction Value",
+      "Loan Transaction Value"
+    ],
+    "correct": 1,
+    "category": "Business Metrics",
+    "difficulty": "Medium",
+    "profile": "business"
+  },
+  {
+    "id": "S7",
+    "question": "What is a channel partner?",
+    "options": [
+      "TV network",
+      "Organization that sells your products/services",
+      "Sales manager",
+      "Marketing team"
+    ],
+    "correct": 1,
+    "category": "Partnerships",
+    "difficulty": "Medium",
+    "profile": "business"
+  },
+  {
+    "id": "S8",
+    "question": "What is enterprise sales?",
+    "options": [
+      "Selling computers",
+      "Selling to large organizations with complex needs",
+      "Retail sales",
+      "Online sales"
+    ],
+    "correct": 1,
+    "category": "Sales Models",
+    "difficulty": "Medium",
+    "profile": "business"
+  },
+  {
+    "id": "S9",
+    "question": "What does SLA stand for?",
+    "options": [
+      "Sales Leadership Agreement",
+      "Service Level Agreement",
+      "Sales Level Analysis",
+      "Strategic Learning Agreement"
+    ],
+    "correct": 1,
+    "category": "Contracts",
+    "difficulty": "Medium",
+    "profile": "business"
+  }
 ];
 
 module.exports = quizQuestions;

@@ -94,18 +94,7 @@ export default function QuizPage() {
   useEffect(() => {
     // Only fetch if user is authenticated
     if (!user) return;
-    
-    const profile = (user as any)?.profile;
-    const url = profile ? api(`/quiz/random/10?profile=${encodeURIComponent(profile)}`) : api(`/quiz/random/10`);
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setQuestions(data.questions || []);
-        setLoading(false);
-        setStartTime(Date.now());
-        setQuestionStartTime(Date.now());
-      })
-      .catch(() => setLoading(false));
+ setLoading(false)
   }, [user]);
 
   const handleNext = () => {
@@ -212,17 +201,21 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-5xl">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 animate-fadeIn" style={{ animationDelay: '0s' }}>
             <h1 className="text-4xl font-extrabold mb-4">Select Your Quiz Profile</h1>
             <p className="text-xl text-white/70">Choose the profile that matches your role to get relevant questions</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {profiles.map((profile) => (
+            {profiles.map((profile, index) => (
               <button
                 key={profile.id}
                 onClick={() => handleProfileSelect(profile.id)}
                 className="group relative rounded-2xl bg-gradient-to-br from-white/10 to-white/5 p-8 border border-white/10 hover:border-white/30 transition-all hover:scale-105 hover:shadow-xl"
+                style={{
+                  animation: `${index % 2 === 0 ? 'slideInLeft' : 'slideInRight'} 0.6s ease-out forwards`,
+                  animationDelay: `${index * 0.15}s`,
+                }}
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/0 to-blue-500/0 group-hover:from-purple-500/10 group-hover:to-blue-500/10 transition-all"></div>
                 <div className="relative z-10">
