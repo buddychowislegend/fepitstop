@@ -715,7 +715,46 @@ async function generateEndSummary(opts: { framework?: string; jdText?: string; p
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action } = body || {};
+    const { action, prompt } = body || {};
+
+    // Handle AI screening generation requests
+    if (prompt && prompt.includes('Generate a comprehensive screening assessment')) {
+      try {
+        const response = await callLlamaWithRetry(prompt);
+        return NextResponse.json({ response });
+      } catch (error) {
+        console.error('Error generating screening details:', error);
+        // Return a fallback response
+        const fallbackResponse = {
+          positionTitle: "Product Manager",
+          mustHaves: [
+            "5+ years product management experience",
+            "Strong analytical and data-driven decision making",
+            "Experience with agile development methodologies",
+            "Excellent stakeholder management skills",
+            "Technical background or strong technical understanding"
+          ],
+          goodToHaves: [
+            "Experience with user research and UX design",
+            "Knowledge of analytics tools (Google Analytics, Mixpanel)",
+            "Experience with A/B testing and experimentation",
+            "Previous startup or high-growth company experience",
+            "MBA or relevant advanced degree"
+          ],
+          culturalFit: [
+            "Strong communication and presentation skills",
+            "Collaborative team player with leadership qualities",
+            "Adaptable to fast-paced, changing environments"
+          ],
+          estimatedTime: {
+            mustHaves: 4,
+            goodToHaves: 2,
+            culturalFit: 2
+          }
+        };
+        return NextResponse.json({ response: JSON.stringify(fallbackResponse) });
+      }
+    }
 
     if (action === 'start') {
       const { level = 'mid', focus, framework, jdText, profile } = body || {};
