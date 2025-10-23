@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
+import ConditionalFooter from "@/components/ConditionalFooter";
 import Analytics from "@/components/Analytics";
 
 const geistSans = Geist({
@@ -258,11 +258,11 @@ export default function RootLayout({
                    style={{ background: 'radial-gradient(800px 300px at 50% 60%, var(--brand-end), transparent 60%)' }} />
             </div>
             <div className="relative flex flex-col min-h-screen">
-              <Navbar />
+              <ConditionalNavbar />
               <main className="flex-1">
                 {children}
               </main>
-              <Footer />
+              <ConditionalFooter />
             </div>
           </div>
         </AuthProvider>
