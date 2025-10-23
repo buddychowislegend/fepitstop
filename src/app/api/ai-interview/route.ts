@@ -721,7 +721,21 @@ export async function POST(req: NextRequest) {
     if (prompt && prompt.includes('Generate a comprehensive screening assessment')) {
       try {
         const response = await callLlamaWithRetry(prompt);
-        return NextResponse.json({ response });
+        
+        // Clean the response by removing markdown formatting and extracting JSON
+        let cleanResponse = response;
+        if (cleanResponse.includes('```json')) {
+          cleanResponse = cleanResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        }
+        
+        // Extract only the JSON part (before any additional text)
+        const jsonStart = cleanResponse.indexOf('{');
+        const jsonEnd = cleanResponse.lastIndexOf('}') + 1;
+        if (jsonStart !== -1 && jsonEnd > jsonStart) {
+          cleanResponse = cleanResponse.substring(jsonStart, jsonEnd);
+        }
+        
+        return NextResponse.json({ response: cleanResponse });
       } catch (error) {
         console.error('Error generating screening details:', error);
         // Return a fallback response

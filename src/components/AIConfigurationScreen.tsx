@@ -87,7 +87,16 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
 
       if (response.ok) {
         const data = await response.json();
-        const generatedDetails = JSON.parse(data.response || '{}');
+        
+        let generatedDetails;
+        try {
+          // Parse the response as JSON
+          generatedDetails = JSON.parse(data.response || '{}');
+        } catch (parseError) {
+          console.error('Failed to parse API response as JSON:', parseError);
+          // If parsing fails, try to use the response directly
+          generatedDetails = data.response || {};
+        }
         
         setScreeningDetails({
           positionTitle: generatedDetails.positionTitle || extractPositionFromPrompt(),

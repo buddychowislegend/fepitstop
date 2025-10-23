@@ -256,7 +256,7 @@ export default function CompanyDashboard() {
               <span className="text-white font-bold text-sm">FP</span>
             </div>
             {!sidebarCollapsed && (
-              <span className="text-[color:var(--foreground)] font-bold text-lg">FePitStop</span>
+              <span className="text-[color:var(--foreground)] font-bold text-lg">HireOG</span>
             )}
           </div>
         </div>
@@ -308,12 +308,7 @@ export default function CompanyDashboard() {
           </div>
 
           <div className="mt-8 space-y-2">
-            <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-[color:var(--foreground)]/60 hover:bg-white/10 hover:text-[color:var(--foreground)] transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              {!sidebarCollapsed && <span>Subscriptions</span>}
-            </button>
+         
 
             <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-[color:var(--foreground)]/60 hover:bg-white/10 hover:text-[color:var(--foreground)] transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,13 +317,7 @@ export default function CompanyDashboard() {
               {!sidebarCollapsed && <span>Help & Support</span>}
             </button>
 
-            <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-[color:var(--foreground)]/60 hover:bg-white/10 hover:text-[color:var(--foreground)] transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              {!sidebarCollapsed && <span>Settings</span>}
-            </button>
+          
 
             <button
               onClick={handleLogout}
@@ -358,14 +347,7 @@ export default function CompanyDashboard() {
         </div>
 
         {/* Collapse Button */}
-        <button
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="absolute top-1/2 -right-3 w-6 h-6 bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] rounded-full flex items-center justify-center text-white hover:opacity-90 transition-colors"
-        >
-          <svg className={`w-4 h-4 transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
+  
       </div>
 
       {/* Main Content */}
@@ -399,7 +381,7 @@ export default function CompanyDashboard() {
               <div className="text-center mb-8">
                 <div className="mb-6">
                   <h2 className="text-4xl font-bold mb-2">
-                    <span className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] bg-clip-text text-transparent">FePitStop</span>
+                    <span className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] bg-clip-text text-transparent">HireOG</span>
                     <span className="text-[color:var(--foreground)]"> AI</span>
                   </h2>
                   <p className="text-[color:var(--foreground)]/60">Create AI-powered screening assessments</p>
