@@ -367,4 +367,80 @@ router.post('/interview/:token/submit', async (req, res) => {
   }
 });
 
+// Create AI-generated screening
+router.post('/screenings', companyAuth, async (req, res) => {
+  try {
+    const { 
+      name, 
+      positionTitle, 
+      language, 
+      mustHaves, 
+      goodToHaves, 
+      culturalFit, 
+      estimatedTime, 
+      status 
+    } = req.body;
+    const companyId = req.companyId;
+    
+    if (!name || !positionTitle) {
+      return res.status(400).json({ error: 'Name and position title are required' });
+    }
+    
+    // Create screening in database
+    const screeningData = {
+      companyId: companyId,
+      name: name,
+      positionTitle: positionTitle,
+      language: language || 'en-us',
+      mustHaves: mustHaves || [],
+      goodToHaves: goodToHaves || [],
+      culturalFit: culturalFit || [],
+      estimatedTime: estimatedTime || { mustHaves: 4, goodToHaves: 2, culturalFit: 2 },
+      status: status || 'draft',
+      createdAt: new Date().toISOString()
+    };
+    
+    // For now, store in the in-memory data structure
+    // In production, this would be stored in a proper database
+    const screeningId = Date.now().toString();
+    const screening = {
+      id: screeningId,
+      ...screeningData
+    };
+    
+    // Add to companyData (in production, this would be a database insert)
+    if (!companyData.screenings) {
+      companyData.screenings = [];
+    }
+    companyData.screenings.push(screening);
+    
+    res.json({
+      id: screeningId,
+      message: 'Screening created successfully',
+      screening: screening
+    });
+  } catch (error) {
+    console.error('Error creating screening:', error);
+    res.status(500).json({ error: 'Failed to create screening' });
+  }
+});
+
+// Get company screenings
+router.get('/screenings', companyAuth, async (req, res) => {
+  try {
+    const companyId = req.companyId;
+    
+    // Get screenings for this company
+    const screenings = (companyData.screenings || []).filter(s => s.companyId === companyId);
+    
+    res.json({
+      screenings: screenings,
+      message: 'Screenings retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Error fetching screenings:', error);
+    res.status(500).json({ error: 'Failed to fetch screenings' });
+  }
+});
+
 module.exports = router;

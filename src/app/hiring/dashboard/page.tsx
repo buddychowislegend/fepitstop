@@ -53,6 +53,7 @@ export default function CompanyDashboard() {
 
     // Load data from backend
     loadDashboardData();
+    loadScreenings();
   }, [router]);
 
   const loadDashboardData = async () => {
@@ -106,6 +107,37 @@ export default function CompanyDashboard() {
     }
   };
 
+  const loadScreenings = async () => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/screenings`, {
+        method: 'GET',
+        headers: {
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const screenings = data.screenings.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          status: s.status,
+          candidates: [],
+          createdDate: s.createdAt.split('T')[0],
+          totalCandidates: 0,
+          completedInterviews: 0
+        }));
+        setInterviewDrives(prev => [...prev, ...screenings]);
+      }
+    } catch (error) {
+      console.error('Error loading screenings:', error);
+    }
+  };
+
   const handleAiScreeningCreation = async () => {
     if (!aiInput.trim()) return;
     
@@ -117,25 +149,56 @@ export default function CompanyDashboard() {
   const handleCreateDriveFromAI = async (details: any) => {
     try {
       const screeningName = `AI Generated: ${details.positionTitle}`;
-      const newScreening = {
-        id: Date.now().toString(),
-        name: screeningName,
-        status: "draft" as const,
-        candidates: [],
-        createdDate: new Date().toISOString().split('T')[0],
-        totalCandidates: 0,
-        completedInterviews: 0
-      };
       
-      setInterviewDrives([...interviewDrives, newScreening]);
-      setShowAIConfig(false);
-      setActiveTab('screenings');
+      // Create screening in backend
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/screenings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: screeningName,
+          positionTitle: details.positionTitle,
+          language: details.language,
+          mustHaves: details.mustHaves,
+          goodToHaves: details.goodToHaves,
+          culturalFit: details.culturalFit,
+          estimatedTime: details.estimatedTime,
+          status: 'draft'
+        })
+      });
       
-      // Show success message
-      alert(`AI screening "${screeningName}" created successfully!`);
+      if (response.ok) {
+        const data = await response.json();
+        const newScreening = {
+          id: data.id,
+          name: screeningName,
+          status: "draft" as const,
+          candidates: [],
+          createdDate: new Date().toISOString().split('T')[0],
+          totalCandidates: 0,
+          completedInterviews: 0
+        };
+        
+        setInterviewDrives([...interviewDrives, newScreening]);
+        setShowAIConfig(false);
+        setActiveTab('screenings');
+        
+        // Reload screenings to get the latest data
+        loadScreenings();
+        
+        // Show success message
+        alert(`AI screening "${screeningName}" created successfully!`);
+      } else {
+        throw new Error('Failed to create screening in backend');
+      }
     } catch (error) {
       console.error('Error creating AI screening:', error);
-      alert('Failed to create AI screening');
+      alert('Failed to create AI screening. Please try again.');
     }
   };
 
