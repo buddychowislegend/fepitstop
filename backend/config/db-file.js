@@ -177,9 +177,10 @@ class Database {
     return db.quizQuestions;
   }
 
-  async getRandomQuizQuestions(count) {
+  async getRandomQuizQuestions(count, profile) {
     const db = this.read();
-    const shuffled = db.quizQuestions.sort(() => 0.5 - Math.random());
+    const filteredQuestions = profile ? db.quizQuestions.filter(q => q.profile === profile) : db.quizQuestions;
+    const shuffled = filteredQuestions.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   }
 

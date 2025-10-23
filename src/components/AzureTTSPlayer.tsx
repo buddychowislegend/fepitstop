@@ -91,11 +91,11 @@ export default function AzureTTSPlayer({
             setTimeout(()=> {
               audioRef?.current?.play();
               setIsPlaying(true);
-            },1000)
+            },1500)
           
           }
         } else {
-          // JSON response (fallback)
+          // JSON response (fallba\k)
           const data = await response.json();
           if (data.useBrowserTTS) {
             // Use browser's built-in TTS

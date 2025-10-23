@@ -2291,7 +2291,7 @@ function AIInterviewContent() {
                   style={{ width: `${Math.min((feedback.score / 10) * 100, 100)}%` }}
                 ></div>
               </div>
-              <div className="flex justify-between mt-2 text-xs text-gray-600">
+              <div className="flex justify-between mt-2 text-xs text-white/60">
                 <span>Incomplete</span>
                 <span>Entry-Level</span>
                 <span>Professional</span>
@@ -2488,7 +2488,7 @@ function AIInterviewContent() {
           {/* Fallback: Recorded Answers (video) paired by conversation order */}
           {(!feedback.questionAnalysis || feedback.questionAnalysis.length === 0) && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white-900 mb-6">Recorded Answers</h2>
+              <h2 className="text-2xl font-bold mb-6">Recorded Answers</h2>
               <div className="space-y-6">
                 {(() => {
                   const pairs: { q: string; cand?: any }[] = [];
@@ -2509,16 +2509,16 @@ function AIInterviewContent() {
                   return pairs
                     .filter(p => p.cand && p.cand.videoUrl)
                     .map((p, idx) => (
-                      <div key={idx} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                        <div className="bg-purple-50 p-4 border-b border-gray-200">
+                      <div key={idx} className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg overflow-hidden shadow-sm">
+                        <div className="bg-[color:var(--surface)] p-4 border-b border-[color:var(--border)]">
                           <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-gray-900">Question {idx + 1}</h3>
+                            <h3 className="font-semibold">Question {idx + 1}</h3>
                           </div>
                         </div>
                         <div className="p-6">
                           <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-gray-700 mb-2">Question:</h4>
-                            <p className="text-gray-800 bg-gray-50 p-3 rounded">{p.q}</p>
+                            <h4 className="text-sm font-semibold mb-2">Question:</h4>
+                            <p className="text-white/90 bg-[color:var(--surface)] p-3 rounded border border-[color:var(--border)]">{p.q}</p>
                           </div>
                           <div className="grid md:grid-cols-2 gap-4">
                             <div className="bg-black rounded-lg overflow-hidden">
@@ -2532,8 +2532,8 @@ function AIInterviewContent() {
                               </video>
                             </div>
                             <div>
-                              <h4 className="text-sm font-semibold text-gray-700 mb-2">Transcript (approx):</h4>
-                              <p className="text-gray-800 bg-gray-50 p-3 rounded">{p.cand.content}</p>
+                              <h4 className="text-sm font-semibold mb-2">Transcript (approx):</h4>
+                              <p className="text-white/90 bg-[color:var(--surface)] p-3 rounded border border-[color:var(--border)]">{p.cand.content}</p>
                             </div>
                           </div>
                         </div>
@@ -2545,19 +2545,19 @@ function AIInterviewContent() {
           )}
 
           {/* Overall Summary */}
-          <h2 className="text-2xl font-bold text-white-900 mb-6">Overall Summary</h2>
+          <h2 className="text-2xl font-bold mb-6">Overall Summary</h2>
           
           {/* Detailed Analysis */}
           <div className="grid md:grid-cols-2 gap-8">
             {/* Strengths */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Strengths</h3>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4">Key Strengths</h3>
               <div className="space-y-3">
                 {(feedback.feedback?.strengths || feedback.strengths || []).map((strength: string, index: number) => (
-                  <div key={index} className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
+                  <div key={index} className="bg-green-500/10 border-l-4 border-green-500 p-3 rounded">
                     <div className="flex items-center gap-2">
                       <span className="text-green-500">✓</span>
-                      <span className="text-gray-800">{strength}</span>
+                      <span className="text-white/90">{strength}</span>
                     </div>
                   </div>
                 )) || [
@@ -2565,10 +2565,10 @@ function AIInterviewContent() {
                   "Clear communication style",
                   "Willingness to learn and improve"
                 ].map((strength, index) => (
-                  <div key={index} className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
+                  <div key={index} className="bg-green-500/10 border-l-4 border-green-500 p-3 rounded">
                     <div className="flex items-center gap-2">
                       <span className="text-green-500">✓</span>
-                      <span className="text-gray-800">{strength}</span>
+                      <span className="text-white/90">{strength}</span>
                     </div>
                   </div>
                 ))}
@@ -2576,14 +2576,14 @@ function AIInterviewContent() {
             </div>
 
             {/* Areas for Improvement */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Areas for Improvement</h3>
+            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4">Areas for Improvement</h3>
               <div className="space-y-3">
                 {(feedback.feedback?.improvements || feedback.improvements || []).map((improvement: string, index: number) => (
-                  <div key={index} className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
+                  <div key={index} className="bg-yellow-500/10 border-l-4 border-yellow-500 p-3 rounded">
                     <div className="flex items-center gap-2">
                       <span className="text-yellow-500">💡</span>
-                      <span className="text-gray-800">{improvement}</span>
+                      <span className="text-white/90">{improvement}</span>
                     </div>
                   </div>
                 )) || [
@@ -2591,10 +2591,10 @@ function AIInterviewContent() {
                   "Study advanced JavaScript concepts",
                   "Improve system design knowledge"
                 ].map((improvement, index) => (
-                  <div key={index} className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
+                  <div key={index} className="bg-yellow-500/10 border-l-4 border-yellow-500 p-3 rounded">
                     <div className="flex items-center gap-2">
                       <span className="text-yellow-500">💡</span>
-                      <span className="text-gray-800">{improvement}</span>
+                      <span className="text-white/90">{improvement}</span>
                     </div>
                   </div>
                 ))}
@@ -2604,23 +2604,23 @@ function AIInterviewContent() {
 
           {/* Profile-based Categories */}
           {feedback.feedback?.categories && (
-            <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Category Ratings</h3>
+            <div className="mt-8 bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4">Category Ratings</h3>
               <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {Object.entries(feedback.feedback.categories).map(([k, v]: any) => {
                   const isObj = v && typeof v === 'object';
                   const rating = isObj ? (v.rating ?? v.score ?? v.value ?? null) : v;
                   const desc = isObj ? (v.description ?? v.summary ?? '') : '';
                   return (
-                    <div key={k} className="p-4 bg-gray-50 rounded border">
-                      <div className="text-sm text-gray-600 capitalize">{String(k).replace(/_/g, ' ')}</div>
+                    <div key={k} className="p-4 bg-[color:var(--surface)]/50 rounded border border-[color:var(--border)]">
+                      <div className="text-sm text-white/60 capitalize">{String(k).replace(/_/g, ' ')}</div>
                       {rating !== null && rating !== undefined ? (
                         <div className="text-xl font-bold text-purple-600">{rating}/10</div>
                       ) : (
-                        <div className="text-sm text-gray-700">Not rated</div>
+                        <div className="text-sm text-white/80">Not rated</div>
                       )}
                       {desc && (
-                        <div className="mt-1 text-xs text-gray-600">{desc}</div>
+                        <div className="mt-1 text-xs text-white/60">{desc}</div>
                       )}
                     </div>
                   );
@@ -2630,64 +2630,64 @@ function AIInterviewContent() {
           )}
 
           {/* Overall Score */}
-          <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <div className="mt-8 bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
             <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Overall Performance</h3>
+              <h3 className="text-lg font-semibold mb-4">Overall Performance</h3>
               <div className="text-6xl font-bold text-purple-600 mb-2">{feedback.score || 7}/10</div>
-              <p className="text-gray-600 mb-4">Great job! Keep practicing to reach the next level.</p>
+              <p className="text-white/60 mb-4">Great job! Keep practicing to reach the next level.</p>
             </div>
           </div>
 
           {/* Personalized Study Plan */}
           {feedback.studyPlan && (
-            <div className="mt-8 bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-8 shadow-lg">
+            <div className="mt-8 bg-gradient-to-br from-purple-500/5 to-blue-500/5 border border-purple-500/30 rounded-lg p-8 shadow-lg">
               <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">📚 Your Personalized 30-Day Study Plan</h2>
-                <p className="text-gray-600">Based on your interview performance, here's a customized roadmap to improve</p>
+                <h2 className="text-3xl font-bold mb-2">📚 Your Personalized 30-Day Study Plan</h2>
+                <p className="text-white/60">Based on your interview performance, here's a customized roadmap to improve</p>
               </div>
 
               {/* Daily Practice */}
-              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">⏰ Daily Practice Routine</h3>
+              <div className="bg-[color:var(--surface)] rounded-lg p-6 mb-6 border border-[color:var(--border)]">
+                <h3 className="text-xl font-semibold mb-4">⏰ Daily Practice Routine</h3>
                 <div className="grid md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/30">
                     <div className="text-3xl font-bold text-purple-600">{feedback.studyPlan.dailyPractice.problems}</div>
-                    <div className="text-sm text-gray-600 mt-1">Coding Problems</div>
+                    <div className="text-sm text-white/60 mt-1">Coding Problems</div>
                   </div>
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
                     <div className="text-3xl font-bold text-blue-600">{feedback.studyPlan.dailyPractice.readingTime} min</div>
-                    <div className="text-sm text-gray-600 mt-1">Reading</div>
+                    <div className="text-sm text-white/60 mt-1">Reading</div>
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/30">
                     <div className="text-3xl font-bold text-green-600">{feedback.studyPlan.dailyPractice.videoTime} min</div>
-                    <div className="text-sm text-gray-600 mt-1">Videos</div>
+                    <div className="text-sm text-white/60 mt-1">Videos</div>
                   </div>
                 </div>
               </div>
 
               {/* Weekly Goals */}
-              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">🎯 Weekly Breakdown</h3>
+              <div className="bg-[color:var(--surface)] rounded-lg p-6 mb-6 border border-[color:var(--border)]">
+                <h3 className="text-xl font-semibold mb-4">🎯 Weekly Breakdown</h3>
                 <div className="space-y-4">
                   {feedback.studyPlan.weeklyGoals.map((week: any, index: number) => (
                     <div key={index} className="border-l-4 border-purple-500 pl-4 py-2">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">Week {week.week}</span>
-                        <h4 className="font-semibold text-gray-900">{week.focus}</h4>
+                        <h4 className="font-semibold">{week.focus}</h4>
                       </div>
                       <div className="mb-2">
-                        <p className="text-sm font-medium text-gray-700 mb-1">Goals:</p>
-                        <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <p className="text-sm font-medium text-white/80 mb-1">Goals:</p>
+                        <ul className="list-disc list-inside text-sm text-white/60 space-y-1">
                           {week.goals.map((goal: string, i: number) => (
                             <li key={i}>{goal}</li>
                           ))}
                         </ul>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">Resources:</p>
+                        <p className="text-sm font-medium text-white/80 mb-1">Resources:</p>
                         <div className="flex flex-wrap gap-2">
                           {week.resources.map((resource: string, i: number) => (
-                            <span key={i} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                            <span key={i} className="bg-[color:var(--surface)]/50 text-white/80 text-xs px-2 py-1 rounded border border-[color:var(--border)]">
                               {resource}
                             </span>
                           ))}
@@ -2699,8 +2699,8 @@ function AIInterviewContent() {
               </div>
 
               {/* Key Resources */}
-              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">📖 Recommended Resources</h3>
+              <div className="bg-[color:var(--surface)] rounded-lg p-6 mb-6 border border-[color:var(--border)]">
+                <h3 className="text-xl font-semibold mb-4">📖 Recommended Resources</h3>
                 <div className="flex flex-wrap gap-2">
                   {feedback.studyPlan.keyResources.map((resource: string, index: number) => (
                     <span key={index} className="bg-purple-100 text-purple-700 px-3 py-2 rounded-lg text-sm font-medium">
@@ -2711,8 +2711,8 @@ function AIInterviewContent() {
               </div>
 
               {/* Milestones */}
-              <div className="bg-white rounded-lg p-6 border border-purple-100">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">🏆 Milestones to Achieve</h3>
+              <div className="bg-[color:var(--surface)] rounded-lg p-6 border border-[color:var(--border)]">
+                <h3 className="text-xl font-semibold mb-4">🏆 Milestones to Achieve</h3>
                 <div className="grid md:grid-cols-2 gap-3">
                   {feedback.studyPlan.milestones.map((milestone: string, index: number) => (
                     <div key={index} className="flex items-start gap-2 p-3 bg-green-50 rounded-lg">

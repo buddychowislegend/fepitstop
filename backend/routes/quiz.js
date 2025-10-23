@@ -33,7 +33,8 @@ router.get('/', async (req, res) => {
 router.get('/random/:count', async (req, res) => {
   try {
     const count = Math.min(parseInt(req.params.count) || 5, 50);
-    const questions = await db.getRandomQuizQuestions(count);
+    const profile = req.query.profile;
+    const questions = await db.getRandomQuizQuestions(count, profile);
     res.json({ questions });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });

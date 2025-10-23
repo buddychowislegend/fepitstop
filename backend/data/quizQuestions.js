@@ -6,7 +6,8 @@ const quizQuestions = [
     options: ["true", "false", "TypeError", "undefined"],
     correct: 0,
     category: "JavaScript Basics",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "2",
@@ -14,7 +15,8 @@ const quizQuestions = [
     options: ["'NaN'", "'number'", "'undefined'", "'object'"],
     correct: 1,
     category: "JavaScript Basics",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "3",
@@ -22,7 +24,8 @@ const quizQuestions = [
     options: ["Value only", "Type only", "Both value and type", "Reference"],
     correct: 2,
     category: "JavaScript Basics",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "4",
@@ -30,7 +33,8 @@ const quizQuestions = [
     options: ["shift()", "unshift()", "push()", "pop()"],
     correct: 2,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "5",
@@ -38,7 +42,8 @@ const quizQuestions = [
     options: ["'number'", "'string'", "'object'", "'undefined'"],
     correct: 1,
     category: "JavaScript Basics",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   
   // Code Snippet Questions
@@ -48,7 +53,8 @@ const quizQuestions = [
     options: ["'123'", "6", "'15'", "NaN"],
     correct: 0,
     category: "Type Coercion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "7",
@@ -56,7 +62,8 @@ const quizQuestions = [
     options: ["[1,2,3,4,5,6]", "'1,2,34,5,6'", "'1,2,3,4,5,6'", "Error"],
     correct: 1,
     category: "Type Coercion",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "8",
@@ -64,7 +71,8 @@ const quizQuestions = [
     options: ["[1, 2, 3]", "[1, 2, 3, 4]", "undefined", "Error"],
     correct: 1,
     category: "References",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "9",
@@ -72,7 +80,8 @@ const quizQuestions = [
     options: ["true", "false", "undefined", "NaN"],
     correct: 1,
     category: "Numbers",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "10",
@@ -80,7 +89,8 @@ const quizQuestions = [
     options: ["1", "2", "undefined", "Error"],
     correct: 0,
     category: "Objects",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "11",
@@ -88,7 +98,8 @@ const quizQuestions = [
     options: ["true", "false", "undefined", "Error"],
     correct: 0,
     category: "Type Coercion",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "12",
@@ -96,7 +107,8 @@ const quizQuestions = [
     options: ["3", "4", "10", "11"],
     correct: 3,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "13",
@@ -104,7 +116,8 @@ const quizQuestions = [
     options: ["1", "undefined", "ReferenceError", "null"],
     correct: 1,
     category: "Hoisting",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "14",
@@ -112,7 +125,8 @@ const quizQuestions = [
     options: ["1", "2", "3", "Error"],
     correct: 2,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "15",
@@ -120,7 +134,8 @@ const quizQuestions = [
     options: ["'1020'", "30", "'30'", "NaN"],
     correct: 1,
     category: "Type Coercion",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "16",
@@ -128,7 +143,8 @@ const quizQuestions = [
     options: ["1", "2", "undefined", "ReferenceError"],
     correct: 3,
     category: "Hoisting",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "17",
@@ -136,7 +152,8 @@ const quizQuestions = [
     options: ["'hello'", "['hello']", "['h','e','l','l','o']", "Error"],
     correct: 2,
     category: "Spread Operator",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "18",
@@ -144,7 +161,8 @@ const quizQuestions = [
     options: ["1", "2", "undefined", "Error"],
     correct: 1,
     category: "References",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "19",
@@ -152,7 +170,8 @@ const quizQuestions = [
     options: ["true, true", "true, false", "false, true", "false, false"],
     correct: 1,
     category: "Comparisons",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "20",
@@ -160,7 +179,8 @@ const quizQuestions = [
     options: ["2", "3", "undefined", "Error"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "21",
@@ -168,7 +188,8 @@ const quizQuestions = [
     options: ["undefined", "123", "'[object Object]'", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "22",
@@ -176,7 +197,8 @@ const quizQuestions = [
     options: ["true", "false", "null", "undefined"],
     correct: 1,
     category: "Boolean Conversion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "23",
@@ -184,7 +206,8 @@ const quizQuestions = [
     options: ["[2, 4, 6]", "[undefined, undefined, undefined]", "[]", "Error"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "24",
@@ -192,7 +215,8 @@ const quizQuestions = [
     options: ["30", "undefined", "null", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "25",
@@ -200,7 +224,8 @@ const quizQuestions = [
     options: ["[1, 2, 3, 4, 5]", "[1, 2]", "[3, 4, 5]", "Error"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "26",
@@ -208,7 +233,8 @@ const quizQuestions = [
     options: ["1", "2", "undefined", "Error"],
     correct: 3,
     category: "Scope",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "27",
@@ -216,7 +242,8 @@ const quizQuestions = [
     options: ["'345'", "'75'", "12", "NaN"],
     correct: 1,
     category: "Type Coercion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "28",
@@ -224,7 +251,8 @@ const quizQuestions = [
     options: ["{ a: 1, b: 2 }", "{ b: 2 }", "{ a: 1 }", "Error"],
     correct: 1,
     category: "Destructuring",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "29",
@@ -232,7 +260,8 @@ const quizQuestions = [
     options: ["1", "2", "3", "undefined"],
     correct: 2,
     category: "Destructuring",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "30",
@@ -240,7 +269,8 @@ const quizQuestions = [
     options: ["[1, 2, 3]", "{ 0: 1, 1: 2, 2: 3 }", "undefined", "ReferenceError"],
     correct: 3,
     category: "Arrow Functions",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "31",
@@ -248,7 +278,8 @@ const quizQuestions = [
     options: ["'123'", "'1111011'", "123", "Error"],
     correct: 1,
     category: "Numbers",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "32",
@@ -256,7 +287,8 @@ const quizQuestions = [
     options: ["[1, 2, 3]", "[2, 4, 6]", "[1, 2, 3, 2, 4, 6]", "Infinite loop"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "33",
@@ -264,7 +296,8 @@ const quizQuestions = [
     options: ["1, 2, 3", "1, 3, 2", "3, 1, 2", "2, 1, 3"],
     correct: 1,
     category: "Promises",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "34",
@@ -272,7 +305,8 @@ const quizQuestions = [
     options: ["[2, 4, 6]", "[4, 6]", "[2, 3]", "[1, 2, 3]"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "35",
@@ -280,7 +314,8 @@ const quizQuestions = [
     options: ["1", "2", "undefined", "Error"],
     correct: 1,
     category: "References",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "36",
@@ -288,7 +323,8 @@ const quizQuestions = [
     options: ["'Hello'", "'hello'", "Error", "undefined"],
     correct: 1,
     category: "Strings",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "37",
@@ -296,7 +332,8 @@ const quizQuestions = [
     options: ["[1]", "[2]", "[1, 2]", "[2, 3]"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "38",
@@ -304,7 +341,8 @@ const quizQuestions = [
     options: ["10", "20", "undefined", "ReferenceError"],
     correct: 3,
     category: "Hoisting",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "39",
@@ -312,7 +350,8 @@ const quizQuestions = [
     options: ["[[1, 2], [3, 4]]", "[1, 2, 3, 4]", "Error", "undefined"],
     correct: 1,
     category: "Spread Operator",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "40",
@@ -320,7 +359,8 @@ const quizQuestions = [
     options: ["undefined undefined", "x y", "1 2", "Error"],
     correct: 2,
     category: "Destructuring",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "41",
@@ -328,7 +368,8 @@ const quizQuestions = [
     options: ["[1, 2]", "[3]", "[4, 5]", "[1, 2, 4, 5]"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "42",
@@ -336,7 +377,8 @@ const quizQuestions = [
     options: ["true", "false", "undefined", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "43",
@@ -344,7 +386,8 @@ const quizQuestions = [
     options: ["true", "false", "1", "undefined"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "44",
@@ -352,7 +395,8 @@ const quizQuestions = [
     options: ["5", "10", "NaN", "Error"],
     correct: 1,
     category: "Functions",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "45",
@@ -360,7 +404,8 @@ const quizQuestions = [
     options: ["[1, 2, 3]", "[]", "[0]", "undefined"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "46",
@@ -368,7 +413,8 @@ const quizQuestions = [
     options: ["'null'", "'object'", "'undefined'", "'number'"],
     correct: 1,
     category: "JavaScript Basics",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "47",
@@ -376,7 +422,8 @@ const quizQuestions = [
     options: ["true", "false", "undefined", "Error"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "48",
@@ -384,7 +431,8 @@ const quizQuestions = [
     options: ["1", "null", "undefined", "Error"],
     correct: 2,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "49",
@@ -392,7 +440,8 @@ const quizQuestions = [
     options: ["10", "2", "5", "Error"],
     correct: 1,
     category: "Numbers",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "50",
@@ -400,7 +449,8 @@ const quizQuestions = [
     options: ["[1, 2, 3]", "[4, 5, 6]", "Error", "undefined"],
     correct: 2,
     category: "References",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "51",
@@ -408,7 +458,8 @@ const quizQuestions = [
     options: ["'53'", "2", "'2'", "NaN"],
     correct: 1,
     category: "Type Coercion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "52",
@@ -416,7 +467,8 @@ const quizQuestions = [
     options: ["[2, 3]", "2", "true", "undefined"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "53",
@@ -424,7 +476,8 @@ const quizQuestions = [
     options: ["1", "2", "undefined", "Error"],
     correct: 1,
     category: "References",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "54",
@@ -432,7 +485,8 @@ const quizQuestions = [
     options: ["[]", "''", "'[][]'", "Error"],
     correct: 1,
     category: "Type Coercion",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "55",
@@ -440,7 +494,8 @@ const quizQuestions = [
     options: ["0", "1", "2", "-1"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "56",
@@ -448,7 +503,8 @@ const quizQuestions = [
     options: ["5 5", "6 5", "5 6", "6 6"],
     correct: 1,
     category: "Operators",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "57",
@@ -456,7 +512,8 @@ const quizQuestions = [
     options: ["true", "false", "[3]", "3"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "58",
@@ -464,7 +521,8 @@ const quizQuestions = [
     options: ["1 2", "a b", "'a' 'b'", "undefined"],
     correct: 1,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "59",
@@ -472,7 +530,8 @@ const quizQuestions = [
     options: ["0", "undefined", "-Infinity", "Infinity"],
     correct: 2,
     category: "Math",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "60",
@@ -480,7 +539,8 @@ const quizQuestions = [
     options: ["true", "false", "[1, 2, 3]", "undefined"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "61",
@@ -488,7 +548,8 @@ const quizQuestions = [
     options: ["'hello'", "'hellohello'", "'hheelllloo'", "Error"],
     correct: 1,
     category: "Strings",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "62",
@@ -496,7 +557,8 @@ const quizQuestions = [
     options: ["[1, 2, 3, 2, 1]", "[1, 2, 3]", "[1, 2]", "Error"],
     correct: 1,
     category: "Sets",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "63",
@@ -504,7 +566,8 @@ const quizQuestions = [
     options: ["1", "2", "undefined", "Error"],
     correct: 0,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "64",
@@ -512,7 +575,8 @@ const quizQuestions = [
     options: ["true", "false", "''", "undefined"],
     correct: 0,
     category: "Boolean Conversion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "65",
@@ -520,7 +584,8 @@ const quizQuestions = [
     options: ["[1, 2, 3]", "[1, [2, [3]]]", "[1, 2, [3]]", "Error"],
     correct: 2,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "66",
@@ -528,7 +593,8 @@ const quizQuestions = [
     options: ["true", "false", "undefined", "Error"],
     correct: 1,
     category: "Comparisons",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "67",
@@ -536,7 +602,8 @@ const quizQuestions = [
     options: ["'1-2-3'", "'123'", "[1-2-3]", "Error"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "68",
@@ -544,7 +611,8 @@ const quizQuestions = [
     options: ["1", "2", "undefined", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "69",
@@ -552,7 +620,8 @@ const quizQuestions = [
     options: ["'truefalse'", "1", "0", "NaN"],
     correct: 1,
     category: "Type Coercion",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "70",
@@ -560,7 +629,8 @@ const quizQuestions = [
     options: ["0", "6", "[1, 2, 3]", "Error"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "71",
@@ -568,7 +638,8 @@ const quizQuestions = [
     options: ["2", "undefined", "null", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "72",
@@ -576,7 +647,8 @@ const quizQuestions = [
     options: ["1", "2", "3", "undefined"],
     correct: 2,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "73",
@@ -584,7 +656,8 @@ const quizQuestions = [
     options: ["'number'", "'string'", "'object'", "'undefined'"],
     correct: 1,
     category: "Type Conversion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "74",
@@ -592,7 +665,8 @@ const quizQuestions = [
     options: ["1", "2", "3", "undefined"],
     correct: 1,
     category: "Destructuring",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "75",
@@ -600,7 +674,8 @@ const quizQuestions = [
     options: ["true", "false", "undefined", "Error"],
     correct: 0,
     category: "Type Coercion",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "76",
@@ -608,7 +683,8 @@ const quizQuestions = [
     options: ["'function'", "'undefined'", "'object'", "ReferenceError"],
     correct: 1,
     category: "Functions",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "77",
@@ -616,7 +692,8 @@ const quizQuestions = [
     options: ["[0, 0, 0]", "[1, 0, 3]", "[0, 2, 3]", "[1, 2, 0]"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "78",
@@ -624,7 +701,8 @@ const quizQuestions = [
     options: ["undefined", "1", "null", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "79",
@@ -632,7 +710,8 @@ const quizQuestions = [
     options: ["'52'", "10", "'10'", "NaN"],
     correct: 1,
     category: "Type Coercion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "80",
@@ -640,7 +719,8 @@ const quizQuestions = [
     options: ["[1, 2, 3, 4, 5]", "[[1,2,3],[4,5]]", "[1, 2, 3]", "Error"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "81",
@@ -648,7 +728,8 @@ const quizQuestions = [
     options: ["3", "'12'", "12", "Error"],
     correct: 1,
     category: "Template Literals",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "82",
@@ -656,7 +737,8 @@ const quizQuestions = [
     options: ["[1, 2]", "['a', 'b']", "{ a: 1, b: 2 }", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "83",
@@ -664,7 +746,8 @@ const quizQuestions = [
     options: ["[1, 2, 2, 4, 3, 6]", "[[1, 2], [2, 4], [3, 6]]", "[1, 2, 3]", "Error"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "84",
@@ -672,7 +755,8 @@ const quizQuestions = [
     options: ["0", "NaN", "undefined", "null"],
     correct: 0,
     category: "Type Conversion",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "85",
@@ -680,7 +764,8 @@ const quizQuestions = [
     options: ["[1, 2, 3]", "[]", "false", "undefined"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "86",
@@ -688,7 +773,8 @@ const quizQuestions = [
     options: ["{ a: 1 }", "{ b: 2 }", "{ a: 1, b: 2 }", "Error"],
     correct: 2,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "87",
@@ -696,7 +782,8 @@ const quizQuestions = [
     options: ["true", "false", "'false'", "undefined"],
     correct: 0,
     category: "Boolean Conversion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "88",
@@ -704,7 +791,8 @@ const quizQuestions = [
     options: ["0", "1", "2", "-1"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "89",
@@ -712,7 +800,8 @@ const quizQuestions = [
     options: ["null", "'default'", "undefined", "Error"],
     correct: 1,
     category: "Nullish Coalescing",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "90",
@@ -720,7 +809,8 @@ const quizQuestions = [
     options: ["1", "[1]", "[2, 3]", "3"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "91",
@@ -728,7 +818,8 @@ const quizQuestions = [
     options: ["true", "false", "1", "undefined"],
     correct: 0,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "92",
@@ -736,7 +827,8 @@ const quizQuestions = [
     options: ["[0, 1, 2, 3]", "[1, 2, 3, 0]", "[1, 2, 3]", "Error"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "93",
@@ -744,7 +836,8 @@ const quizQuestions = [
     options: ["0", "NaN", "Infinity", "Error"],
     correct: 2,
     category: "Numbers",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "94",
@@ -752,7 +845,8 @@ const quizQuestions = [
     options: ["[1]", "[2, 3]", "[3]", "[-2]"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "95",
@@ -760,7 +854,8 @@ const quizQuestions = [
     options: ["'h'", "0", "'hello'", "undefined"],
     correct: 0,
     category: "Strings",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "96",
@@ -768,7 +863,8 @@ const quizQuestions = [
     options: ["1", "2", "3", "[1, 2]"],
     correct: 2,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "97",
@@ -776,7 +872,8 @@ const quizQuestions = [
     options: ["['a', 'b']", "[1, 2]", "{ a: 1, b: 2 }", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "98",
@@ -784,7 +881,8 @@ const quizQuestions = [
     options: ["0", "1", "2", "-1"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "99",
@@ -792,7 +890,8 @@ const quizQuestions = [
     options: ["123", "'123'", "Error", "undefined"],
     correct: 1,
     category: "Type Conversion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "100",
@@ -800,7 +899,8 @@ const quizQuestions = [
     options: ["[2, 3, 4]", "[1, 2, 3, 4]", "[2, 3, 4, 5]", "[1]"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "101",
@@ -808,7 +908,8 @@ const quizQuestions = [
     options: ["[[1,2],[3,4]]", "[1, 2, 3, 4]", "Error", "undefined"],
     correct: 1,
     category: "Spread Operator",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "102",
@@ -816,7 +917,8 @@ const quizQuestions = [
     options: ["10", "NaN", "'10px'", "Error"],
     correct: 0,
     category: "Numbers",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "103",
@@ -824,7 +926,8 @@ const quizQuestions = [
     options: ["true", "false", "1", "undefined"],
     correct: 0,
     category: "Objects",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "104",
@@ -832,7 +935,8 @@ const quizQuestions = [
     options: ["'[1,2,3]'", "'1,2,3'", "[1, 2, 3]", "Error"],
     correct: 1,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "105",
@@ -840,7 +944,8 @@ const quizQuestions = [
     options: ["true", "false", "0", "undefined"],
     correct: 1,
     category: "Boolean Conversion",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "106",
@@ -848,7 +953,8 @@ const quizQuestions = [
     options: ["[2, 2, 3]", "[1, 1, 2]", "[1, 2, 3]", "Error"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "107",
@@ -856,7 +962,8 @@ const quizQuestions = [
     options: ["true", "false", "undefined", "Error"],
     correct: 0,
     category: "Arrays",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "108",
@@ -864,7 +971,8 @@ const quizQuestions = [
     options: ["5", "'5.00'", "5.00", "Error"],
     correct: 1,
     category: "Numbers",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "109",
@@ -872,7 +980,8 @@ const quizQuestions = [
     options: ["['a', 1]", "[['a', 1]]", "{ a: 1 }", "Error"],
     correct: 1,
     category: "Objects",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "110",
@@ -880,7 +989,8 @@ const quizQuestions = [
     options: ["'hello'", "'HELLO'", "'Hello'", "Error"],
     correct: 1,
     category: "Strings",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   
   // CSS Questions
@@ -890,7 +1000,8 @@ const quizQuestions = [
     options: ["font-style", "text-style", "font-size", "text-size"],
     correct: 2,
     category: "CSS",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "C2",
@@ -898,7 +1009,8 @@ const quizQuestions = [
     options: ["Makes text flexible", "Creates a flexbox container", "Hides element", "Makes element inline"],
     correct: 1,
     category: "CSS",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   {
     id: "C3",
@@ -906,7 +1018,8 @@ const quizQuestions = [
     options: ["z-index", "stack-order", "layer", "position"],
     correct: 0,
     category: "CSS",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
   
   // Riddles
@@ -916,7 +1029,8 @@ const quizQuestions = [
     options: ["17 minutes", "19 minutes", "21 minutes", "23 minutes"],
     correct: 0,
     category: "Logic Puzzles",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "R2",
@@ -924,7 +1038,8 @@ const quizQuestions = [
     options: ["They are invisible", "They are all married", "It's a ghost ship", "It's a painting"],
     correct: 1,
     category: "Logic Puzzles",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "R3",
@@ -932,7 +1047,8 @@ const quizQuestions = [
     options: ["7 crossings", "9 crossings", "11 crossings", "13 crossings"],
     correct: 0,
     category: "Logic Puzzles",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    profile: 'frontend'
   },
   {
     id: "R4",
@@ -940,7 +1056,8 @@ const quizQuestions = [
     options: ["Echo", "Whistle", "Shadow", "Thought"],
     correct: 0,
     category: "Logic Puzzles",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    profile: 'frontend'
   },
   {
     id: "R5",
@@ -948,7 +1065,8 @@ const quizQuestions = [
     options: ["Sponge", "Towel", "Sun", "Cloud"],
     correct: 1,
     category: "Logic Puzzles",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    profile: 'frontend'
   },
 ];
 

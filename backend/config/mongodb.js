@@ -114,9 +114,14 @@ class MongoDatabase {
     return await this.db.collection('quizQuestions').find({}).toArray();
   }
 
-  async getRandomQuizQuestions(count) {
+  async getRandomQuizQuestions(count, profile = null) {
     await this.ensureConnection();
+    const query = {};
+    if (profile) {
+      query.profile = profile;
+    }
     const questions = await this.db.collection('quizQuestions').aggregate([
+      { $match: query },
       { $sample: { size: count } }
     ]).toArray();
     return questions;

@@ -37,7 +37,9 @@ export default function QuizPage() {
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  
+  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const [showProfileSelection, setShowProfileSelection] = useState(true);
+
   // Timer and rating
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
@@ -47,6 +49,30 @@ export default function QuizPage() {
   const [submitting, setSubmitting] = useState(false);
   const [rankInfo, setRankInfo] = useState<any>(null);
 
+  const profiles = [
+    { id: 'frontend', name: 'Frontend', icon: '⚛️', description: 'React, JavaScript, TypeScript' },
+    { id: 'backend', name: 'Backend Spring Boot', icon: '☕', description: 'Java, Spring, Microservices' },
+    { id: 'product', name: 'Product Manager', icon: '📊', description: 'Product Strategy, Metrics' },
+    { id: 'hr', name: 'HR', icon: '👥', description: 'Recruitment, Culture' },
+    { id: 'business', name: 'Sales', icon: '💼', description: 'Enterprise, Partnerships' }
+  ];
+
+  const handleProfileSelect = (profileId: string) => {
+    setSelectedProfile(profileId);
+    setShowProfileSelection(false);
+    setLoading(true);
+    // Fetch questions for selected profile
+    fetch(api(`/quiz/random/10?profile=${encodeURIComponent(profileId)}`))
+      .then((res) => res.json())
+      .then((data) => {
+        setQuestions(data.questions || []);
+        setLoading(false);
+        setStartTime(Date.now());
+        setQuestionStartTime(Date.now());
+      })
+      .catch(() => setLoading(false));
+  };
+
   // Check authentication
   useEffect(() => {
     if (!authLoading && !user) {
@@ -54,6 +80,16 @@ export default function QuizPage() {
       router.push('/signin?redirect=/quiz');
     }
   }, [authLoading, user, router]);
+
+  // Auto-load user's default profile if available
+  useEffect(() => {
+    if (!authLoading && user && showProfileSelection) {
+      const userProfile = (user as any)?.profile;
+      if (userProfile && profiles.some(p => p.id === userProfile)) {
+        handleProfileSelect(userProfile);
+      }
+    }
+  }, [authLoading, user]);
 
   useEffect(() => {
     // Only fetch if user is authenticated
@@ -159,21 +195,45 @@ export default function QuizPage() {
     setShowRating(false);
     setRankInfo(null);
     setLoading(true);
-    fetch(api(`/quiz/random/10`))
-      .then((res) => res.json())
-      .then((data) => {
-        setQuestions(data.questions || []);
-        setLoading(false);
-        setStartTime(Date.now());
-        setQuestionStartTime(Date.now());
-      })
-      .catch(() => setLoading(false));
+    setShowProfileSelection(true);
+    setSelectedProfile(null);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white flex items-center justify-center">
         <p>Loading quiz...</p>
+      </div>
+    );
+  }
+
+  // Profile Selection Screen
+  if (showProfileSelection) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-5xl">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-extrabold mb-4">Select Your Quiz Profile</h1>
+            <p className="text-xl text-white/70">Choose the profile that matches your role to get relevant questions</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {profiles.map((profile) => (
+              <button
+                key={profile.id}
+                onClick={() => handleProfileSelect(profile.id)}
+                className="group relative rounded-2xl bg-gradient-to-br from-white/10 to-white/5 p-8 border border-white/10 hover:border-white/30 transition-all hover:scale-105 hover:shadow-xl"
+              >
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/0 to-blue-500/0 group-hover:from-purple-500/10 group-hover:to-blue-500/10 transition-all"></div>
+                <div className="relative z-10">
+                  <div className="text-5xl mb-4">{profile.icon}</div>
+                  <h3 className="text-2xl font-bold mb-2">{profile.name}</h3>
+                  <p className="text-white/60 text-sm">{profile.description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -359,6 +419,8 @@ export default function QuizPage() {
 
   const q = questions[current];
   const progress = ((current + 1) / questions.length) * 100;
+ 
+  const currentProfile = profiles.find(p => p.id === selectedProfile);
 
   // Parse question to extract code snippet if present
   const parseQuestion = (question: string) => {
@@ -374,7 +436,7 @@ export default function QuizPage() {
     return { text: question, code: null, hasCode: false };
   };
 
-  const parsedQuestion = parseQuestion(q.question);
+  const parsedQuestion = q ? parseQuestion(q.question) : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center text-white">
@@ -383,6 +445,17 @@ export default function QuizPage() {
         <h1 className="text-3xl sm:text-4xl font-extrabold">Curated Quiz & Trivia</h1>
         <p className="mt-2 text-white/80">Test your knowledge with quick revision questions.</p>
         </div>
+
+        {/* Profile Badge */}
+        {currentProfile && (
+          <div className="mb-6 inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-500/30">
+            <span className="text-xl">{currentProfile.icon}</span>
+            <div>
+              <div className="font-semibold">{currentProfile.name}</div>
+              <div className="text-xs text-white/60">{currentProfile.description}</div>
+            </div>
+          </div>
+        )}
 
         {/* Progress Bar */}
         <div className="mb-6">
@@ -414,10 +487,10 @@ export default function QuizPage() {
           </div>
           
           {/* Question Text */}
-          <h2 className="text-xl font-bold mb-4 leading-relaxed">{parsedQuestion.text}</h2>
+          <h2 className="text-xl font-bold mb-4 leading-relaxed">{parsedQuestion?.text}</h2>
           
           {/* Code Snippet (if present) */}
-          {parsedQuestion.hasCode && (
+          {parsedQuestion?.hasCode && (
             <div className="mb-6 rounded-lg overflow-hidden ring-1 ring-white/20">
               {/* Code Editor Header */}
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f131a] border-b border-white/10">
