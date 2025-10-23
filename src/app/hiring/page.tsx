@@ -97,10 +97,11 @@ export default function CompanyLogin() {
             </button>
           </form>
 
-      
         </div>
 
         {/* Back to main site */}
+
+      
         <div className="text-center mt-6">
           <Link 
             href="/" 

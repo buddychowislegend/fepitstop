@@ -74,11 +74,11 @@ async function callLlamaWithRetry(prompt: string): Promise<string> {
           throw new Error('No response content from Llama');
         }
 
-        console.log('[Llama][ok]', { provider: provider.name, attempt });
+        console.log('x[ok]', { provider: provider.name, attempt });
         return text;
       } catch (err: any) {
         const msg = err?.message || String(err);
-        console.error('[Llama][error]', { provider: provider.name, attempt, msg });
+        console.error('[Llama][error]', { provider:3 provider.name, attempt, msg });
         lastError = err;
         
         // If rate limit or quota exceeded, try next provider

@@ -1473,9 +1473,11 @@ function AIInterviewContent() {
                       className="w-44 h-44 rounded-full mx-auto mb-4 object-cover"
                     />
                   ) : (
-                    <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-white">
-                      {interviewer.name.split(' ').map(n => n[0]).join('')}
-                    </div>
+                    <img
+                    src={buildAvatarImageUrl(interviewer.avatar, 'male')}
+                    alt={`${interviewer.name} avatar`}
+                    className="w-44 h-44 rounded-full mx-auto mb-4 object-cover"
+                  />
                   )}
                   <h3 className="text-xl font-bold mb-1">{interviewer.name}</h3>
                   <p className="text-purple-300 text-sm mb-2">{interviewer.role}</p>
