@@ -1,86 +1,35 @@
-"use client";
-import Link from "next/link";
-import Image from "next/image";
-
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    "Platform": [
-      { href: "/problems", label: "Problems" },
-      { href: "/quiz", label: "Quiz" },
-      { href: "/prep-plans", label: "Prep Plans" },
-      { href: "/system-design", label: "System Design" },
-    ],
-    "Practice": [
-      { href: "/mock-interview", label: "Mock Interview" },
-      { href: "/community", label: "Community Solutions" },
-      { href: "/progress", label: "Track Progress" },
-    ],
-    "Account": [
-      { href: "/profile", label: "Profile" },
-      { href: "/signin", label: "Sign In" },
-      { href: "/signup", label: "Sign Up" },
-    ],
-    "Resources": [
-      { href: "https://github.com", label: "GitHub", external: true },
-      { href: "https://twitter.com", label: "Twitter", external: true },
-      { href: "mailto:support@hireog.com", label: "Contact", external: true },
-    ],
-  };
-
   return (
-    <footer className="border-t border-white/10 bg-gradient-to-br from-[#1f1144]/80 via-[#3a1670]/60 to-[#6a2fb5]/40 backdrop-blur-sm mt-20">
-      <div className="max-w-[1600px] mx-auto px-6 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-          {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category}>
-              <h3 className="font-semibold text-white mb-4">{category}</h3>
-              <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/60 hover:text-white transition"
-                      {...(('external' in link && link.external) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    >
-                      {link.label}
-                      {'external' in link && link.external && (
-                        <span className="ml-1 text-xs">↗</span>
-                      )}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    <footer className="mt-20 sm:mt-24 bg-slate-900 text-slate-300 py-12">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h4 className="font-semibold text-white mb-3">About HireOG</h4>
+          <p className="text-sm">HireOG helps candidates overcome interview anxiety and build confidence with AI-powered insights, tools, and learning resources.</p>
         </div>
-
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Image src="/logo-simple.svg" alt="HireOG" width={32} height={32} />
-            <p className="text-sm text-white/60">
-              © {currentYear} HireOG. All rights reserved.
-            </p>
-          </div>
-          <div className="flex items-center gap-6 text-sm text-white/60">
-            <Link href="/privacy" className="hover:text-white transition">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="hover:text-white transition">
-              Terms of Service
-            </Link>
-          </div>
+        <div>
+          <h4 className="font-semibold text-white mb-3">Quick Links</h4>
+          <ul className="space-y-2 text-sm">
+            <li><a href="/problems" className="hover:underline">Questions</a></li>
+            <li><a href="/ai-interview" className="hover:underline">Ai Interview</a></li>
+            <li><a href="/quiz" className="hover:underline"></a>Quiz</li>
+            <li><a href="/prep-plans" className="hover:underline">Prep Plans</a></li>
+          </ul>
         </div>
-
-        {/* Additional Info */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-white/40">
-            Master frontend interviews with 100+ curated problems from top tech companies
-          </p>
+        <div>
+          <h4 className="font-semibold text-white mb-3">Contact</h4>
+          <ul className="space-y-2 text-sm">
+            <li>Email: <a href="mailto:hello@hireog.com" className="hover:underline">support@hireog.com</a></li>
+            <li>Address: Bengaluru, India</li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold text-white mb-3">Follow Us</h4>
+          <div className="flex gap-4">
+            <a href="https://www.linkedin.com/company/hireog" className="hover:text-white">LinkedIn</a>
+          </div>
         </div>
       </div>
+      <div className="mt-10 text-center text-xs text-slate-500 border-t border-slate-700 pt-6">© 2025 HireOG — All rights reserved.</div>
     </footer>
   );
 }

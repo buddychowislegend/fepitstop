@@ -390,7 +390,7 @@ export default function Home() {
           <p className="mt-3 text-white/80 max-w-3xl mx-auto">
             Simple steps to transform your interview performance
           </p>
-        </div>
+        </div>  
 
         <div className="mt-10 grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Step 1 */}
@@ -588,7 +588,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Ready to Transform Your Interview Performance?</h2>
           <p className="text-lg mb-8 text-white/80">Join thousands of candidates who built their confidence and got hired with HireOG.</p>
-          <a href="/signup" className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2ad17e] text-[#0e1a12] px-6 py-3 font-semibold hover:opacity-95 transition">
+          <a  href="/ai-interview" className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2ad17e] text-[#0e1a12] px-6 py-3 font-semibold hover:opacity-95 transition">
             <span>Start Free Practice Now</span>
             <span>→</span>
           </a>
@@ -652,39 +652,7 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="mt-20 sm:mt-24 bg-slate-900 text-slate-300 py-12">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h4 className="font-semibold text-white mb-3">About HireOG</h4>
-            <p className="text-sm">HireOG helps candidates overcome interview anxiety and build confidence with AI-powered insights, tools, and learning resources.</p>
-          </div>
-          <div>
-            <h4 className="font-semibold text-white mb-3">Quick Links</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="/about" className="hover:underline">About Us</a></li>
-              <li><a href="/contact" className="hover:underline">Contact</a></li>
-              <li><a href="/blog" className="hover:underline">Blog</a></li>
-              <li><a href="/faq" className="hover:underline">FAQ</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-white mb-3">Contact</h4>
-            <ul className="space-y-2 text-sm">
-              <li>Email: <a href="mailto:support@hireog.com" className="hover:underline">support@hireog.com</a></li>
-              <li>Address: Bengaluru, India</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-white mb-3">Follow Us</h4>
-            <div className="flex gap-4">
-              <a href="#" className="hover:text-white">LinkedIn</a>
-              <a href="#" className="hover:text-white">Twitter</a>
-              <a href="#" className="hover:text-white">Instagram</a>
-            </div>
-          </div>
-        </div>
-        <div className="mt-10 text-center text-xs text-slate-500 border-t border-slate-700 pt-6">© 2025 HireOG — All rights reserved.</div>
-      </footer>
+    
         </motion.div>
       </div>
     </motion.div>
