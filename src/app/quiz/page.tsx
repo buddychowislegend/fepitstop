@@ -94,7 +94,18 @@ export default function QuizPage() {
   useEffect(() => {
     // Only fetch if user is authenticated
     if (!user) return;
- setLoading(false)
+    
+    const profile = (user as any)?.profile;
+    const url = profile ? api(`/quiz/random/10?profile=${encodeURIComponent(profile)}`) : api(`/quiz/random/10`);
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        setQuestions(data.questions || []);
+        setLoading(false);
+        setStartTime(Date.now());
+        setQuestionStartTime(Date.now());
+      })
+      .catch(() => setLoading(false));
   }, [user]);
 
   const handleNext = () => {
