@@ -4,6 +4,16 @@ import { motion } from "framer-motion";
 import { ArrowRight, Target, Brain, ClipboardList } from "lucide-react";
 
 export default function Home() {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <motion.div 
       className="min-h-screen flex items-center justify-center p-6"
@@ -38,13 +48,13 @@ export default function Home() {
               <span>Start Free Practice</span>
               <span>→</span>
             </a>
-            <a 
-              href="#how"
+            <button 
+              onClick={() => scrollToSection('how')}
               className="inline-flex items-center justify-center gap-2 rounded-md border border-white/20 px-5 py-3 font-semibold text-white hover:bg-white/10 transition"
             >
               How it works
               <span>📝</span>
-            </a>
+            </button>
           </div>
           <div className="mt-8 flex items-center gap-6 text-sm text-white/80">
             <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#2ad17e]"></span>AI Feedback</div>
@@ -374,7 +384,7 @@ export default function Home() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="mt-20 sm:mt-24">
+      <section id="how" className="mt-20 sm:mt-24">
         <div className="text-center">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">How HireOG Works</h2>
           <p className="mt-3 text-white/80 max-w-3xl mx-auto">
