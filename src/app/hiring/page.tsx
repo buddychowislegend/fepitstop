@@ -279,33 +279,12 @@ export default function HiringLanding() {
       {/* FOOTER */}
       <footer className="bg-slate-900 py-10 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8 text-sm text-white/70">
-          <div>
-            <h6 className="text-[#5b8cff] font-semibold mb-3">Product</h6>
-            <ul className="space-y-2">
-              <li><a href="#features" className="hover:text-[#5b8cff] transition">Features</a></li>
-              <li><a href="#how" className="hover:text-[#5b8cff] transition">How It Works</a></li>
-              <li><a href="#faq" className="hover:text-[#5b8cff] transition">FAQ</a></li>
-            </ul>
-          </div>
-          <div>
-            <h6 className="text-[#5b8cff] font-semibold mb-3">Company</h6>
-            <ul className="space-y-2">
-              <li><a href="#testimonials" className="hover:text-[#5b8cff] transition">Testimonials</a></li>
-              <li><a href="#contact" className="hover:text-[#5b8cff] transition">Contact</a></li>
-            </ul>
-          </div>
-          <div>
-            <h6 className="text-[#5b8cff] font-semibold mb-3">Resources</h6>
-            <ul className="space-y-2">
-              <li><a href="#" className="hover:text-[#5b8cff] transition">Blog</a></li>
-              <li><a href="#" className="hover:text-[#5b8cff] transition">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-[#5b8cff] transition">Terms & Conditions</a></li>
-            </ul>
-          </div>
+       
+      
+    
           <div>
             <h6 className="text-[#5b8cff] font-semibold mb-3">Contact</h6>
             <p>hello@hireog.com</p>
-            <p>+91 79805 65882</p>
           </div>
         </div>
         <div className="mt-10 text-center text-white/50 text-sm">
