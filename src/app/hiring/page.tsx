@@ -7,7 +7,7 @@ export default function HiringLanding() {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.push('/hiring/dashboard');
+    router.push('/hiring/signin');
   };
 
   return (
@@ -279,7 +279,12 @@ export default function HiringLanding() {
       {/* FOOTER */}
       <footer className="bg-slate-900 py-10 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8 text-sm text-white/70">
-       
+          <div>
+          <div>
+          <h4 className="font-semibold text-white mb-3">About HireOG</h4>
+          <p className="text-sm">HireOG is an AI-driven video interview platform designed for modern recruitment teams. It helps companies, HRs, and hiring agencies screen thousands of candidates efficiently through automated assessments, faster shortlisting, and data-driven evaluations — all at just ₹1 per interview.</p>
+        </div>
+          </div>
       
     
           <div>

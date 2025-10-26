@@ -45,9 +45,9 @@ export default function CompanyDashboard() {
 
   useEffect(() => {
     // Check authentication
-    const isAuthenticated = localStorage.getItem("companyAuth");
+    const isAuthenticated = localStorage.getItem("hiring_authenticated");
     if (!isAuthenticated) {
-      router.push("/hiring");
+      router.push("/hiring/signin");
       return;
     }
 
@@ -286,8 +286,8 @@ export default function CompanyDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("companyAuth");
-    localStorage.removeItem("companyId");
+    localStorage.removeItem("hiring_authenticated");
+    localStorage.removeItem("hiring_user");
     router.push("/hiring");
   };
 
