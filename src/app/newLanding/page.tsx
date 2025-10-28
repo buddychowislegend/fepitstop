@@ -661,7 +661,7 @@ export default function NewLandingPage() {
           <div>
             <h4 className="font-semibold text-white mb-3">Contact</h4>
             <ul className="space-y-2 text-sm">
-              <li>Email: <a href="mailto:support@hireog.com" className="hover:underline">support@hireog.com</a></li>
+              <li>Email: <a href="mailto:hello@hireog.com" className="hover:underline">support@hireog.com</a></li>
               <li>Address: Bengaluru, India</li>
             </ul>
           </div>

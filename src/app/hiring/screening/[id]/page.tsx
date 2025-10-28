@@ -12,6 +12,12 @@ interface Candidate {
   completedDate?: string;
   invitedDate: string;
   progress: number;
+  feedback?: string;
+  qaPairs?: Array<{
+    question: string;
+    answer: string;
+    score?: number;
+  }>;
 }
 
 interface Screening {
@@ -38,6 +44,8 @@ export default function ScreeningDetailPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmails, setInviteEmails] = useState("");
   const [isInviting, setIsInviting] = useState(false);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
 
   useEffect(() => {
     loadScreeningDetails();
@@ -45,21 +53,65 @@ export default function ScreeningDetailPage() {
 
   const loadScreeningDetails = async () => {
     try {
-      // Mock data for now - replace with actual API call
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}/details`, {
+        method: 'GET',
+        headers: {
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Format the screening data
+        const formattedScreening = {
+          id: data.screening.id,
+          name: data.screening.name,
+          status: data.screening.status,
+          createdDate: new Date(data.screening.createdAt).toLocaleDateString(),
+          totalCandidates: data.screening.totalCandidates,
+          completedCandidates: data.screening.completedCandidates,
+          inProgressCandidates: data.screening.inProgressCandidates,
+          averageScore: data.screening.averageScore
+        };
+        
+        // Format the candidates data
+        const formattedCandidates = data.candidates.map((candidate: any) => ({
+          id: candidate.id,
+          name: candidate.name,
+          email: candidate.email,
+          status: candidate.status,
+          score: candidate.score,
+          completedDate: candidate.completedDate ? new Date(candidate.completedDate).toLocaleDateString() : undefined,
+          invitedDate: new Date(candidate.invitedDate).toLocaleDateString(),
+          progress: candidate.progress,
+          feedback: candidate.feedback,
+          qaPairs: candidate.qaPairs
+        }));
+        
+        setScreening(formattedScreening);
+        setCandidates(formattedCandidates);
+      } else {
+        throw new Error('Failed to load screening details');
+      }
+    } catch (error) {
+      console.error('Error loading screening details:', error);
+      // Fallback to empty state on error
       setScreening({
         id: screeningId,
-        name: "HR Manager",
-        status: "active",
-        createdDate: "24/10/2025",
+        name: "Screening Not Found",
+        status: "draft",
+        createdDate: new Date().toLocaleDateString(),
         totalCandidates: 0,
         completedCandidates: 0,
         inProgressCandidates: 0,
         averageScore: 0
       });
-      
       setCandidates([]);
-    } catch (error) {
-      console.error('Error loading screening details:', error);
     }
   };
 
@@ -70,43 +122,65 @@ export default function ScreeningDetailPage() {
     try {
       const emails = inviteEmails.split('\n').map(email => email.trim()).filter(email => email);
       
-      // Mock API call - replace with actual implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newCandidates = emails.map((email, index) => ({
-        id: `candidate-${Date.now()}-${index}`,
-        name: email.split('@')[0],
+      // Format candidates data
+      const candidates = emails.map(email => ({
+        name: email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), // Format name nicely
         email: email,
-        status: 'invited' as const,
-        invitedDate: new Date().toISOString().split('T')[0],
-        progress: 0
+        profile: screening?.name?.includes('Frontend') ? 'Frontend Developer' : 'General'
       }));
       
-      setCandidates([...candidates, ...newCandidates]);
-      setInviteEmails("");
-      setShowInviteModal(false);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       
-      // Update screening stats
-      setScreening(prev => prev ? {
-        ...prev,
-        totalCandidates: prev.totalCandidates + emails.length
-      } : null);
+      // Add candidates to screening and send invites in one call
+      const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}/invite-candidates`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ candidates })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setInviteEmails("");
+        setShowInviteModal(false);
+        
+        // Reload screening details to get updated data
+        await loadScreeningDetails();
+        
+        const totalAdded = data.addedCandidates?.length || 0;
+        const successfulEmails = data.emailResults?.filter((r: any) => r.emailSent).length || 0;
+        
+        alert(`Successfully added ${totalAdded} candidates to this screening!\n\nEmails sent: ${successfulEmails}/${totalAdded}\n\nThe screening is now active and candidates can start their interviews.`);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to invite candidates');
+      }
       
     } catch (error) {
       console.error('Error inviting candidates:', error);
-      alert('Failed to invite candidates');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Failed to invite candidates: ${errorMessage}\n\nPlease try again.`);
     } finally {
       setIsInviting(false);
     }
   };
 
+  const handleViewResults = (candidate: Candidate) => {
+    setSelectedCandidate(candidate);
+    setShowResultsModal(true);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'in-progress': return 'bg-blue-100 text-blue-800';
-      case 'invited': return 'bg-yellow-100 text-yellow-800';
-      case 'not-started': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'completed': return 'bg-green-500/20 text-green-400';
+      case 'in-progress': return 'bg-blue-500/20 text-blue-400';
+      case 'invited': return 'bg-yellow-500/20 text-yellow-400';
+      case 'not-started': return 'bg-gray-500/20 text-gray-400';
+      default: return 'bg-gray-500/20 text-gray-400';
     }
   };
 
@@ -451,7 +525,12 @@ export default function ScreeningDetailPage() {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <button className="text-[color:var(--brand-start)] hover:text-[color:var(--brand-end)] mr-3">View</button>
+                              <button 
+                                onClick={() => handleViewResults(candidate)}
+                                className="text-[color:var(--brand-start)] hover:text-[color:var(--brand-end)] mr-3"
+                              >
+                                {candidate.status === 'completed' ? 'View Results' : 'View'}
+                              </button>
                               <button className="text-blue-400 hover:text-blue-300 mr-3">Resend</button>
                               <button className="text-red-400 hover:text-red-300">Remove</button>
                             </td>
@@ -548,6 +627,144 @@ export default function ScreeningDetailPage() {
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Candidate Results Modal */}
+      {showResultsModal && selectedCandidate && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[color:var(--border)]">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-xl font-bold text-[color:var(--foreground)]">
+                  {selectedCandidate.status === 'completed' ? 'Interview Results' : 'Candidate Details'}
+                </h3>
+                <p className="text-[color:var(--foreground)]/60">{selectedCandidate.name}</p>
+              </div>
+              <button
+                onClick={() => setShowResultsModal(false)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <svg className="w-6 h-6 text-[color:var(--foreground)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Candidate Info */}
+              <div className="bg-[color:var(--surface)]/50 p-4 rounded-lg border border-[color:var(--border)]">
+                <h4 className="font-semibold text-[color:var(--foreground)] mb-3">Candidate Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[color:var(--foreground)]/60 text-sm">Name:</span>
+                    <p className="text-[color:var(--foreground)] font-medium">{selectedCandidate.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-[color:var(--foreground)]/60 text-sm">Email:</span>
+                    <p className="text-[color:var(--foreground)] font-medium">{selectedCandidate.email}</p>
+                  </div>
+                  <div>
+                    <span className="text-[color:var(--foreground)]/60 text-sm">Status:</span>
+                    <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${getStatusColor(selectedCandidate.status)}`}>
+                      {selectedCandidate.status}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[color:var(--foreground)]/60 text-sm">Invited Date:</span>
+                    <p className="text-[color:var(--foreground)] font-medium">{selectedCandidate.invitedDate}</p>
+                  </div>
+                  {selectedCandidate.completedDate && (
+                    <div>
+                      <span className="text-[color:var(--foreground)]/60 text-sm">Completed Date:</span>
+                      <p className="text-[color:var(--foreground)] font-medium">{selectedCandidate.completedDate}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Interview Results */}
+              {selectedCandidate.status === 'completed' && selectedCandidate.score !== undefined && (
+                <div className="bg-[color:var(--surface)]/50 p-4 rounded-lg border border-[color:var(--border)]">
+                  <h4 className="font-semibold text-[color:var(--foreground)] mb-3">Interview Score</h4>
+                  <div className="flex items-center gap-4">
+                    <div className="text-3xl font-bold text-[color:var(--brand-start)]">
+                      {selectedCandidate.score}/100
+                    </div>
+                    <div className="flex-1">
+                      <div className="w-full bg-[color:var(--surface)] rounded-full h-3">
+                        <div 
+                          className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] h-3 rounded-full transition-all duration-300"
+                          style={{ width: `${selectedCandidate.score}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* AI Feedback */}
+              {selectedCandidate.feedback && (
+                <div className="bg-[color:var(--surface)]/50 p-4 rounded-lg border border-[color:var(--border)]">
+                  <h4 className="font-semibold text-[color:var(--foreground)] mb-3">AI Feedback</h4>
+                  <p className="text-[color:var(--foreground)]/80 leading-relaxed">{selectedCandidate.feedback}</p>
+                </div>
+              )}
+
+              {/* Q&A Pairs */}
+              {selectedCandidate.qaPairs && selectedCandidate.qaPairs.length > 0 && (
+                <div className="bg-[color:var(--surface)]/50 p-4 rounded-lg border border-[color:var(--border)]">
+                  <h4 className="font-semibold text-[color:var(--foreground)] mb-3">Interview Questions & Answers</h4>
+                  <div className="space-y-4">
+                    {selectedCandidate.qaPairs.map((qa, index) => (
+                      <div key={index} className="border-l-4 border-[color:var(--brand-start)] pl-4">
+                        <div className="mb-2">
+                          <span className="text-[color:var(--foreground)]/60 text-sm font-medium">Q{index + 1}:</span>
+                          <p className="text-[color:var(--foreground)] font-medium">{qa.question}</p>
+                        </div>
+                        <div className="mb-2">
+                          <span className="text-[color:var(--foreground)]/60 text-sm font-medium">Answer:</span>
+                          <p className="text-[color:var(--foreground)]/80">{qa.answer}</p>
+                        </div>
+                        {qa.score !== undefined && (
+                          <div>
+                            <span className="text-[color:var(--foreground)]/60 text-sm font-medium">Score:</span>
+                            <span className="text-[color:var(--brand-start)] font-bold ml-2">{qa.score}/10</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* No Results Message */}
+              {selectedCandidate.status !== 'completed' && (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-[color:var(--surface)] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-[color:var(--foreground)]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-semibold text-[color:var(--foreground)] mb-2">Interview Not Completed</h4>
+                  <p className="text-[color:var(--foreground)]/60">
+                    {selectedCandidate.status === 'invited' 
+                      ? 'The candidate has been invited but hasn\'t started the interview yet.'
+                      : 'The candidate has not completed the interview yet.'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowResultsModal(false)}
+                className="px-4 py-2 bg-[color:var(--surface)] text-[color:var(--foreground)] rounded-lg hover:bg-white/10 transition-colors border border-[color:var(--border)]"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

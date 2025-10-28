@@ -24,7 +24,8 @@ let inMemoryDB = {
   candidates: [],
   interviewDrives: [],
   interviewTokens: [],
-  interviewResponses: []
+  interviewResponses: [],
+  screenings: []
 };
 
 try {
@@ -47,7 +48,8 @@ try {
       candidates: [],
       interviewDrives: [],
       interviewTokens: [],
-      interviewResponses: []
+      interviewResponses: [],
+      screenings: []
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
     console.log(`✅ Database initialized at: ${DB_FILE}`);
@@ -850,6 +852,61 @@ class Database {
       db.interviewDrives = [];
     }
     return db.interviewDrives.find(d => d.id === driveId);
+  }
+
+  // Screening methods
+  async addScreening(screening) {
+    const db = this.read();
+    if (!db.screenings) {
+      db.screenings = [];
+    }
+    const newScreening = {
+      id: Date.now().toString(),
+      ...screening
+    };
+    db.screenings.push(newScreening);
+    this.write(db);
+    return newScreening;
+  }
+
+  async getScreeningsByCompany(companyId) {
+    const db = this.read();
+    if (!db.screenings) {
+      db.screenings = [];
+    }
+    return db.screenings.filter(s => s.companyId === companyId);
+  }
+
+  async updateScreening(screeningId, companyId, updateData) {
+    const db = this.read();
+    if (!db.screenings) {
+      db.screenings = [];
+    }
+    const index = db.screenings.findIndex(s => s.id === screeningId && s.companyId === companyId);
+    if (index !== -1) {
+      db.screenings[index] = { 
+        ...db.screenings[index], 
+        ...updateData, 
+        updatedAt: new Date().toISOString() 
+      };
+      this.write(db);
+      return db.screenings[index];
+    }
+    return null;
+  }
+
+  async deleteScreening(screeningId, companyId) {
+    const db = this.read();
+    if (!db.screenings) {
+      db.screenings = [];
+    }
+    const index = db.screenings.findIndex(s => s.id === screeningId && s.companyId === companyId);
+    if (index !== -1) {
+      db.screenings.splice(index, 1);
+      this.write(db);
+      return true;
+    }
+    return false;
   }
 }
 

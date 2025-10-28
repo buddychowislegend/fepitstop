@@ -20,7 +20,7 @@ interface Candidate {
 interface InterviewDrive {
   id: string;
   name: string;
-  status: 'draft' | 'active' | 'completed';
+  status: 'draft' | 'active' | 'completed' | 'archived';
   candidates: string[];
   createdDate: string;
   completedDate?: string;
@@ -41,6 +41,7 @@ export default function CompanyDashboard() {
   const [showCreateDrive, setShowCreateDrive] = useState(false);
   const [newCandidate, setNewCandidate] = useState({ name: "", email: "", profile: "" });
   const [newDrive, setNewDrive] = useState({ name: "", selectedCandidates: [] as string[] });
+  const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -168,7 +169,7 @@ export default function CompanyDashboard() {
           goodToHaves: details.goodToHaves,
           culturalFit: details.culturalFit,
           estimatedTime: details.estimatedTime,
-          status: 'draft'
+          status: 'active'
         })
       });
       
@@ -177,7 +178,7 @@ export default function CompanyDashboard() {
         const newScreening = {
           id: data.id,
           name: screeningName,
-          status: "draft" as const,
+          status: "active" as const,
           candidates: [],
           createdDate: new Date().toISOString().split('T')[0],
           totalCandidates: 0,
@@ -266,7 +267,7 @@ export default function CompanyDashboard() {
         const drive: InterviewDrive = {
           id: data.id,
           name: newDrive.name,
-          status: "draft",
+          status: "active",
           candidates: newDrive.selectedCandidates,
           createdDate: new Date().toISOString().split('T')[0],
           totalCandidates: newDrive.selectedCandidates.length,
@@ -299,6 +300,130 @@ export default function CompanyDashboard() {
       case 'offer': return 'bg-green-500/20 text-green-400';
       case 'rejected': return 'bg-red-500/20 text-red-400';
       default: return 'bg-gray-500/20 text-gray-400';
+    }
+  };
+
+  // Context menu functions
+  const handleContextMenu = (e: React.MouseEvent, screeningId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({
+      id: screeningId,
+      x: e.clientX,
+      y: e.clientY
+    });
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu(null);
+  };
+
+  const handleArchiveScreening = async (screeningId: string) => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'archived' })
+      });
+
+      if (response.ok) {
+        // Update local state
+        setInterviewDrives(prev => 
+          prev.map(drive => 
+            drive.id === screeningId 
+              ? { ...drive, status: 'archived' as const }
+              : drive
+          )
+        );
+        closeContextMenu();
+        alert('Screening archived successfully!');
+      } else {
+        throw new Error('Failed to archive screening');
+      }
+    } catch (error) {
+      console.error('Error archiving screening:', error);
+      alert('Failed to archive screening. Please try again.');
+    }
+  };
+
+  const handleDeleteScreening = async (screeningId: string) => {
+    if (!confirm('Are you sure you want to delete this screening? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        // Remove from local state
+        setInterviewDrives(prev => prev.filter(drive => drive.id !== screeningId));
+        closeContextMenu();
+        alert('Screening deleted successfully!');
+      } else {
+        throw new Error('Failed to delete screening');
+      }
+    } catch (error) {
+      console.error('Error deleting screening:', error);
+      alert('Failed to delete screening. Please try again.');
+    }
+  };
+
+  const handleSendInviteLinks = async (screeningId: string) => {
+    if (!confirm('Are you sure you want to send interview links to all candidates? This will activate the screening.')) {
+      return;
+    }
+
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/drives/${screeningId}/send-links`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update screening status to active in local state
+        setInterviewDrives(prev => 
+          prev.map(drive => 
+            drive.id === screeningId 
+              ? { ...drive, status: 'active' as const }
+              : drive
+          )
+        );
+
+        // Show success message with details
+        const totalLinks = data.links?.length || 0;
+        const successfulEmails = data.emailResults?.filter((r: any) => r.emailSent).length || 0;
+        
+        alert(`Interview links sent successfully!\n\nTotal candidates: ${totalLinks}\nEmails sent: ${successfulEmails}\n\nThe screening is now active.`);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send interview links');
+      }
+    } catch (error) {
+      console.error('Error sending interview links:', error);
+      alert('Failed to send interview links. Please try again.');
     }
   };
 
@@ -548,15 +673,27 @@ export default function CompanyDashboard() {
                   <div key={drive.id} className="bg-[color:var(--surface)] rounded-xl shadow-lg border border-[color:var(--border)] p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-[color:var(--foreground)]">{drive.name}</h3>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        drive.status === 'completed' 
-                          ? 'bg-green-500/20 text-green-400'
-                          : drive.status === 'active'
-                          ? 'bg-blue-500/20 text-blue-400'
-                          : 'bg-yellow-500/20 text-yellow-400'
-                      }`}>
-                        {drive.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          drive.status === 'completed' 
+                            ? 'bg-green-500/20 text-green-400'
+                            : drive.status === 'active'
+                            ? 'bg-blue-500/20 text-blue-400'
+                            : drive.status === 'archived'
+                            ? 'bg-gray-500/20 text-gray-400'
+                            : 'bg-yellow-500/20 text-yellow-400'
+                        }`}>
+                          {drive.status}
+                        </span>
+                        <button
+                          onClick={(e) => handleContextMenu(e, drive.id)}
+                          className="p-1 hover:bg-[color:var(--surface)]/50 rounded-full transition-colors"
+                        >
+                          <svg className="w-4 h-4 text-[color:var(--foreground)]/60" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     
                     <div className="space-y-3 mb-4">
@@ -581,7 +718,10 @@ export default function CompanyDashboard() {
                     </p>
                     
                     {drive.status === 'draft' && (
-                      <button className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors">
+                      <button 
+                        onClick={() => handleSendInviteLinks(drive.id)}
+                        className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
+                      >
                         Send Links to Candidates
                       </button>
                     )}
@@ -807,6 +947,44 @@ export default function CompanyDashboard() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <div
+          className="fixed z-50 bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg shadow-lg py-1 min-w-[160px]"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+          }}
+        >
+          <button
+            onClick={() => handleArchiveScreening(contextMenu.id)}
+            className="w-full px-4 py-2 text-left text-sm text-[color:var(--foreground)] hover:bg-[color:var(--surface)]/50 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8l6 6 6-6" />
+            </svg>
+            Archive
+          </button>
+          <button
+            onClick={() => handleDeleteScreening(contextMenu.id)}
+            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Delete
+          </button>
+        </div>
+      )}
+
+      {/* Overlay to close context menu */}
+      {contextMenu && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={closeContextMenu}
+        />
       )}
     </div>
   );

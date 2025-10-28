@@ -377,4 +377,314 @@ router.post('/interview/:token/submit', async (req, res) => {
   }
 });
 
+// Create AI-generated screening
+router.post('/screenings', companyAuth, async (req, res) => {
+  try {
+    const { 
+      name, 
+      positionTitle, 
+      language, 
+      mustHaves, 
+      goodToHaves, 
+      culturalFit, 
+      estimatedTime, 
+      status 
+    } = req.body;
+    const companyId = req.companyId;
+    
+    if (!name || !positionTitle) {
+      return res.status(400).json({ error: 'Name and position title are required' });
+    }
+    
+    // Create screening in MongoDB
+    const screeningData = {
+      id: Date.now().toString(),
+      companyId: companyId,
+      name: name,
+      positionTitle: positionTitle,
+      language: language || 'en-us',
+      mustHaves: mustHaves || [],
+      goodToHaves: goodToHaves || [],
+      culturalFit: culturalFit || [],
+      estimatedTime: estimatedTime || { mustHaves: 4, goodToHaves: 2, culturalFit: 2 },
+      status: status || 'draft',
+      createdAt: new Date().toISOString()
+    };
+    
+    // Add screening to MongoDB
+    await db.addScreening(screeningData);
+    
+    res.json({
+      id: screeningData.id,
+      message: 'Screening created successfully',
+      screening: screeningData
+    });
+  } catch (error) {
+    console.error('Error creating screening:', error);
+    res.status(500).json({ error: 'Failed to create screening' });
+  }
+});
+
+// Get company screenings
+router.get('/screenings', companyAuth, async (req, res) => {
+  try {
+    const companyId = req.companyId;
+    
+    // Get screenings for this company from MongoDB
+    const screenings = await db.getScreeningsByCompany(companyId);
+    
+    res.json({
+      screenings: screenings,
+      message: 'Screenings retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Error fetching screenings:', error);
+    res.status(500).json({ error: 'Failed to fetch screenings' });
+  }
+});
+
+// Update screening
+router.put('/screenings/:id', companyAuth, async (req, res) => {
+  try {
+    const screeningId = req.params.id;
+    const companyId = req.companyId;
+    const updateData = req.body;
+    
+    // Update screening in MongoDB
+    const result = await db.updateScreening(screeningId, companyId, updateData);
+    
+    if (!result) {
+      return res.status(404).json({ error: 'Screening not found' });
+    }
+    
+    res.json({
+      message: 'Screening updated successfully',
+      screening: result
+    });
+  } catch (error) {
+    console.error('Error updating screening:', error);
+    res.status(500).json({ error: 'Failed to update screening' });
+  }
+});
+
+// Delete screening
+router.delete('/screenings/:id', companyAuth, async (req, res) => {
+  try {
+    const screeningId = req.params.id;
+    const companyId = req.companyId;
+    
+    // Delete screening from MongoDB
+    const result = await db.deleteScreening(screeningId, companyId);
+    
+    if (!result) {
+      return res.status(404).json({ error: 'Screening not found' });
+    }
+    
+    res.json({ message: 'Screening deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting screening:', error);
+    res.status(500).json({ error: 'Failed to delete screening' });
+  }
+});
+
+// Add candidates to screening drive and send invites
+router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) => {
+  try {
+    const screeningId = req.params.id;
+    const companyId = req.companyId;
+    const { candidates } = req.body; // Array of { name, email, profile }
+    
+    if (!candidates || !Array.isArray(candidates) || candidates.length === 0) {
+      return res.status(400).json({ error: 'Candidates array is required' });
+    }
+    
+    // Get screening details from MongoDB
+    const screening = await db.getScreeningById(screeningId);
+    
+    if (!screening || screening.companyId !== companyId) {
+      return res.status(404).json({ error: 'Screening not found' });
+    }
+    
+    // Add candidates to database and collect their IDs
+    const candidateIds = [];
+    const addedCandidates = [];
+    
+    for (const candidateData of candidates) {
+      // Create candidate with company association
+      const candidate = {
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        companyId: companyId,
+        name: candidateData.name,
+        email: candidateData.email,
+        profile: candidateData.profile || 'General',
+        status: 'applied',
+        createdAt: new Date().toISOString()
+      };
+      
+      await db.addCandidate(candidate);
+      candidateIds.push(candidate.id);
+      addedCandidates.push(candidate);
+    }
+    
+    // Get or create interview drive for this screening
+    let drive = await db.getDriveById(screeningId);
+    
+    if (!drive) {
+      // Create a new drive for this screening
+      const driveData = {
+        id: screeningId,
+        companyId: companyId,
+        name: screening.name,
+        candidateIds: candidateIds,
+        status: 'draft',
+        createdAt: new Date().toISOString()
+      };
+      
+      await db.addInterviewDrive(driveData);
+      drive = driveData;
+    } else {
+      // Add candidates to existing drive
+      const updatedCandidateIds = [...(drive.candidateIds || []), ...candidateIds];
+      await db.updateInterviewDrive(screeningId, { 
+        candidateIds: updatedCandidateIds,
+        updatedAt: new Date().toISOString()
+      });
+    }
+    
+    // Generate interview links and send emails
+    const interviewLinks = [];
+    const emailResults = [];
+    
+    for (const candidate of addedCandidates) {
+      // Generate unique token for each candidate
+      const token = Buffer.from(`${candidate.id}-${screeningId}-${Date.now()}`).toString('base64');
+      
+      // Store token in MongoDB
+      const tokenData = {
+        id: Date.now().toString(),
+        candidateId: candidate.id,
+        driveId: screeningId,
+        token: token,
+        used: false,
+        createdAt: new Date().toISOString()
+      };
+      
+      await db.addInterviewToken(tokenData);
+      
+      // Generate interview link with company parameters
+      const interviewParams = new URLSearchParams({
+        token: token,
+        company: 'HireOG',
+        profile: candidate.profile,
+        level: 'intermediate',
+        candidateName: candidate.name,
+        candidateEmail: candidate.email
+      });
+      const interviewLink = `${process.env.FRONTEND_URL || 'https://hireog.com'}/ai-interview?${interviewParams.toString()}`;
+      interviewLinks.push({
+        candidate: candidate,
+        link: interviewLink
+      });
+      
+      // Send email to candidate
+      try {
+        const emailResult = await emailService.sendInterviewInvite(
+          candidate.email,
+          candidate.name,
+          interviewLink,
+          'HireOG',
+          screening.name
+        );
+        emailResults.push({
+          candidate: candidate,
+          emailSent: emailResult.success,
+          error: emailResult.error
+        });
+      } catch (emailError) {
+        console.error(`Failed to send email to ${candidate.email}:`, emailError);
+        emailResults.push({
+          candidate: candidate,
+          emailSent: false,
+          error: emailError.message
+        });
+      }
+    }
+    
+    // Update screening status to active
+    await db.updateScreening(screeningId, companyId, { status: 'active' });
+    
+    res.json({
+      message: 'Candidates added and interview links sent successfully',
+      addedCandidates: addedCandidates,
+      links: interviewLinks,
+      emailResults: emailResults
+    });
+  } catch (error) {
+    console.error('Error adding candidates to screening:', error);
+    res.status(500).json({ error: 'Failed to add candidates to screening' });
+  }
+});
+
+// Get screening details with candidate results
+router.get('/screenings/:id/details', companyAuth, async (req, res) => {
+  try {
+    const screeningId = req.params.id;
+    const companyId = req.companyId;
+    
+    // Get screening details from MongoDB
+    const screening = await db.getScreeningById(screeningId);
+    
+    if (!screening || screening.companyId !== companyId) {
+      return res.status(404).json({ error: 'Screening not found' });
+    }
+    
+    // Get candidates for this screening drive
+    const candidates = await db.getCandidatesByDrive(screeningId);
+    
+    // Get interview responses for this drive
+    const responses = await db.getInterviewResponsesByDrive(screeningId);
+    
+    // Create a map of candidate results
+    const candidateResults = candidates.map(candidate => {
+      const response = responses.find(r => r.candidateId === candidate.id);
+      
+      return {
+        id: candidate.id,
+        name: candidate.name,
+        email: candidate.email,
+        status: response ? 'completed' : 'invited',
+        score: response ? response.score : null,
+        completedDate: response ? response.completedAt : null,
+        invitedDate: candidate.createdAt,
+        progress: response ? 100 : 0,
+        feedback: response ? response.feedback : null,
+        qaPairs: response ? response.qaPairs : null
+      };
+    });
+    
+    // Calculate screening statistics
+    const totalCandidates = candidates.length;
+    const completedCandidates = candidateResults.filter(c => c.status === 'completed').length;
+    const averageScore = completedCandidates > 0 
+      ? Math.round(candidateResults.filter(c => c.score).reduce((sum, c) => sum + c.score, 0) / completedCandidates)
+      : 0;
+    
+    const screeningWithStats = {
+      ...screening,
+      totalCandidates,
+      completedCandidates,
+      inProgressCandidates: 0, // For now, we'll consider only completed and invited
+      averageScore
+    };
+    
+    res.json({
+      screening: screeningWithStats,
+      candidates: candidateResults
+    });
+  } catch (error) {
+    console.error('Error fetching screening details:', error);
+    res.status(500).json({ error: 'Failed to fetch screening details' });
+  }
+});
+
 module.exports = router;

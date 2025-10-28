@@ -730,6 +730,103 @@ class MongoDatabase {
     return result.modifiedCount > 0;
   }
 
+  // Screening methods
+  async addScreening(screening) {
+    await this.ensureConnection();
+    const result = await this.db.collection('screenings').insertOne(screening);
+    console.log('Screening added to MongoDB:', result.insertedId);
+    return { ...screening, _id: result.insertedId };
+  }
+
+  async getScreeningsByCompany(companyId) {
+    await this.ensureConnection();
+    const screenings = await this.db.collection('screenings').find({ companyId }).toArray();
+    console.log(`Found ${screenings.length} screenings for company ${companyId}`);
+    return screenings;
+  }
+
+  async updateScreening(screeningId, companyId, updateData) {
+    await this.ensureConnection();
+    const result = await this.db.collection('screenings').updateOne(
+      { id: screeningId, companyId },
+      { $set: { ...updateData, updatedAt: new Date().toISOString() } }
+    );
+    if (result.modifiedCount > 0) {
+      return await this.db.collection('screenings').findOne({ id: screeningId, companyId });
+    }
+    return null;
+  }
+
+  async deleteScreening(screeningId, companyId) {
+    await this.ensureConnection();
+    const result = await this.db.collection('screenings').deleteOne({ id: screeningId, companyId });
+    console.log(`Deleted screening ${screeningId} for company ${companyId}:`, result.deletedCount > 0);
+    return result.deletedCount > 0;
+  }
+
+  async getScreeningById(screeningId) {
+    await this.ensureConnection();
+    return await this.db.collection('screenings').findOne({ id: screeningId });
+  }
+
+  async getCandidatesByDrive(driveId) {
+    await this.ensureConnection();
+    // First get the candidates associated with this drive
+    const drive = await this.db.collection('interviewDrives').findOne({ id: driveId });
+    if (!drive || !drive.candidateIds) {
+      return [];
+    }
+    
+    // Get candidate details
+    const candidates = await this.db.collection('candidates').find({
+      id: { $in: drive.candidateIds }
+    }).toArray();
+    
+    return candidates;
+  }
+
+  async getInterviewResponsesByDrive(driveId) {
+    await this.ensureConnection();
+    return await this.db.collection('interviewResponses').find({ driveId }).toArray();
+  }
+
+  async addInterviewToken(tokenData) {
+    await this.ensureConnection();
+    const token = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      ...tokenData
+    };
+    
+    await this.db.collection('interviewTokens').insertOne(token);
+    return token;
+  }
+
+  async getTokenData(token) {
+    await this.ensureConnection();
+    return await this.db.collection('interviewTokens').findOne({ token });
+  }
+
+  async updateToken(token, updateData) {
+    await this.ensureConnection();
+    const result = await this.db.collection('interviewTokens').updateOne(
+      { token },
+      { $set: { ...updateData, updatedAt: new Date().toISOString() } }
+    );
+    return result.modifiedCount > 0;
+  }
+
+  async addInterviewResponse(responseData) {
+    await this.ensureConnection();
+    const response = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      ...responseData,
+      submittedAt: responseData.submittedAt || new Date().toISOString()
+    };
+    
+    await this.db.collection('interviewResponses').insertOne(response);
+    return response;
+  }
+
   // Compatibility properties
   get isServerless() {
     return true;
