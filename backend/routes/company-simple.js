@@ -8,7 +8,21 @@ router.get('/test', (req, res) => {
   res.json({ 
     message: 'Company API is working!', 
     timestamp: new Date().toISOString(),
-    origin: req.headers.origin 
+    origin: req.headers.origin,
+    corsHeaders: {
+      'access-control-allow-origin': res.getHeader('Access-Control-Allow-Origin'),
+      'access-control-allow-credentials': res.getHeader('Access-Control-Allow-Credentials'),
+      'access-control-allow-methods': res.getHeader('Access-Control-Allow-Methods')
+    },
+    receivedHeaders: Object.keys(req.headers).reduce((acc, key) => {
+      if (key.toLowerCase().includes('company') || 
+          key.toLowerCase().includes('origin') || 
+          key.toLowerCase().includes('cache') ||
+          key.toLowerCase().includes('pragma')) {
+        acc[key] = req.headers[key];
+      }
+      return acc;
+    }, {})
   });
 });
 
@@ -42,7 +56,11 @@ router.get('/dashboard', companyAuth, async (req, res) => {
     
     console.log('Returning candidates:', candidates.length, 'drives:', drives.length);
     
-    res.json({
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }).json({
       candidates: candidates,
       interviewDrives: drives,
       message: 'Dashboard data retrieved successfully'
@@ -433,7 +451,11 @@ router.get('/screenings', companyAuth, async (req, res) => {
     // Get screenings for this company from MongoDB
     const screenings = await db.getScreeningsByCompany(companyId);
     
-    res.json({
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }).json({
       screenings: screenings,
       message: 'Screenings retrieved successfully'
     });
@@ -677,7 +699,11 @@ router.get('/screenings/:id/details', companyAuth, async (req, res) => {
       averageScore
     };
     
-    res.json({
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }).json({
       screening: screeningWithStats,
       candidates: candidateResults
     });

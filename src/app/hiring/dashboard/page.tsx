@@ -60,14 +60,20 @@ export default function CompanyDashboard() {
   const loadDashboardData = async () => {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
-      const response = await fetch(`${backendUrl}/api/company/dashboard`, {
+      // Add cache-busting parameter to ensure fresh data
+      const cacheBuster = `?_t=${Date.now()}`;
+      const response = await fetch(`${backendUrl}/api/company/dashboard${cacheBuster}`, {
         method: 'GET',
         headers: {
           'X-Company-ID': 'hireog',
           'X-Company-Password': 'manasi22',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         },
-        credentials: 'include'
+        credentials: 'include',
+        cache: 'no-store' // Prevent browser caching
       });
       
       if (response.ok) {
@@ -111,14 +117,20 @@ export default function CompanyDashboard() {
   const loadScreenings = async () => {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
-      const response = await fetch(`${backendUrl}/api/company/screenings`, {
+      // Add cache-busting parameter to ensure fresh data
+      const cacheBuster = `?_t=${Date.now()}`;
+      const response = await fetch(`${backendUrl}/api/company/screenings${cacheBuster}`, {
         method: 'GET',
         headers: {
           'X-Company-ID': 'hireog',
           'X-Company-Password': 'manasi22',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         },
-        credentials: 'include'
+        credentials: 'include',
+        cache: 'no-store' // Prevent browser caching
       });
       
       if (response.ok) {
@@ -395,9 +407,11 @@ export default function CompanyDashboard() {
         headers: {
           'Content-Type': 'application/json',
           'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-Password': 'manasi22',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
         },
-        credentials: 'include'
+        credentials: 'include',
+        cache: 'no-store'
       });
 
       if (response.ok) {

@@ -71,10 +71,58 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-Admin-Key', 'x-admin-key', 'X-Company-ID', 'X-Company-Password', 'x-company-id', 'x-company-password']
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'authorization', 
+    'Accept', 
+    'Origin', 
+    'X-Requested-With', 
+    'X-Admin-Key', 
+    'x-admin-key', 
+    'X-Company-ID', 
+    'X-Company-Password', 
+    'x-company-id', 
+    'x-company-password',
+    'Cache-Control',
+    'Pragma', 
+    'Expires',
+    'sec-ch-ua',
+    'sec-ch-ua-mobile', 
+    'sec-ch-ua-platform',
+    'User-Agent',
+    'Referer'
+  ]
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Additional CORS middleware to ensure all responses have proper headers
+app.use((req, res, next) => {
+  const origin = req.headers.origin || req.headers.referer;
+  
+  if (origin) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+  
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Company-ID, X-Company-Password, Cache-Control, Pragma, Expires, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, User-Agent, Referer');
+  
+  // Log CORS info for debugging
+  if (req.path.includes('/api/company/')) {
+    console.log('Company API Request:', {
+      method: req.method,
+      path: req.path,
+      origin: origin,
+      headers: Object.keys(req.headers).filter(h => h.toLowerCase().includes('company') || h.toLowerCase().includes('authorization'))
+    });
+  }
+  
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -88,10 +136,20 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 // Handle CORS preflight for company routes
 app.options('/api/company/*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Company-ID, X-Company-Password');
+  const origin = req.headers.origin || req.headers.referer || '*';
+  const requestedHeaders = req.headers['access-control-request-headers'] || '';
+  
+  console.log('CORS Preflight for company route:', {
+    origin,
+    method: req.headers['access-control-request-method'],
+    headers: requestedHeaders
+  });
+  
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', requestedHeaders || 'Content-Type, Authorization, X-Company-ID, X-Company-Password, Cache-Control, Pragma, Expires, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, User-Agent, Referer');
   res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
   res.sendStatus(200);
 });
 
