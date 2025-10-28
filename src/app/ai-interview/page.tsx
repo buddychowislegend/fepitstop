@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/config";
 import AzureTTSPlayer from "@/components/AzureTTSPlayer";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Volume2, VolumeX, Clock, Target, Brain, Star, CheckCircle, Play, Pause, RotateCcw, Camera, Settings } from "lucide-react";
+import { Mic, MicOff, Send, Volume2, VolumeX, Clock, Target, Brain, Star, CheckCircle, Play, Pause, RotateCcw, Camera, Settings, Code, MessageCircle } from "lucide-react";
 
 type Message = {
   role: 'interviewer' | 'candidate';
@@ -1365,7 +1365,7 @@ function AIInterviewContent() {
               }}
               transition={{ 
                 rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                scale: { duration: 2, repeat: Infinity }
+                scale: { duration: 2, repeat: Infinity, type: "tween" }
               }}
             >
               <Brain className="w-8 h-8 text-white" />
@@ -1373,7 +1373,7 @@ function AIInterviewContent() {
             <motion.h1 
               className="text-3xl font-bold text-white mb-4"
               animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              transition={{ duration: 2, repeat: Infinity, type: "tween" }}
             >
               Preparing AI Interview
             </motion.h1>
@@ -1608,7 +1608,7 @@ function AIInterviewContent() {
                         rotate: profile === profileOption.id ? [0, 10, -10, 0] : 0,
                         scale: profile === profileOption.id ? [1, 1.1, 1] : 1
                       }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      transition={{ duration: 2, repeat: Infinity, type: "tween" }}
                     >
                       {profileOption.icon}
                     </motion.div>
@@ -1953,7 +1953,7 @@ function AIInterviewContent() {
                 <motion.div
                   className="relative z-10"
                   animate={{ x: [0, 5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
                 >
                   →
                 </motion.div>
@@ -2167,7 +2167,7 @@ function AIInterviewContent() {
                             scale: [1, 1.1, 1],
                             opacity: [0.5, 1, 0.5]
                           }}
-                          transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
+                          transition={{ duration: 2, repeat: Infinity, delay: index * 0.3, type: "tween" }}
                         />
 
                         {/* Selection Indicator */}
@@ -2257,7 +2257,7 @@ function AIInterviewContent() {
               >
                 <motion.span
                   animate={{ x: [0, -3, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
                 >
                   ←
                 </motion.span>
@@ -2300,7 +2300,7 @@ function AIInterviewContent() {
                 <motion.div
                   className="relative z-10"
                   animate={selectedInterviewer ? { x: [0, 5, 0] } : {}}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
                 >
                   →
                 </motion.div>
@@ -2315,136 +2315,548 @@ function AIInterviewContent() {
   // Mic & Quality Check Modal
   if (currentStep === 'mic-check') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-5xl">
-          <div className="card p-8">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-extrabold mb-2">Practice Prerequisite</h1>
-              <p className="opacity-80">Let's ensure everything is working perfectly</p>
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#2ad17e]/20 to-[#ffb21e]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: mousePosition.x * 0.2,
+              y: mousePosition.y * 0.2,
+              scale: [1, 1.2, 1],
+              rotate: 360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 50 },
+              y: { type: "spring", stiffness: 50 },
+              scale: { duration: 4, repeat: Infinity },
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" }
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-r from-[#6f5af6]/20 to-[#5cd3ff]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: -mousePosition.x * 0.15,
+              y: -mousePosition.y * 0.15,
+              scale: [1.2, 1, 1.2],
+              rotate: -360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 30 },
+              y: { type: "spring", stiffness: 30 },
+              scale: { duration: 5, repeat: Infinity },
+              rotate: { duration: 25, repeat: Infinity, ease: "linear" }
+            }}
+          />
+
+          {/* Floating Tech Icons */}
+          {[Camera, Mic, Volume2, Settings].map((Icon, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-white/10"
+              style={{
+                left: `${20 + i * 20}%`,
+                top: `${15 + i * 15}%`,
+              }}
+              animate={{
+                y: [-10, 10, -10],
+                rotate: [0, 180, 360],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: 4 + i,
+                repeat: Infinity,
+                delay: i * 0.8,
+              }}
+            >
+              <Icon className="w-12 h-12" />
+            </motion.div>
+          ))}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Left: Instructions */}
-              <div>
-                <h2 className="text-xl font-bold text-white mb-4">Interview Practice Instructions</h2>
-                
-                {/* Video placeholder */}
-                <div className="card p-8 mb-6 text-center">
-                  <div className="w-32 h-32 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl font-bold text-white">
-                    {selectedInterviewer?.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <p className="opacity-80 text-sm">AI Interviewer Video Feed</p>
-                </div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
+          <motion.div 
+            className="w-full max-w-6xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.div 
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-10 relative overflow-hidden"
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              {/* Header */}
+              <motion.div 
+                className="text-center mb-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <motion.div 
+                  className="flex justify-center gap-4 mb-6"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                >
+                  {[Settings, CheckCircle, Play].map((Icon, index) => (
+                    <motion.div
+                      key={index}
+                      className="w-16 h-16 rounded-2xl bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] flex items-center justify-center"
+                      animate={{ 
+                        y: [0, -10, 0],
+                        rotate: [0, 5, -5, 0]
+                      }}
+                      transition={{ 
+                        duration: 3,
+                        repeat: Infinity,
+                        delay: index * 0.2
+                      }}
+                    >
+                      <Icon className="w-8 h-8 text-white" />
+                    </motion.div>
+                  ))}
+                </motion.div>
 
+                <motion.h1 
+                  className="text-5xl font-extrabold mb-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <span className="bg-gradient-to-r from-[#2ad17e] via-[#5cd3ff] to-[#ffb21e] bg-clip-text text-transparent">
+                    Practice Prerequisite
+                  </span>
+                </motion.h1>
+                
+                <motion.p 
+                  className="text-xl text-white/80 max-w-3xl mx-auto"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  Let's ensure everything is working perfectly for your{' '}
+                  <span className="text-[#2ad17e] font-semibold">AI interview experience</span>
+                </motion.p>
+              </motion.div>
+
+            <motion.div 
+              className="grid md:grid-cols-2 gap-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              {/* Left: Instructions */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <motion.h2 
+                  className="text-2xl font-bold text-white mb-6"
+                  whileHover={{ x: 5, color: "#2ad17e" }}
+                  transition={{ duration: 0.3 }}
+                >
+                  Interview Practice Instructions
+                </motion.h2>
+                
+                {/* Animated Interviewer Avatar */}
+                <motion.div 
+                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-3xl p-8 mb-8 text-center relative overflow-hidden"
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
+                  whileHover={{ scale: 1.02, y: -5 }}
+                >
+                  {/* Animated Avatar */}
+                  <motion.div 
+                    className="relative w-32 h-32 mx-auto mb-4"
+                    animate={{ 
+                      rotate: [0, 5, -5, 0],
+                      scale: [1, 1.05, 1]
+                    }}
+                    transition={{ duration: 4, repeat: Infinity, type: "tween" }}
+                  >
+                    <motion.div 
+                      className="w-full h-full bg-gradient-to-br from-[#2ad17e] to-[#5cd3ff] rounded-full flex items-center justify-center text-4xl font-bold text-white relative"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                    {selectedInterviewer?.name.split(' ').map(n => n[0]).join('') || 'AI'}
+                      
+                      {/* Pulsing Ring */}
+                      <motion.div 
+                        className="absolute inset-0 rounded-full border-4 border-white/30"
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 1, 0.5]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                      />
+                    </motion.div>
+                  </motion.div>
+                  
+                  <motion.p 
+                    className="text-[#5cd3ff] font-semibold text-sm"
+                    animate={{ opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                  >
+                    AI Interviewer Video Feed
+                  </motion.p>
+                  
+                  {/* Background decoration */}
+                  <motion.div 
+                    className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] opacity-20"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ duration: 3, repeat: Infinity, delay: 0.5, type: "tween" }}
+                  />
+                </motion.div>
+
+                {/* Animated Instructions */}
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <span className="bg-purple-600 text-white text-sm font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-                    <p className="text-white/90 text-sm">Your interview will be taken by an AI Interviewer - wait for its introduction before starting.</p>
+                  {[
+                    "Your interview will be taken by an AI Interviewer - wait for its introduction before starting.",
+                    "After each question, click 'Start Answer' to begin and 'Stop Answer' when you finish. The next question will then appear.",
+                    "Give detailed answers for better scores and feedback.",
+                    "Answer all questions to receive your final analytics report.",
+                    "Use headphones/earphones for the best experience."
+                  ].map((instruction, index) => (
+                    <motion.div
+                      key={index}
+                      className="flex items-start gap-4 p-4 rounded-2xl bg-gradient-to-r from-white/5 to-white/10 border border-white/10 hover:border-white/20 transition-all duration-300"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.9 + index * 0.1 }}
+                      whileHover={{ x: 5, scale: 1.02 }}
+                    >
+                      <motion.div 
+                        className="w-8 h-8 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white font-bold flex items-center justify-center flex-shrink-0 mt-1"
+                        whileHover={{ scale: 1.2, rotate: 360 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        {index + 1}
+                      </motion.div>
+                      <motion.p 
+                        className="text-white/90 leading-relaxed"
+                        initial={{ opacity: 0.8 }}
+                        whileHover={{ opacity: 1 }}
+                      >
+                        {instruction}
+                      </motion.p>
+                    </motion.div>
+                  ))}
                   </div>
-                  <div className="flex items-start gap-3">
-                    <span className="bg-purple-600 text-white text-sm font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-                    <p className="text-white/90 text-sm">After each question, click 'Start Answer' to begin and 'Stop Answer' when you finish. The next question will then appear.</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="bg-purple-600 text-white text-sm font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-                    <p className="text-white/90 text-sm">Give detailed answers for better scores and feedback.</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="bg-purple-600 text-white text-sm font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
-                    <p className="text-white/90 text-sm">Answer all questions to receive your final analytics report.</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="bg-purple-600 text-white text-sm font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">5</span>
-                    <p className="text-white/90 text-sm">Use headphones/earphones for the best experience.</p>
-                  </div>
-                </div>
-              </div>
+              </motion.div>
 
               {/* Right: Compatibility Test */}
-              <div>
-                <h2 className="text-xl font-bold text-white mb-4">Compatibility Test</h2>
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                <motion.h2 
+                  className="text-2xl font-bold text-white mb-6"
+                  whileHover={{ x: -5, color: "#5cd3ff" }}
+                  transition={{ duration: 0.3 }}
+                >
+                  Compatibility Test
+                </motion.h2>
                 
-                <div className="card p-6 mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-semibold">Setup Checklist (3/6)</span>
-                  </div>
+                <motion.div 
+                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-3xl p-8 mb-8 relative overflow-hidden"
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
+                  whileHover={{ scale: 1.02, y: -5 }}
+                >
+                  {/* Progress Header */}
+                  <motion.div 
+                    className="flex items-center justify-between mb-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.0 }}
+                  >
+                    <motion.span 
+                      className="font-bold text-lg text-[#2ad17e]"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                    >
+                      Setup Checklist
+                    </motion.span>
+                    <motion.div 
+                      className="px-4 py-2 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white font-bold text-sm"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      3/6
+                    </motion.div>
+                  </motion.div>
                   
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">✓</span>
-                      </div>
-                      <span className="text-white/90 text-sm">Your browser is compatible with our system.</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                        micPermission ? 'bg-green-500' : 'bg-gray-500'
-                      }`}>
-                        <span className="text-white text-xs">{micPermission ? '✓' : '?'}</span>
-                      </div>
-                      <span className="text-white/90 text-sm">The microphone is enabled.</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                        cameraPermission ? 'bg-green-500' : 'bg-gray-500'
-                      }`}>
-                        <span className="text-white text-xs">{cameraPermission ? '✓' : '?'}</span>
-                      </div>
-                      <span className="text-white/90 text-sm">The Camera is enabled.</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                        micTestPassed ? 'bg-green-500' : 'bg-blue-500'
-                      }`}>
-                        <span className="text-white text-xs">{micTestPassed ? '✓' : '...'}</span>
-                      </div>
-                      <span className="text-white/90 text-sm">Please speak to verify the functionality of your microphone.</span>
-                    </div>
+                  {/* Animated Checklist Items */}
+                  <div className="space-y-5">
+                    {[
+                      { text: "Your browser is compatible with our system.", status: true, icon: "🌐" },
+                      { text: "The microphone is enabled.", status: micPermission, icon: "🎤" },
+                      { text: "The Camera is enabled.", status: cameraPermission, icon: "📷" },
+                      { text: "Please speak to verify the functionality of your microphone.", status: micTestPassed, icon: "🔊", isTest: true }
+                    ].map((item, index) => (
+                      <motion.div
+                        key={index}
+                        className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-white/5 to-white/10 border border-white/10 hover:border-white/20 transition-all duration-300"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1.1 + index * 0.1 }}
+                        whileHover={{ x: -5, scale: 1.02 }}
+                      >
+                        {/* Status Indicator */}
+                        <motion.div 
+                          className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
+                            item.status 
+                              ? 'bg-gradient-to-r from-[#2ad17e] to-[#20c997]' 
+                              : item.isTest 
+                                ? 'bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6]'
+                                : 'bg-gradient-to-r from-gray-600 to-gray-700'
+                          }`}
+                          whileHover={{ scale: 1.2, rotate: 360 }}
+                          animate={item.status ? { 
+                            scale: [1, 1.1, 1],
+                            rotate: [0, 360]
+                          } : {}}
+                          transition={{ 
+                            scale: { duration: 2, repeat: Infinity, type: "tween" },
+                            rotate: { duration: 3, repeat: Infinity, type: "tween" }
+                          }}
+                        >
+                          <motion.span 
+                            className="text-white text-sm font-bold"
+                            initial={item.status ? { scale: 0 } : {}}
+                            animate={item.status ? { scale: 1 } : {}}
+                            transition={{ delay: 1.2 + index * 0.1, type: "spring" }}
+                          >
+                            {item.status ? '✓' : (item.isTest ? '...' : '?')}
+                          </motion.span>
+                          
+                          {/* Pulsing ring for active items */}
+                          {!item.status && (
+                            <motion.div 
+                              className="absolute inset-0 rounded-full border-2 border-white/30"
+                              animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                            />
+                          )}
+                        </motion.div>
+                        
+                        {/* Icon */}
+                        <motion.div 
+                          className="text-2xl"
+                          animate={{ rotate: [0, 10, -10, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, delay: index * 0.5, type: "tween" }}
+                        >
+                          {item.icon}
+                        </motion.div>
+                        
+                        {/* Text */}
+                        <motion.span 
+                          className="text-white/90 leading-relaxed flex-1"
+                          initial={{ opacity: 0.8 }}
+                          whileHover={{ opacity: 1 }}
+                        >
+                          {item.text}
+                        </motion.span>
+                      </motion.div>
+                    ))}
                   </div>
 
-                  {/* Microphone test */}
-                  <div className="mt-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-6 h-6 text-purple-400">🎤</div>
-                      <div className="flex-1 bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-200"
+                  {/* Animated Microphone Test */}
+                  <motion.div 
+                    className="mt-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.5 }}
+                  >
+                    {/* Audio Level Visualizer */}
+                    <motion.div 
+                      className="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-gradient-to-r from-white/5 to-white/10 border border-white/10"
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <motion.div 
+                        className="text-3xl"
+                        animate={{ 
+                          scale: audioLevel > 0 ? [1, 1.2, 1] : 1,
+                          rotate: audioLevel > 0 ? [0, 10, -10, 0] : 0
+                        }}
+                        transition={{ duration: 0.5, repeat: audioLevel > 0 ? Infinity : 0 }}
+                      >
+                        🎤
+                      </motion.div>
+                      
+                      <div className="flex-1">
+                        <motion.div 
+                          className="bg-gradient-to-r from-gray-700 to-gray-600 rounded-full h-3 relative overflow-hidden"
+                        >
+                          <motion.div 
+                            className="bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] h-full rounded-full transition-all duration-200 relative"
                           style={{ width: `${Math.min(audioLevel * 2, 100)}%` }}
-                        ></div>
+                            animate={audioLevel > 0 ? {
+                              boxShadow: [
+                                "0 0 0px rgba(42, 209, 126, 0.4)",
+                                "0 0 20px rgba(42, 209, 126, 0.8)",
+                                "0 0 0px rgba(42, 209, 126, 0.4)"
+                              ]
+                            } : {}}
+                            transition={{ duration: 0.5, repeat: Infinity }}
+                          />
+                          
+                          {/* Animated particles */}
+                          {audioLevel > 0 && [...Array(3)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute top-1/2 w-1 h-1 bg-white rounded-full"
+                              style={{ left: `${20 + i * 30}%` }}
+                              animate={{
+                                y: [-5, 5, -5],
+                                opacity: [0, 1, 0],
+                              }}
+                              transition={{
+                                duration: 1,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                              }}
+                            />
+                          ))}
+                        </motion.div>
                       </div>
-                    </div>
+                    </motion.div>
                     
-                    <button
+                    {/* Test Button */}
+                    <motion.button
                       onClick={testMicrophone}
                       disabled={micTestPassed}
-                      className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`w-full py-4 px-6 rounded-2xl font-bold text-lg transition-all duration-300 relative overflow-hidden ${
+                        micTestPassed
+                          ? 'bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white'
+                          : 'bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] text-white hover:shadow-lg hover:shadow-[#5cd3ff]/30'
+                      }`}
+                      whileHover={!micTestPassed ? { 
+                        scale: 1.02,
+                        boxShadow: "0 10px 30px rgba(92, 211, 255, 0.3)"
+                      } : {}}
+                      whileTap={{ scale: 0.98 }}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 1.6 }}
                     >
-                      {micTestPassed ? 'Microphone Test Passed ✓' : 'Test Microphone'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+                      {/* Background Animation */}
+                      {!micTestPassed && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-[#6f5af6] to-[#5cd3ff]"
+                          initial={{ x: "-100%" }}
+                          whileHover={{ x: "0%" }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      )}
+                      
+                      {/* Content */}
+                      <motion.span 
+                        className="relative z-10 flex items-center justify-center gap-2"
+                        animate={micTestPassed ? { scale: [1, 1.05, 1] } : {}}
+                        transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                      >
+                        {micTestPassed ? (
+                          <>
+                            <CheckCircle className="w-5 h-5" />
+                            Microphone Test Passed
+                          </>
+                        ) : (
+                          <>
+                            <Mic className="w-5 h-5" />
+                            Test Microphone
+                          </>
+                        )}
+                      </motion.span>
+                    </motion.button>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
 
-            <div className="flex justify-center gap-4 mt-8">
-              <button
+            {/* Action Buttons */}
+            <motion.div 
+              className="flex justify-center gap-6 mt-12"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.8 }}
+            >
+              <motion.button
                 onClick={() => setCurrentStep('interviewer-selection')}
-                className="btn btn-ghost px-6 py-3"
+                className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-white/10 to-white/5 text-white font-semibold rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300"
+                whileHover={{ scale: 1.05, x: -5 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Back
-              </button>
-              <button
+                <motion.span
+                  animate={{ x: [0, -3, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                >
+                  ←
+                </motion.span>
+                <span>Back</span>
+              </motion.button>
+              
+              <motion.button
                 onClick={startInterview}
                 disabled={!micTestPassed || loading}
-                className="btn btn-primary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`group relative inline-flex items-center justify-center gap-3 px-8 py-3 font-bold rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ${
+                  micTestPassed && !loading
+                    ? 'bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white hover:shadow-2xl hover:shadow-[#2ad17e]/30'
+                    : 'bg-gradient-to-r from-gray-600 to-gray-700 text-gray-300 cursor-not-allowed opacity-50'
+                }`}
+                whileHover={micTestPassed && !loading ? { 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(42, 209, 126, 0.3)"
+                } : {}}
+                whileTap={micTestPassed && !loading ? { scale: 0.95 } : {}}
+                transition={{ type: "spring", stiffness: 300 }}
               >
-                {loading ? 'Starting Interview...' : 'Start Interview'}
-              </button>
-            </div>
-          </div>
+                {/* Animated Background */}
+                {micTestPassed && !loading && (
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-[#20c997] to-[#2ad17e]"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "0%" }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
+                
+                {/* Content */}
+                <motion.span className="relative z-10 flex items-center gap-2">
+                  {loading ? (
+                    <>
+                      <motion.div
+                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                      Starting Interview...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-5 h-5" />
+                      Start Interview
+                    </>
+                  )}
+                </motion.span>
+                
+                {micTestPassed && !loading && (
+                  <motion.div
+                    className="relative z-10"
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                  >
+                    →
+                  </motion.div>
+                )}
+              </motion.button>
+            </motion.div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     );
@@ -2453,54 +2865,241 @@ function AIInterviewContent() {
   // Full-Screen Interview Interface
   if (currentStep === 'interview' && session) {
     return (
-      <div className="h-screen flex flex-col">
-        {/* Header */}
-        <div className="border-b border-white/10 bg-[color:var(--surface)] backdrop-blur-md p-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {session.interviewer.gender === 'female' ? (
-              <img
-                src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
-                alt={`${session.interviewer.name} avatar`}
-                className="w-24 h-24 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                {session.interviewer.name.split(' ').map(n => n[0]).join('')}
-              </div>
-            )}
-            <div>
-              <h1 className="font-semibold">{session.interviewer.name}</h1>
-              <p className="opacity-70 text-sm">{session.interviewer.role} • {session.interviewer.company}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div>
-              <span className="text-2xl font-mono">{formatTime(timeRemaining)}</span>
-            </div>
-            <button
-              onClick={endInterview}
-              className="btn btn-ghost border border-white/10"
-            >
-              End Interview
-            </button>
-          </div>
+      <div className="h-screen flex flex-col bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+        {/* Animated Background Effects */}
+        <div className="absolute inset-0 opacity-30">
+          <motion.div 
+            className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-r from-[#2ad17e]/10 to-[#ffb21e]/10 rounded-full blur-3xl"
+            animate={{ 
+              x: mousePosition.x * 0.1,
+              y: mousePosition.y * 0.1,
+              scale: [1, 1.1, 1],
+              rotate: 360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 30 },
+              y: { type: "spring", stiffness: 30 },
+              scale: { duration: 8, repeat: Infinity, type: "tween" },
+              rotate: { duration: 30, repeat: Infinity, ease: "linear" }
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-r from-[#6f5af6]/10 to-[#5cd3ff]/10 rounded-full blur-3xl"
+            animate={{ 
+              x: -mousePosition.x * 0.08,
+              y: -mousePosition.y * 0.08,
+              scale: [1.1, 1, 1.1],
+              rotate: -360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 25 },
+              y: { type: "spring", stiffness: 25 },
+              scale: { duration: 10, repeat: Infinity, type: "tween" },
+              rotate: { duration: 40, repeat: Infinity, ease: "linear" }
+            }}
+          />
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex">
-          {/* Left Panel - Conversation */}
-          <div className="w-1/2 flex flex-col border-r border-white/10 bg-[color:var(--surface)]">
-            <div className="border-b border-white/10 p-4">
-              <div className="flex items-center gap-4">
-                <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  Frontend Interview
-                </span>
-                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  Question {session.currentQuestion} of {session.totalQuestions}
-                </span>
-              </div>
+        {/* Header */}
+        <motion.div 
+          className="relative z-10 border-b border-white/10 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl p-6 flex items-center justify-between"
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
+          {/* Left: Interviewer Info */}
+          <motion.div 
+            className="flex items-center gap-6"
+            initial={{ x: -30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            {/* Animated Avatar */}
+            <motion.div 
+              className="relative"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+            {session.interviewer.gender === 'female' ? (
+                <motion.img
+                src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
+                alt={`${session.interviewer.name} avatar`}
+                  className="w-16 h-16 rounded-full object-cover border-2 border-[#2ad17e]"
+                  animate={{ 
+                    boxShadow: [
+                      "0 0 0 0 rgba(42, 209, 126, 0.4)",
+                      "0 0 0 10px rgba(42, 209, 126, 0)",
+                      "0 0 0 0 rgba(42, 209, 126, 0)"
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+              />
+            ) : (
+                <motion.div 
+                  className="w-16 h-16 bg-gradient-to-br from-[#2ad17e] to-[#5cd3ff] rounded-full flex items-center justify-center text-white font-bold text-xl border-2 border-white/20"
+                  animate={{ 
+                    rotate: [0, 5, -5, 0],
+                    boxShadow: [
+                      "0 0 0 0 rgba(42, 209, 126, 0.4)",
+                      "0 0 0 8px rgba(42, 209, 126, 0)",
+                      "0 0 0 0 rgba(42, 209, 126, 0)"
+                    ]
+                  }}
+                  transition={{ 
+                    rotate: { duration: 4, repeat: Infinity },
+                    boxShadow: { duration: 2, repeat: Infinity }
+                  }}
+                >
+                {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                </motion.div>
+              )}
+              
+              {/* Online Indicator */}
+              <motion.div 
+                className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#2ad17e] rounded-full border-2 border-white flex items-center justify-center"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity, type: "tween" }}
+              >
+                <div className="w-2 h-2 bg-white rounded-full" />
+              </motion.div>
+            </motion.div>
+            
+            {/* Interviewer Details */}
+            <div>
+              <motion.h1 
+                className="text-xl font-bold text-white"
+                whileHover={{ color: "#2ad17e" }}
+                transition={{ duration: 0.3 }}
+              >
+                {session.interviewer.name}
+              </motion.h1>
+              <motion.p 
+                className="text-[#5cd3ff] text-sm font-medium"
+                initial={{ opacity: 0.7 }}
+                whileHover={{ opacity: 1 }}
+              >
+                {session.interviewer.role} • {session.interviewer.company}
+              </motion.p>
             </div>
+          </motion.div>
+          
+          {/* Right: Timer and Controls */}
+          <motion.div 
+            className="flex items-center gap-6"
+            initial={{ x: 30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            {/* Animated Timer */}
+            <motion.div 
+              className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-gradient-to-r from-white/10 to-white/5 border border-white/20"
+              whileHover={{ scale: 1.05 }}
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+              >
+                <Clock className="w-5 h-5 text-[#ffb21e]" />
+              </motion.div>
+              <motion.span 
+                className="text-2xl font-mono text-white font-bold"
+                animate={timeRemaining <= 300 ? { 
+                  color: ["#ffffff", "#ff6b6b", "#ffffff"] 
+                } : {}}
+                transition={{ duration: 1, repeat: Infinity }}
+              >
+                {formatTime(timeRemaining)}
+              </motion.span>
+            </motion.div>
+            
+            {/* End Interview Button */}
+            <motion.button
+              onClick={endInterview}
+              className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-red-500/10 to-red-600/10 border-2 border-red-500/30 text-red-400 hover:border-red-400 hover:text-red-300 font-semibold transition-all duration-300"
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: "0 10px 25px rgba(239, 68, 68, 0.2)"
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.span className="relative z-10">End Interview</motion.span>
+              
+              {/* Hover background */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-red-600/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              />
+            </motion.button>
+          </motion.div>
+        </motion.div>
+
+        {/* Main Content */}
+        <motion.div 
+          className="flex-1 flex relative z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          {/* Left Panel - Conversation */}
+          <motion.div 
+            className="w-1/2 flex flex-col border-r border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm"
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+          >
+            {/* Panel Header */}
+            <motion.div 
+              className="border-b border-white/10 p-6 bg-gradient-to-r from-white/5 to-white/10"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              <motion.div 
+                className="flex items-center gap-4"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.1
+                    }
+                  }
+                }}
+              >
+                <motion.span 
+                  className="bg-gradient-to-r from-[#6f5af6] to-[#9f7aea] text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2"
+                  variants={{
+                    hidden: { scale: 0, opacity: 0 },
+                    visible: { scale: 1, opacity: 1 }
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Code className="w-4 h-4" />
+                  Frontend Interview
+                </motion.span>
+                
+                <motion.span 
+                  className="bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2"
+                  variants={{
+                    hidden: { scale: 0, opacity: 0 },
+                    visible: { scale: 1, opacity: 1 }
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  animate={{ 
+                    boxShadow: [
+                      "0 0 0 0 rgba(42, 209, 126, 0.4)",
+                      "0 0 0 6px rgba(42, 209, 126, 0)",
+                      "0 0 0 0 rgba(42, 209, 126, 0)"
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Question {session.currentQuestion} of {session.totalQuestions}
+                </motion.span>
+              </motion.div>
+            </motion.div>
 
             <div className="flex-1 p-6 overflow-y-auto">
               {/* Current Question Display */}
@@ -2593,7 +3192,7 @@ function AIInterviewContent() {
 
          
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Panel - Interviewer & User Video */}
           <div className="w-1/2 flex flex-col">
@@ -2864,7 +3463,7 @@ function AIInterviewContent() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -2872,673 +3471,709 @@ function AIInterviewContent() {
   // Thank You Screen
   if (currentStep === 'thank-you') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-4xl">
-          <div className="card p-8">
-        {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">FP</span>
-              </div>
-              <h1 className="text-xl font-bold">HireOG</h1>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#2ad17e]/20 to-[#ffb21e]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: mousePosition.x * 0.2,
+              y: mousePosition.y * 0.2,
+              scale: [1, 1.2, 1],
+              rotate: 360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 50 },
+              y: { type: "spring", stiffness: 50 },
+              scale: { duration: 6, repeat: Infinity },
+              rotate: { duration: 25, repeat: Infinity, ease: "linear" }
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-r from-[#6f5af6]/20 to-[#5cd3ff]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: -mousePosition.x * 0.15,
+              y: -mousePosition.y * 0.15,
+              scale: [1.2, 1, 1.2],
+              rotate: -360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 30 },
+              y: { type: "spring", stiffness: 30 },
+              scale: { duration: 8, repeat: Infinity },
+              rotate: { duration: 30, repeat: Infinity, ease: "linear" }
+            }}
+          />
+
+          {/* Floating Success Icons */}
+          {[CheckCircle, Star, Target, Settings].map((Icon, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-white/10"
+              style={{
+                left: `${15 + i * 20}%`,
+                top: `${10 + i * 20}%`,
+              }}
+              animate={{
+                y: [-15, 15, -15],
+                rotate: [0, 180, 360],
+                opacity: [0.1, 0.4, 0.1],
+              }}
+              transition={{
+                duration: 5 + i,
+                repeat: Infinity,
+                delay: i * 0.5,
+              }}
+            >
+              <Icon className="w-16 h-16" />
+            </motion.div>
+          ))}
         </div>
+
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
+          <motion.div 
+            className="w-full max-w-6xl"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, type: "spring", stiffness: 200 }}
+          >
+            <motion.div 
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-12 relative overflow-hidden"
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              {/* Header */}
+              <motion.div 
+                className="flex items-center justify-between mb-12"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <motion.div 
+                  className="flex items-center gap-6"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <motion.div 
+                    className="w-16 h-16 bg-gradient-to-br from-[#2ad17e] to-[#5cd3ff] rounded-2xl flex items-center justify-center relative"
+                    animate={{ 
+                      rotate: [0, 10, -10, 0],
+                      boxShadow: [
+                        "0 0 0 0 rgba(42, 209, 126, 0.4)",
+                        "0 0 0 15px rgba(42, 209, 126, 0)",
+                        "0 0 0 0 rgba(42, 209, 126, 0)"
+                      ]
+                    }}
+                    transition={{ 
+                      rotate: { duration: 4, repeat: Infinity },
+                      boxShadow: { duration: 2, repeat: Infinity }
+                    }}
+                  >
+                    <span className="text-white font-bold text-2xl">HO</span>
+                  </motion.div>
+                  <motion.h1 
+                    className="text-3xl font-bold text-white"
+                    whileHover={{ color: "#2ad17e" }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    HireOG
+                  </motion.h1>
+                </motion.div>
+
+                {/* Completion Badge */}
+                <motion.div 
+                  className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white font-bold flex items-center gap-2"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  Interview Completed
+                </motion.div>
+              </motion.div>
 
         {/* Main Content */}
-          <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold mb-2">
+              <motion.div 
+                className="text-center mb-12"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <motion.div
+                  className="mb-8"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
+                >
+                  <motion.div 
+                    className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-[#2ad17e] to-[#20c997] rounded-full flex items-center justify-center relative"
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      rotate: { duration: 3, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 2, repeat: Infinity, type: "tween" }
+                    }}
+                  >
+                    <CheckCircle className="w-12 h-12 text-white" />
+                    
+                    {/* Success Particles */}
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute w-2 h-2 bg-[#ffb21e] rounded-full"
+                        style={{
+                          left: "50%",
+                          top: "50%",
+                        }}
+                        animate={{
+                          x: [0, Math.cos(i * 60 * Math.PI / 180) * 60],
+                          y: [0, Math.sin(i * 60 * Math.PI / 180) * 60],
+                          opacity: [1, 0],
+                          scale: [0, 1, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: i * 0.1,
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                </motion.div>
+
+                <motion.h1 
+                  className="text-5xl font-extrabold mb-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <span className="bg-gradient-to-r from-[#2ad17e] via-[#5cd3ff] to-[#ffb21e] bg-clip-text text-transparent">
                 {companyParams ? (
                   <>
-                    Thank you {companyParams.candidateName || user?.name || 'Candidate'}. 
+                        Thank you {companyParams.candidateName || user?.name || 'Candidate'}!
                     <br />
-                    You have completed the interview for {companyParams.company}.
+                        <span className="text-3xl">
+                          You've completed the interview for{' '}
+                          <span className="text-[#2ad17e]">{companyParams.company}</span>
+                        </span>
                   </>
                 ) : (
-                  `Thank you ${user?.name || 'sagar bhatnagar'}. You have completed the interview.`
+                      `Thank you ${user?.name || 'Candidate'}! Interview Complete.`
                 )}
-              </h1>
+                  </span>
+                </motion.h1>
+                
               {companyParams && (
-                <p className="text-lg text-gray-600 mt-4">
-                  The HR team will get back to you with the results. This interview link has now expired.
-                </p>
-              )}
-            </div>
+                  <motion.div
+                    className="max-w-2xl mx-auto"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.0 }}
+                  >
+                    <motion.p 
+                      className="text-xl text-white/80 leading-relaxed"
+                      animate={{ opacity: [0.8, 1, 0.8] }}
+                      transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                    >
+                      The HR team will get back to you with the results.{' '}
+                      <span className="text-[#5cd3ff] font-semibold">This interview link has now expired.</span>
+                    </motion.p>
+                    
+                    {/* Decorative Elements */}
+                    <motion.div 
+                      className="flex justify-center gap-4 mt-6"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.2 }}
+                    >
+                      {[Brain, Target, Star].map((Icon, index) => (
+                        <motion.div
+                          key={index}
+                          className="w-8 h-8 text-[#ffb21e]/60"
+                          animate={{ 
+                            y: [0, -10, 0],
+                            rotate: [0, 180, 360]
+                          }}
+                          transition={{ 
+                            duration: 3,
+                            repeat: Infinity,
+                            delay: index * 0.3
+                          }}
+                        >
+                          <Icon className="w-full h-full" />
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                )}
+              </motion.div>
 
           {/* Progress Steps */}
-          <div className="max-w-2xl mx-auto mb-8">
-            <div className="space-y-4">
-                <div className={`flex items-center gap-4 p-4 rounded-lg border ${
-                  analysisProgress === 'uploading' ? 'bg-[color:var(--surface)] border-purple-400/30' : 
-                  ['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-[color:var(--surface)] border-green-400/30' : 'bg-[color:var(--surface)] border-[color:var(--border)]'
-              }`}>
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                  analysisProgress === 'uploading' ? 'bg-purple-500' : 
-                  ['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-green-500' : 'bg-gray-300'
-                }`}>
-                  <span className="text-white text-sm">
-                    {['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) ? '✓' : '⏳'}
-                  </span>
-                </div>
-                <span className="font-medium">Uploading your responses...</span>
-              </div>
+              <motion.div 
+                className="max-w-3xl mx-auto mb-12"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4 }}
+              >
+                <motion.h2 
+                  className="text-2xl font-bold text-white text-center mb-8"
+                  animate={{ opacity: [0.8, 1, 0.8] }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                >
+                  🚀 Processing Your Interview
+                </motion.h2>
 
-              <div className={`flex items-center gap-4 p-4 rounded-lg ${
-                analysisProgress === 'analyzing' ? 'bg-purple-50 border-l-4 border-purple-500' : 
-                ['creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-green-50 border-l-4 border-green-500' : 'bg-gray-50'
-              }`}>
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                  analysisProgress === 'analyzing' ? 'bg-purple-500 animate-pulse' : 
-                  ['creating-feedback', 'complete'].includes(analysisProgress) ? 'bg-green-500' : 'bg-gray-300'
-                }`}>
-                  <span className="text-white text-sm">
-                    {['creating-feedback', 'complete'].includes(analysisProgress) ? '✓' : '⏳'}
-                  </span>
-                </div>
-                <span className="font-medium">Analyzing your interview...</span>
-              </div>
-
-              <div className={`flex items-center gap-4 p-4 rounded-lg ${
-                analysisProgress === 'creating-feedback' ? 'bg-purple-50 border-l-4 border-purple-500' : 
-                analysisProgress === 'complete' ? 'bg-green-50 border-l-4 border-green-500' : 'bg-gray-50'
-              }`}>
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                  analysisProgress === 'creating-feedback' ? 'bg-purple-500 animate-pulse' : 
-                  analysisProgress === 'complete' ? 'bg-green-500' : 'bg-gray-300'
-                }`}>
-                  <span className="text-white text-sm">
-                    {analysisProgress === 'complete' ? '✓' : '⏳'}
-                  </span>
-                </div>
-                <span className="font-medium">Creating actionable feedback...</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Interview Summary Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold mb-2">Position</h3>
-              <p className="text-2xl font-bold text-purple-400">Frontend Developer</p>
-            </div>
-            
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold mb-2">Round</h3>
-              <p className="text-2xl font-bold text-blue-400">Technical Interview</p>
-            </div>
-            
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold mb-2">Completed</h3>
-              <p className="text-2xl font-bold text-green-400">
-                {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
-              </p>
-            </div>
-          </div>
-
-          {/* Action Cards */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold mb-4">JD Based Interview</h3>
-              <div className="space-y-3">
-                <input 
-                  type="text" 
-                  placeholder="Role Name" 
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-                <input 
-                  type="text" 
-                  placeholder="Interview Type" 
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-                <button className="w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700">
-                  Start Interview
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold mb-4">AI-Powered Performance Review</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Generic Review</h4>
-                  <input 
-                    type="text" 
-                    placeholder="Role Name" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm"
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Candidate Name" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm mt-2"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Personalized Review</h4>
-                  <input 
-                    type="text" 
-                    placeholder="Role Name" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm"
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Company Name" 
-                    className="w-full p-2 border border-gray-300 rounded text-sm mt-2"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold mb-4">Mock Interview for Salary Negotiation</h3>
-              <div className="bg-[color:var(--surface)] rounded-lg p-4 mb-4 border border-[color:var(--border)]">
-                <div className="w-full h-24 bg-[color:var(--surface)] rounded flex items-center justify-center border border-[color:var(--border)]">
-                  <span className="text-white/60">Video Preview</span>
-                </div>
-              </div>
-              <button className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
-                Start Interview
-              </button>
-            </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Analysis Report Screen
-  if (currentStep === 'analysis' && feedback) {
-    const interviewLevel = feedback.score >= 8 ? 'Expert' : feedback.score >= 6 ? 'Advanced' : feedback.score >= 4 ? 'Professional' : 'Entry-Level';
-    const technicalCompetency = feedback.score >= 8 ? 'Expert' : feedback.score >= 6 ? 'Advanced' : feedback.score >= 4 ? 'Professional' : 'Entry-Level';
+                <div className="space-y-6">
+                  {[
+                    { 
+                      id: 'uploading', 
+                      title: 'Uploading your responses...', 
+                      icon: '📤',
+                      description: 'Securely saving your interview data'
+                    },
+                    { 
+                      id: 'analyzing', 
+                      title: 'Analyzing your interview...', 
+                      icon: '🧠',
+                      description: 'AI is evaluating your technical skills and communication'
+                    },
+                    { 
+                      id: 'creating-feedback', 
+                      title: 'Creating actionable feedback...', 
+                      icon: '📊',
+                      description: 'Generating personalized improvement suggestions'
+                    }
+                  ].map((step, index) => {
+                    const isActive = analysisProgress === step.id;
+                    const isComplete = ['analyzing', 'creating-feedback', 'complete'].includes(analysisProgress) && 
+                                     ['uploading', 'analyzing', 'creating-feedback'].indexOf(step.id) < 
+                                     ['uploading', 'analyzing', 'creating-feedback'].indexOf(analysisProgress);
+                    const isCompleteAll = analysisProgress === 'complete';
     
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-6xl">
-          <div className="card p-8">
-        {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">FP</span>
-              </div>
-              <h1 className="text-xl font-bold">HireOG</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm">Welcome, {user?.name || 'sagar'}</span>
-          </div>
-        </div>
+                      <motion.div
+                        key={step.id}
+                        className={`relative p-6 rounded-3xl border-2 transition-all duration-500 ${
+                          isActive 
+                            ? 'bg-gradient-to-r from-[#6f5af6]/20 to-[#9f7aea]/20 border-[#6f5af6] shadow-lg shadow-[#6f5af6]/20' 
+                            : (isComplete || isCompleteAll)
+                              ? 'bg-gradient-to-r from-[#2ad17e]/20 to-[#20c997]/20 border-[#2ad17e] shadow-lg shadow-[#2ad17e]/20'
+                              : 'bg-gradient-to-r from-white/5 to-white/10 border-white/20'
+                        }`}
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1.5 + index * 0.2 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                      >
+                        {/* Progress Line */}
+                        {index < 2 && (
+                          <motion.div 
+                            className="absolute left-8 top-full w-0.5 h-6 bg-gradient-to-b from-white/30 to-transparent"
+                            initial={{ scaleY: 0 }}
+                            animate={{ scaleY: 1 }}
+                            transition={{ delay: 1.7 + index * 0.2 }}
+                          />
+                        )}
 
-        {/* Interview Details */}
-   
-
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">You Are Here</span>
-              <span className="text-sm font-medium">{interviewLevel}</span>
-            </div>
-            <div className="relative">
-              <div className="w-full bg-[color:var(--surface)] rounded-full h-3 border border-[color:var(--border)]">
-                <div 
-                  className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-1000"
-                  style={{ width: `${Math.min((feedback.score / 10) * 100, 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between mt-2 text-xs text-white/60">
-                <span>Incomplete</span>
-                <span>Entry-Level</span>
-                <span>Professional</span>
-                <span>Advanced</span>
-                <span>Expert</span>
-                <span>Extraordinary</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Performance Gauges */}
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
-            {/* Interview Level Gauge */}
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 border-b border-[color:var(--border)] pb-2">Interview Level</h3>
-              <div className="flex items-center justify-center">
-                <div className="relative w-32 h-32">
-                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="8"
-                    />
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 50}`}
-                      strokeDashoffset={`${2 * Math.PI * 50 * (1 - feedback.score / 10)}`}
-                      className="transition-all duration-1000"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">{interviewLevel}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Technical Competency Gauge */}
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 border-b border-[color:var(--border)] pb-2">Technical Competency</h3>
-              <div className="flex items-center justify-center">
-                <div className="relative w-32 h-32">
-                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="8"
-                    />
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="#8b5cf6"
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 50}`}
-                      strokeDashoffset={`${2 * Math.PI * 50 * (1 - feedback.score / 10)}`}
-                      className="transition-all duration-1000"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600">{technicalCompetency}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Per-Question Detailed Analysis with recorded videos */}
-          {feedback.questionAnalysis && feedback.questionAnalysis.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-6">Question-by-Question Analysis</h2>
-              <div className="space-y-6">
-                {feedback.questionAnalysis.map((qa: any, index: number) => {
-                  // Find the corresponding message with video
-                  const interviewerQuestion = qa.question || messages.find(m => m.role==='interviewer' && m.content)?.content;
-                  // pair by order: take the Nth candidate video after the Nth interviewer question
-                  const candidateMsgs = messages.filter(m => m.role === 'candidate' && m.videoUrl);
-                  const candidateMsg = candidateMsgs[index] || null;
-                  
-                  return (
-                    <div key={index} className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg overflow-hidden shadow-sm">
-                      {/* Question Header */}
-                      <div className="bg-[color:var(--surface)] p-4 border-b border-[color:var(--border)]">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold">Question {qa.questionNumber}</h3>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm">Score:</span>
-                            <span className={`text-lg font-bold ${
-                              qa.score >= 8 ? 'text-green-600' : 
-                              qa.score >= 6 ? 'text-blue-600' : 
-                              qa.score >= 4 ? 'text-yellow-600' : 
-                              'text-red-600'
-                            }`}>
-                              {qa.score}/10
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-6">
-                        {/* Question */}
-                        <div className="mb-4">
-                          <h4 className="text-sm font-semibold mb-2">Question:</h4>
-                          <p className="bg-[color:var(--surface)] p-3 rounded border border-[color:var(--border)]">{qa.question}</p>
-                        </div>
-
-                        {/* Answer with Video */}
-                        <div className="mb-4">
-                          <h4 className="text-sm font-semibold mb-2">Your Answer:</h4>
-                          <div className="grid md:grid-cols-2 gap-4">
-                            {/* Video Playback */}
-                            {candidateMsg?.videoUrl && (
-                              <div className="bg-black rounded-lg overflow-hidden">
-                                <video 
-                                  src={candidateMsg.videoUrl} 
-                                  controls 
-                                  className="w-full h-auto"
-                                  style={{ maxHeight: '300px' }}
-                                >
-                                  Your browser does not support video playback.
-                                </video>
-                              </div>
+                        <div className="flex items-center gap-6">
+                          {/* Status Indicator */}
+                          <motion.div 
+                            className={`relative w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold ${
+                              isActive 
+                                ? 'bg-gradient-to-r from-[#6f5af6] to-[#9f7aea]' 
+                                : (isComplete || isCompleteAll)
+                                  ? 'bg-gradient-to-r from-[#2ad17e] to-[#20c997]'
+                                  : 'bg-gradient-to-r from-gray-600 to-gray-700'
+                            }`}
+                            animate={isActive ? { 
+                              scale: [1, 1.1, 1],
+                              rotate: [0, 360]
+                            } : (isComplete || isCompleteAll) ? {
+                              scale: [1, 1.2, 1]
+                            } : {}}
+                            transition={{ 
+                              scale: { duration: 2, repeat: Infinity, type: "tween" },
+                              rotate: { duration: 3, repeat: Infinity, type: "tween" }
+                            }}
+                          >
+                            {/* Background glow */}
+                            {isActive && (
+                              <motion.div 
+                                className="absolute inset-0 rounded-full bg-[#6f5af6] blur-lg"
+                                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0.8, 0.5] }}
+                                transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                              />
                             )}
-                            
-                            {/* Answer Text */}
-                            <div className={candidateMsg?.videoUrl ? '' : 'md:col-span-2'}>
-                              <p className="bg-[color:var(--surface)] p-3 rounded h-full border border-[color:var(--border)]">{qa.answer}</p>
-                            </div>
-                          </div>
-                        </div>
 
-                        {/* Feedback */}
-                        <div className="mb-4">
-                          <h4 className="text-sm font-semibold mb-2">Feedback:</h4>
-                          <p className="bg-[color:var(--surface)] p-3 rounded border-l-4 border-blue-400 border border-[color:var(--border)]">{qa.feedback}</p>
-                        </div>
-
-                        {/* Strengths and Improvements */}
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {/* Strengths */}
-                          {qa.strengths && qa.strengths.length > 0 && (
-                            <div>
-                              <h4 className="text-sm font-semibold text-green-400 mb-2">✓ Strengths:</h4>
-                              <ul className="space-y-1">
-                                {qa.strengths.map((strength: string, i: number) => (
-                                  <li key={i} className="text-sm bg-[color:var(--surface)] p-2 rounded flex items-start gap-2 border border-[color:var(--border)]">
-                                    <span className="text-green-400 mt-0.5">•</span>
-                                    <span>{strength}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {/* Improvements */}
-                          {qa.improvements && qa.improvements.length > 0 && (
-                            <div>
-                              <h4 className="text-sm font-semibold text-yellow-400 mb-2">💡 Areas to Improve:</h4>
-                              <ul className="space-y-1">
-                                {qa.improvements.map((improvement: string, i: number) => (
-                                  <li key={i} className="text-sm bg-[color:var(--surface)] p-2 rounded flex items-start gap-2 border border-[color:var(--border)]">
-                                    <span className="text-yellow-400 mt-0.5">•</span>
-                                    <span>{improvement}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Fallback: Recorded Answers (video) paired by conversation order */}
-          {(!feedback.questionAnalysis || feedback.questionAnalysis.length === 0) && (
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-6">Recorded Answers</h2>
-              <div className="space-y-6">
-                {(() => {
-                  const pairs: { q: string; cand?: any }[] = [];
-                  const candQueue = messages.filter(m => m.role === 'candidate' && m.videoUrl);
-                  let ci = 0;
-                  for (let i = 0; i < messages.length; i++) {
-                    const m = messages[i];
-                    if (m.role === 'interviewer') {
-                      const q = m.content;
-                      // find next candidate with video
-                      let cand: any = undefined;
-                      while (ci < candQueue.length && !cand) {
-                        cand = candQueue[ci++];
-                      }
-                      pairs.push({ q, cand });
-                    }
-                  }
-                  return pairs
-                    .filter(p => p.cand && p.cand.videoUrl)
-                    .map((p, idx) => (
-                      <div key={idx} className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg overflow-hidden shadow-sm">
-                        <div className="bg-[color:var(--surface)] p-4 border-b border-[color:var(--border)]">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">Question {idx + 1}</h3>
-                          </div>
-                        </div>
-                        <div className="p-6">
-                          <div className="mb-4">
-                            <h4 className="text-sm font-semibold mb-2">Question:</h4>
-                            <p className="text-white/90 bg-[color:var(--surface)] p-3 rounded border border-[color:var(--border)]">{p.q}</p>
-                          </div>
-                          <div className="grid md:grid-cols-2 gap-4">
-                            <div className="bg-black rounded-lg overflow-hidden">
-                              <video 
-                                src={p.cand.videoUrl}
-                                controls 
-                                className="w-full h-auto"
-                                style={{ maxHeight: '300px' }}
-                              >
-                                Your browser does not support video playback.
-                              </video>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-semibold mb-2">Transcript (approx):</h4>
-                              <p className="text-white/90 bg-[color:var(--surface)] p-3 rounded border border-[color:var(--border)]">{p.cand.content}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ));
-                })()}
-              </div>
-            </div>
-          )}
-
-          {/* Overall Summary */}
-          <h2 className="text-2xl font-bold mb-6">Overall Summary</h2>
-          
-          {/* Detailed Analysis */}
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Strengths */}
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Key Strengths</h3>
-              <div className="space-y-3">
-                {(feedback.feedback?.strengths || feedback.strengths || []).map((strength: string, index: number) => (
-                  <div key={index} className="bg-green-500/10 border-l-4 border-green-500 p-3 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      <span className="text-white/90">{strength}</span>
-                    </div>
-                  </div>
-                )) || [
-                  "Good understanding of basic concepts",
-                  "Clear communication style",
-                  "Willingness to learn and improve"
-                ].map((strength, index) => (
-                  <div key={index} className="bg-green-500/10 border-l-4 border-green-500 p-3 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      <span className="text-white/90">{strength}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Areas for Improvement */}
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Areas for Improvement</h3>
-              <div className="space-y-3">
-                {(feedback.feedback?.improvements || feedback.improvements || []).map((improvement: string, index: number) => (
-                  <div key={index} className="bg-yellow-500/10 border-l-4 border-yellow-500 p-3 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-yellow-500">💡</span>
-                      <span className="text-white/90">{improvement}</span>
-                    </div>
-                  </div>
-                )) || [
-                  "Practice more coding problems",
-                  "Study advanced JavaScript concepts",
-                  "Improve system design knowledge"
-                ].map((improvement, index) => (
-                  <div key={index} className="bg-yellow-500/10 border-l-4 border-yellow-500 p-3 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-yellow-500">💡</span>
-                      <span className="text-white/90">{improvement}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Profile-based Categories */}
-          {feedback.feedback?.categories && (
-            <div className="mt-8 bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Category Ratings</h3>
-              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {Object.entries(feedback.feedback.categories).map(([k, v]: any) => {
-                  const isObj = v && typeof v === 'object';
-                  const rating = isObj ? (v.rating ?? v.score ?? v.value ?? null) : v;
-                  const desc = isObj ? (v.description ?? v.summary ?? '') : '';
-                  return (
-                    <div key={k} className="p-4 bg-[color:var(--surface)]/50 rounded border border-[color:var(--border)]">
-                      <div className="text-sm text-white/60 capitalize">{String(k).replace(/_/g, ' ')}</div>
-                      {rating !== null && rating !== undefined ? (
-                        <div className="text-xl font-bold text-purple-600">{rating}/10</div>
-                      ) : (
-                        <div className="text-sm text-white/80">Not rated</div>
-                      )}
-                      {desc && (
-                        <div className="mt-1 text-xs text-white/60">{desc}</div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Overall Score */}
-          <div className="mt-8 bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold mb-4">Overall Performance</h3>
-              <div className="text-6xl font-bold text-purple-600 mb-2">{feedback.score || 7}/10</div>
-              <p className="text-white/60 mb-4">Great job! Keep practicing to reach the next level.</p>
-            </div>
-          </div>
-
-          {/* Personalized Study Plan */}
-          {feedback.studyPlan && (
-            <div className="mt-8 bg-gradient-to-br from-purple-500/5 to-blue-500/5 border border-purple-500/30 rounded-lg p-8 shadow-lg">
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold mb-2">📚 Your Personalized 30-Day Study Plan</h2>
-                <p className="text-white/60">Based on your interview performance, here's a customized roadmap to improve</p>
-              </div>
-
-              {/* Daily Practice */}
-              <div className="bg-[color:var(--surface)] rounded-lg p-6 mb-6 border border-[color:var(--border)]">
-                <h3 className="text-xl font-semibold mb-4">⏰ Daily Practice Routine</h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/30">
-                    <div className="text-3xl font-bold text-purple-600">{feedback.studyPlan.dailyPractice.problems}</div>
-                    <div className="text-sm text-white/60 mt-1">Coding Problems</div>
-                  </div>
-                  <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
-                    <div className="text-3xl font-bold text-blue-600">{feedback.studyPlan.dailyPractice.readingTime} min</div>
-                    <div className="text-sm text-white/60 mt-1">Reading</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/30">
-                    <div className="text-3xl font-bold text-green-600">{feedback.studyPlan.dailyPractice.videoTime} min</div>
-                    <div className="text-sm text-white/60 mt-1">Videos</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Weekly Goals */}
-              <div className="bg-[color:var(--surface)] rounded-lg p-6 mb-6 border border-[color:var(--border)]">
-                <h3 className="text-xl font-semibold mb-4">🎯 Weekly Breakdown</h3>
-                <div className="space-y-4">
-                  {feedback.studyPlan.weeklyGoals.map((week: any, index: number) => (
-                    <div key={index} className="border-l-4 border-purple-500 pl-4 py-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">Week {week.week}</span>
-                        <h4 className="font-semibold">{week.focus}</h4>
-                      </div>
-                      <div className="mb-2">
-                        <p className="text-sm font-medium text-white/80 mb-1">Goals:</p>
-                        <ul className="list-disc list-inside text-sm text-white/60 space-y-1">
-                          {week.goals.map((goal: string, i: number) => (
-                            <li key={i}>{goal}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-white/80 mb-1">Resources:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {week.resources.map((resource: string, i: number) => (
-                            <span key={i} className="bg-[color:var(--surface)]/50 text-white/80 text-xs px-2 py-1 rounded border border-[color:var(--border)]">
-                              {resource}
+                            <span className="relative z-10 text-white">
+                              {(isComplete || isCompleteAll) ? '✓' : isActive ? step.icon : '⏳'}
                             </span>
+
+                            {/* Spinning loader for active state */}
+                            {isActive && (
+                              <motion.div 
+                                className="absolute inset-0 border-4 border-white/30 border-t-white rounded-full"
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              />
+                            )}
+                          </motion.div>
+                          
+                          {/* Content */}
+                          <div className="flex-1">
+                            <motion.h3 
+                              className={`text-xl font-bold mb-2 ${
+                                isActive ? 'text-[#6f5af6]' : 
+                                (isComplete || isCompleteAll) ? 'text-[#2ad17e]' : 'text-white'
+                              }`}
+                              animate={isActive ? { opacity: [0.8, 1, 0.8] } : {}}
+                              transition={{ duration: 1.5, repeat: Infinity, type: "tween" }}
+                            >
+                              {step.title}
+                            </motion.h3>
+                            <motion.p 
+                              className="text-white/70 text-sm"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 1.6 + index * 0.2 }}
+                            >
+                              {step.description}
+                            </motion.p>
+                              </div>
+
+                          {/* Animation Elements */}
+                          {isActive && (
+                            <motion.div 
+                              className="flex gap-1"
+                              initial="hidden"
+                              animate="visible"
+                              variants={{
+                                visible: {
+                                  transition: {
+                                    staggerChildren: 0.1,
+                                    repeat: Infinity,
+                                    repeatType: "loop" 
+                                  }
+                                }
+                              }}
+                            >
+                              {[0, 1, 2].map((i) => (
+                                <motion.div
+                                  key={i}
+                                  className="w-2 h-2 bg-[#6f5af6] rounded-full"
+                                  variants={{
+                                    hidden: { opacity: 0.3, scale: 0.8 },
+                                    visible: { opacity: 1, scale: 1.2 }
+                                  }}
+                                  transition={{ duration: 0.5 }}
+                                />
+                              ))}
+                            </motion.div>
+                          )}
+                            </div>
+                      </motion.div>
+                  );
+                })}
+              </div>
+              </motion.div>
+
+          {/* Interview Summary Cards */}
+              <motion.div 
+                className="grid md:grid-cols-3 gap-6 mb-12"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 2.0 }}
+              >
+                {[
+                  { 
+                    title: 'Position', 
+                    value: profile === 'frontend' ? 'Frontend Developer' : 
+                           profile === 'backend' ? 'Backend Developer' : 
+                           'Developer',
+                    icon: '💻', 
+                    color: 'from-[#6f5af6] to-[#9f7aea]',
+                    textColor: 'text-[#9f7aea]'
+                  },
+                  { 
+                    title: 'Round', 
+                    value: 'Technical Interview', 
+                    icon: '🎯', 
+                    color: 'from-[#5cd3ff] to-[#3b82f6]',
+                    textColor: 'text-[#5cd3ff]'
+                  },
+                  { 
+                    title: 'Completed', 
+                    value: `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 
+                    icon: '✅', 
+                    color: 'from-[#2ad17e] to-[#20c997]',
+                    textColor: 'text-[#2ad17e]'
+                  }
+                ].map((card, index) => (
+                  <motion.div
+                    key={card.title}
+                    className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-3xl p-8 shadow-lg overflow-hidden group"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 2.1 + index * 0.1, type: "spring", stiffness: 200 }}
+                    whileHover={{ 
+                      scale: 1.05, 
+                      y: -10,
+                      boxShadow: "0 20px 40px rgba(255, 255, 255, 0.1)"
+                    }}
+                  >
+                    {/* Animated Background Gradient */}
+                    <motion.div 
+                      className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-10 rounded-3xl`}
+                      whileHover={{ opacity: 0.2 }}
+                      transition={{ duration: 0.3 }}
+                    />
+
+                    {/* Floating Icon */}
+                    <motion.div 
+                      className="absolute top-4 right-4 text-4xl"
+                      animate={{ 
+                        rotate: [0, 10, -10, 0],
+                        scale: [1, 1.1, 1]
+                      }}
+                      transition={{ 
+                        duration: 4 + index,
+                        repeat: Infinity,
+                        delay: index * 0.5,
+                        type: "tween"
+                      }}
+                    >
+                      {card.icon}
+                    </motion.div>
+
+                    <div className="relative z-10">
+                      <motion.h3 
+                        className="text-white/80 font-semibold mb-4 text-lg"
+                        whileHover={{ color: "#ffffff" }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {card.title}
+                      </motion.h3>
+                      
+                      <motion.p 
+                        className={`text-2xl font-bold ${card.textColor} leading-tight`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 2.2 + index * 0.1 }}
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        {card.value}
+                      </motion.p>
+                    </div>
+
+                    {/* Hover particles */}
+                    <motion.div 
+                      className="absolute inset-0 pointer-events-none"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                    >
+                      {[...Array(3)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className={`absolute w-1 h-1 bg-gradient-to-r ${card.color} rounded-full`}
+                          style={{
+                            left: `${20 + i * 30}%`,
+                            top: `${30 + i * 20}%`,
+                          }}
+                          animate={{
+                            y: [-10, 10, -10],
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            delay: i * 0.3,
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+
+                    {/* Border Animation */}
+                    <motion.div 
+                      className="absolute inset-0 rounded-3xl border-2 border-transparent"
+                      whileHover={{
+                        borderImageSource: `linear-gradient(45deg, ${card.color.split(' ')[1]}, ${card.color.split(' ')[3]})`,
+                        borderImageSlice: 1,
+                      }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* Next Steps Section */}
+              {!companyParams && (
+                <motion.div
+                  className="text-center"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 2.6 }}
+                >
+                  <motion.h2 
+                    className="text-3xl font-bold text-white mb-8"
+                    animate={{ opacity: [0.8, 1, 0.8] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    What's Next?
+                  </motion.h2>
+
+                  <motion.div 
+                    className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      visible: {
+                        transition: {
+                          staggerChildren: 0.2
+                        }
+                      }
+                    }}
+                  >
+                    {[
+                      {
+                        title: "View Results",
+                        description: "Check your detailed interview analysis and personalized feedback",
+                        icon: "📊",
+                        action: "View Analysis",
+                        color: "from-[#2ad17e] to-[#20c997]"
+                      },
+                      {
+                        title: "Practice More",
+                        description: "Take another AI interview to improve your skills further",
+                        icon: "🚀",
+                        action: "New Interview",
+                        color: "from-[#5cd3ff] to-[#6f5af6]"
+                      }
+                    ].map((item, index) => (
+                      <motion.div
+                        key={item.title}
+                        className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-3xl p-8 group cursor-pointer overflow-hidden"
+                        variants={{
+                          hidden: { opacity: 0, y: 20 },
+                          visible: { opacity: 1, y: 0 }
+                        }}
+                        whileHover={{ 
+                          scale: 1.02, 
+                          y: -5,
+                          boxShadow: "0 20px 40px rgba(255, 255, 255, 0.1)"
+                        }}
+                        onClick={() => {
+                          if (index === 0) {
+                            // Navigate to results
+                            router.push('/progress');
+                          } else {
+                            // Start new interview
+                            window.location.reload();
+                          }
+                        }}
+                      >
+                        {/* Background Animation */}
+                        <motion.div 
+                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-3xl`}
+                        />
+
+                        {/* Floating Icon */}
+                        <motion.div 
+                          className="text-6xl mb-4 text-center"
+                          animate={{ 
+                            rotate: [0, 10, -10, 0],
+                            scale: [1, 1.1, 1]
+                          }}
+                          transition={{ 
+                            duration: 3 + index,
+                            repeat: Infinity,
+                            delay: index * 0.5,
+                            type: "tween"
+                          }}
+                        >
+                          {item.icon}
+                        </motion.div>
+
+                        <div className="text-center relative z-10">
+                          <h3 className="text-2xl font-bold text-white mb-4">{item.title}</h3>
+                          <p className="text-white/80 mb-6 leading-relaxed">{item.description}</p>
+                          
+                          <motion.button
+                            className={`px-8 py-3 rounded-2xl bg-gradient-to-r ${item.color} text-white font-bold shadow-lg transition-all duration-300 group-hover:shadow-xl`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {item.action}
+                          </motion.button>
+              </div>
+
+                        {/* Particle Effects on Hover */}
+                        <motion.div 
+                          className="absolute inset-0 pointer-events-none"
+                          initial={{ opacity: 0 }}
+                          whileHover={{ opacity: 1 }}
+                        >
+                          {[...Array(5)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-1 h-1 bg-white rounded-full"
+                              style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                              }}
+                              animate={{
+                                y: [-20, 20, -20],
+                                opacity: [0, 1, 0],
+                              }}
+                              transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                              }}
+                            />
                           ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                        </motion.div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </motion.div>
+              )}
 
-              {/* Key Resources */}
-              <div className="bg-[color:var(--surface)] rounded-lg p-6 mb-6 border border-[color:var(--border)]">
-                <h3 className="text-xl font-semibold mb-4">📖 Recommended Resources</h3>
-                <div className="flex flex-wrap gap-2">
-                  {feedback.studyPlan.keyResources.map((resource: string, index: number) => (
-                    <span key={index} className="bg-purple-100 text-purple-700 px-3 py-2 rounded-lg text-sm font-medium">
-                      {resource}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Milestones */}
-              <div className="bg-[color:var(--surface)] rounded-lg p-6 border border-[color:var(--border)]">
-                <h3 className="text-xl font-semibold mb-4">🏆 Milestones to Achieve</h3>
-                <div className="grid md:grid-cols-2 gap-3">
-                  {feedback.studyPlan.milestones.map((milestone: string, index: number) => (
-                    <div key={index} className="flex items-start gap-2 p-3 bg-green-50 rounded-lg">
-                      <span className="text-green-600 mt-0.5">✓</span>
-                      <span className="text-sm text-gray-700">{milestone}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="mt-8 flex justify-center gap-4">
-            <button
-              onClick={() => {
-                setCurrentStep('setup');
-                setSession(null);
-                setMessages([]);
-                setFeedback(null);
-              }}
-              className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-all transform hover:scale-105 font-semibold"
-            >
-              Start New Interview
-            </button>
-      
-            {feedback.studyPlan && (
-              <button className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 font-semibold">
-                Save Study Plan
-              </button>
-            )}
-          </div>
-          </div>
+              {/* Completion Message for Company Interviews */}
+              {companyParams && (
+                <motion.div
+                  className="text-center"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 2.6, type: "spring", stiffness: 200 }}
+                >
+                  <motion.div 
+                    className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-[#2ad17e] to-[#20c997] rounded-full flex items-center justify-center"
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 3, repeat: Infinity, type: "tween" }
+                    }}
+                  >
+                    <span className="text-4xl">🎉</span>
+                  </motion.div>
+                  
+                  <motion.p 
+                    className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed"
+                    animate={{ opacity: [0.8, 1, 0.8] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    You can now close this window. Thank you for your time and effort!
+                  </motion.p>
+                </motion.div>
+              )}
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     );
