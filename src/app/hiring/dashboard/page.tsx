@@ -88,25 +88,12 @@ export default function CompanyDashboard() {
           addedDate: c.createdAt.split('T')[0],
           lastActivity: new Date().toISOString().split('T')[0]
         })));
-        setInterviewDrives(data.interviewDrives.map((d: any) => ({
-          id: d.id,
-          name: d.name,
-          status: d.status,
-          candidates: d.candidateIds,
-          createdDate: d.createdAt.split('T')[0],
-          totalCandidates: d.candidateIds?.length || 0,
-          completedInterviews: Math.floor(Math.random() * (d.candidateIds?.length || 0))
-        })));
       } else {
         // Fallback to sample data
         setCandidates([
           { id: "1", name: "John Doe", email: "john@example.com", profile: "Frontend Developer", status: "interview", score: 85, addedDate: "2024-01-15", lastActivity: "2024-01-20" },
           { id: "2", name: "Jane Smith", email: "jane@example.com", profile: "React Developer", status: "screening", score: 78, addedDate: "2024-01-16", lastActivity: "2024-01-19" },
           { id: "3", name: "Mike Johnson", email: "mike@example.com", profile: "Full Stack Developer", status: "offer", score: 92, addedDate: "2024-01-17", lastActivity: "2024-01-21" }
-        ]);
-        setInterviewDrives([
-          { id: "1", name: "Frontend Screening - Jan 2024", status: "completed", candidates: ["1", "2"], createdDate: "2024-01-15", totalCandidates: 2, completedInterviews: 2 },
-          { id: "2", name: "React Developer Assessment", status: "active", candidates: ["2", "3"], createdDate: "2024-01-18", totalCandidates: 2, completedInterviews: 1 }
         ]);
       }
     } catch (error) {

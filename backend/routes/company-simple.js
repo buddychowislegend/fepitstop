@@ -51,10 +51,7 @@ router.get('/dashboard', companyAuth, async (req, res) => {
     // Get candidates for this company from MongoDB
     const candidates = await db.getCandidatesByCompany(companyId);
     
-    // Get interview drives for this company from MongoDB
-    const drives = await db.getDrivesByCompany(companyId);
-    
-    console.log('Returning candidates:', candidates.length, 'drives:', drives.length);
+    console.log('Returning candidates:', candidates.length);
     
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -62,7 +59,6 @@ router.get('/dashboard', companyAuth, async (req, res) => {
       'Expires': '0'
     }).json({
       candidates: candidates,
-      interviewDrives: drives,
       message: 'Dashboard data retrieved successfully'
     });
   } catch (error) {
