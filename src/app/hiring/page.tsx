@@ -764,14 +764,7 @@ export default function HiringLanding() {
               <span className="relative z-10">Book a Demo ✨</span>
             </motion.button>
             
-            <motion.button 
-              className="border-2 border-white text-white px-10 py-4 rounded-2xl hover:bg-white hover:text-[#5b8cff] transition-all duration-300 font-bold backdrop-blur-sm text-lg"
-              whileHover={{ scale: 1.05, y: -3 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => window.open("tel:+1234567890")}
-            >
-              Call Us 📞
-            </motion.button>
+
           </motion.div>
           
           {/* Trust Indicators */}
