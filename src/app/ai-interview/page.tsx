@@ -4,6 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/config";
 import AzureTTSPlayer from "@/components/AzureTTSPlayer";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mic, MicOff, Send, Volume2, VolumeX, Clock, Target, Brain, Star, CheckCircle, Play, Pause, RotateCcw, Camera, Settings } from "lucide-react";
 
 type Message = {
   role: 'interviewer' | 'candidate';
@@ -45,6 +47,21 @@ function AIInterviewContent() {
   const { user, token, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // Mouse tracking for background animations
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
   
   // Company interview parameters
   const [companyParams, setCompanyParams] = useState<{
@@ -1298,8 +1315,89 @@ function AIInterviewContent() {
   // Loading state
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#2ad17e]/20 to-[#ffb21e]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: mousePosition.x * 0.2,
+              y: mousePosition.y * 0.2,
+              scale: [1, 1.2, 1],
+              rotate: 360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 50 },
+              y: { type: "spring", stiffness: 50 },
+              scale: { duration: 4, repeat: Infinity },
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" }
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-r from-[#6f5af6]/20 to-[#5cd3ff]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: -mousePosition.x * 0.15,
+              y: -mousePosition.y * 0.15,
+              scale: [1.2, 1, 1.2],
+              rotate: -360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 30 },
+              y: { type: "spring", stiffness: 30 },
+              scale: { duration: 5, repeat: Infinity },
+              rotate: { duration: 25, repeat: Infinity, ease: "linear" }
+            }}
+          />
+        </div>
+        
+        <div className="relative z-10 flex items-center justify-center min-h-screen">
+          <motion.div 
+            className="text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.div
+              className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] flex items-center justify-center"
+              animate={{ 
+                rotate: 360,
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ 
+                rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                scale: { duration: 2, repeat: Infinity }
+              }}
+            >
+              <Brain className="w-8 h-8 text-white" />
+            </motion.div>
+            <motion.h1 
+              className="text-3xl font-bold text-white mb-4"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              Preparing AI Interview
+            </motion.h1>
+            <motion.div 
+              className="flex justify-center gap-2"
+            >
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-3 h-3 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff]"
+                  animate={{
+                    scale: [1, 1.5, 1],
+                    opacity: [0.3, 1, 0.3]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    delay: i * 0.2
+                  }}
+                />
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
     );
   }
@@ -1307,141 +1405,583 @@ function AIInterviewContent() {
   // Setup Screen
   if (currentStep === 'setup') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-5xl">
-          <div className="card p-8">
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-extrabold mb-2">AI Mock Interview</h1>
-              <p className="text-xl">
-                Practice with professional AI interviewers from top tech companies
-              </p>
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#2ad17e]/20 to-[#ffb21e]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: mousePosition.x * 0.2,
+              y: mousePosition.y * 0.2,
+              scale: [1, 1.2, 1],
+              rotate: 360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 50 },
+              y: { type: "spring", stiffness: 50 },
+              scale: { duration: 4, repeat: Infinity },
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" }
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-r from-[#6f5af6]/20 to-[#5cd3ff]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: -mousePosition.x * 0.15,
+              y: -mousePosition.y * 0.15,
+              scale: [1.2, 1, 1.2],
+              rotate: -360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 30 },
+              y: { type: "spring", stiffness: 30 },
+              scale: { duration: 5, repeat: Infinity },
+              rotate: { duration: 25, repeat: Infinity, ease: "linear" }
+            }}
+          />
+
+          {/* Floating Particles */}
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-white/20 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [-20, 20, -20],
+                opacity: [0.3, 0.8, 0.3],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          ))}
             </div>
 
-            {/* Profile */}
-            <div className="mb-8">
-              <label className="block text-sm font-semibold mb-4">Select Profile</label>
-              <div className="grid md:grid-cols-3 gap-3">
-                <button onClick={() => setProfile('frontend')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='frontend' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
-                  <div className="font-semibold">Frontend Engineer</div>
-                  <div className="text-sm opacity-80">UI engineering, JS/TS, frameworks</div>
-                </button>
-                <button onClick={() => setProfile('backend')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='backend' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
-                  <div className="font-semibold">Backend Spring Boot</div>
-                  <div className="text-sm opacity-80">Java, Spring, microservices, APIs</div>
-                </button>
-                <button onClick={() => setProfile('product')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='product' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
-                  <div className="font-semibold">Product Manager</div>
-                  <div className="text-sm opacity-80">Product sense, metrics, prioritization</div>
-                </button>
-                <button onClick={() => setProfile('business')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='business' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
-                  <div className="font-semibold">Business Development</div>
-                  <div className="text-sm opacity-80">Sales, partnerships, GTM</div>
-                </button>
-                <button onClick={() => setProfile('qa')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='qa' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
-                  <div className="font-semibold">QA Engineer</div>
-                  <div className="text-sm opacity-80">Manual/Automation testing, QA strategy</div>
-                </button>
-                <button onClick={() => setProfile('hr')} className={`w-full p-4 rounded-lg text-left transition-all ${profile==='hr' ? 'bg-purple-600 text-white border-2 border-purple-400' : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'}`}>
-                  <div className="font-semibold">HR</div>
-                  <div className="text-sm opacity-80">Behavioral, culture fit, processes</div>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <div>
-                <label className="block text-sm font-semibold mb-4">Experience Level</label>
-                <div className="space-y-3">
-                  {(['junior', 'mid', 'senior'] as const).map((lvl) => (
-                    <button
-                      key={lvl}
-                      onClick={() => setLevel(lvl)}
-                      className={`w-full p-4 rounded-lg text-left transition-all ${
-                        level === lvl
-                          ? 'bg-purple-600 text-white border-2 border-purple-400'
-                          : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'
-                      }`}
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
+          <motion.div 
+            className="w-full max-w-6xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.div 
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-10 relative overflow-hidden"
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              {/* Header with Animated Icons */}
+              <motion.div 
+                className="text-center mb-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <motion.div 
+                  className="flex justify-center gap-4 mb-6"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                >
+                  {[Brain, Target, Star].map((Icon, index) => (
+                    <motion.div
+                      key={index}
+                      className="w-16 h-16 rounded-2xl bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] flex items-center justify-center"
+                      animate={{ 
+                        y: [0, -10, 0],
+                        rotate: [0, 5, -5, 0]
+                      }}
+                      transition={{ 
+                        duration: 3,
+                        repeat: Infinity,
+                        delay: index * 0.2
+                      }}
                     >
-                      <div className="font-semibold capitalize">{lvl} Level</div>
-                      <div className="text-sm opacity-80">
-                        {lvl === 'junior' && '0-2 years experience'}
-                        {lvl === 'mid' && '3-5 years experience'}
-                        {lvl === 'senior' && '6+ years experience'}
+                      <Icon className="w-8 h-8 text-white" />
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                <motion.h1 
+                  className="text-5xl font-extrabold mb-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <span className="bg-gradient-to-r from-[#2ad17e] via-[#5cd3ff] to-[#ffb21e] bg-clip-text text-transparent">
+                    AI Mock Interview
+                  </span>
+                </motion.h1>
+                
+                <motion.p 
+                  className="text-xl text-white/80 max-w-3xl mx-auto"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  Practice with professional AI interviewers from top tech companies.{' '}
+                  <span className="text-[#2ad17e] font-semibold">Get instant feedback</span>{' '}
+                  and improve your interview skills.
+                </motion.p>
+              </motion.div>
+
+            {/* Profile Selection */}
+            <motion.div 
+              className="mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <motion.label 
+                className="block text-lg font-semibold mb-6 text-white"
+                whileHover={{ x: 5 }}
+              >
+                Select Your Profile
+              </motion.label>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  {
+                    id: 'frontend',
+                    title: 'Frontend Engineer',
+                    desc: 'UI engineering, JS/TS, frameworks',
+                    icon: '🎨',
+                    gradient: 'from-[#6f5af6] to-[#a855f7]'
+                  },
+                  {
+                    id: 'backend',
+                    title: 'Backend Spring Boot',
+                    desc: 'Java, Spring, microservices, APIs',
+                    icon: '⚙️',
+                    gradient: 'from-[#2ad17e] to-[#20c997]'
+                  },
+                  {
+                    id: 'product',
+                    title: 'Product Manager',
+                    desc: 'Product sense, metrics, prioritization',
+                    icon: '📊',
+                    gradient: 'from-[#f59f00] to-[#ffb21e]'
+                  },
+                  {
+                    id: 'business',
+                    title: 'Business Development',
+                    desc: 'Sales, partnerships, GTM',
+                    icon: '💼',
+                    gradient: 'from-[#5cd3ff] to-[#6f5af6]'
+                  },
+                  {
+                    id: 'qa',
+                    title: 'QA Engineer',
+                    desc: 'Manual/Automation testing, QA strategy',
+                    icon: '🔍',
+                    gradient: 'from-[#a78bfa] to-[#6f5af6]'
+                  },
+                  {
+                    id: 'hr',
+                    title: 'HR',
+                    desc: 'Behavioral, culture fit, processes',
+                    icon: '👥',
+                    gradient: 'from-[#22d3ee] to-[#a855f7]'
+                  }
+                ].map((profileOption, index) => (
+                  <motion.button
+                    key={profileOption.id}
+                    onClick={() => setProfile(profileOption.id as 'frontend' | 'backend' | 'product' | 'business' | 'qa' | 'hr')}
+                    className={`group relative w-full p-6 rounded-2xl text-left transition-all duration-300 ${
+                      profile === profileOption.id 
+                        ? 'bg-gradient-to-br from-white/20 to-white/10 border-2 border-[#2ad17e] text-white' 
+                        : 'bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 text-white/80 hover:border-white/40'
+                    }`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 + index * 0.1 }}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {/* Animated Icon */}
+                    <motion.div 
+                      className="text-3xl mb-4"
+                      animate={{ 
+                        rotate: profile === profileOption.id ? [0, 10, -10, 0] : 0,
+                        scale: profile === profileOption.id ? [1, 1.1, 1] : 1
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      {profileOption.icon}
+                    </motion.div>
+                    
+                    <motion.div 
+                      className="font-bold text-lg mb-2 group-hover:text-[#2ad17e] transition-colors duration-300"
+                      whileHover={{ x: 5 }}
+                    >
+                      {profileOption.title}
+                    </motion.div>
+                    
+                    <motion.div 
+                      className="text-sm opacity-70"
+                      initial={{ opacity: 0.7 }}
+                      whileHover={{ opacity: 1 }}
+                    >
+                      {profileOption.desc}
+                    </motion.div>
+                    
+                    {/* Selection Indicator */}
+                    <AnimatePresence>
+                      {profile === profileOption.id && (
+                        <motion.div 
+                          className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#20c997] flex items-center justify-center"
+                          initial={{ scale: 0, rotate: -90 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          exit={{ scale: 0, rotate: 90 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Animated Border */}
+                    <motion.div 
+                      className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r ${profileOption.gradient} ${
+                        profile === profileOption.id ? 'w-full' : 'w-0 group-hover:w-full'
+                      } transition-all duration-500`}
+                    />
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="grid md:grid-cols-2 gap-8 mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.3 }}
+            >
+              {/* Experience Level */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.4 }}
+              >
+                <motion.label 
+                  className="block text-lg font-semibold mb-6 text-white"
+                  whileHover={{ x: 5 }}
+                >
+                  Experience Level
+                </motion.label>
+                <div className="space-y-4">
+                  {[
+                    { id: 'junior', title: 'Junior Level', desc: '0-2 years experience', icon: '🌱', gradient: 'from-[#2ad17e] to-[#20c997]' },
+                    { id: 'mid', title: 'Mid Level', desc: '3-5 years experience', icon: '⚡', gradient: 'from-[#f59f00] to-[#ffb21e]' },
+                    { id: 'senior', title: 'Senior Level', desc: '6+ years experience', icon: '🚀', gradient: 'from-[#6f5af6] to-[#a855f7]' }
+                  ].map((levelOption, index) => (
+                    <motion.button
+                      key={levelOption.id}
+                      onClick={() => setLevel(levelOption.id as 'junior' | 'mid' | 'senior')}
+                      className={`group relative w-full p-5 rounded-2xl text-left transition-all duration-300 ${
+                        level === levelOption.id
+                          ? 'bg-gradient-to-br from-white/20 to-white/10 border-2 border-[#2ad17e] text-white'
+                          : 'bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 text-white/80 hover:border-white/40'
+                      }`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1.5 + index * 0.1 }}
+                      whileHover={{ x: 5, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="flex items-center gap-4">
+                        <motion.div 
+                          className="text-2xl"
+                          animate={{ 
+                            rotate: level === levelOption.id ? [0, 10, -10, 0] : 0
+                          }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          {levelOption.icon}
+                        </motion.div>
+                        <div className="flex-1">
+                          <motion.div 
+                            className="font-bold text-lg group-hover:text-[#2ad17e] transition-colors duration-300"
+                          >
+                            {levelOption.title}
+                          </motion.div>
+                          <motion.div 
+                            className="text-sm opacity-70"
+                          >
+                            {levelOption.desc}
+                          </motion.div>
                       </div>
-                    </button>
+                        
+                        {/* Selection Indicator */}
+                        <AnimatePresence>
+                          {level === levelOption.id && (
+                            <motion.div 
+                              className="w-6 h-6 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#20c997] flex items-center justify-center"
+                              initial={{ scale: 0, rotate: -90 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              exit={{ scale: 0, rotate: 90 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      
+                      {/* Animated Border */}
+                      <motion.div 
+                        className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r ${levelOption.gradient} ${
+                          level === levelOption.id ? 'w-full' : 'w-0 group-hover:w-full'
+                        } transition-all duration-500`}
+                      />
+                    </motion.button>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
+              {/* Focus Area - Only for Frontend */}
+              <AnimatePresence>
               {profile === 'frontend' && (
-                <div>
-                  <label className="block text-sm font-semibold mb-4">Focus Area</label>
-                  <div className="space-y-3">
-                    {(['javascript', 'react', 'fullstack'] as const).map((foc) => (
-                      <button
-                        key={foc}
-                        onClick={() => setFocus(foc)}
-                        className={`w-full p-4 rounded-lg text-left transition-all ${
-                          focus === foc
-                            ? 'bg-purple-600 text-white border-2 border-purple-400'
-                            : 'bg-white/10 text-white/80 hover:bg-white/20 border-2 border-transparent'
-                        }`}
-                      >
-                        <div className="font-semibold capitalize">{foc}</div>
-                        <div className="text-sm opacity-80">
-                          {foc === 'javascript' && 'Core JavaScript concepts'}
-                          {foc === 'react' && 'React ecosystem & patterns'}
-                          {foc === 'fullstack' && 'Full-stack development'}
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: 1.4 }}
+                  >
+                    <motion.label 
+                      className="block text-lg font-semibold mb-6 text-white"
+                      whileHover={{ x: 5 }}
+                    >
+                      Focus Area
+                    </motion.label>
+                    <div className="space-y-4">
+                      {[
+                        { id: 'javascript', title: 'JavaScript', desc: 'Core JavaScript concepts', icon: '⚡', gradient: 'from-[#ffb21e] to-[#f59f00]' },
+                        { id: 'react', title: 'React', desc: 'React ecosystem & patterns', icon: '⚛️', gradient: 'from-[#5cd3ff] to-[#6f5af6]' },
+                        { id: 'fullstack', title: 'Fullstack', desc: 'Full-stack development', icon: '🌐', gradient: 'from-[#a855f7] to-[#6f5af6]' }
+                      ].map((focusOption, index) => (
+                        <motion.button
+                          key={focusOption.id}
+                          onClick={() => setFocus(focusOption.id as 'javascript' | 'react' | 'fullstack')}
+                          className={`group relative w-full p-5 rounded-2xl text-left transition-all duration-300 ${
+                            focus === focusOption.id
+                              ? 'bg-gradient-to-br from-white/20 to-white/10 border-2 border-[#2ad17e] text-white'
+                              : 'bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 text-white/80 hover:border-white/40'
+                          }`}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 1.5 + index * 0.1 }}
+                          whileHover={{ x: -5, scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="flex items-center gap-4">
+                            <motion.div 
+                              className="text-2xl"
+                              animate={{ 
+                                rotate: focus === focusOption.id ? [0, 10, -10, 0] : 0
+                              }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              {focusOption.icon}
+                            </motion.div>
+                            <div className="flex-1">
+                              <motion.div 
+                                className="font-bold text-lg group-hover:text-[#2ad17e] transition-colors duration-300"
+                              >
+                                {focusOption.title}
+                              </motion.div>
+                              <motion.div 
+                                className="text-sm opacity-70"
+                              >
+                                {focusOption.desc}
+                              </motion.div>
                         </div>
-                      </button>
+                            
+                            {/* Selection Indicator */}
+                            <AnimatePresence>
+                              {focus === focusOption.id && (
+                                <motion.div 
+                                  className="w-6 h-6 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#20c997] flex items-center justify-center"
+                                  initial={{ scale: 0, rotate: -90 }}
+                                  animate={{ scale: 1, rotate: 0 }}
+                                  exit={{ scale: 0, rotate: 90 }}
+                                  transition={{ type: "spring", stiffness: 300 }}
+                                >
+                                  <CheckCircle className="w-4 h-4 text-white" />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                          
+                          {/* Animated Border */}
+                          <motion.div 
+                            className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r ${focusOption.gradient} ${
+                              focus === focusOption.id ? 'w-full' : 'w-0 group-hover:w-full'
+                            } transition-all duration-500`}
+                          />
+                        </motion.button>
                     ))}
                   </div>
-                </div>
+                  </motion.div>
               )}
-            </div>
+              </AnimatePresence>
+            </motion.div>
 
             {/* Framework and JD Upload */}
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <motion.div 
+              className="grid md:grid-cols-2 gap-8 mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.8 }}
+            >
+              <AnimatePresence>
               {profile === 'frontend' && (
-                <div>
-                  <label className="block text-sm font-semibold mb-4">Framework</label>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ delay: 1.9 }}
+                  >
+                    <motion.label 
+                      className="block text-lg font-semibold mb-4 text-white"
+                      whileHover={{ x: 5 }}
+                    >
+                      Framework
+                    </motion.label>
+                    <motion.div
+                      className="relative"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
                   <select
                     value={framework}
                     onChange={(e) => setFramework(e.target.value as any)}
-                    className="w-full p-3 rounded-lg bg-white/10 border border-white/20"
-                  >
-                    <option className="text-black" value="react">React</option>
-                    <option className="text-black" value="react-native">React Native</option>
-                    <option className="text-black" value="nextjs">Next.js</option>
-                    <option className="text-black" value="vue">Vue</option>
-                    <option className="text-black" value="angular">Angular</option>
-                    <option className="text-black" value="svelte">Svelte</option>
+                        className="w-full p-4 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 text-white focus:border-[#2ad17e] focus:outline-none transition-all duration-300"
+                      >
+                        <option className="text-black bg-white" value="react">React</option>
+                        <option className="text-black bg-white" value="react-native">React Native</option>
+                        <option className="text-black bg-white" value="nextjs">Next.js</option>
+                        <option className="text-black bg-white" value="vue">Vue</option>
+                        <option className="text-black bg-white" value="angular">Angular</option>
+                        <option className="text-black bg-white" value="svelte">Svelte</option>
                   </select>
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-semibold mb-4">Paste JD (optional)</label>
+                      <motion.div
+                        className="absolute top-4 right-4 text-[#2ad17e]"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Settings className="w-5 h-5" />
+                      </motion.div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 2.0 }}
+              >
+                <motion.label 
+                  className="block text-lg font-semibold mb-4 text-white"
+                  whileHover={{ x: 5 }}
+                >
+                  Job Description (Optional)
+                </motion.label>
+                <motion.div
+                  className="relative"
+                  whileHover={{ scale: 1.01 }}
+                >
                 <textarea
                   value={jdText}
                   onChange={(e) => setJdText(e.target.value)}
-                  placeholder="Paste the job description here to tailor questions."
-                  className="w-full p-3 rounded-lg bg-white/10 border border-white/20 min-h-[140px] resize-y"
+                    placeholder="Paste the job description here to tailor questions to your specific role..."
+                    className="w-full p-4 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 text-white placeholder-white/50 focus:border-[#2ad17e] focus:outline-none transition-all duration-300 min-h-[140px] resize-y"
                 />
+                  <AnimatePresence>
                 {jdText && (
-                  <div className="mt-2 text-xs opacity-70">{jdText.length} characters</div>
-                )}
-              </div>
-            </div>
+                      <motion.div 
+                        className="mt-3 text-xs text-[#2ad17e] font-semibold"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                      >
+                        ✓ {jdText.length} characters - Questions will be tailored to this role
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              </motion.div>
+            </motion.div>
 
-            <div className="text-center">
-              <button
+            {/* Continue Button */}
+            <motion.div 
+              className="text-center"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.1 }}
+            >
+              <motion.button
                 onClick={() => setCurrentStep('interviewer-selection')}
-                className="btn btn-primary text-lg px-8 py-4"
+                className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white font-bold text-lg rounded-2xl shadow-lg overflow-hidden"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(42, 209, 126, 0.3)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                {/* Animated Background */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-[#20c997] to-[#2ad17e]"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "0%" }}
+                  transition={{ duration: 0.3 }}
+                />
+                
+                {/* Content */}
+                <motion.span 
+                  className="relative z-10"
+                  whileHover={{ x: -5 }}
               >
                 Continue to Interviewer Selection
-              </button>
-            </div>
-          </div>
+                </motion.span>
+                
+                <motion.div
+                  className="relative z-10"
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  →
+                </motion.div>
+                
+                {/* Particles */}
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 bg-white/30 rounded-full"
+                    style={{
+                      left: `${20 + i * 20}%`,
+                      top: `${20 + i * 10}%`,
+                    }}
+                    animate={{
+                      scale: [0, 1, 0],
+                      opacity: [0, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: i * 0.3,
+                    }}
+                  />
+                ))}
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
         </div>
       </div>
     );
@@ -1450,70 +1990,322 @@ function AIInterviewContent() {
   // Interviewer Selection Screen
   if (currentStep === 'interviewer-selection') {
     return (
-      <div className="min-h-screen p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-extrabold mb-2">Choose Your Interviewer</h1>
-            <p className="text-xl opacity-80">Select from our team of AI interviewers</p>
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#2ad17e]/20 to-[#ffb21e]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: mousePosition.x * 0.2,
+              y: mousePosition.y * 0.2,
+              scale: [1, 1.2, 1],
+              rotate: 360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 50 },
+              y: { type: "spring", stiffness: 50 },
+              scale: { duration: 4, repeat: Infinity },
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" }
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-r from-[#6f5af6]/20 to-[#5cd3ff]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: -mousePosition.x * 0.15,
+              y: -mousePosition.y * 0.15,
+              scale: [1.2, 1, 1.2],
+              rotate: -360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 30 },
+              y: { type: "spring", stiffness: 30 },
+              scale: { duration: 5, repeat: Infinity },
+              rotate: { duration: 25, repeat: Infinity, ease: "linear" }
+            }}
+          />
+
+          {/* Floating Particles */}
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-white/20 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [-20, 20, -20],
+                opacity: [0.3, 0.8, 0.3],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          ))}
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {interviewers.map((interviewer) => (
-              <div
+        <div className="relative z-10 p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <motion.div 
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <motion.div 
+                className="flex justify-center gap-4 mb-6"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              >
+                {[Brain, Target, Star].map((Icon, index) => (
+                  <motion.div
+                    key={index}
+                    className="w-12 h-12 rounded-xl bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] flex items-center justify-center"
+                    animate={{ 
+                      y: [0, -8, 0],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 3,
+                      repeat: Infinity,
+                      delay: index * 0.2
+                    }}
+                  >
+                    <Icon className="w-6 h-6 text-white" />
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <motion.h1 
+                className="text-5xl font-extrabold mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <span className="bg-gradient-to-r from-[#2ad17e] via-[#5cd3ff] to-[#ffb21e] bg-clip-text text-transparent">
+                  Choose Your Interviewer
+                </span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-xl text-white/80 max-w-3xl mx-auto"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                Select from our team of{' '}
+                <span className="text-[#2ad17e] font-semibold">professional AI interviewers</span>{' '}
+                from top tech companies
+              </motion.p>
+            </motion.div>
+
+            {/* Interviewer Cards */}
+            <motion.div 
+              className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              {interviewers.map((interviewer, index) => (
+                <motion.div
                 key={interviewer.id}
                 onClick={() => setSelectedInterviewer(interviewer)}
-                className={`card p-6 border-2 transition-all cursor-pointer hover:scale-[1.02] ${
+                  className={`group relative cursor-pointer transition-all duration-300 ${
                   selectedInterviewer?.id === interviewer.id
-                    ? 'border-purple-400'
-                    : 'border-white/10 hover:border-white/30'
-                }`}
-              >
-                <div className="text-center">
-                  {interviewer.gender === 'female' ? (
-                    <img
-                      src={buildAvatarImageUrl(interviewer.avatar, 'female')}
-                      alt={`${interviewer.name} avatar`}
-                      className="w-44 h-44 rounded-full mx-auto mb-4 object-cover"
+                      ? 'transform scale-105'
+                      : ''
+                  }`}
+                  initial={{ opacity: 0, y: 40, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.6 + index * 0.1, type: "spring", stiffness: 200 }}
+                  whileHover={{ y: -10, scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <motion.div
+                    className={`bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-2 rounded-3xl p-6 h-full relative overflow-hidden ${
+                      selectedInterviewer?.id === interviewer.id
+                        ? 'border-[#2ad17e] shadow-2xl shadow-[#2ad17e]/20'
+                        : 'border-white/20 group-hover:border-white/40'
+                    }`}
+                  >
+                    {/* Animated Background */}
+                    <motion.div 
+                      className={`absolute inset-0 bg-gradient-to-br from-[#2ad17e]/10 to-[#5cd3ff]/10 ${
+                        selectedInterviewer?.id === interviewer.id ? 'opacity-20' : 'opacity-0 group-hover:opacity-10'
+                      } transition-opacity duration-500`}
                     />
-                  ) : (
-                    <img
-                    src={buildAvatarImageUrl(interviewer.avatar, 'male')}
+                    
+                    <div className="relative z-10 text-center">
+                      {/* Avatar */}
+                      <motion.div 
+                        className="relative mb-6"
+                        animate={{ 
+                          scale: selectedInterviewer?.id === interviewer.id ? [1, 1.05, 1] : 1
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <motion.img
+                          src={buildAvatarImageUrl(interviewer.avatar, interviewer.gender)}
                     alt={`${interviewer.name} avatar`}
-                    className="w-44 h-44 rounded-full mx-auto mb-4 object-cover"
-                  />
-                  )}
-                  <h3 className="text-xl font-bold mb-1">{interviewer.name}</h3>
-                  <p className="text-purple-300 text-sm mb-2">{interviewer.role}</p>
-                  <p className="opacity-70 text-xs mb-3">{interviewer.company} • {interviewer.experience}</p>
-                  <div className="flex flex-wrap gap-1 justify-center">
-                    {interviewer.specialties.map((specialty) => (
-                      <span key={specialty} className="bg-white/10 text-white text-xs px-2 py-1 rounded border border-white/10">
+                          className="w-32 h-32 rounded-full mx-auto object-cover"
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        />
+                        
+                        {/* Pulsing Ring */}
+                        <motion.div 
+                          className={`absolute inset-0 rounded-full border-2 ${
+                            selectedInterviewer?.id === interviewer.id 
+                              ? 'border-[#2ad17e]' 
+                              : 'border-white/30 group-hover:border-[#2ad17e]'
+                          } transition-colors duration-300`}
+                          animate={{ 
+                            scale: [1, 1.1, 1],
+                            opacity: [0.5, 1, 0.5]
+                          }}
+                          transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
+                        />
+
+                        {/* Selection Indicator */}
+                        <AnimatePresence>
+                          {selectedInterviewer?.id === interviewer.id && (
+                            <motion.div 
+                              className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#20c997] flex items-center justify-center"
+                              initial={{ scale: 0, rotate: -90 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              exit={{ scale: 0, rotate: 90 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
+                              <CheckCircle className="w-5 h-5 text-white" />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                      
+                      {/* Details */}
+                      <motion.h3 
+                        className={`text-xl font-bold mb-2 ${
+                          selectedInterviewer?.id === interviewer.id 
+                            ? 'text-[#2ad17e]' 
+                            : 'text-white group-hover:text-[#2ad17e]'
+                        } transition-colors duration-300`}
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        {interviewer.name}
+                      </motion.h3>
+                      
+                      <motion.p 
+                        className="text-[#5cd3ff] text-sm mb-2 font-semibold"
+                        initial={{ opacity: 0.8 }}
+                        whileHover={{ opacity: 1 }}
+                      >
+                        {interviewer.role}
+                      </motion.p>
+                      
+                      <motion.p 
+                        className="text-white/60 text-xs mb-4"
+                        initial={{ opacity: 0.6 }}
+                        whileHover={{ opacity: 0.8 }}
+                      >
+                        {interviewer.company} • {interviewer.experience}
+                      </motion.p>
+                      
+                      {/* Specialties */}
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {interviewer.specialties.map((specialty, specIndex) => (
+                          <motion.span 
+                            key={specialty} 
+                            className="bg-gradient-to-r from-white/10 to-white/5 text-white/80 text-xs px-3 py-1 rounded-full border border-white/20"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.7 + index * 0.1 + specIndex * 0.05 }}
+                            whileHover={{ scale: 1.05, backgroundColor: 'rgba(42, 209, 126, 0.2)' }}
+                          >
                         {specialty}
-                      </span>
+                          </motion.span>
                     ))}
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+                    
+                    {/* Animated Border */}
+                    <motion.div 
+                      className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] ${
+                        selectedInterviewer?.id === interviewer.id ? 'w-full' : 'w-0 group-hover:w-full'
+                      } transition-all duration-500`}
+                    />
+                  </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
 
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={() => setCurrentStep('setup')}
-              className="btn btn-ghost px-6 py-3"
+            {/* Action Buttons */}
+            <motion.div 
+              className="flex justify-center gap-6"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
             >
-              Back
-            </button>
-            <button
+              <motion.button
+              onClick={() => setCurrentStep('setup')}
+                className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-white/10 to-white/5 text-white font-semibold rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300"
+                whileHover={{ scale: 1.05, x: -5 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <motion.span
+                  animate={{ x: [0, -3, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  ←
+                </motion.span>
+                <span>Back</span>
+              </motion.button>
+              
+              <motion.button
               onClick={() => {
                 checkPermissions();
                 setCurrentStep('mic-check');
               }}
               disabled={!selectedInterviewer}
-              className="btn btn-primary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+                className={`group relative inline-flex items-center justify-center gap-3 px-8 py-3 font-bold rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ${
+                  selectedInterviewer
+                    ? 'bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white hover:shadow-2xl hover:shadow-[#2ad17e]/30'
+                    : 'bg-gradient-to-r from-gray-600 to-gray-700 text-gray-300 cursor-not-allowed'
+                }`}
+                whileHover={selectedInterviewer ? { 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(42, 209, 126, 0.3)"
+                } : {}}
+                whileTap={selectedInterviewer ? { scale: 0.95 } : {}}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                {/* Animated Background */}
+                {selectedInterviewer && (
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-[#20c997] to-[#2ad17e]"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "0%" }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
+                
+                {/* Content */}
+                <motion.span className="relative z-10">
               Continue to Setup
-            </button>
+                </motion.span>
+                
+                <motion.div
+                  className="relative z-10"
+                  animate={selectedInterviewer ? { x: [0, 5, 0] } : {}}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  →
+                </motion.div>
+              </motion.button>
+            </motion.div>
           </div>
         </div>
       </div>
