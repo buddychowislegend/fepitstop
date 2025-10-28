@@ -201,8 +201,22 @@ router.post('/signin', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check password
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    // Check password (handle both hashed and plain text passwords)
+    let isValidPassword = false;
+    
+    // Check if password exists
+    if (!user.password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+      // Password is already hashed, use bcrypt.compare
+      isValidPassword = await bcrypt.compare(password, user.password);
+    } else {
+      // Password is plain text (legacy/seeded data), compare directly
+      isValidPassword = password === user.password;
+    }
+    
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -218,7 +232,8 @@ router.post('/signin', async (req, res) => {
       user: { id: user.id, email: user.email, name: user.name, profile: user.profile },
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Signin error:', error);
+    res.status(500).json({ error: 'Server error', details: error.message });
   }
 });
 
