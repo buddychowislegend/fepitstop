@@ -447,12 +447,47 @@ router.get('/screenings', companyAuth, async (req, res) => {
     // Get screenings for this company from MongoDB
     const screenings = await db.getScreeningsByCompany(companyId);
     
+    // Enhance each screening with candidate statistics
+    const screeningsWithStats = await Promise.all(screenings.map(async (screening) => {
+      try {
+        // Get the interview drive for this screening (drive ID = screening ID)
+        const drive = await db.getDriveById(screening.id);
+        
+        let totalCandidates = 0;
+        let completedInterviews = 0;
+        
+        if (drive && drive.candidateIds && Array.isArray(drive.candidateIds)) {
+          totalCandidates = drive.candidateIds.length;
+          
+          // Count completed interviews by checking interview responses
+          const responses = await db.getInterviewResponsesByDrive(screening.id);
+          completedInterviews = responses ? responses.length : 0;
+        }
+        
+        return {
+          ...screening,
+          totalCandidates,
+          completedInterviews,
+          candidateIds: drive?.candidateIds || [] // Include candidate IDs for compatibility
+        };
+      } catch (error) {
+        console.error(`Error getting stats for screening ${screening.id}:`, error);
+        // Return screening with default values if there's an error
+        return {
+          ...screening,
+          totalCandidates: 0,
+          completedInterviews: 0,
+          candidateIds: []
+        };
+      }
+    }));
+    
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0'
     }).json({
-      screenings: screenings,
+      screenings: screeningsWithStats,
       message: 'Screenings retrieved successfully'
     });
   } catch (error) {

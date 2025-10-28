@@ -126,12 +126,12 @@ export default function CompanyDashboard() {
           id: s.id,
           name: s.name,
           status: s.status,
-          candidates: [],
+          candidates: s.candidateIds || [],
           createdDate: s.createdAt.split('T')[0],
-          totalCandidates: 0,
-          completedInterviews: 0
+          totalCandidates: s.totalCandidates || 0,
+          completedInterviews: s.completedInterviews || 0
         }));
-        setInterviewDrives(prev => [...prev, ...screenings]);
+        setInterviewDrives(screenings);
       }
     } catch (error) {
       console.error('Error loading screenings:', error);
