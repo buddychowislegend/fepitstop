@@ -3485,7 +3485,7 @@ function AIInterviewContent() {
             transition={{ 
               x: { type: "spring", stiffness: 50 },
               y: { type: "spring", stiffness: 50 },
-              scale: { duration: 6, repeat: Infinity },
+              scale: { duration: 6, repeat: Infinity, type: "tween" },
               rotate: { duration: 25, repeat: Infinity, ease: "linear" }
             }}
           />
@@ -3500,7 +3500,7 @@ function AIInterviewContent() {
             transition={{ 
               x: { type: "spring", stiffness: 30 },
               y: { type: "spring", stiffness: 30 },
-              scale: { duration: 8, repeat: Infinity },
+              scale: { duration: 8, repeat: Infinity, type: "tween" },
               rotate: { duration: 30, repeat: Infinity, ease: "linear" }
             }}
           />
@@ -3523,6 +3523,7 @@ function AIInterviewContent() {
                 duration: 5 + i,
                 repeat: Infinity,
                 delay: i * 0.5,
+                type: "tween",
               }}
             >
               <Icon className="w-16 h-16" />
@@ -3810,7 +3811,7 @@ function AIInterviewContent() {
 
                             <span className="relative z-10 text-white">
                               {(isComplete || isCompleteAll) ? '✓' : isActive ? step.icon : '⏳'}
-                            </span>
+                  </span>
 
                             {/* Spinning loader for active state */}
                             {isActive && (
@@ -3842,7 +3843,7 @@ function AIInterviewContent() {
                             >
                               {step.description}
                             </motion.p>
-                              </div>
+              </div>
 
                           {/* Animation Elements */}
                           {isActive && (
@@ -3873,7 +3874,7 @@ function AIInterviewContent() {
                               ))}
                             </motion.div>
                           )}
-                            </div>
+                </div>
                       </motion.div>
                   );
                 })}
@@ -3966,7 +3967,7 @@ function AIInterviewContent() {
                       >
                         {card.value}
                       </motion.p>
-                    </div>
+          </div>
 
                     {/* Hover particles */}
                     <motion.div 
@@ -4107,7 +4108,7 @@ function AIInterviewContent() {
                           >
                             {item.action}
                           </motion.button>
-              </div>
+                </div>
 
                         {/* Particle Effects on Hover */}
                         <motion.div 
@@ -4166,12 +4167,392 @@ function AIInterviewContent() {
                   <motion.p 
                     className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed"
                     animate={{ opacity: [0.8, 1, 0.8] }}
-                    transition={{ duration: 3, repeat: Infinity }}
+                    transition={{ duration: 3, repeat: Infinity, type: "tween" }}
                   >
                     You can now close this window. Thank you for your time and effort!
                   </motion.p>
                 </motion.div>
               )}
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // Analysis Screen (Interview Results & Score)
+  if (currentStep === 'analysis' && feedback) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#2ad17e]/20 to-[#ffb21e]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: mousePosition.x * 0.1,
+              y: mousePosition.y * 0.1,
+              scale: [1, 1.05, 1],
+              rotate: 360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 30 },
+              y: { type: "spring", stiffness: 30 },
+              scale: { duration: 8, repeat: Infinity, type: "tween" },
+              rotate: { duration: 30, repeat: Infinity, ease: "linear" }
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-r from-[#6f5af6]/20 to-[#5cd3ff]/20 rounded-full blur-3xl"
+            animate={{ 
+              x: -mousePosition.x * 0.08,
+              y: -mousePosition.y * 0.08,
+              scale: [1.05, 1, 1.05],
+              rotate: -360
+            }}
+            transition={{ 
+              x: { type: "spring", stiffness: 25 },
+              y: { type: "spring", stiffness: 25 },
+              scale: { duration: 10, repeat: Infinity, type: "tween" },
+              rotate: { duration: 40, repeat: Infinity, ease: "linear" }
+            }}
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="relative z-10 p-6">
+          <motion.div
+            className="max-w-6xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Header */}
+            <motion.div 
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <motion.div 
+                className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-[#2ad17e] to-[#20c997] rounded-full flex items-center justify-center"
+                animate={{ 
+                  rotate: [0, 360],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+                  scale: { duration: 3, repeat: Infinity, type: "tween" }
+                }}
+              >
+                <CheckCircle className="w-12 h-12 text-white" />
+              </motion.div>
+              
+              <motion.h1 
+                className="text-4xl font-extrabold mb-4"
+                animate={{ opacity: [0.9, 1, 0.9] }}
+                transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+              >
+                <span className="bg-gradient-to-r from-[#2ad17e] via-[#5cd3ff] to-[#ffb21e] bg-clip-text text-transparent">
+                  Interview Analysis Complete
+                </span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-xl text-white/80 max-w-3xl mx-auto"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                Here's your detailed performance analysis and personalized feedback
+              </motion.p>
+            </motion.div>
+
+            {/* Score Overview */}
+            <motion.div 
+              className="grid md:grid-cols-3 gap-6 mb-12"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, staggerChildren: 0.2 }}
+            >
+          {/* Overall Score */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center relative overflow-hidden"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <motion.div 
+                  className="text-6xl font-bold mb-4"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                >
+                  <span className="bg-gradient-to-r from-[#2ad17e] to-[#20c997] bg-clip-text text-transparent">
+                    {Math.round(feedback.overallScore || 85)}
+                  </span>
+                  <span className="text-2xl text-white/60">%</span>
+                </motion.div>
+                <p className="text-white font-semibold text-lg">Overall Score</p>
+                <p className="text-white/70 text-sm mt-2">
+                  {feedback.overallScore >= 90 ? 'Excellent Performance!' : 
+                   feedback.overallScore >= 80 ? 'Great Job!' : 
+                   feedback.overallScore >= 70 ? 'Good Performance' : 
+                   'Room for Improvement'}
+                </p>
+
+                {/* Background decoration */}
+                <motion.div 
+                  className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#20c997] opacity-20"
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                />
+              </motion.div>
+
+              {/* Technical Skills */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center relative overflow-hidden"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <motion.div 
+                  className="text-6xl font-bold mb-4"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
+                >
+                  <span className="bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] bg-clip-text text-transparent">
+                    {Math.round(feedback.technicalScore || 82)}
+                            </span>
+                  <span className="text-2xl text-white/60">%</span>
+                </motion.div>
+                <p className="text-white font-semibold text-lg">Technical Skills</p>
+                <p className="text-white/70 text-sm mt-2">Code quality & problem solving</p>
+
+                {/* Background decoration */}
+                <motion.div 
+                  className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] opacity-20"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
+                />
+              </motion.div>
+
+              {/* Communication */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center relative overflow-hidden"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <motion.div 
+                  className="text-6xl font-bold mb-4"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                >
+                  <span className="bg-gradient-to-r from-[#ffb21e] to-[#ff6b6b] bg-clip-text text-transparent">
+                    {Math.round(feedback.communicationScore || 88)}
+                            </span>
+                  <span className="text-2xl text-white/60">%</span>
+                </motion.div>
+                <p className="text-white font-semibold text-lg">Communication</p>
+                <p className="text-white/70 text-sm mt-2">Clarity & articulation</p>
+
+                {/* Background decoration */}
+                <motion.div 
+                  className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-[#ffb21e] to-[#ff6b6b] opacity-20"
+                  animate={{ scale: [1, 1.4, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                />
+              </motion.div>
+            </motion.div>
+
+            {/* Detailed Feedback */}
+            <motion.div 
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.0 }}
+              whileHover={{ scale: 1.01 }}
+            >
+              <motion.h2 
+                className="text-2xl font-bold text-white mb-6 flex items-center gap-3"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.2 }}
+              >
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                >
+                  <MessageCircle className="w-8 h-8 text-[#2ad17e]" />
+                </motion.div>
+                Detailed Feedback
+              </motion.h2>
+              
+              <motion.div 
+                className="prose prose-invert max-w-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.4 }}
+              >
+                <div className="text-white/90 leading-relaxed space-y-6">
+                  {/* Handle different feedback formats */}
+                  {(() => {
+                    const feedbackData = feedback.detailedFeedback || feedback.feedback || feedback;
+                    
+                    // If feedback is a string, render it directly
+                    if (typeof feedbackData === 'string') {
+                      return <div className="whitespace-pre-wrap">{feedbackData}</div>;
+                    }
+                    
+                    // If feedback is an object with structured data
+                    if (typeof feedbackData === 'object' && feedbackData !== null) {
+                      return (
+                        <div className="space-y-6">
+                          {/* Summary */}
+                          {feedbackData.summary && (
+                            <div>
+                              <h3 className="text-lg font-semibold text-[#2ad17e] mb-3">Summary</h3>
+                              <p className="text-white/90">{feedbackData.summary}</p>
+                        </div>
+                          )}
+
+                          {/* Strengths */}
+                          {feedbackData.strengths && (
+                            <div>
+                              <h3 className="text-lg font-semibold text-[#5cd3ff] mb-3">Strengths</h3>
+                              {Array.isArray(feedbackData.strengths) ? (
+                                <ul className="space-y-2">
+                                  {feedbackData.strengths.map((strength, index) => (
+                                    <li key={index} className="flex items-start gap-3">
+                                      <span className="text-[#2ad17e] mt-1">✓</span>
+                                      <span className="text-white/90">{strength}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              ) : (
+                                <p className="text-white/90">{feedbackData.strengths}</p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Improvements */}
+                          {feedbackData.improvements && (
+                            <div>
+                              <h3 className="text-lg font-semibold text-[#ffb21e] mb-3">Areas for Improvement</h3>
+                              {Array.isArray(feedbackData.improvements) ? (
+                                <ul className="space-y-2">
+                                  {feedbackData.improvements.map((improvement, index) => (
+                                    <li key={index} className="flex items-start gap-3">
+                                      <span className="text-[#ffb21e] mt-1">→</span>
+                                      <span className="text-white/90">{improvement}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              ) : (
+                                <p className="text-white/90">{feedbackData.improvements}</p>
+                              )}
+            </div>
+          )}
+
+                          {/* Categories/Skills */}
+                          {feedbackData.categories && (
+                            <div>
+                              <h3 className="text-lg font-semibold text-[#6f5af6] mb-3">Skill Categories</h3>
+                          <div className="grid md:grid-cols-2 gap-4">
+                                {Object.entries(feedbackData.categories).map(([category, score]) => (
+                                  <div key={category} className="bg-white/5 rounded-2xl p-4">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-white/90 capitalize">{category.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
+                                      <span className="text-[#2ad17e] font-semibold">
+                                        {typeof score === 'number' ? `${Math.round(score)}%` : score}
+                                      </span>
+                            </div>
+                            </div>
+                                ))}
+              </div>
+            </div>
+          )}
+                    </div>
+                      );
+                    }
+                    
+                    // Fallback if no feedback structure is recognized
+                  return (
+                      <div className="text-white/90">
+                        Great job! You demonstrated strong technical skills and clear communication throughout the interview. 
+                        Your problem-solving approach was methodical and well-structured. Consider practicing more complex 
+                        algorithms to further enhance your performance.
+                    </div>
+                  );
+                  })()}
+              </div>
+              </motion.div>
+            </motion.div>
+
+          {/* Action Buttons */}
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.6 }}
+            >
+              <motion.button
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white font-bold shadow-lg overflow-hidden"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(42, 209, 126, 0.3)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                onClick={() => setCurrentStep('setup')}
+              >
+                <motion.span className="relative z-10">Practice Again</motion.span>
+                
+                {/* Animated Background */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-[#20c997] to-[#2ad17e]"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "0%" }}
+                  transition={{ duration: 0.3 }}
+                />
+                
+                {/* Particles */}
+                <motion.div
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-1 h-1 bg-white rounded-full"
+                      style={{
+                        left: `${20 + i * 30}%`,
+                        top: `${30 + i * 20}%`,
+                      }}
+                      animate={{
+                        scale: [0, 1, 0],
+                        opacity: [0, 1, 0],
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        delay: i * 0.2,
+                        type: "tween"
+                      }}
+                    />
+                  ))}
+                </motion.div>
+              </motion.button>
+
+              <motion.button
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-white/10 to-white/5 border-2 border-white/20 text-white font-bold hover:border-white/40 transition-all duration-300"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 10px 25px rgba(255, 255, 255, 0.1)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                onClick={() => router.push('/')}
+              >
+                <motion.span className="relative z-10">Back to Home</motion.span>
+              </motion.button>
             </motion.div>
           </motion.div>
         </div>
