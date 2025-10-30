@@ -4421,7 +4421,7 @@ function AIInterviewContent() {
                   transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
                 >
                   <span className="bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] bg-clip-text text-transparent">
-                    {Math.round(feedback.technicalScore || 82)}
+                    {Math.round(feedback.technicalScore || 0)}
                             </span>
                   <span className="text-2xl text-white/60">%</span>
                 </motion.div>

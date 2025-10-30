@@ -459,10 +459,10 @@ function classifyResponse(answer: string, previousQuestion: string): {
     /^(test|testing|hello|hi|hey)$/
   ];
   
-  // Detect inappropriate content
+  // Detect inappropriate content (word-boundary safe to avoid false positives like "assets", "shell")
   const inappropriatePatterns = [
-    /(fuck|shit|damn|hell|bitch|ass)/,
-    /(stupid|dumb|idiot|moron)/
+    /\b(fuck|shit|damn|hell|bitch|ass)\b/,
+    /\b(stupid|dumb|idiot|moron)\b/
   ];
   
   // Detect jokes or memes
