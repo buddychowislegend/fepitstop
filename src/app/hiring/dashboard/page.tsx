@@ -1,9 +1,43 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import AIConfigurationScreen from "@/components/AIConfigurationScreen";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Brain, 
+  Target, 
+  Star, 
+  Settings, 
+  CheckCircle, 
+  Play, 
+  ArrowLeft, 
+  ArrowRight, 
+  Camera, 
+  Mic, 
+  Volume2, 
+  Clock, 
+  Code, 
+  MessageCircle, 
+  Users, 
+  BarChart3, 
+  Calendar, 
+  Lightbulb, 
+  Trophy, 
+  Zap, 
+  Bell,
+  Award,
+  BookOpen,
+  Coffee,
+  Monitor,
+  Briefcase,
+  Activity,
+  TrendingUp,
+  Eye,
+  UserCheck,
+  Plus
+} from "lucide-react";
 
 interface Candidate {
   id: string;
@@ -29,6 +63,21 @@ interface InterviewDrive {
 }
 
 export default function CompanyDashboard() {
+  // Mouse tracking for background animations
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   const [activeTab, setActiveTab] = useState<'dashboard' | 'screenings' | 'candidates'>('dashboard');
   const [aiInput, setAiInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -439,230 +488,694 @@ export default function CompanyDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f1720] via-[#1a1a2e] to-[#16213e]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0">
+        <motion.div 
+          className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#2ad17e]/15 to-[#ffb21e]/15 rounded-full blur-3xl"
+          animate={{ 
+            x: mousePosition.x * 0.1,
+            y: mousePosition.y * 0.1,
+            scale: [1, 1.05, 1],
+            rotate: 360
+          }}
+          transition={{ 
+            x: { type: "spring", stiffness: 30 },
+            y: { type: "spring", stiffness: 30 },
+            scale: { duration: 8, repeat: Infinity, type: "tween" },
+            rotate: { duration: 30, repeat: Infinity, ease: "linear" }
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-r from-[#6f5af6]/15 to-[#5cd3ff]/15 rounded-full blur-3xl"
+          animate={{ 
+            x: -mousePosition.x * 0.08,
+            y: -mousePosition.y * 0.08,
+            scale: [1.05, 1, 1.05],
+            rotate: -360
+          }}
+          transition={{ 
+            x: { type: "spring", stiffness: 25 },
+            y: { type: "spring", stiffness: 25 },
+            scale: { duration: 10, repeat: Infinity, type: "tween" },
+            rotate: { duration: 40, repeat: Infinity, ease: "linear" }
+          }}
+        />
+
+        {/* Floating HR/Tech Icons */}
+        {[Users, Brain, Briefcase, Trophy, BarChart3].map((Icon, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-white/8"
+            style={{
+              left: `${10 + i * 18}%`,
+              top: `${15 + i * 15}%`,
+            }}
+            animate={{
+              y: [-15, 15, -15],
+              rotate: [0, 10, -10, 0],
+              opacity: [0.08, 0.2, 0.08],
+            }}
+            transition={{
+              duration: 6 + i * 0.5,
+              repeat: Infinity,
+              delay: i * 0.8,
+              type: "tween"
+            }}
+          >
+            <Icon className="w-20 h-20" />
+          </motion.div>
+        ))}
+      </div>
+
       {/* Header */}
-      <header className="bg-[color:var(--surface)] border-b border-[color:var(--border)] px-6 py-4">
+      <motion.header 
+        className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-b border-white/20 px-6 py-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-[color:var(--brand-start)] to-[color:var(--brand-end)] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">🤖</span>
-              </div>
-              <span className="text-[color:var(--foreground)] font-bold text-xl">AI Recruit</span>
-            </div>
+            <motion.div 
+              className="flex items-center gap-3"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <motion.div 
+                className="w-10 h-10 bg-gradient-to-br from-[#2ad17e] to-[#20c997] rounded-xl flex items-center justify-center shadow-lg"
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <Brain className="w-5 h-5 text-white" />
+              </motion.div>
+              <span className="text-white font-bold text-xl">AI Recruit</span>
+            </motion.div>
             
             {/* Navigation */}
-            <nav className="flex items-center space-x-8">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`px-1 py-2 text-sm font-medium transition-colors ${
-                  activeTab === 'dashboard' 
-                    ? 'text-[color:var(--brand-start)] border-b-2 border-[color:var(--brand-start)]' 
-                    : 'text-[color:var(--foreground)]/60 hover:text-[color:var(--foreground)]'
-                }`}
+            <motion.nav 
+              className="flex items-center space-x-8"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: 0.1,
+                    delayChildren: 0.3
+                  }
+                }
+              }}
+            >
+              {[
+                { key: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+                { key: 'screenings', label: 'Drives', icon: Briefcase },
+                { key: 'candidates', label: 'Candidates', icon: Users },
+              ].map((item) => (
+                <motion.button
+                  key={item.key}
+                  onClick={() => setActiveTab(item.key as any)}
+                  className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                    activeTab === item.key
+                      ? 'text-[#2ad17e]' 
+                      : 'text-white/60 hover:text-white'
+                  }`}
+                  variants={{
+                    hidden: { opacity: 0, y: -20 },
+                    visible: { opacity: 1, y: 0 }
+                  }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                  
+                  {/* Active Indicator */}
+                  {activeTab === item.key && (
+                    <motion.div
+                      className="absolute bottom-0 left-1/2 w-8 h-0.5 bg-gradient-to-r from-[#2ad17e] to-[#20c997] rounded-full"
+                      layoutId="activeTab"
+                      style={{ x: '-50%' }}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    />
+                  )}
+                </motion.button>
+              ))}
+              
+              <motion.button 
+                className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-all duration-300 flex items-center gap-2"
+                variants={{
+                  hidden: { opacity: 0, y: -20 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('screenings')}
-                className={`px-1 py-2 text-sm font-medium transition-colors ${
-                  activeTab === 'screenings' 
-                    ? 'text-[color:var(--brand-start)] border-b-2 border-[color:var(--brand-start)]' 
-                    : 'text-[color:var(--foreground)]/60 hover:text-[color:var(--foreground)]'
-                }`}
-              >
-                Drives
-              </button>
-              <button
-                onClick={() => setActiveTab('candidates')}
-                className={`px-1 py-2 text-sm font-medium transition-colors ${
-                  activeTab === 'candidates' 
-                    ? 'text-[color:var(--brand-start)] border-b-2 border-[color:var(--brand-start)]' 
-                    : 'text-[color:var(--foreground)]/60 hover:text-[color:var(--foreground)]'
-                }`}
-              >
-                Candidates
-              </button>
-              <button className="px-1 py-2 text-sm font-medium text-[color:var(--foreground)]/60 hover:text-[color:var(--foreground)] transition-colors">
+                <Activity className="w-4 h-4" />
                 Reports
-              </button>
-            </nav>
+              </motion.button>
+            </motion.nav>
           </div>
           
-          <div className="flex items-center gap-4">
+          <motion.div 
+            className="flex items-center gap-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1,
+                  delayChildren: 0.5
+                }
+              }
+            }}
+          >
             {/* Create New Drive Button */}
-            <button
+            <motion.button
               onClick={() => {
                 setAiPrompt("Create a new screening drive for...");
                 setShowAIConfig(true);
               }}
-              className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors flex items-center gap-2"
+              className="group relative bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white px-6 py-3 rounded-xl hover:shadow-xl hover:shadow-[#2ad17e]/20 transition-all duration-300 flex items-center gap-2 overflow-hidden"
+              variants={{
+                hidden: { opacity: 0, scale: 0.8 },
+                visible: { opacity: 1, scale: 1 }
+              }}
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: "0 20px 40px rgba(42, 209, 126, 0.3)"
+              }}
+              whileTap={{ scale: 0.95 }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <motion.div
+                animate={{ rotate: [0, 180, 360] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              >
+                <Plus className="w-4 h-4" />
+              </motion.div>
               Create New Drive
-            </button>
+              
+              {/* Animated Background */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-[#20c997] to-[#2ad17e]"
+                initial={{ x: "-100%" }}
+                whileHover={{ x: "0%" }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.button>
             
             {/* Notifications */}
-            <button className="p-2 text-[color:var(--foreground)]/60 hover:text-[color:var(--foreground)] hover:bg-white/5 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5V17z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.94 2.06l-.94-.94L9.06 2.06A1.5 1.5 0 008 3.5v.5H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2v-.5A1.5 1.5 0 0014.94 2.06l-.94.94-.94-.94z" />
-              </svg>
-            </button>
+            <motion.button 
+              className="group relative p-3 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300"
+              variants={{
+                hidden: { opacity: 0, scale: 0.8 },
+                visible: { opacity: 1, scale: 1 }
+              }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                animate={{ 
+                  rotate: [0, 20, -20, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  repeatDelay: 3,
+                  type: "tween"
+                }}
+              >
+                <Bell className="w-5 h-5" />
+              </motion.div>
+              
+              {/* Notification Badge */}
+              <motion.div
+                className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-[#ff6b6b] to-[#ee5a24] rounded-full"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+              />
+            </motion.button>
             
             {/* User Profile */}
-            <div className="flex items-center gap-3 pl-4 border-l border-[color:var(--border)]">
-              <div className="w-8 h-8 bg-gradient-to-br from-[color:var(--brand-start)] to-[color:var(--brand-end)] rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">SB</span>
-              </div>
+            <motion.div 
+              className="flex items-center gap-3 pl-4 border-l border-white/20"
+              variants={{
+                hidden: { opacity: 0, x: 20 },
+                visible: { opacity: 1, x: 0 }
+              }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <motion.div 
+                className="w-10 h-10 bg-gradient-to-br from-[#2ad17e] to-[#20c997] rounded-full flex items-center justify-center shadow-lg"
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                whileHover={{ scale: 1.1 }}
+              >
+                <span className="text-white font-bold text-sm">SB</span>
+              </motion.div>
               <div className="text-sm">
-                <div className="text-[color:var(--foreground)] font-medium">Sagar Bhatnagar</div>
-                <div className="text-[color:var(--foreground)]/60">Innovate Inc.</div>
+                <motion.div 
+                  className="text-white font-semibold"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  Sagar Bhatnagar
+                </motion.div>
+                <motion.div 
+                  className="text-white/70"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.0 }}
+                >
+                  Innovate Inc.
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
             
             {/* Logout */}
-            <button
+            <motion.button
               onClick={handleLogout}
-              className="p-2 text-[color:var(--foreground)]/60 hover:text-[color:var(--foreground)] hover:bg-white/5 rounded-lg transition-colors"
+              className="group p-3 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300"
+              variants={{
+                hidden: { opacity: 0, scale: 0.8 },
+                visible: { opacity: 1, scale: 1 }
+              }}
+              whileHover={{ 
+                scale: 1.1,
+                rotate: 5
+              }}
+              whileTap={{ scale: 0.95 }}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
-          </div>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </motion.button>
+          </motion.div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main Content */}
-      <main className="p-6">
+      <main className="relative z-10 p-6">
+        <AnimatePresence mode="wait">
+          {activeTab === 'dashboard' && (
+            <motion.div 
+              className="space-y-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Welcome Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <motion.h1 
+                  className="text-4xl font-bold text-white mb-4"
+                  animate={{ 
+                    backgroundPosition: ["0%", "100%", "0%"]
+                  }}
+                  transition={{ 
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                >
+                  <span className="bg-gradient-to-r from-[#2ad17e] via-[#5cd3ff] to-[#ffb21e] bg-clip-text text-transparent bg-[length:200%_100%]">
+                    Welcome Back, Innovate Inc!
+                  </span>
+                </motion.h1>
+                <motion.p 
+                  className="text-white/80 text-lg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  Here's your recruitment snapshot for today.
+                </motion.p>
+              </motion.div>
 
-        {activeTab === 'dashboard' && (
-          <div className="space-y-8">
-            {/* Welcome Section */}
-            <div>
-              <h1 className="text-3xl font-bold text-[color:var(--foreground)] mb-2">
-                Welcome Back, Innovate Inc!
-              </h1>
-              <p className="text-[color:var(--foreground)]/60">
-                Here's your recruitment snapshot for today.
-              </p>
-            </div>
+              {/* AI Screening Creator */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 p-10 relative overflow-hidden"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                {/* Background Pattern */}
+                <motion.div
+                  className="absolute inset-0 opacity-10"
+                  style={{
+                    backgroundImage: `radial-gradient(circle at 20% 50%, rgba(42, 209, 126, 0.3) 0%, transparent 50%),
+                                      radial-gradient(circle at 80% 20%, rgba(92, 211, 255, 0.3) 0%, transparent 50%),
+                                      radial-gradient(circle at 40% 80%, rgba(255, 178, 30, 0.3) 0%, transparent 50%)`
+                  }}
+                />
+                
+                {/* Floating AI Icons */}
+                {[Brain, Lightbulb, Target].map((Icon, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute text-white/10"
+                    style={{
+                      left: `${20 + i * 40}%`,
+                      top: `${10 + i * 20}%`,
+                    }}
+                    animate={{
+                      y: [-10, 10, -10],
+                      rotate: [0, 180, 360],
+                      opacity: [0.1, 0.3, 0.1],
+                    }}
+                    transition={{
+                      duration: 5 + i,
+                      repeat: Infinity,
+                      delay: i * 0.5,
+                      type: "tween"
+                    }}
+                  >
+                    <Icon className="w-16 h-16" />
+                  </motion.div>
+                ))}
 
-            {/* AI Screening Creator */}
-            <div className="bg-[color:var(--surface)] rounded-xl border border-[color:var(--border)] p-8">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold mb-2">
-                  <span className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] bg-clip-text text-transparent">AI Recruit</span>
-                  <span className="text-[color:var(--foreground)]"> Assistant</span>
-                </h2>
-                <p className="text-[color:var(--foreground)]/60">Create AI-powered screening assessments in seconds</p>
-              </div>
-
-              {/* AI Input Field */}
-              <div className="max-w-2xl mx-auto">
-                <div className="bg-[color:var(--surface)] rounded-xl border border-[color:var(--border)] p-4">
-                  <textarea
-                    value={aiInput}
-                    onChange={(e) => setAiInput(e.target.value)}
-                    placeholder="I want to create a Backend Developer screening for a mid-level position..."
-                    className="w-full h-20 resize-none border-none outline-none text-[color:var(--foreground)] placeholder-[color:var(--foreground)]/50 bg-transparent"
-                  />
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="text-xs text-[color:var(--foreground)]/40">
-                      Describe the role, skills, and experience level you're looking for
-                    </div>
-                    <button
-                      onClick={handleAiScreeningCreation}
-                      disabled={!aiInput.trim() || isGenerating}
-                      className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                <motion.div 
+                  className="relative text-center mb-8"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <motion.div
+                    className="inline-flex items-center gap-3 mb-4"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <motion.div
+                      className="w-12 h-12 bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] rounded-2xl flex items-center justify-center"
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                     >
-                      {isGenerating ? (
-                        <>
-                          <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                          </svg>
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          Create Drive
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+                      <Brain className="w-6 h-6 text-white" />
+                    </motion.div>
+                    <h2 className="text-3xl font-bold">
+                      <span className="bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] bg-clip-text text-transparent">AI Recruit</span>
+                      <span className="text-white"> Assistant</span>
+                    </h2>
+                  </motion.div>
+                  <motion.p 
+                    className="text-white/80 text-lg"
+                    animate={{ opacity: [0.8, 1, 0.8] }}
+                    transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                  >
+                    Create AI-powered screening assessments in seconds
+                  </motion.p>
+                </motion.div>
 
-            {/* Metrics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Active Drives */}
-              <div className="bg-[color:var(--surface)] rounded-xl p-6 border border-[color:var(--border)]">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-blue-500/20 rounded-lg">
-                    <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-sm text-[color:var(--foreground)]/60 mb-1">Active Drives</div>
-                <div className="text-3xl font-bold text-[color:var(--foreground)]">
-                  {interviewDrives.filter(d => d.status === 'active').length}
-                </div>
-              </div>
+                {/* AI Input Field */}
+                <motion.div 
+                  className="max-w-3xl mx-auto"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <motion.div 
+                    className="bg-gradient-to-br from-white/15 to-white/5 rounded-2xl border-2 border-white/20 p-6 backdrop-blur-xl"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <motion.textarea
+                      value={aiInput}
+                      onChange={(e) => setAiInput(e.target.value)}
+                      placeholder="I want to create a Backend Developer screening for a mid-level position..."
+                      className="w-full h-24 resize-none border-none outline-none text-white placeholder-white/60 bg-transparent text-lg"
+                      whileFocus={{ scale: 1.01 }}
+                    />
+                    <div className="flex items-center justify-between mt-4">
+                      <motion.div 
+                        className="text-sm text-white/60 flex items-center gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.0 }}
+                      >
+                        <Lightbulb className="w-4 h-4" />
+                        Describe the role, skills, and experience level you're looking for
+                      </motion.div>
+                      <motion.button
+                        onClick={handleAiScreeningCreation}
+                        disabled={!aiInput.trim() || isGenerating}
+                        className="group relative bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white px-6 py-3 rounded-xl font-bold shadow-xl overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                        whileHover={{ 
+                          scale: (!aiInput.trim() || isGenerating) ? 1 : 1.05,
+                          boxShadow: (!aiInput.trim() || isGenerating) ? undefined : "0 20px 40px rgba(42, 209, 126, 0.4)"
+                        }}
+                        whileTap={{ scale: (!aiInput.trim() || isGenerating) ? 1 : 0.95 }}
+                        transition={{ type: "spring", stiffness: 200 }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                      >
+                        <span className="relative z-10 flex items-center gap-2">
+                          {isGenerating ? (
+                            <>
+                              <motion.div
+                                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="w-5 h-5" />
+                              Create Drive
+                            </>
+                          )}
+                        </span>
+                        
+                        {/* Animated Background */}
+                        {!isGenerating && aiInput.trim() && (
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-[#20c997] to-[#2ad17e]"
+                            initial={{ x: "-100%" }}
+                            whileHover={{ x: "0%" }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        )}
+                        
+                        {/* Success Particles */}
+                        {!isGenerating && aiInput.trim() && (
+                          <motion.div
+                            className="absolute inset-0"
+                            initial={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
+                          >
+                            {[...Array(4)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                className="absolute w-1 h-1 bg-white rounded-full"
+                                style={{
+                                  left: `${15 + i * 25}%`,
+                                  top: `${25 + i * 15}%`,
+                                }}
+                                animate={{
+                                  scale: [0, 1, 0],
+                                  opacity: [0, 1, 0],
+                                }}
+                                transition={{
+                                  duration: 1.5,
+                                  repeat: Infinity,
+                                  delay: i * 0.2,
+                                  type: "tween"
+                                }}
+                              />
+                            ))}
+                          </motion.div>
+                        )}
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </motion.div>
 
-              {/* Total Candidates */}
-              <div className="bg-[color:var(--surface)] rounded-xl p-6 border border-[color:var(--border)]">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-green-500/20 rounded-lg">
-                    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-sm text-[color:var(--foreground)]/60 mb-1">Total Candidates</div>
-                <div className="text-3xl font-bold text-[color:var(--foreground)]">
-                  {interviewDrives.reduce((sum, d) => sum + (d.totalCandidates || 0), 0)}
-                </div>
-              </div>
+                {/* Corner Decorations */}
+                <motion.div 
+                  className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-white/20 to-white/30 opacity-50"
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div 
+                  className="absolute bottom-4 left-4 w-4 h-4 rounded-full bg-gradient-to-r from-[#2ad17e]/30 to-[#5cd3ff]/30"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                />
+              </motion.div>
 
-              {/* Interviews Completed */}
-              <div className="bg-[color:var(--surface)] rounded-xl p-6 border border-[color:var(--border)]">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-purple-500/20 rounded-lg">
-                    <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-sm text-[color:var(--foreground)]/60 mb-1">Interviews Completed</div>
-                <div className="text-3xl font-bold text-[color:var(--foreground)]">
-                  {interviewDrives.reduce((sum, d) => sum + (d.completedInterviews || 0), 0)}
-                </div>
-              </div>
+              {/* Metrics Cards */}
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: {
+                    transition: {
+                      staggerChildren: 0.1,
+                      delayChildren: 1.0
+                    }
+                  }
+                }}
+              >
+                {[
+                  {
+                    title: "Active Drives",
+                    value: interviewDrives.filter(d => d.status === 'active').length,
+                    icon: Briefcase,
+                    color: "from-[#5cd3ff] to-[#6f5af6]",
+                    bgColor: "from-[#5cd3ff]/20 to-[#6f5af6]/20"
+                  },
+                  {
+                    title: "Total Candidates",
+                    value: interviewDrives.reduce((sum, d) => sum + (d.totalCandidates || 0), 0),
+                    icon: Users,
+                    color: "from-[#2ad17e] to-[#20c997]",
+                    bgColor: "from-[#2ad17e]/20 to-[#20c997]/20"
+                  },
+                  {
+                    title: "Interviews Completed", 
+                    value: interviewDrives.reduce((sum, d) => sum + (d.completedInterviews || 0), 0),
+                    icon: Activity,
+                    color: "from-[#ffb21e] to-[#ff6b6b]",
+                    bgColor: "from-[#ffb21e]/20 to-[#ff6b6b]/20"
+                  },
+                  {
+                    title: "Candidates Hired",
+                    value: candidates.filter(c => c.status === 'offer').length,
+                    icon: Trophy,
+                    color: "from-[#ff6b6b] to-[#ee5a24]",
+                    bgColor: "from-[#ff6b6b]/20 to-[#ee5a24]/20"
+                  }
+                ].map((metric, index) => (
+                  <motion.div
+                    key={metric.title}
+                    className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20 relative overflow-hidden"
+                    variants={{
+                      hidden: { opacity: 0, y: 40, scale: 0.9 },
+                      visible: { opacity: 1, y: 0, scale: 1 }
+                    }}
+                    whileHover={{ 
+                      y: -10, 
+                      scale: 1.05,
+                      boxShadow: "0 25px 50px rgba(255,255,255,0.1)"
+                    }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                  >
+                    {/* Background Pattern */}
+                    <motion.div
+                      className={`absolute inset-0 bg-gradient-to-br ${metric.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl`}
+                    />
+                    
+                    {/* Icon */}
+                    <motion.div 
+                      className="flex items-center justify-between mb-6"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1.2 + index * 0.1 }}
+                    >
+                      <motion.div 
+                        className={`p-4 bg-gradient-to-r ${metric.color} rounded-2xl relative`}
+                        animate={{ 
+                          rotate: [0, 360],
+                          scale: [1, 1.1, 1]
+                        }}
+                        transition={{ 
+                          rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                          scale: { duration: 2, repeat: Infinity, type: "tween" }
+                        }}
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <metric.icon className="w-6 h-6 text-white" />
+                        
+                        {/* Pulsing Ring */}
+                        <motion.div 
+                          className="absolute inset-0 rounded-2xl border-2 border-white/30"
+                          animate={{ 
+                            scale: [1, 1.2, 1],
+                            opacity: [0.5, 1, 0.5]
+                          }}
+                          transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                        />
+                      </motion.div>
+                      
+                      {/* Trend Indicator */}
+                      <motion.div
+                        className="text-right"
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 1.4 + index * 0.1 }}
+                      >
+                        <TrendingUp className="w-5 h-5 text-[#2ad17e] ml-auto" />
+                      </motion.div>
+                    </motion.div>
 
-              {/* Candidates Hired */}
-              <div className="bg-[color:var(--surface)] rounded-xl p-6 border border-[color:var(--border)]">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-yellow-500/20 rounded-lg">
-                    <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-sm text-[color:var(--foreground)]/60 mb-1">Candidates Hired</div>
-                <div className="text-3xl font-bold text-[color:var(--foreground)]">
-                  {candidates.filter(c => c.status === 'offer').length}
-                </div>
-              </div>
-            </div>
+                    {/* Content */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.3 + index * 0.1 }}
+                    >
+                      <div className="text-sm text-white/70 mb-2 font-medium">{metric.title}</div>
+                      <motion.div 
+                        className="text-4xl font-bold text-white mb-1"
+                        animate={{ 
+                          scale: [1, 1.05, 1],
+                          textShadow: [
+                            "0px 0px 0px rgba(255,255,255,0)",
+                            "0px 0px 20px rgba(255,255,255,0.3)",
+                            "0px 0px 0px rgba(255,255,255,0)"
+                          ]
+                        }}
+                        transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                      >
+                        {metric.value}
+                      </motion.div>
+                    </motion.div>
+
+                    {/* Hover Particles */}
+                    <motion.div
+                      className="absolute inset-0 pointer-events-none"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                    >
+                      {[...Array(3)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 bg-white rounded-full"
+                          style={{
+                            left: `${20 + i * 30}%`,
+                            top: `${30 + i * 20}%`,
+                          }}
+                          animate={{
+                            scale: [0, 1, 0],
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: i * 0.2,
+                            type: "tween"
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+
+                    {/* Corner Decoration */}
+                    <motion.div 
+                      className="absolute top-3 right-3 w-4 h-4 rounded-full bg-gradient-to-r from-white/20 to-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
 
             {/* Recent Drives Section */}
             <div className="bg-[color:var(--surface)] rounded-xl border border-[color:var(--border)]">
@@ -775,8 +1288,9 @@ export default function CompanyDashboard() {
                 </div>
               </div>
             </div>
-            </div>
+            </motion.div>
           )}
+        </AnimatePresence>
 
         {activeTab === 'screenings' && (
           <div className="space-y-8">

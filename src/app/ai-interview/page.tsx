@@ -71,6 +71,17 @@ function AIInterviewContent() {
     level?: string;
     candidateName?: string;
     candidateEmail?: string;
+    // Screening configuration
+    positionTitle?: string;
+    language?: string;
+    mustHaves?: string[];
+    goodToHaves?: string[];
+    culturalFit?: string[];
+    estimatedTime?: {
+      mustHaves: number;
+      goodToHaves: number;
+      culturalFit: number;
+    };
   } | null>(null);
   
   // Interview flow states
@@ -79,6 +90,7 @@ function AIInterviewContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<any>(null);
+  const [questionAnalysis, setQuestionAnalysis] = useState<any[]>([]);
   // FreeTTS/voice generation loading indicator
   const [isAIAudioLoading, setIsAIAudioLoading] = useState(false);
   // Track latest interviewer gender for TTS selection even if session is not yet set
@@ -432,6 +444,52 @@ function AIInterviewContent() {
       const candidateEmail = searchParams.get('candidateEmail');
 
       if (token && company) {
+        // Fetch screening configuration from backend using token
+        const fetchInterviewConfig = async () => {
+          try {
+            const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+            const response = await fetch(`${backendUrl}/api/company/interview/config/${token}`);
+            
+            if (response.ok) {
+              const data = await response.json();
+              const config = data.config;
+              
+              // Set company parameters with actual screening configuration
+              setCompanyParams({
+                token: config.token,
+                company: config.companyName,
+                profile: config.candidateProfile?.toLowerCase() || 'frontend',
+                level: 'mid', // Keep default level for now
+                candidateName: config.candidateName,
+                candidateEmail: config.candidateEmail,
+                // Include screening configuration
+                positionTitle: config.positionTitle,
+                language: config.language,
+                mustHaves: config.mustHaves,
+                goodToHaves: config.goodToHaves,
+                culturalFit: config.culturalFit,
+                estimatedTime: config.estimatedTime
+              });
+
+              // Auto-select profile based on screening configuration
+              const profileMapping: { [key: string]: any } = {
+                'frontend': 'frontend',
+                'backend': 'backend',
+                'fullstack': 'fullstack',
+                'product': 'product',
+                'business': 'business',
+                'qa': 'qa',
+                'hr': 'hr'
+              };
+              
+              const mappedProfile = profileMapping[config.candidateProfile?.toLowerCase()] || 'frontend';
+              setProfile(mappedProfile);
+
+              // Skip setup and go directly to interviewer selection for company interviews
+              setCurrentStep('interviewer-selection');
+            } else {
+              console.error('Failed to fetch interview configuration');
+              // Fallback to URL parameters if API fails
         setCompanyParams({
           token,
           company,
@@ -441,16 +499,31 @@ function AIInterviewContent() {
           candidateEmail: candidateEmail || undefined
         });
 
-        // Auto-select profile and level for company interviews
         if (profile) {
           setProfile(profile as any);
         }
-        if (level) {
-          setLevel(level as any);
-        }
+              setCurrentStep('interviewer-selection');
+            }
+          } catch (error) {
+            console.error('Error fetching interview configuration:', error);
+            // Fallback to URL parameters if API fails
+            setCompanyParams({
+              token,
+              company,
+              profile: profile || 'frontend',
+              level: level || 'mid',
+              candidateName: candidateName || undefined,
+              candidateEmail: candidateEmail || undefined
+            });
 
-        // Skip setup and go directly to interviewer selection for company interviews
+            if (profile) {
+              setProfile(profile as any);
+            }
         setCurrentStep('interviewer-selection');
+          }
+        };
+
+        fetchInterviewConfig();
       }
     }
   }, [searchParams]);
@@ -739,7 +812,21 @@ function AIInterviewContent() {
         }
 
         const data = await response.json();
-        setFeedback(data);
+        // Map backend response to UI-friendly shape when possible
+        try {
+          const mapped = {
+            overallScore: typeof data?.score === 'number' ? Math.round(data.score * 10) : undefined,
+            detailedFeedback: typeof data?.feedback === 'string' ? data.feedback : undefined,
+            summary: typeof data?.feedback === 'object' ? data.feedback?.summary : undefined,
+            strengths: typeof data?.feedback === 'object' ? data.feedback?.strengths : undefined,
+            improvements: typeof data?.feedback === 'object' ? data.feedback?.improvements : undefined,
+            categories: typeof data?.feedback === 'object' ? data.feedback?.categories : undefined,
+          };
+          setFeedback(Object.keys(mapped).some((k) => (mapped as any)[k] !== undefined) ? mapped : data);
+          setQuestionAnalysis(Array.isArray(data?.questionAnalysis) ? data.questionAnalysis : []);
+        } catch {
+          setFeedback(data);
+        }
         setCurrentStep('thank-you');
         
         // For company interviews, don't show analysis - just thank you
@@ -768,7 +855,23 @@ function AIInterviewContent() {
       }
 
       const data = await response.json();
-      setFeedback(data);
+      // Map backend response to UI-friendly shape and store per-question analysis
+      try {
+        const mapped = {
+          overallScore: typeof data?.score === 'number' ? Math.round(data.score * 10) : undefined,
+          technicalScore: typeof data?.technicalScore === 'number' ? data.technicalScore : undefined,
+          communicationScore: typeof data?.communicationScore === 'number' ? data.communicationScore : undefined,
+          detailedFeedback: typeof data?.feedback === 'string' ? data.feedback : undefined,
+          summary: typeof data?.feedback === 'object' ? data.feedback?.summary : undefined,
+          strengths: typeof data?.feedback === 'object' ? data.feedback?.strengths : undefined,
+          improvements: typeof data?.feedback === 'object' ? data.feedback?.improvements : undefined,
+          categories: typeof data?.feedback === 'object' ? data.feedback?.categories : undefined,
+        };
+        setFeedback(Object.keys(mapped).some((k) => (mapped as any)[k] !== undefined) ? mapped : data);
+        setQuestionAnalysis(Array.isArray(data?.questionAnalysis) ? data.questionAnalysis : []);
+      } catch {
+        setFeedback(data);
+      }
       setCurrentStep('thank-you');
       
       // Simulate analysis progress
@@ -4392,7 +4495,7 @@ function AIInterviewContent() {
               >
                 <div className="text-white/90 leading-relaxed space-y-6">
                   {/* Handle different feedback formats */}
-                  {(() => {
+                  {((): React.ReactNode => {
                     const feedbackData = feedback.detailedFeedback || feedback.feedback || feedback;
                     
                     // If feedback is a string, render it directly
@@ -4418,7 +4521,7 @@ function AIInterviewContent() {
                               <h3 className="text-lg font-semibold text-[#5cd3ff] mb-3">Strengths</h3>
                               {Array.isArray(feedbackData.strengths) ? (
                                 <ul className="space-y-2">
-                                  {feedbackData.strengths.map((strength, index) => (
+                                  {feedbackData.strengths.map((strength: string, index: number) => (
                                     <li key={index} className="flex items-start gap-3">
                                       <span className="text-[#2ad17e] mt-1">✓</span>
                                       <span className="text-white/90">{strength}</span>
@@ -4437,7 +4540,7 @@ function AIInterviewContent() {
                               <h3 className="text-lg font-semibold text-[#ffb21e] mb-3">Areas for Improvement</h3>
                               {Array.isArray(feedbackData.improvements) ? (
                                 <ul className="space-y-2">
-                                  {feedbackData.improvements.map((improvement, index) => (
+                                  {feedbackData.improvements.map((improvement: string, index: number) => (
                                     <li key={index} className="flex items-start gap-3">
                                       <span className="text-[#ffb21e] mt-1">→</span>
                                       <span className="text-white/90">{improvement}</span>
@@ -4455,7 +4558,7 @@ function AIInterviewContent() {
                             <div>
                               <h3 className="text-lg font-semibold text-[#6f5af6] mb-3">Skill Categories</h3>
                           <div className="grid md:grid-cols-2 gap-4">
-                                {Object.entries(feedbackData.categories).map(([category, score]) => (
+                                {Object.entries(feedbackData.categories as Record<string, number | string>).map(([category, score]: [string, number | string]) => (
                                   <div key={category} className="bg-white/5 rounded-2xl p-4">
                                     <div className="flex justify-between items-center">
                                       <span className="text-white/90 capitalize">{category.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
@@ -4480,10 +4583,77 @@ function AIInterviewContent() {
                         algorithms to further enhance your performance.
                     </div>
                   );
-                  })()}
+                  })() as React.ReactNode}
               </div>
               </motion.div>
             </motion.div>
+            {/* Per-Question Analysis */}
+            {questionAnalysis && questionAnalysis.length > 0 && (
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 }}
+                whileHover={{ scale: 1.01 }}
+              >
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-[#5cd3ff]">📋</span>
+                  Question-by-Question Analysis
+                </h2>
+                <div className="space-y-4">
+                  {questionAnalysis.map((qa: any, idx: number) => (
+                    <div key={idx} className="rounded-2xl bg-white/5 p-4 border border-white/10">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-white/70 text-sm">Question {qa.questionNumber || idx + 1}</p>
+                            <p className="text-white font-semibold">{qa.question}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-white/70 text-xs">Score</p>
+                            <p className="text-[#2ad17e] font-bold text-lg">{typeof qa.score === 'number' ? qa.score.toFixed(1) : qa.score}</p>
+                          </div>
+                        </div>
+                        {qa.feedback && (
+                          <p className="text-white/80 text-sm mt-1">{qa.feedback}</p>
+                        )}
+                        <div className="grid md:grid-cols-2 gap-4 mt-3">
+                          {Array.isArray(qa.strengths) && qa.strengths.length > 0 && (
+                            <div>
+                              <p className="text-[#5cd3ff] font-semibold mb-1">Strengths</p>
+                              <ul className="list-disc list-inside text-white/85 text-sm space-y-1">
+                                {qa.strengths.map((s: string, i: number) => (
+                                  <li key={i}>{s}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {Array.isArray(qa.improvements) && qa.improvements.length > 0 && (
+                            <div>
+                              <p className="text-[#ffb21e] font-semibold mb-1">Improvements</p>
+                              <ul className="list-disc list-inside text-white/85 text-sm space-y-1">
+                                {qa.improvements.map((s: string, i: number) => (
+                                  <li key={i}>{s}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                        {qa.responseType && (
+                          <div className="flex items-center gap-2 mt-2 text-xs text-white/60">
+                            <span className="opacity-80">Detected type:</span>
+                            <span className="uppercase tracking-wide font-semibold text-white/70">{qa.responseType}</span>
+                            {typeof qa.confidence === 'number' && (
+                              <span className="ml-auto">Confidence: {(qa.confidence * 100).toFixed(0)}%</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
           {/* Action Buttons */}
             <motion.div 

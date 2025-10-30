@@ -800,7 +800,6 @@ export async function POST(req: NextRequest) {
     if (action === 'end') {
       const { framework, jdText, profile, qaPairs } = body || {};
       try {
-        const closing = await generateEndSummary({ framework, jdText, profile });
         // Compute per-question scoring if qaPairs provided
         const normalized: Array<{ question: string; answer: string }> = Array.isArray(qaPairs)
           ? qaPairs.filter((p: any) => p && typeof p.question === 'string').map((p: any) => ({ question: p.question, answer: String(p.answer || '') }))
@@ -808,6 +807,24 @@ export async function POST(req: NextRequest) {
         const questionAnalysis = normalized.map((qa, idx) => {
           const len = qa.answer.trim().length;
           
+          // If no answer was provided, return a minimal analysis for this question
+          if (len === 0) {
+            return {
+              questionNumber: idx + 1,
+              question: qa.question,
+              answer: qa.answer,
+              score: 0,
+              feedback: 'No answer provided.',
+              strengths: [],
+              improvements: [
+                'Provide at least a brief structured response',
+                'Outline key steps, examples, and trade-offs'
+              ],
+              responseType: 'empty',
+              confidence: 1
+            };
+          }
+
           // Classify the response to adjust scoring
           const responseClassification = classifyResponse(qa.answer, qa.question);
           
@@ -874,12 +891,49 @@ export async function POST(req: NextRequest) {
           };
         });
         const answeredCount = normalized.filter((qa: any) => qa.answer && qa.answer.trim().length > 0).length;
+
+        // If no answers were provided, return a minimal, fair analysis without generic strengths
+        if (answeredCount === 0) {
+          const minimalFeedback = {
+            summary: 'No answers were provided. We could not assess your skills from this session.',
+            strengths: [],
+            improvements: [
+              'Answer at least one question to generate a meaningful evaluation',
+              'Provide structured, detailed responses with examples',
+              'Address trade-offs, edge cases, and testing strategies'
+            ],
+            categories: {}
+          };
+          return NextResponse.json({ score: 1, technicalScore: 0, communicationScore: 0, feedback: minimalFeedback, questionAnalysis });
+        }
+
+        // Otherwise generate the closing summary and compute overall score
+        const closing = await generateEndSummary({ framework, jdText, profile });
         const avg = questionAnalysis.length > 0 ? Math.round(questionAnalysis.reduce((s, q) => s + (q.score || 0), 0) / questionAnalysis.length) : 7;
         // Factor in number of questions answered: scale by coverage ratio
         const coverage = normalized.length > 0 ? answeredCount / normalized.length : 1;
         const overallScore = Math.max(1, Math.min(10, Math.round(avg * (0.6 + 0.4 * coverage))));
 
-        return NextResponse.json({ score: overallScore, feedback: closing, questionAnalysis });
+        // Derive Technical Score (0–100) from per-question base scores and response types
+        const technicalRaw = questionAnalysis.reduce((s, q: any) => s + (typeof q.score === 'number' ? q.score : 0), 0);
+        const technicalAvg10 = questionAnalysis.length > 0 ? technicalRaw / questionAnalysis.length : 0;
+        // Penalize clearly non-technical responses
+        const penalty = questionAnalysis.reduce((p, q: any) => {
+          if (q.responseType === 'nonsense' || q.responseType === 'inappropriate') return p + 2;
+          if (q.responseType === 'joke' || q.responseType === 'off-topic') return p + 1;
+          return p;
+        }, 0);
+        const technicalScore = Math.max(0, Math.min(100, Math.round((technicalAvg10 * 10) - penalty * 3)));
+
+        // Derive Communication Score (0–100) via simple heuristics across all concatenated answers
+        const allAnswers = normalized.map(a => a.answer || '').join(' \n ').toLowerCase();
+        const lengthScore = Math.min(40, Math.floor(allAnswers.length / 150)); // up to 40 points for sufficient detail
+        const structureScore = [/- /, /\n\d+\./, /first(ly)?|second(ly)?|finally|in conclusion/, /for example|e\.g\./].reduce((acc, re) => acc + (re.test(allAnswers) ? 8 : 0), 0); // up to ~32
+        const fillerPenalty = (allAnswers.match(/\bum\b|\buk\b|\blike\b|\byou know\b|\bkinda\b/g) || []).length;
+        const clarityPenalty = (allAnswers.match(/\b(idk|dont know|no idea)\b/g) || []).length * 2;
+        const communicationScore = Math.max(0, Math.min(100, lengthScore + structureScore - fillerPenalty - clarityPenalty + 20)); // +20 baseline
+
+        return NextResponse.json({ score: overallScore, technicalScore, communicationScore, feedback: closing, questionAnalysis });
       } catch (e: any) {
         return NextResponse.json({ score: 7, feedback: 'Thanks for participating. We will prepare a detailed analysis.', questionAnalysis: [], fallback: true });
       }

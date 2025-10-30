@@ -228,10 +228,39 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
       await db.addInterviewToken(tokenData);
       
       // Generate interview link with company parameters
+      // Try to get screening configuration if this drive is associated with a screening
+      let profileFromPosition = candidate.profile || 'frontend'; // default to candidate profile
+      
+      try {
+        // Check if this drive ID corresponds to a screening
+        const screening = await db.getScreeningById(driveId);
+        if (screening) {
+          // Use the screening's position title to determine the appropriate profile
+          const positionLower = screening.positionTitle?.toLowerCase() || '';
+          if (positionLower.includes('backend')) {
+            profileFromPosition = 'backend';
+          } else if (positionLower.includes('full stack') || positionLower.includes('fullstack')) {
+            profileFromPosition = 'fullstack';
+          } else if (positionLower.includes('product')) {
+            profileFromPosition = 'product';
+          } else if (positionLower.includes('business') || positionLower.includes('sales')) {
+            profileFromPosition = 'business';
+          } else if (positionLower.includes('qa') || positionLower.includes('test')) {
+            profileFromPosition = 'qa';
+          } else if (positionLower.includes('hr') || positionLower.includes('human')) {
+            profileFromPosition = 'hr';
+          } else {
+            profileFromPosition = 'frontend';
+          }
+        }
+      } catch (error) {
+        console.log('Drive is not associated with a screening, using candidate profile');
+      }
+
       const interviewParams = new URLSearchParams({
         token: token,
         company: 'HireOG',
-        profile: candidate.profile,
+        profile: profileFromPosition,
         level: 'intermediate', // Default level, can be made configurable
         candidateName: candidate.name,
         candidateEmail: candidate.email
@@ -625,10 +654,27 @@ router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) =
       await db.addInterviewToken(tokenData);
       
       // Generate interview link with company parameters
+      // Use the screening's position title to determine the appropriate profile
+      let profileFromPosition = 'frontend'; // default
+      const positionLower = screening.positionTitle?.toLowerCase() || '';
+      if (positionLower.includes('backend')) {
+        profileFromPosition = 'backend';
+      } else if (positionLower.includes('full stack') || positionLower.includes('fullstack')) {
+        profileFromPosition = 'fullstack';
+      } else if (positionLower.includes('product')) {
+        profileFromPosition = 'product';
+      } else if (positionLower.includes('business') || positionLower.includes('sales')) {
+        profileFromPosition = 'business';
+      } else if (positionLower.includes('qa') || positionLower.includes('test')) {
+        profileFromPosition = 'qa';
+      } else if (positionLower.includes('hr') || positionLower.includes('human')) {
+        profileFromPosition = 'hr';
+      }
+
       const interviewParams = new URLSearchParams({
         token: token,
         company: 'HireOG',
-        profile: candidate.profile,
+        profile: profileFromPosition,
         level: 'intermediate',
         candidateName: candidate.name,
         candidateEmail: candidate.email
@@ -741,6 +787,61 @@ router.get('/screenings/:id/details', companyAuth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching screening details:', error);
     res.status(500).json({ error: 'Failed to fetch screening details' });
+  }
+});
+
+// Get interview configuration by token
+router.get('/interview/config/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    
+    // Get token data from MongoDB
+    const tokenData = await db.getTokenData(token);
+    
+    if (!tokenData) {
+      return res.status(404).json({ error: 'Invalid or expired token' });
+    }
+    
+    // Get the screening configuration using the driveId (which is the screening ID)
+    const screening = await db.getScreeningById(tokenData.driveId);
+    
+    if (!screening) {
+      return res.status(404).json({ error: 'Screening configuration not found' });
+    }
+    
+    // Get candidate information
+    const candidate = await db.getCandidateById(tokenData.candidateId);
+    
+    if (!candidate) {
+      return res.status(404).json({ error: 'Candidate not found' });
+    }
+    
+    // Return the complete interview configuration
+    res.json({
+      success: true,
+      config: {
+        // Screening configuration
+        positionTitle: screening.positionTitle,
+        language: screening.language,
+        mustHaves: screening.mustHaves,
+        goodToHaves: screening.goodToHaves,
+        culturalFit: screening.culturalFit,
+        estimatedTime: screening.estimatedTime,
+        // Candidate information
+        candidateName: candidate.name,
+        candidateEmail: candidate.email,
+        candidateProfile: candidate.profile,
+        // Company information
+        companyName: 'HireOG',
+        // Token information
+        token: token,
+        driveId: tokenData.driveId,
+        candidateId: tokenData.candidateId
+      }
+    });
+  } catch (error) {
+    console.error('Error getting interview configuration:', error);
+    res.status(500).json({ error: 'Failed to get interview configuration' });
   }
 });
 
