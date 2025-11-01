@@ -4,8 +4,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/config";
 import AzureTTSPlayer from "@/components/AzureTTSPlayer";
+import AntiCheatMonitor, { CheatingIncident } from "@/components/AntiCheatMonitor";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Volume2, VolumeX, Clock, Target, Brain, Star, CheckCircle, Play, Pause, RotateCcw, Camera, Settings, Code, MessageCircle, Wifi, HelpCircle, Lightbulb, List } from "lucide-react";
+import { Mic, MicOff, Send, Volume2, VolumeX, Clock, Target, Brain, Star, CheckCircle, Play, Pause, RotateCcw, Camera, Settings, Code, MessageCircle, Wifi, HelpCircle, Lightbulb, List, AlertTriangle, X } from "lucide-react";
 
 type Message = {
   role: 'interviewer' | 'candidate';
@@ -161,6 +162,55 @@ function AIInterviewContent() {
   // Timer
   const [timeRemaining, setTimeRemaining] = useState(20 * 60); // 20 minutes
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Anti-cheat monitoring
+  const [cheatingIncidents, setCheatingIncidents] = useState<CheatingIncident[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [violations, setViolations] = useState<string[]>([]);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [showViolationModal, setShowViolationModal] = useState(false);
+  
+  // Handle cheating incidents
+  const handleCheatingIncident = async (incident: CheatingIncident) => {
+    setCheatingIncidents(prev => [...prev, incident]);
+    
+    // Log incident to backend
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      await fetch(`${backendUrl}/api/interview/incidents`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: session?.id,
+          userId: user?.id,
+          incident: {
+            type: incident.type,
+            timestamp: incident.timestamp.toISOString(),
+            severity: incident.severity,
+            description: incident.description,
+            metadata: incident.metadata
+          }
+        })
+      });
+    } catch (error) {
+      console.error('Error logging incident:', error);
+    }
+  };
+  
+  const handleWarning = (message: string) => {
+    setWarnings(prev => [...prev, message]);
+    setShowWarningModal(true);
+    // Auto-hide after 5 seconds
+    setTimeout(() => setShowWarningModal(false), 5000);
+  };
+  
+  const handleViolation = (message: string) => {
+    setViolations(prev => [...prev, message]);
+    setShowViolationModal(true);
+    // Violation modal stays open until user acknowledges
+  };
 
   // Available interviewers by profile
   const getInterviewersByProfile = (profile: string): Interviewer[] => {
@@ -726,6 +776,11 @@ function AIInterviewContent() {
         console.error('Error accessing camera:', error);
       }
       
+      // Reset anti-cheat monitoring
+      setCheatingIncidents([]);
+      setWarnings([]);
+      setViolations([]);
+      
       // Make AI read the initial greeting with D-ID video
       console.log('🚀 Starting interview, will call speakTextOrVideo in 1 second');
       console.log('📊 Session state after setSession:', session);
@@ -1257,13 +1312,23 @@ function AIInterviewContent() {
 
   const speakTextOrVideo = async (text: string, sessionData?: InterviewSession) => {
     console.log('🎤 speakTextOrVideo called with text:', text.substring(0, 50));
+    
+    // Cancel any browser speechSynthesis to prevent duplicate audio
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
     if (sessionData?.interviewer?.gender) {
       lastInterviewerGenderRef.current = sessionData.interviewer.gender;
     }
+    
     // Azure TTS is handled by AzureTTSPlayer component in the UI
     // The component will auto-play when the message is updated
+    // We do NOT call browser speechSynthesis here - only Azure TTS should play
     setIsAISpeaking(true);
+    
     // Set a timeout to mark as done speaking (approximate based on text length)
+    // This timeout is just for UI state, actual audio is controlled by AzureTTSPlayer
     const estimatedDuration = Math.max(3000, text.length * 50); // ~50ms per character, minimum 3s
     setTimeout(() => {
       setIsAISpeaking(false);
@@ -3098,7 +3163,7 @@ function AIInterviewContent() {
             >
               <Brain className="w-5 h-5 text-white" />
             </motion.div>
-            <span className="text-xl font-bold text-white">QuantumLeap AI Interview</span>
+            <span className="text-xl font-bold text-white">HireOG AI Interview</span>
           </motion.div>
 
           {/* Right: Utility Icons */}
@@ -3108,32 +3173,7 @@ function AIInterviewContent() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            {/* WiFi Icon */}
-            <motion.button
-              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <Wifi className="w-5 h-5 text-white/70" />
-            </motion.button>
-
-            {/* Settings Icon */}
-            <motion.button
-              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <Settings className="w-5 h-5 text-white/70" />
-            </motion.button>
-
-            {/* Help Icon */}
-            <motion.button
-              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <HelpCircle className="w-5 h-5 text-white/70" />
-            </motion.button>
+      
           </motion.div>
         </motion.div>
 
@@ -3283,6 +3323,18 @@ function AIInterviewContent() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
           >
+            {/* Anti-Cheat Monitoring */}
+            {currentStep === 'interview' && session && (
+              <AntiCheatMonitor
+                isInterviewActive={true}
+                onIncident={handleCheatingIncident}
+                onWarning={handleWarning}
+                onViolation={handleViolation}
+                videoRef={videoRef}
+                streamRef={streamRef}
+              />
+            )}
+            
             {/* Auto-play TTS for latest interviewer message */}
             {latestInterviewerMessage && (
               <div className="absolute opacity-0 pointer-events-none" style={{ width: '1px', height: '1px', overflow: 'hidden' }}>
@@ -3950,6 +4002,75 @@ function AIInterviewContent() {
           </div>
           )}
         </motion.div>
+        
+        {/* Warning Modal */}
+        <AnimatePresence>
+          {showWarningModal && warnings.length > 0 && (
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-black/80 backdrop-blur-md rounded-2xl border-2 border-yellow-500/50 p-6 max-w-md w-full shadow-2xl"
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <AlertTriangle className="w-6 h-6 text-yellow-500" />
+                  <h3 className="text-xl font-bold text-white">Warning</h3>
+                </div>
+                <p className="text-white/90 mb-4">{warnings[warnings.length - 1]}</p>
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setShowWarningModal(false)}
+                    className="px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg font-semibold transition-colors"
+                  >
+                    Understood
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Violation Modal */}
+        <AnimatePresence>
+          {showViolationModal && violations.length > 0 && (
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-black/90 backdrop-blur-md rounded-2xl border-2 border-red-500/50 p-6 max-w-md w-full shadow-2xl"
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <AlertTriangle className="w-6 h-6 text-red-500" />
+                  <h3 className="text-xl font-bold text-white">Serious Violation</h3>
+                </div>
+                <p className="text-white/90 mb-4">{violations[violations.length - 1]}</p>
+                <p className="text-white/70 text-sm mb-4">
+                  This incident has been logged and your interview may be flagged for review.
+                </p>
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setShowViolationModal(false)}
+                    className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg font-semibold transition-colors"
+                  >
+                    Acknowledge
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }

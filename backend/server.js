@@ -13,6 +13,7 @@ const submissionsRoutes = require('./routes/submissions');
 const adminRoutes = require('./routes/admin');
 const analyticsRoutes = require('./routes/analytics');
 const companyRoutes = require('./routes/company-simple');
+const interviewIncidentsRoutes = require('./routes/interview-incidents');
 // const paymentRoutes = require('./routes/payment'); // Temporarily disabled - causing mongoose conflicts
 
 // AI Interview - Temporarily disabled to fix server crash
@@ -154,6 +155,7 @@ app.options('/api/company/*', (req, res) => {
 });
 
 app.use('/api/company', companyRoutes);
+app.use('/api/interview', interviewIncidentsRoutes);
 // app.use('/api/payment', paymentRoutes); // Temporarily disabled - causing mongoose conflicts
 
 // AI Interview

@@ -29,6 +29,11 @@ export default function AzureTTSPlayer({
   useEffect(() => {
     if (!text.trim()) return;
     
+    // Cancel any existing browser TTS first
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
     // Reset states when text changes
     setIsPlaying(false);
     setAudioUrl('');
@@ -43,6 +48,11 @@ export default function AzureTTSPlayer({
       console.log(`🎙️ AzureTTSPlayer: Generating TTS for text (${text.length} chars), autoPlay=${autoPlay}, voice=${voice}`);
       setIsLoading(true);
       setError('');
+      
+      // Cancel any browser TTS that might be playing
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+      }
       
       try {
         console.log('📡 Calling /api/azure-tts with:', { text: text.substring(0, 50) + '...', voice, rate, pitch });
@@ -64,14 +74,23 @@ export default function AzureTTSPlayer({
         if (!response.ok) {
           const errorData = await response.json();
           if (errorData.useBrowserTTS) {
-            // Fallback to browser TTS
+            // Only use browser TTS if Azure TTS completely fails
+            // Cancel any existing browser TTS first
             if ('speechSynthesis' in window) {
+              speechSynthesis.cancel();
+              
               const utterance = new SpeechSynthesisUtterance(text);
               utterance.rate = rate;
               utterance.pitch = pitch;
               utterance.volume = 1;
               
-              utterance.onstart = () => setIsPlaying(true);
+              utterance.onstart = () => {
+                setIsPlaying(true);
+                // Make sure Azure audio is not playing
+                if (audioRef.current) {
+                  audioRef.current.pause();
+                }
+              };
               utterance.onend = () => {
                 setIsPlaying(false);
                 if (onComplete) onComplete();
@@ -95,7 +114,12 @@ export default function AzureTTSPlayer({
         const contentType = response.headers.get('content-type');
         
         if (contentType && contentType.includes('audio/')) {
-          // Azure TTS audio response
+          // Azure TTS audio response - this means Azure TTS succeeded
+          // Cancel browser TTS to prevent duplicate playback
+          if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+          }
+          
           const blob = await response.blob();
           const url = URL.createObjectURL(blob);
           console.log('✅ Azure TTS audio blob received, size:', blob.size, 'bytes, creating URL:', url.substring(0, 50));
@@ -109,17 +133,26 @@ export default function AzureTTSPlayer({
             console.log('⏸️ Auto-play disabled, audio ready for manual play');
           }
         } else {
-          // JSON response (fallba\k)
+          // JSON response (fallback)
           const data = await response.json();
           if (data.useBrowserTTS) {
-            // Use browser's built-in TTS
+            // Only use browser TTS if explicitly requested
+            // Cancel any existing browser TTS first
             if ('speechSynthesis' in window) {
+              speechSynthesis.cancel();
+              
               const utterance = new SpeechSynthesisUtterance(text);
               utterance.rate = rate;
               utterance.pitch = pitch;
               utterance.volume = 1;
               
-              utterance.onstart = () => setIsPlaying(true);
+              utterance.onstart = () => {
+                setIsPlaying(true);
+                // Make sure Azure audio is not playing
+                if (audioRef.current) {
+                  audioRef.current.pause();
+                }
+              };
               utterance.onend = () => {
                 setIsPlaying(false);
                 if (onComplete) onComplete();
@@ -152,21 +185,44 @@ export default function AzureTTSPlayer({
   useEffect(() => {
     if (!autoPlay || !audioUrl || !audioRef.current) return;
     
+    // Cancel browser TTS before playing Azure TTS audio
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
     console.log('🎵 Audio URL ready, attempting autoplay...');
     const tryPlay = () => {
       if (audioRef.current && audioRef.current.src) {
+        // Ensure browser TTS is cancelled before playing
+        if ('speechSynthesis' in window) {
+          speechSynthesis.cancel();
+        }
+        
         console.log('▶️ Attempting to play audio, src:', audioRef.current.src.substring(0, 50));
         audioRef.current.play().then(() => {
           setIsPlaying(true);
           console.log('✅ Azure TTS autoplay started successfully');
+          // Double-check browser TTS is stopped
+          if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+          }
         }).catch(err => {
           console.log('⚠️ Autoplay blocked, will retry:', err.message);
           // Retry after a short delay - often works after user has interacted
           setTimeout(() => {
             if (audioRef.current && audioRef.current.src) {
+              // Cancel browser TTS before retry
+              if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+              }
+              
               audioRef.current.play().then(() => {
                 setIsPlaying(true);
                 console.log('✅ Azure TTS autoplay started on retry');
+                // Ensure browser TTS is stopped
+                if ('speechSynthesis' in window) {
+                  speechSynthesis.cancel();
+                }
               }).catch((retryErr) => {
                 console.log('❌ Autoplay failed - user may need to interact first:', retryErr.message);
               });
@@ -182,22 +238,42 @@ export default function AzureTTSPlayer({
     
     // Small delay to ensure audio element is rendered and ready
     const timeoutId = setTimeout(tryPlay, 200);
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      // Cancel browser TTS when component unmounts or audioUrl changes
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+      }
+    };
   }, [audioUrl, autoPlay]);
 
   const handlePlay = () => {
+    // Cancel browser TTS first
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
     if (audioUrl && audioRef.current) {
-      // Azure TTS audio
+      // Azure TTS audio - prefer this
       audioRef.current.play();
       setIsPlaying(true);
     } else if ('speechSynthesis' in window) {
-      // Browser TTS
+      // Browser TTS fallback - only if no Azure audio
+      // Cancel any existing browser TTS
+      speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = rate;
       utterance.pitch = pitch;
       utterance.volume = 1;
       
-      utterance.onstart = () => setIsPlaying(true);
+      utterance.onstart = () => {
+        setIsPlaying(true);
+        // Make sure Azure audio is not playing
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+      };
       utterance.onend = () => {
         setIsPlaying(false);
         if (onComplete) onComplete();
@@ -212,13 +288,16 @@ export default function AzureTTSPlayer({
   };
 
   const handlePause = () => {
-    if (audioUrl && audioRef.current) {
+    // Cancel browser TTS
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
+    if (audioRef.current) {
       // Azure TTS audio
       audioRef.current.pause();
       setIsPlaying(false);
-    } else if ('speechSynthesis' in window) {
-      // Browser TTS
-      speechSynthesis.cancel();
+    } else {
       setIsPlaying(false);
     }
   };
