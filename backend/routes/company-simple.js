@@ -265,7 +265,7 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
         candidateName: candidate.name,
         candidateEmail: candidate.email
       });
-      const interviewLink = `${process.env.FRONTEND_URL || 'https://hireog.com'}/ai-interview?${interviewParams.toString()}`;
+      const interviewLink = `${process.env.FRONTEND_URL || 'https://hireog.com'}/hiring/candidate-interview/${token}?${interviewParams.toString()}`;
       interviewLinks.push({
         candidate: candidate,
         link: interviewLink
@@ -711,7 +711,7 @@ router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) =
         candidateName: candidate.name,
         candidateEmail: candidate.email
       });
-      const interviewLink = `${process.env.FRONTEND_URL || 'https://hireog.com'}/ai-interview?${interviewParams.toString()}`;
+      const interviewLink = `${process.env.FRONTEND_URL || 'https://hireog.com'}/hiring/candidate-interview/${token}?${interviewParams.toString()}`;
       interviewLinks.push({
         candidate: candidate,
         link: interviewLink

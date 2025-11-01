@@ -412,29 +412,77 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
   useEffect(() => {
     const fetchCandidateData = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
-        const response = await fetch(`${backendUrl}/api/company/interview/${params.token}`);
+        // First, check URL search params for profile (from interview link)
+        const urlProfile = searchParams.get('profile');
+        const urlLevel = searchParams.get('level');
+        const urlCompany = searchParams.get('company');
+        const urlCandidateName = searchParams.get('candidateName');
+        const urlCandidateEmail = searchParams.get('candidateEmail');
         
-        if (response.ok) {
-          const data = await response.json();
-          const candidate = data.candidate;
+        // If URL params exist, use them (they come from the interview link and are authoritative)
+        if (urlProfile) {
+          const profileFromUrl = urlProfile.toLowerCase() as any;
+          setProfile(profileFromUrl);
           
           setCompanyParams({
             token: params.token,
-            company: candidate.companyName,
-            profile: candidate.profile.toLowerCase(),
-            level: 'mid', // Default level
-            candidateName: candidate.name,
-            candidateEmail: candidate.email
+            company: urlCompany || 'Company',
+            profile: profileFromUrl,
+            level: (urlLevel || 'mid') as any,
+            candidateName: urlCandidateName || undefined,
+            candidateEmail: urlCandidateEmail || undefined
+          });
+          
+          // Skip setup and go directly to interviewer selection for company interviews
+          setCurrentStep('interviewer-selection');
+          return;
+        }
+        
+        // Fallback: Fetch from backend API if URL params not available
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+        const response = await fetch(`${backendUrl}/api/company/interview/config/${params.token}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          const config = data.config || data;
+          
+          // Determine profile from config
+          let profileFromConfig = 'frontend';
+          if (config.candidateProfile) {
+            profileFromConfig = config.candidateProfile.toLowerCase();
+          } else if (config.positionTitle) {
+            const positionLower = config.positionTitle.toLowerCase();
+            if (positionLower.includes('backend')) {
+              profileFromConfig = 'backend';
+            } else if (positionLower.includes('product')) {
+              profileFromConfig = 'product';
+            } else if (positionLower.includes('business') || positionLower.includes('sales')) {
+              profileFromConfig = 'business';
+            } else if (positionLower.includes('qa') || positionLower.includes('test')) {
+              profileFromConfig = 'qa';
+            } else if (positionLower.includes('hr') || positionLower.includes('human')) {
+              profileFromConfig = 'hr';
+            } else if (positionLower.includes('full stack') || positionLower.includes('fullstack')) {
+              profileFromConfig = 'fullstack';
+            }
+          }
+          
+          setCompanyParams({
+            token: params.token,
+            company: config.companyName || 'Company',
+            profile: profileFromConfig,
+            level: 'mid',
+            candidateName: config.candidateName,
+            candidateEmail: config.candidateEmail
           });
 
           // Auto-select profile for company interviews
-          setProfile(candidate.profile.toLowerCase() as any);
+          setProfile(profileFromConfig as any);
 
           // Skip setup and go directly to interviewer selection for company interviews
           setCurrentStep('interviewer-selection');
         } else {
-          console.error('Failed to fetch candidate data');
+          console.error('Failed to fetch candidate data:', response.status);
         }
       } catch (error) {
         console.error('Error fetching candidate data:', error);
@@ -444,7 +492,7 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
     if (params.token) {
       fetchCandidateData();
     }
-  }, [params.token]);
+  }, [params.token, searchParams]);
 
   // Initialize speech recognition and load voices
   useEffect(() => {
@@ -2562,9 +2610,9 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
                             <div className="mt-4 p-4 bg-white/5 rounded-xl border-l-4 border-[#5cd3ff]">
                               <h4 className="text-sm font-semibold text-[#5cd3ff] mb-2">Detailed Feedback:</h4>
                               <p className="text-white/90 text-sm leading-relaxed">{qa.feedback}</p>
-                    </div>
-                          )}
-                          
+            </div>
+          )}
+
                           {/* Strengths and Improvements */}
                           <div className="grid md:grid-cols-2 gap-4 mt-4">
                             {Array.isArray(qa.strengths) && qa.strengths.length > 0 && (
@@ -2576,9 +2624,9 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
                                 <ul className="list-disc list-inside text-white/85 text-sm space-y-2">
                                   {qa.strengths.map((s: string, i: number) => (
                                     <li key={i} className="leading-relaxed">{s}</li>
-                                  ))}
-                                </ul>
-                  </div>
+                          ))}
+                        </ul>
+                      </div>
                             )}
                             {Array.isArray(qa.improvements) && qa.improvements.length > 0 && (
                               <div className="bg-gradient-to-br from-[#ffb21e]/10 to-[#ffb21e]/5 rounded-xl p-4 border border-[#ffb21e]/20">
@@ -2591,9 +2639,9 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
                                     <li key={i} className="leading-relaxed">{s}</li>
                                   ))}
                                 </ul>
-              </div>
+                        </div>
                             )}
-          </div>
+              </div>
 
                           {/* Response Type and Confidence */}
                           {qa.responseType && (
@@ -2601,21 +2649,21 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
                               <span className="opacity-80">Response Type:</span>
                               <span className="uppercase tracking-wide font-semibold text-white/70 bg-white/5 px-2 py-1 rounded">
                                 {qa.responseType}
-                              </span>
+                    </span>
                               {typeof qa.confidence === 'number' && (
                                 <span className="ml-auto">Confidence: {(qa.confidence * 100).toFixed(0)}%</span>
                               )}
-                            </div>
+                </div>
                       )}
-                    </div>
+              </div>
                       </motion.div>
                   );
                 })}
-              </div>
+                    </div>
               </motion.div>
-            )}
+          )}
 
-            {/* Action Buttons */}
+          {/* Action Buttons */}
             <motion.div 
               className="flex flex-col sm:flex-row gap-4 justify-center mt-8"
               initial={{ opacity: 0, y: 40 }}
@@ -2630,12 +2678,12 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
                 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                onClick={() => {
-                  setCurrentStep('setup');
-                  setSession(null);
-                  setMessages([]);
-                  setFeedback(null);
-                }}
+              onClick={() => {
+                setCurrentStep('setup');
+                setSession(null);
+                setMessages([]);
+                setFeedback(null);
+              }}
               >
                 <motion.span className="relative z-10">Start New Interview</motion.span>
                 
@@ -2661,8 +2709,8 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
               </motion.button>
             </motion.div>
           </motion.div>
-            </div>
-          </div>
+        </div>
+      </div>
     );
   }
 
