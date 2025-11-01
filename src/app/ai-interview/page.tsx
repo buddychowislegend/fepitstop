@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/config";
 import AzureTTSPlayer from "@/components/AzureTTSPlayer";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Volume2, VolumeX, Clock, Target, Brain, Star, CheckCircle, Play, Pause, RotateCcw, Camera, Settings, Code, MessageCircle } from "lucide-react";
+import { Mic, MicOff, Send, Volume2, VolumeX, Clock, Target, Brain, Star, CheckCircle, Play, Pause, RotateCcw, Camera, Settings, Code, MessageCircle, Wifi, HelpCircle, Lightbulb, List } from "lucide-react";
 
 type Message = {
   role: 'interviewer' | 'candidate';
@@ -95,6 +95,9 @@ function AIInterviewContent() {
   const [isAIAudioLoading, setIsAIAudioLoading] = useState(false);
   // Track latest interviewer gender for TTS selection even if session is not yet set
   const lastInterviewerGenderRef = useRef<'male' | 'female' | null>(null);
+  // Listen button state for question audio
+  const [isQuestionAudioPlaying, setIsQuestionAudioPlaying] = useState(false);
+  const questionAudioRef = useRef<HTMLAudioElement | null>(null);
   const [analysisProgress, setAnalysisProgress] = useState<'uploading' | 'analyzing' | 'creating-feedback' | 'complete'>('uploading');
   
   // Voice recognition
@@ -889,6 +892,18 @@ function AIInterviewContent() {
   };
 
   const startAnswer = async () => {
+    // Pause any playing TTS audio when candidate starts answering
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    // Also pause any HTML audio elements
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      if (!audio.paused) {
+        audio.pause();
+      }
+    });
+    
     // Reset current answer and start recording
     setCurrentAnswer('');
     actualSpokenTextRef.current = ''; // Reset the ref
@@ -1048,10 +1063,10 @@ function AIInterviewContent() {
               endInterview();
             }, 2000);
           } else {
-            // Make AI read the next question with D-ID video
-            setTimeout(() => {
+          // Make AI read the next question with D-ID video
+          setTimeout(() => {
               speakTextOrVideo(data.message, updatedSession || session);
-            }, 500);
+          }, 500);
           }
         } else {
           const errorData = await response.text();
@@ -1122,10 +1137,10 @@ function AIInterviewContent() {
               endInterview();
             }, 2000);
           } else {
-            // Make AI read the next question with D-ID video
-            setTimeout(() => {
+          // Make AI read the next question with D-ID video
+          setTimeout(() => {
               speakTextOrVideo(data.message, updatedSession || session);
-            }, 500);
+          }, 500);
           }
         }
       } catch (error) {
@@ -1245,8 +1260,14 @@ function AIInterviewContent() {
     if (sessionData?.interviewer?.gender) {
       lastInterviewerGenderRef.current = sessionData.interviewer.gender;
     }
-    // Azure TTS will be handled by the AzureTTSPlayer component
-    console.log('🔄 Azure TTS will be handled by component');
+    // Azure TTS is handled by AzureTTSPlayer component in the UI
+    // The component will auto-play when the message is updated
+    setIsAISpeaking(true);
+    // Set a timeout to mark as done speaking (approximate based on text length)
+    const estimatedDuration = Math.max(3000, text.length * 50); // ~50ms per character, minimum 3s
+    setTimeout(() => {
+      setIsAISpeaking(false);
+    }, estimatedDuration);
   };
 
   // Track AI interview events
@@ -2989,8 +3010,39 @@ function AIInterviewContent() {
 
   // Full-Screen Interview Interface
   if (currentStep === 'interview' && session) {
+    // Get current question text
+    const currentQuestion = messages.filter(msg => msg.role === 'interviewer').slice(-1)[0]?.content || '';
+    const questionCategory = profile === 'frontend' ? 'Technical' : profile === 'backend' ? 'Technical' : profile === 'product' ? 'Product Management' : profile === 'business' ? 'Business' : profile === 'qa' ? 'Quality Assurance' : 'Behavioral';
+    const estimatedTimePerQuestion = 2; // minutes
+    
+    // Get latest interviewer message for auto-play TTS
+    const latestInterviewerMessage = messages.filter(msg => msg.role === 'interviewer').slice(-1)[0];
+    
+    // Preparation tips based on profile
+    const getPreparationTips = () => {
+      if (profile === 'frontend' || profile === 'backend') {
+        return [
+          'Use clear examples from your past projects',
+          'Explain your thought process step by step',
+          'Ask clarifying questions if needed'
+        ];
+      } else if (profile === 'product') {
+        return [
+          'Use the STAR method: Situation, Task, Action, Result',
+          'Speak clearly and maintain a steady pace',
+          'Ensure your background is professional and free of distractions'
+        ];
+      } else {
+        return [
+          'Use the STAR method: Situation, Task, Action, Result',
+          'Speak clearly and maintain a steady pace',
+          'Ensure your background is professional and free of distractions'
+        ];
+      }
+    };
+
     return (
-      <div className="h-screen flex flex-col bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+      <div className="h-screen flex flex-col bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden overflow-y-auto">
         {/* Animated Background Effects */}
         <div className="absolute inset-0 opacity-30">
           <motion.div 
@@ -3025,12 +3077,72 @@ function AIInterviewContent() {
           />
         </div>
 
-        {/* Header */}
+        {/* Enhanced Top Header with Branding */}
         <motion.div 
-          className="relative z-10 border-b border-white/10 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl p-6 flex items-center justify-between"
+          className="relative z-10 border-b border-white/10 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl px-6 py-4 flex items-center justify-between"
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8 }}
+        >
+          {/* Left: Branding */}
+          <motion.div 
+            className="flex items-center gap-3"
+            initial={{ x: -30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <motion.div
+              className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              <Brain className="w-5 h-5 text-white" />
+            </motion.div>
+            <span className="text-xl font-bold text-white">QuantumLeap AI Interview</span>
+          </motion.div>
+
+          {/* Right: Utility Icons */}
+          <motion.div 
+            className="flex items-center gap-4"
+            initial={{ x: 30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            {/* WiFi Icon */}
+            <motion.button
+              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Wifi className="w-5 h-5 text-white/70" />
+            </motion.button>
+
+            {/* Settings Icon */}
+            <motion.button
+              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Settings className="w-5 h-5 text-white/70" />
+            </motion.button>
+
+            {/* Help Icon */}
+            <motion.button
+              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <HelpCircle className="w-5 h-5 text-white/70" />
+            </motion.button>
+          </motion.div>
+        </motion.div>
+
+        {/* Old Header (keeping for backward compatibility with timer) */}
+        <motion.div 
+          className="relative z-10 border-b border-white/5 bg-gradient-to-r from-white/5 to-white/0 backdrop-blur-xl px-6 py-3 flex items-center justify-between"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
         >
           {/* Left: Interviewer Info */}
           <motion.div 
@@ -3157,14 +3269,260 @@ function AIInterviewContent() {
           </motion.div>
         </motion.div>
 
-        {/* Main Content */}
+        {/* Main Content - Enhanced Layout */}
         <motion.div 
-          className="flex-1 flex relative z-10"
+          className="flex-1 flex relative z-10 min-h-0 overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          {/* Left Panel - Conversation */}
+          {/* Left Panel - Video Feeds (Wider) */}
+          <motion.div 
+            className="flex-[2] flex flex-col border-r border-white/10 bg-gradient-to-br from-[#0b1020] to-[#0f1427]"
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+          >
+            {/* Auto-play TTS for latest interviewer message */}
+            {latestInterviewerMessage && (
+              <div className="absolute opacity-0 pointer-events-none" style={{ width: '1px', height: '1px', overflow: 'hidden' }}>
+                <AzureTTSPlayer
+                  text={latestInterviewerMessage.content}
+                  key={`auto-tts-${latestInterviewerMessage.content.substring(0, 50)}-${latestInterviewerMessage.timestamp.getTime()}`}
+                  autoPlay={true}
+                  voice={session.interviewer.gender === 'female' ? 'en-IN-AnanyaNeural' : 'en-IN-KunalNeural'}
+                  rate={0.9}
+                  pitch={0}
+                  onComplete={() => {
+                    setIsAISpeaking(false);
+                    console.log('✅ Azure TTS autoplay completed');
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Video Feeds Container */}
+            <div className="flex-1 flex items-center justify-center gap-6 p-8 min-h-0">
+              {/* AI Interviewer Video Frame */}
+              <motion.div 
+                className="relative flex-1 max-w-md"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.7, type: "spring" }}
+              >
+                <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden shadow-2xl aspect-video">
+                  {/* Interviewer Avatar/Video */}
+                  {avatarVideoUrl ? (
+                    <video
+                      ref={avatarVideoRef}
+                      src={avatarVideoUrl}
+                      autoPlay
+                      muted={false}
+                      playsInline
+                      className="w-full h-full object-cover"
+                      onEnded={() => {
+                        setIsAISpeaking(false);
+                        setAvatarVideoUrl(null);
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      {session.interviewer.gender === 'female' ? (
+                        <img
+                          src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
+                          alt={`${session.interviewer.name} avatar`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center">
+                          <span className="text-6xl font-bold text-white">
+                            {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                          </span>
+                        </div>
+                      )}
+                      {/* Glow effect when speaking */}
+                      {isAISpeaking && (
+                        <motion.div 
+                          className="absolute inset-0 bg-purple-500/30"
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        />
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Badge at bottom left */}
+                  <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-green-500/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    <span className="text-white text-xs font-semibold">
+                      {session.interviewer.name} - AI Interviewer
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* User Video Frame */}
+              <motion.div 
+                className="relative flex-1 max-w-md"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.8, type: "spring" }}
+              >
+                <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden shadow-2xl aspect-video">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                  {!streamRef.current && (
+                    <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <div className="w-20 h-20 bg-blue-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+                          <span className="text-4xl">👤</span>
+                        </div>
+                        <p className="text-sm font-medium">Your Video</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Badge at bottom left */}
+                  <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-blue-500/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                    <Camera className="w-3 h-3 text-white" />
+                    <span className="text-white text-xs font-semibold">You</span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Action Button Section */}
+            <div className="px-8 pb-8 pt-4 flex flex-col items-center gap-3 flex-shrink-0">
+              <motion.button
+                onClick={!isRecording ? startAnswer : stopAnswer}
+                disabled={loading && !isRecording}
+                className={`px-12 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                  isRecording 
+                    ? 'bg-red-600 text-white hover:bg-red-700' 
+                    : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg'
+                }`}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.9 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Mic className="w-5 h-5" />
+                {isRecording ? 'Stop Answering' : 'Start Answering'}
+              </motion.button>
+              
+              {/* Timer Text */}
+              <motion.p 
+                className="text-white/70 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+              >
+                You will have {estimatedTimePerQuestion} minutes to answer the question.
+              </motion.p>
+            </div>
+          </motion.div>
+
+          {/* Right Sidebar - Question & Tips (Narrower) */}
+          <motion.div 
+            className="flex-1 flex flex-col border-l border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm overflow-y-auto min-h-0"
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+          >
+            <div className="p-6 space-y-6 pb-8">
+              {/* Question Card */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-lg"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <List className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">
+                    Question {session.currentQuestion}/{session.totalQuestions}
+                  </h3>
+                </div>
+
+                {/* Question Text */}
+                <p className="text-white/90 leading-relaxed mb-4 text-base">
+                  {currentQuestion || 'Loading question...'}
+                </p>
+
+                {/* Listen Button */}
+                {currentQuestion && (
+                  <div className="mb-4 flex items-center gap-2">
+                    <span className="text-white/70 text-sm font-medium">Listen:</span>
+                    <div className="flex items-center gap-2">
+                      <AzureTTSPlayer
+                        text={currentQuestion}
+                        autoPlay={false}
+                        voice={session.interviewer.gender === 'female' ? 'en-IN-AnanyaNeural' : 'en-IN-KunalNeural'}
+                        rate={0.9}
+                        pitch={0}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Footer Info */}
+                <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                  <span className="text-white/70 text-sm">
+                    <strong className="text-white">Category:</strong> {questionCategory}
+                  </span>
+                  <span className="text-white/70 text-sm">
+                    <strong className="text-white">Time Allotment:</strong> {estimatedTimePerQuestion} min
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Preparation Tips Card */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-lg"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                    <Lightbulb className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">
+                    Preparation Tips
+                  </h3>
+                </div>
+
+                {/* Tips List */}
+                <ul className="space-y-3">
+                  {getPreparationTips().map((tip, index) => (
+                    <motion.li 
+                      key={index}
+                      className="flex items-start gap-3"
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.9 + index * 0.1 }}
+                    >
+                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-white/80 text-sm leading-relaxed">{tip}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* Hidden: Keep old conversation panel for backward compatibility but make it optional */}
+          {false && (
           <motion.div 
             className="w-1/2 flex flex-col border-r border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm"
             initial={{ x: -100, opacity: 0 }}
@@ -3318,8 +3676,10 @@ function AIInterviewContent() {
          
             </div>
           </motion.div>
+          )}
 
-          {/* Right Panel - Interviewer & User Video */}
+          {/* Old Right Panel - Commented out, replaced by new enhanced layout above */}
+          {false && (
           <div className="w-1/2 flex flex-col">
             <div className="border-b border-white/10 p-4">
               <h2 className="text-lg font-semibold">INTERVIEW ROOM</h2>
@@ -3588,6 +3948,7 @@ function AIInterviewContent() {
               </div>
             </div>
           </div>
+          )}
         </motion.div>
       </div>
     );

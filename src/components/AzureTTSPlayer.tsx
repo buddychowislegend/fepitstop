@@ -27,13 +27,25 @@ export default function AzureTTSPlayer({
 
   // Generate Azure TTS audio when text changes
   useEffect(() => {
-    if (!text.trim() || !autoPlay) return;
+    if (!text.trim()) return;
+    
+    // Reset states when text changes
+    setIsPlaying(false);
+    setAudioUrl('');
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
+    
+    if (!autoPlay) return;
 
     const generateTTS = async () => {
+      console.log(`🎙️ AzureTTSPlayer: Generating TTS for text (${text.length} chars), autoPlay=${autoPlay}, voice=${voice}`);
       setIsLoading(true);
       setError('');
       
       try {
+        console.log('📡 Calling /api/azure-tts with:', { text: text.substring(0, 50) + '...', voice, rate, pitch });
         const response = await fetch('/api/azure-tts', {
           method: 'POST',
           headers: {
@@ -46,6 +58,8 @@ export default function AzureTTSPlayer({
             pitch
           }),
         });
+        
+        console.log('📡 Azure TTS response status:', response.status, response.statusText);
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -84,15 +98,15 @@ export default function AzureTTSPlayer({
           // Azure TTS audio response
           const blob = await response.blob();
           const url = URL.createObjectURL(blob);
+          console.log('✅ Azure TTS audio blob received, size:', blob.size, 'bytes, creating URL:', url.substring(0, 50));
           setAudioUrl(url);
           
-          // Auto-play if enabled
-          if (autoPlay && audioRef.current) {
-            setTimeout(()=> {
-              audioRef?.current?.play();
-              setIsPlaying(true);
-            },1500)
-          
+          // Wait for audio element to be ready, then auto-play if enabled
+          // Use useEffect to trigger when audioUrl changes
+          if (autoPlay) {
+            console.log('🎵 Auto-play enabled, audio URL set, will play when audio element is ready');
+          } else {
+            console.log('⏸️ Auto-play disabled, audio ready for manual play');
           }
         } else {
           // JSON response (fallba\k)
@@ -132,7 +146,44 @@ export default function AzureTTSPlayer({
     };
 
     generateTTS();
-  }, [text, autoPlay, onComplete, voice, rate, pitch]);
+  }, [text, autoPlay, voice, rate, pitch]); // Removed onComplete from deps to avoid unnecessary re-runs
+  
+  // Auto-play when audioUrl is set and autoPlay is enabled
+  useEffect(() => {
+    if (!autoPlay || !audioUrl || !audioRef.current) return;
+    
+    console.log('🎵 Audio URL ready, attempting autoplay...');
+    const tryPlay = () => {
+      if (audioRef.current && audioRef.current.src) {
+        console.log('▶️ Attempting to play audio, src:', audioRef.current.src.substring(0, 50));
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+          console.log('✅ Azure TTS autoplay started successfully');
+        }).catch(err => {
+          console.log('⚠️ Autoplay blocked, will retry:', err.message);
+          // Retry after a short delay - often works after user has interacted
+          setTimeout(() => {
+            if (audioRef.current && audioRef.current.src) {
+              audioRef.current.play().then(() => {
+                setIsPlaying(true);
+                console.log('✅ Azure TTS autoplay started on retry');
+              }).catch((retryErr) => {
+                console.log('❌ Autoplay failed - user may need to interact first:', retryErr.message);
+              });
+            }
+          }, 500);
+        });
+      } else {
+        // Audio ref not ready yet or src not set, try again
+        console.log('⏳ Audio element not ready, retrying...', { hasRef: !!audioRef.current, hasSrc: audioRef.current?.src });
+        setTimeout(tryPlay, 100);
+      }
+    };
+    
+    // Small delay to ensure audio element is rendered and ready
+    const timeoutId = setTimeout(tryPlay, 200);
+    return () => clearTimeout(timeoutId);
+  }, [audioUrl, autoPlay]);
 
   const handlePlay = () => {
     if (audioUrl && audioRef.current) {
@@ -202,7 +253,26 @@ export default function AzureTTSPlayer({
           )}
         </button>
       )}
-      {audioUrl && <audio ref={audioRef} src={audioUrl} onEnded={handleEnded} />}
+      {audioUrl && (
+        <audio 
+          ref={audioRef} 
+          src={audioUrl} 
+          onEnded={handleEnded}
+          onPlay={() => {
+            console.log('🎵 Azure TTS audio started playing');
+            setIsPlaying(true);
+          }}
+          onPause={() => {
+            console.log('⏸️ Azure TTS audio paused');
+            setIsPlaying(false);
+          }}
+          onError={(e) => {
+            console.error('❌ Audio playback error:', e);
+            setError('Audio playback failed');
+            setIsPlaying(false);
+          }}
+        />
+      )}
     </div>
   );
 }
