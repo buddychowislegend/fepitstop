@@ -443,10 +443,8 @@ export default function MockInterviewPage() {
               <motion.p 
                 className="text-lg text-white/70 mt-6 max-w-2xl mx-auto leading-relaxed"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.7 }}
                 animate={{ opacity: [0.7, 1, 0.7] }}
-                transition={{ duration: 3, repeat: Infinity }}
+                transition={{ delay: 1.7, duration: 3, repeat: Infinity }}
               >
                 We'll email you as soon as the{' '}
                 <span className="text-[#ffb21e] font-semibold">Mock Interview feature</span>{' '}

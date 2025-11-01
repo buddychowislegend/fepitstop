@@ -1016,6 +1016,7 @@ function AIInterviewContent() {
             previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
             profile,
             level,
+            currentQuestion: session.currentQuestion,
             ...(profile === 'frontend' ? { focus, framework } : {}),
             jdText
           })
@@ -1027,21 +1028,31 @@ function AIInterviewContent() {
           const data = await response.json();
           console.log('AI response:', data);
           
+          const updatedSession = session ? {
+            ...session,
+            currentQuestion: session.currentQuestion + 1
+          } : null;
+          
           setMessages(prev => [...prev, {
             role: 'interviewer',
             content: data.message,
             timestamp: new Date()
           }]);
           
-          setSession(prev => prev ? {
-            ...prev,
-            currentQuestion: prev.currentQuestion + 1
-          } : null);
+          setSession(updatedSession);
           
-          // Make AI read the next question with D-ID video
-          setTimeout(() => {
-            speakTextOrVideo(data.message, session);
-          }, 500);
+          // Check if interview should end (7 questions reached)
+          if (data.shouldEnd || (updatedSession && updatedSession.currentQuestion > updatedSession.totalQuestions)) {
+            // Automatically end the interview
+            setTimeout(() => {
+              endInterview();
+            }, 2000);
+          } else {
+            // Make AI read the next question with D-ID video
+            setTimeout(() => {
+              speakTextOrVideo(data.message, updatedSession || session);
+            }, 500);
+          }
         } else {
           const errorData = await response.text();
           console.error('API error:', errorData);
@@ -1081,6 +1092,7 @@ function AIInterviewContent() {
             previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
             profile,
             level,
+            currentQuestion: session.currentQuestion,
             ...(profile === 'frontend' ? { focus, framework } : {}),
             jdText
           })
@@ -1090,21 +1102,31 @@ function AIInterviewContent() {
           const data = await response.json();
           console.log('AI response:', data);
           
+          const updatedSession = session ? {
+            ...session,
+            currentQuestion: session.currentQuestion + 1
+          } : null;
+          
           setMessages(prev => [...prev, {
             role: 'interviewer',
             content: data.message,
             timestamp: new Date()
           }]);
           
-          setSession(prev => prev ? {
-            ...prev,
-            currentQuestion: prev.currentQuestion + 1
-          } : null);
+          setSession(updatedSession);
           
-          // Make AI read the next question with D-ID video
-          setTimeout(() => {
-            speakTextOrVideo(data.message, session);
-          }, 500);
+          // Check if interview should end (7 questions reached)
+          if (data.shouldEnd || (updatedSession && updatedSession.currentQuestion > updatedSession.totalQuestions)) {
+            // Automatically end the interview
+            setTimeout(() => {
+              endInterview();
+            }, 2000);
+          } else {
+            // Make AI read the next question with D-ID video
+            setTimeout(() => {
+              speakTextOrVideo(data.message, updatedSession || session);
+            }, 500);
+          }
         }
       } catch (error) {
         console.error('Error sending response:', error);

@@ -396,6 +396,7 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
                     left: '50%',
                     x: '-50%',
                     y: '-50%',
+                    transformOrigin: `${30 + i * 8}px center`
                   }}
                   animate={{
                     rotate: 360,
@@ -414,9 +415,6 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
                       delay: i * 0.3,
                       type: "tween"
                     }
-                  }}
-                  style={{
-                    transformOrigin: `${30 + i * 8}px center`
                   }}
                 />
               ))}

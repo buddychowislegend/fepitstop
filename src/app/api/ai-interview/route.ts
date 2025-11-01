@@ -336,6 +336,17 @@ Interview style:
   const examples = profileData.examples;
 
   if (promptType === 'question') {
+    // Strict focus area instruction - if JavaScript, ONLY JavaScript (no frameworks)
+    const focusInstruction = focus === 'javascript' 
+      ? `CRITICAL: The focus area is JavaScript. You MUST ask questions ONLY about pure JavaScript (vanilla JS), NOT about React, NOT about any frameworks, NOT about libraries. Focus on JavaScript fundamentals like closures, prototypes, async/await, promises, event loop, scope, hoisting, this binding, ES6+ features, etc.`
+      : focus === 'react'
+      ? `CRITICAL: The focus area is React. Ask questions about React concepts like hooks, component lifecycle, state management, JSX, virtual DOM, etc.`
+      : focus === 'fullstack'
+      ? `Focus area is Fullstack. Ask questions covering both frontend and backend concepts.`
+      : focus
+      ? `Focus area is ${focus}. Ask questions specifically about ${focus}.`
+      : `Focus on ${profileData.focusAreas.join(', ')} areas`;
+
     return `${basePersona}
 
 ${examples}
@@ -346,16 +357,27 @@ Generate a ${questionType || 'technical'} question that:
 3. Is practical, realistic, and related to real-world ${profileData.title.toLowerCase()} scenarios
 4. Builds on the job description context when provided
 5. Encourages the candidate to explain their thought process
-6. Focuses on ${profileData.focusAreas.join(', ')} areas
+6. ${focusInstruction}
 
 Context: ${jdText ? `Job Description: ${jdText.slice(0, 1200)}` : `General ${profileData.title.toLowerCase()} interview`}
 Focus Area: ${focus || profileData.focusAreas[0]}
-Framework: ${framework || profileData.frameworks[0]}
+${framework && focus !== 'javascript' ? `Framework: ${framework}` : ''}
 
 Return ONLY the question text.`;
   }
 
   if (promptType === 'followup') {
+    // Strict focus area instruction - if JavaScript, ONLY JavaScript (no frameworks)
+    const focusInstruction = focus === 'javascript' 
+      ? `CRITICAL: The focus area is JavaScript. You MUST ask questions ONLY about pure JavaScript (vanilla JS), NOT about React, NOT about any frameworks, NOT about libraries. Focus on JavaScript fundamentals like closures, prototypes, async/await, promises, event loop, scope, hoisting, this binding, ES6+ features, etc.`
+      : focus === 'react'
+      ? `CRITICAL: The focus area is React. Ask questions about React concepts like hooks, component lifecycle, state management, JSX, virtual DOM, etc.`
+      : focus === 'fullstack'
+      ? `Focus area is Fullstack. Ask questions covering both frontend and backend concepts.`
+      : focus
+      ? `Focus area is ${focus}. Ask questions specifically about ${focus}.`
+      : `Focuses on ${profileData.focusAreas.join(', ')} areas`;
+
     return `${basePersona}
 
 ${examples}
@@ -371,10 +393,10 @@ Generate a follow-up question that:
 3. Is appropriate for ${level} level difficulty
 4. Allows for technical discussion and problem-solving
 5. Encourages the candidate to elaborate on their approach
-6. Focuses on ${profileData.focusAreas.join(', ')} areas
+6. ${focusInstruction}
 
 Focus Area: ${focus || profileData.focusAreas[0]}
-Framework: ${framework || profileData.frameworks[0]}
+${framework && focus !== 'javascript' ? `Framework: ${framework}` : ''}
 
 Return ONLY the question text.`;
   }
@@ -771,21 +793,43 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'start') {
-      const { level = 'mid', focus, framework, jdText, profile } = body || {};
+      const { level = 'mid', focus, framework, jdText, profile, interviewer } = body || {};
       try {
+        // Generate AI introduction
+        const interviewerName = interviewer?.name || 'your interviewer';
+        const interviewerRole = interviewer?.role || 'Senior Technical Interviewer';
+        const introduction = `Hello! I'm ${interviewerName}, ${interviewerRole}. Welcome to your technical interview. I'm here to assess your skills and help you showcase your abilities. Let's begin with our first question.`;
+
+        // Generate the first question
         const question = await generateQuestion({ level, focus, framework, jdText, profile });
-        return NextResponse.json({ sessionId: Date.now().toString(), message: question });
+        
+        // Combine introduction with first question
+        const fullMessage = `${introduction}\n\n${question}`;
+        
+        return NextResponse.json({ sessionId: Date.now().toString(), message: fullMessage });
       } catch (e: any) {
         // Graceful fallback (e.g., Gemini quota)
+        const interviewerName = interviewer?.name || 'your interviewer';
+        const interviewerRole = interviewer?.role || 'Senior Technical Interviewer';
+        const introduction = `Hello! I'm ${interviewerName}, ${interviewerRole}. Welcome to your technical interview. Let's begin.`;
         const fw = profile ? profile : (framework || 'frontend');
         const jdHint = jdText ? ' (align to the job description context)' : '';
-        const fallbackQ = `In ${fw}, how would you approach a relevant scenario${focus ? ` focused on ${focus}` : ''}? Please outline key trade-offs${jdHint}.`;
+        const fallbackQ = `${introduction}\n\nIn ${fw}, how would you approach a relevant scenario${focus ? ` focused on ${focus}` : ''}? Please outline key trade-offs${jdHint}.`;
         return NextResponse.json({ sessionId: Date.now().toString(), message: fallbackQ, fallback: true });
       }
     }
 
     if (action === 'respond') {
-      const { message: answer, previousQuestion, level = 'mid', focus, framework, jdText, profile } = body || {};
+      const { message: answer, previousQuestion, level = 'mid', focus, framework, jdText, profile, currentQuestion = 0 } = body || {};
+      
+      // Check if we've reached the 7 question limit
+      if (currentQuestion >= 7) {
+        return NextResponse.json({ 
+          message: "Thank you for your responses! We've completed the interview. Let me summarize what we discussed.", 
+          shouldEnd: true 
+        });
+      }
+      
       try {
         const nextQ = await generateFollowUp({ answer, previousQuestion: previousQuestion || 'Previous question not provided', framework, jdText, level, focus, profile });
         return NextResponse.json({ message: nextQ });

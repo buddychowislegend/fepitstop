@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const audioFile = formData.get('audio') as File;
+    const language = (formData.get('language') as string) || 'en-IN'; // Default to English (India)
     
     if (!audioFile) {
       return NextResponse.json({ 
@@ -50,13 +51,66 @@ export async function POST(request: NextRequest) {
     // Convert File to Blob for processing
     const audioBlob = new Blob([await audioFile.arrayBuffer()], { type: audioFile.type });
     
-    // Transcribe audio (mock implementation)
+    // Try Azure Speech-to-Text if configured
+    const azureKey = process.env.AZURE_SPEECH_KEY;
+    const azureRegion = process.env.AZURE_SPEECH_REGION;
+    
+    if (azureKey && azureRegion) {
+      try {
+        // Get Azure access token
+        const tokenResponse = await fetch(`https://${azureRegion}.api.cognitive.microsoft.com/sts/v1.0/issuetoken`, {
+          method: 'POST',
+          headers: {
+            'Ocp-Apim-Subscription-Key': azureKey,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+        if (tokenResponse.ok) {
+          const accessToken = await tokenResponse.text();
+          
+          // Call Azure Speech-to-Text API with English (India) locale
+          const response = await fetch(
+            `https://${azureRegion}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=${language}&format=detailed`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': `audio/webm; codecs=opus`,
+                'Accept': 'application/json',
+              },
+              body: await audioBlob.arrayBuffer(),
+            }
+          );
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.RecognitionStatus === 'Success' && result.DisplayText) {
+              return NextResponse.json({ 
+                success: true, 
+                transcription: result.DisplayText,
+                confidence: result.Confidence || 0.95,
+                language: language,
+                source: 'azure'
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Azure STT error:', error);
+        // Fall through to mock implementation
+      }
+    }
+    
+    // Fallback to mock implementation (or when Azure is not configured)
     const transcription = await transcribeAudio(audioBlob);
     
     return NextResponse.json({ 
       success: true, 
       transcription,
-      confidence: 0.95 // Mock confidence score
+      confidence: 0.95, // Mock confidence score
+      language: language,
+      source: 'mock'
     });
     
   } catch (error) {
