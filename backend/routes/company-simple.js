@@ -371,7 +371,23 @@ router.get('/interview/:token', async (req, res) => {
 router.post('/interview/:token/submit', async (req, res) => {
   try {
     const token = req.params.token;
-    const { candidateName, candidateEmail, profile, level, company, qaPairs, score, feedback, completedAt } = req.body;
+    const { 
+      candidateName, 
+      candidateEmail, 
+      profile, 
+      level, 
+      company, 
+      qaPairs, 
+      score, 
+      feedback, 
+      completedAt,
+      // Detailed analysis fields
+      technicalScore,
+      communicationScore,
+      detailedFeedback,
+      questionAnalysis,
+      overallScore
+    } = req.body;
     
     // Get token data from MongoDB
     const tokenData = await db.getTokenData(token);
@@ -387,7 +403,7 @@ router.post('/interview/:token/submit', async (req, res) => {
     // Mark token as used in MongoDB
     await db.updateToken(token, { used: true, usedAt: new Date().toISOString() });
     
-    // Store interview response in MongoDB
+    // Store interview response in MongoDB with all detailed analysis
     const responseData = {
       id: Date.now().toString(),
       candidateId: tokenData.candidateId,
@@ -399,20 +415,36 @@ router.post('/interview/:token/submit', async (req, res) => {
       level,
       company,
       qaPairs,
-      score: score || 0,
-      feedback: feedback || '',
+      score: score || overallScore || 0,
+      technicalScore: technicalScore || null,
+      communicationScore: communicationScore || null,
+      feedback: feedback || (typeof detailedFeedback === 'string' ? detailedFeedback : ''),
+      detailedFeedback: detailedFeedback || null,
+      questionAnalysis: questionAnalysis || null,
       completedAt: completedAt || new Date().toISOString(),
       submittedAt: new Date().toISOString()
     };
     
     await db.addInterviewResponse(responseData);
     
-    console.log('Interview response submitted:', responseData);
+    console.log('Interview response submitted with detailed analysis:', {
+      id: responseData.id,
+      candidateId: responseData.candidateId,
+      score: responseData.score,
+      technicalScore: responseData.technicalScore,
+      communicationScore: responseData.communicationScore,
+      hasDetailedFeedback: !!responseData.detailedFeedback,
+      hasQuestionAnalysis: Array.isArray(responseData.questionAnalysis) && responseData.questionAnalysis.length > 0
+    });
     
     res.json({ 
       message: 'Interview response submitted successfully',
       score: responseData.score,
-      feedback: responseData.feedback
+      technicalScore: responseData.technicalScore,
+      communicationScore: responseData.communicationScore,
+      feedback: responseData.feedback,
+      detailedFeedback: responseData.detailedFeedback,
+      questionAnalysis: responseData.questionAnalysis
     });
   } catch (error) {
     console.error('Error submitting interview response:', error);
@@ -743,7 +775,7 @@ router.get('/screenings/:id/details', companyAuth, async (req, res) => {
     // Get interview responses for this drive
     const responses = await db.getInterviewResponsesByDrive(screeningId);
     
-    // Create a map of candidate results
+    // Create a map of candidate results with detailed analysis
     const candidateResults = candidates.map(candidate => {
       const response = responses.find(r => r.candidateId === candidate.id);
       
@@ -752,11 +784,15 @@ router.get('/screenings/:id/details', companyAuth, async (req, res) => {
         name: candidate.name,
         email: candidate.email,
         status: response ? 'completed' : 'invited',
-        score: response ? response.score : null,
+        score: response ? (response.score || 0) : null,
+        technicalScore: response ? response.technicalScore : null,
+        communicationScore: response ? response.communicationScore : null,
         completedDate: response ? response.completedAt : null,
         invitedDate: candidate.createdAt,
         progress: response ? 100 : 0,
-        feedback: response ? response.feedback : null,
+        feedback: response ? (response.detailedFeedback || response.feedback) : null,
+        detailedFeedback: response ? response.detailedFeedback : null,
+        questionAnalysis: response ? response.questionAnalysis : null,
         qaPairs: response ? response.qaPairs : null
       };
     });

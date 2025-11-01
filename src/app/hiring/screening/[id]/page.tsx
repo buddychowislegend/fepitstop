@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { MessageCircle } from "lucide-react";
 
 interface Candidate {
   id: string;
@@ -9,10 +11,34 @@ interface Candidate {
   email: string;
   status: 'invited' | 'in-progress' | 'completed' | 'not-started';
   score?: number;
+  technicalScore?: number;
+  communicationScore?: number;
   completedDate?: string;
   invitedDate: string;
   progress: number;
-  feedback?: string;
+  feedback?: string | {
+    summary?: string;
+    strengths?: string[];
+    improvements?: string[];
+    categories?: Record<string, number>;
+  };
+  detailedFeedback?: {
+    summary?: string;
+    strengths?: string[];
+    improvements?: string[];
+    categories?: Record<string, number>;
+  };
+  questionAnalysis?: Array<{
+    questionNumber?: number;
+    question: string;
+    answer: string;
+    score: number;
+    feedback?: string;
+    strengths?: string[];
+    improvements?: string[];
+    responseType?: string;
+    confidence?: number;
+  }>;
   qaPairs?: Array<{
     question: string;
     answer: string;
@@ -643,121 +669,373 @@ export default function ScreeningDetailPage() {
       {/* Candidate Results Modal */}
       {showResultsModal && selectedCandidate && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-[color:var(--surface)] rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[color:var(--border)]">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-[color:var(--foreground)]">
-                  {selectedCandidate.status === 'completed' ? 'Interview Results' : 'Candidate Details'}
-                </h3>
-                <p className="text-[color:var(--foreground)]/60">{selectedCandidate.name}</p>
+          <div className="bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] rounded-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto border border-white/20 shadow-2xl">
+            <div className="sticky top-0 bg-gradient-to-br from-[#0b1020]/95 to-[#0f1427]/95 backdrop-blur-xl border-b border-white/10 p-6 z-10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-[#5b8cff] to-[#a855f7] bg-clip-text text-transparent">
+                    {selectedCandidate.status === 'completed' ? 'Interview Analysis Report' : 'Candidate Details'}
+                  </h3>
+                  <p className="text-white/70 text-sm mt-1">{selectedCandidate.name} • {selectedCandidate.email}</p>
+                </div>
+                <button
+                  onClick={() => setShowResultsModal(false)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <svg className="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <button
-                onClick={() => setShowResultsModal(false)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <svg className="w-6 h-6 text-[color:var(--foreground)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
             </div>
 
-            <div className="space-y-6">
+            <div className="p-6 space-y-8">
               {/* Candidate Info */}
-              <div className="bg-[color:var(--surface)]/50 p-4 rounded-lg border border-[color:var(--border)]">
-                <h4 className="font-semibold text-[color:var(--foreground)] mb-3">Candidate Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
+                <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                  <span className="text-[#5cd3ff]">👤</span>
+                  Candidate Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <span className="text-[color:var(--foreground)]/60 text-sm">Name:</span>
-                    <p className="text-[color:var(--foreground)] font-medium">{selectedCandidate.name}</p>
+                    <span className="text-white/60 text-sm">Name:</span>
+                    <p className="text-white font-medium">{selectedCandidate.name}</p>
                   </div>
                   <div>
-                    <span className="text-[color:var(--foreground)]/60 text-sm">Email:</span>
-                    <p className="text-[color:var(--foreground)] font-medium">{selectedCandidate.email}</p>
+                    <span className="text-white/60 text-sm">Email:</span>
+                    <p className="text-white font-medium">{selectedCandidate.email}</p>
                   </div>
                   <div>
-                    <span className="text-[color:var(--foreground)]/60 text-sm">Status:</span>
+                    <span className="text-white/60 text-sm">Status:</span>
                     <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${getStatusColor(selectedCandidate.status)}`}>
                       {selectedCandidate.status}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[color:var(--foreground)]/60 text-sm">Invited Date:</span>
-                    <p className="text-[color:var(--foreground)] font-medium">{selectedCandidate.invitedDate}</p>
+                    <span className="text-white/60 text-sm">Invited Date:</span>
+                    <p className="text-white font-medium">{selectedCandidate.invitedDate}</p>
                   </div>
                   {selectedCandidate.completedDate && (
                     <div>
-                      <span className="text-[color:var(--foreground)]/60 text-sm">Completed Date:</span>
-                      <p className="text-[color:var(--foreground)] font-medium">{selectedCandidate.completedDate}</p>
+                      <span className="text-white/60 text-sm">Completed Date:</span>
+                      <p className="text-white font-medium">{selectedCandidate.completedDate}</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Interview Results */}
-              {selectedCandidate.status === 'completed' && selectedCandidate.score !== undefined && (
-                <div className="bg-[color:var(--surface)]/50 p-4 rounded-lg border border-[color:var(--border)]">
-                  <h4 className="font-semibold text-[color:var(--foreground)] mb-3">Interview Score</h4>
-                  <div className="flex items-center gap-4">
-                    <div className="text-3xl font-bold text-[color:var(--brand-start)]">
-                      {selectedCandidate.score}/100
-                    </div>
-                    <div className="flex-1">
-                      <div className="w-full bg-[color:var(--surface)] rounded-full h-3">
-                        <div 
-                          className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] h-3 rounded-full transition-all duration-300"
-                          style={{ width: `${selectedCandidate.score}%` }}
-                        ></div>
+              {/* Score Cards - Only show if completed */}
+              {selectedCandidate.status === 'completed' && (
+                <>
+                  <motion.div 
+                    className="grid md:grid-cols-3 gap-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    {/* Overall Score */}
+                    <motion.div 
+                      className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center relative overflow-hidden"
+                      whileHover={{ scale: 1.02, y: -5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <motion.div 
+                        className="text-5xl font-bold mb-3"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                      >
+                        <span className="bg-gradient-to-r from-[#2ad17e] to-[#20c997] bg-clip-text text-transparent">
+                          {Math.round((selectedCandidate.score || 0))}
+                        </span>
+                        <span className="text-xl text-white/60">%</span>
+                      </motion.div>
+                      <p className="text-white font-semibold text-lg">Overall Score</p>
+                      <p className="text-white/70 text-sm mt-2">
+                        {(selectedCandidate.score || 0) >= 90 ? 'Excellent Performance!' : 
+                         (selectedCandidate.score || 0) >= 80 ? 'Great Job!' : 
+                         (selectedCandidate.score || 0) >= 70 ? 'Good Performance' : 
+                         (selectedCandidate.score || 0) >= 60 ? 'Satisfactory' : 
+                         'Room for Improvement'}
+                      </p>
+                    </motion.div>
+
+                    {/* Technical Skills */}
+                    {selectedCandidate.technicalScore !== undefined && (
+                      <motion.div 
+                        className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center relative overflow-hidden"
+                        whileHover={{ scale: 1.02, y: -5 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <motion.div 
+                          className="text-5xl font-bold mb-3"
+                          animate={{ scale: [1, 1.05, 1] }}
+                          transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
+                        >
+                          <span className="bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] bg-clip-text text-transparent">
+                            {Math.round(selectedCandidate.technicalScore)}
+                          </span>
+                          <span className="text-xl text-white/60">%</span>
+                        </motion.div>
+                        <p className="text-white font-semibold text-lg">Technical Skills</p>
+                        <p className="text-white/70 text-sm mt-2">Code quality & problem solving</p>
+                      </motion.div>
+                    )}
+
+                    {/* Communication */}
+                    {selectedCandidate.communicationScore !== undefined && (
+                      <motion.div 
+                        className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center relative overflow-hidden"
+                        whileHover={{ scale: 1.02, y: -5 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <motion.div 
+                          className="text-5xl font-bold mb-3"
+                          animate={{ scale: [1, 1.05, 1] }}
+                          transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                        >
+                          <span className="bg-gradient-to-r from-[#ffb21e] to-[#ff6b6b] bg-clip-text text-transparent">
+                            {Math.round(selectedCandidate.communicationScore)}
+                          </span>
+                          <span className="text-xl text-white/60">%</span>
+                        </motion.div>
+                        <p className="text-white font-semibold text-lg">Communication</p>
+                        <p className="text-white/70 text-sm mt-2">Clarity & articulation</p>
+                      </motion.div>
+                    )}
+                  </motion.div>
+
+                  {/* Detailed Feedback */}
+                  {(selectedCandidate.detailedFeedback || (typeof selectedCandidate.feedback === 'object' && selectedCandidate.feedback)) && (
+                    <motion.div 
+                      className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <motion.h2 
+                        className="text-xl font-bold text-white mb-6 flex items-center gap-3"
+                      >
+                        <motion.div
+                          animate={{ rotate: [0, 360] }}
+                          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        >
+                          <MessageCircle className="w-6 h-6 text-[#2ad17e]" />
+                        </motion.div>
+                        Detailed Feedback
+                      </motion.h2>
+                      
+                      <div className="text-white/90 leading-relaxed space-y-6">
+                        {(() => {
+                          const feedbackData = selectedCandidate.detailedFeedback || (typeof selectedCandidate.feedback === 'object' ? selectedCandidate.feedback : null);
+                          
+                          if (!feedbackData) {
+                            const feedbackText = typeof selectedCandidate.feedback === 'string' ? selectedCandidate.feedback : '';
+                            return feedbackText ? <div className="whitespace-pre-wrap">{feedbackText}</div> : null;
+                          }
+                          
+                          return (
+                            <div className="space-y-6">
+                              {/* Summary */}
+                              {feedbackData.summary && (
+                                <div>
+                                  <h3 className="text-lg font-semibold text-[#2ad17e] mb-3">Summary</h3>
+                                  <p className="text-white/90">{feedbackData.summary}</p>
+                                </div>
+                              )}
+
+                              {/* Strengths */}
+                              {feedbackData.strengths && Array.isArray(feedbackData.strengths) && feedbackData.strengths.length > 0 && (
+                                <div>
+                                  <h3 className="text-lg font-semibold text-[#5cd3ff] mb-3">Strengths</h3>
+                                  <ul className="space-y-2">
+                                    {feedbackData.strengths.map((strength: string, index: number) => (
+                                      <li key={index} className="flex items-start gap-3">
+                                        <span className="text-[#2ad17e] mt-1">✓</span>
+                                        <span className="text-white/90">{strength}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {/* Improvements */}
+                              {feedbackData.improvements && Array.isArray(feedbackData.improvements) && feedbackData.improvements.length > 0 && (
+                                <div>
+                                  <h3 className="text-lg font-semibold text-[#ffb21e] mb-3">Areas for Improvement</h3>
+                                  <ul className="space-y-2">
+                                    {feedbackData.improvements.map((improvement: string, index: number) => (
+                                      <li key={index} className="flex items-start gap-3">
+                                        <span className="text-[#ffb21e] mt-1">→</span>
+                                        <span className="text-white/90">{improvement}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {/* Categories/Skills */}
+                              {feedbackData.categories && (
+                                <div>
+                                  <h3 className="text-lg font-semibold text-[#6f5af6] mb-3">Skill Categories</h3>
+                                  <div className="grid md:grid-cols-2 gap-4">
+                                    {Object.entries(feedbackData.categories).map(([category, score]: [string, any]) => (
+                                      <div key={category} className="bg-white/5 rounded-2xl p-4">
+                                        <div className="flex justify-between items-center">
+                                          <span className="text-white/90 capitalize">{category.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
+                                          <span className="text-[#2ad17e] font-semibold">
+                                            {typeof score === 'number' ? `${Math.round(score)}/10` : score}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                    </motion.div>
+                  )}
 
-              {/* AI Feedback */}
-              {selectedCandidate.feedback && (
-                <div className="bg-[color:var(--surface)]/50 p-4 rounded-lg border border-[color:var(--border)]">
-                  <h4 className="font-semibold text-[color:var(--foreground)] mb-3">AI Feedback</h4>
-                  <p className="text-[color:var(--foreground)]/80 leading-relaxed">{selectedCandidate.feedback}</p>
-                </div>
-              )}
+                  {/* Per-Question Analysis */}
+                  {selectedCandidate.questionAnalysis && selectedCandidate.questionAnalysis.length > 0 && (
+                    <motion.div 
+                      className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="text-[#5cd3ff]">📋</span>
+                        Question-by-Question Analysis
+                      </h2>
+                      <div className="space-y-4">
+                        {selectedCandidate.questionAnalysis.map((qa: any, idx: number) => (
+                          <motion.div 
+                            key={idx} 
+                            className="rounded-2xl bg-white/5 p-6 border border-white/10"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 + idx * 0.1 }}
+                          >
+                            <div className="flex flex-col gap-4">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1">
+                                  <p className="text-white/70 text-sm mb-2">Question {qa.questionNumber || idx + 1}</p>
+                                  <p className="text-white font-semibold text-lg mb-3">{qa.question}</p>
+                                  
+                                  <div className="mb-4">
+                                    <h4 className="text-sm font-semibold text-white/80 mb-2">Candidate Answer:</h4>
+                                    <p className="bg-white/5 p-3 rounded-lg border border-white/10 text-white/90 text-sm whitespace-pre-wrap">
+                                      {qa.answer || 'No answer provided'}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-white/70 text-xs mb-1">Score</p>
+                                  <motion.div
+                                    className={`text-3xl font-bold ${
+                                      qa.score >= 8 ? 'text-[#2ad17e]' : 
+                                      qa.score >= 6 ? 'text-[#5cd3ff]' : 
+                                      qa.score >= 4 ? 'text-[#ffb21e]' : 
+                                      'text-[#ff6b6b]'
+                                    }`}
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 0.5 }}
+                                  >
+                                    {typeof qa.score === 'number' ? qa.score.toFixed(1) : qa.score || 'N/A'}
+                                  </motion.div>
+                                  <p className="text-white/50 text-xs mt-1">/10</p>
+                                </div>
+                              </div>
+                              
+                              {/* Detailed Feedback */}
+                              {qa.feedback && (
+                                <div className="mt-4 p-4 bg-white/5 rounded-xl border-l-4 border-[#5cd3ff]">
+                                  <h4 className="text-sm font-semibold text-[#5cd3ff] mb-2">Detailed Feedback:</h4>
+                                  <p className="text-white/90 text-sm leading-relaxed">{qa.feedback}</p>
+                                </div>
+                              )}
+                              
+                              {/* Strengths and Improvements */}
+                              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                {Array.isArray(qa.strengths) && qa.strengths.length > 0 && (
+                                  <div className="bg-gradient-to-br from-[#2ad17e]/10 to-[#2ad17e]/5 rounded-xl p-4 border border-[#2ad17e]/20">
+                                    <p className="text-[#2ad17e] font-semibold mb-3 flex items-center gap-2">
+                                      <span>✓</span>
+                                      Strengths
+                                    </p>
+                                    <ul className="list-disc list-inside text-white/85 text-sm space-y-2">
+                                      {qa.strengths.map((s: string, i: number) => (
+                                        <li key={i} className="leading-relaxed">{s}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {Array.isArray(qa.improvements) && qa.improvements.length > 0 && (
+                                  <div className="bg-gradient-to-br from-[#ffb21e]/10 to-[#ffb21e]/5 rounded-xl p-4 border border-[#ffb21e]/20">
+                                    <p className="text-[#ffb21e] font-semibold mb-3 flex items-center gap-2">
+                                      <span>→</span>
+                                      Improvements
+                                    </p>
+                                    <ul className="list-disc list-inside text-white/85 text-sm space-y-2">
+                                      {qa.improvements.map((s: string, i: number) => (
+                                        <li key={i} className="leading-relaxed">{s}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
 
-              {/* Q&A Pairs */}
-              {selectedCandidate.qaPairs && selectedCandidate.qaPairs.length > 0 && (
-                <div className="bg-[color:var(--surface)]/50 p-4 rounded-lg border border-[color:var(--border)]">
-                  <h4 className="font-semibold text-[color:var(--foreground)] mb-3">Interview Questions & Answers</h4>
-                  <div className="space-y-4">
-                    {selectedCandidate.qaPairs.map((qa, index) => (
-                      <div key={index} className="border-l-4 border-[color:var(--brand-start)] pl-4">
-                        <div className="mb-2">
-                          <span className="text-[color:var(--foreground)]/60 text-sm font-medium">Q{index + 1}:</span>
-                          <p className="text-[color:var(--foreground)] font-medium">{qa.question}</p>
-                        </div>
-                        <div className="mb-2">
-                          <span className="text-[color:var(--foreground)]/60 text-sm font-medium">Answer:</span>
-                          <p className="text-[color:var(--foreground)]/80">{qa.answer}</p>
-                        </div>
-                        {qa.score !== undefined && (
-                          <div>
-                            <span className="text-[color:var(--foreground)]/60 text-sm font-medium">Score:</span>
-                            <span className="text-[color:var(--brand-start)] font-bold ml-2">{qa.score}/10</span>
+                  {/* Fallback: Basic Q&A Pairs if no questionAnalysis */}
+                  {(!selectedCandidate.questionAnalysis || selectedCandidate.questionAnalysis.length === 0) && selectedCandidate.qaPairs && selectedCandidate.qaPairs.length > 0 && (
+                    <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6">
+                      <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                        <span className="text-[#5cd3ff]">💬</span>
+                        Interview Questions & Answers
+                      </h4>
+                      <div className="space-y-4">
+                        {selectedCandidate.qaPairs.map((qa, index) => (
+                          <div key={index} className="border-l-4 border-[#5cd3ff] pl-4 bg-white/5 rounded-r-xl p-4">
+                            <div className="mb-2">
+                              <span className="text-white/60 text-sm font-medium">Q{index + 1}:</span>
+                              <p className="text-white font-medium mt-1">{qa.question}</p>
+                            </div>
+                            <div className="mb-2">
+                              <span className="text-white/60 text-sm font-medium">Answer:</span>
+                              <p className="text-white/80 mt-1 whitespace-pre-wrap">{qa.answer || 'No answer provided'}</p>
+                            </div>
+                            {qa.score !== undefined && (
+                              <div>
+                                <span className="text-white/60 text-sm font-medium">Score:</span>
+                                <span className="text-[#2ad17e] font-bold ml-2">{qa.score}/10</span>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* No Results Message */}
               {selectedCandidate.status !== 'completed' && (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-[color:var(--surface)] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-[color:var(--foreground)]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-gradient-to-br from-white/10 to-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
+                    <svg className="w-10 h-10 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h4 className="text-lg font-semibold text-[color:var(--foreground)] mb-2">Interview Not Completed</h4>
-                  <p className="text-[color:var(--foreground)]/60">
+                  <h4 className="text-xl font-semibold text-white mb-2">Interview Not Completed</h4>
+                  <p className="text-white/60">
                     {selectedCandidate.status === 'invited' 
                       ? 'The candidate has been invited but hasn\'t started the interview yet.'
                       : 'The candidate has not completed the interview yet.'}
@@ -766,13 +1044,15 @@ export default function ScreeningDetailPage() {
               )}
             </div>
 
-            <div className="flex justify-end mt-6">
-              <button
+            <div className="sticky bottom-0 bg-gradient-to-br from-[#0b1020]/95 to-[#0f1427]/95 backdrop-blur-xl border-t border-white/10 p-6 flex justify-end">
+              <motion.button
                 onClick={() => setShowResultsModal(false)}
-                className="px-4 py-2 bg-[color:var(--surface)] text-[color:var(--foreground)] rounded-lg hover:bg-white/10 transition-colors border border-[color:var(--border)]"
+                className="px-6 py-3 bg-gradient-to-r from-white/10 to-white/5 border-2 border-white/20 text-white font-semibold rounded-xl hover:border-white/40 transition-all duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Close
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>

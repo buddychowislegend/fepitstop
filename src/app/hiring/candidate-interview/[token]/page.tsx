@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/config";
+import { motion } from "framer-motion";
+import { MessageCircle } from "lucide-react";
 
 type Message = {
   role: 'interviewer' | 'candidate';
@@ -699,8 +701,53 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
       }
 
       // Handle company interviews differently
+      // First, get the detailed analysis from AI interview API
+      const analysisResponse = await fetch('/api/ai-interview', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          action: 'end',
+          sessionId: session.id,
+          profile,
+          ...(profile === 'frontend' ? { focus, framework } : {}),
+          jdText,
+          qaPairs
+        })
+      });
+
+      if (!analysisResponse.ok) {
+        throw new Error('Failed to generate interview analysis');
+      }
+
+      const analysisData = await analysisResponse.json();
+      
+      // Map analysis data to structured format
+      const mappedFeedback = typeof analysisData?.feedback === 'string' 
+        ? { summary: analysisData.feedback }
+        : analysisData?.feedback || {};
+      
+      // Extract scores
+      const overallScore = typeof analysisData?.score === 'number' ? Math.round(analysisData.score * 10) : null;
+      const technicalScore = analysisData?.technicalScore || null;
+      const communicationScore = analysisData?.communicationScore || null;
+      const questionAnalysis = Array.isArray(analysisData?.questionAnalysis) ? analysisData.questionAnalysis : [];
+      
+      // Set feedback for display
+      setFeedback({
+        score: analysisData?.score || 7,
+        overallScore,
+        technicalScore,
+        communicationScore,
+        feedback: mappedFeedback,
+        detailedFeedback: mappedFeedback,
+        questionAnalysis
+      });
+
       if (companyParams) {
-        // Submit to backend company interview API
+        // Submit detailed analysis to backend company interview API
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
         const response = await fetch(`${backendUrl}/api/company/interview/${companyParams.token}/submit`, {
           method: 'POST',
@@ -716,8 +763,13 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
             level: companyParams.level,
             company: companyParams.company,
             qaPairs,
-            score: 0, // Will be calculated by backend
-            feedback: '',
+            score: overallScore || (typeof analysisData?.score === 'number' ? Math.round(analysisData.score * 10) : 0),
+            overallScore: overallScore,
+            technicalScore: technicalScore,
+            communicationScore: communicationScore,
+            feedback: typeof mappedFeedback === 'string' ? mappedFeedback : mappedFeedback.summary || '',
+            detailedFeedback: mappedFeedback,
+            questionAnalysis: questionAnalysis,
             completedAt: new Date().toISOString()
           })
         });
@@ -727,36 +779,14 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
         }
 
         const data = await response.json();
-        setFeedback(data);
+        console.log('Company interview submitted with detailed analysis:', data);
         setCurrentStep('thank-you');
         
         // For company interviews, don't show analysis - just thank you
         return;
       }
 
-      // Regular interview submission
-      const response = await fetch('/api/ai-interview', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          action: 'end',
-          sessionId: session.id,
-          profile,
-          ...(profile === 'frontend' ? { framework } : {}),
-          jdText,
-          qaPairs
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to end interview');
-      }
-
-      const data = await response.json();
-      setFeedback(data);
+      // For regular interviews, show analysis
       setCurrentStep('thank-you');
       
       // Simulate analysis progress
@@ -2208,499 +2238,431 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
 
   // Analysis Report Screen
   if (currentStep === 'analysis' && feedback) {
-    const interviewLevel = feedback.score >= 8 ? 'Expert' : feedback.score >= 6 ? 'Advanced' : feedback.score >= 4 ? 'Professional' : 'Entry-Level';
-    const technicalCompetency = feedback.score >= 8 ? 'Expert' : feedback.score >= 6 ? 'Advanced' : feedback.score >= 4 ? 'Professional' : 'Entry-Level';
+    const questionAnalysis = feedback.questionAnalysis || [];
     
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-6xl">
-          <div className="card p-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden p-6">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div
+            className="space-y-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+          >
         {/* Header */}
-            <div className="flex items-center justify-between mb-8">
+            <motion.div 
+              className="flex items-center justify-between mb-8"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
             <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">FP</span>
+                <div className="w-10 h-10 bg-gradient-to-br from-[#5b8cff] to-[#a855f7] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">HO</span>
               </div>
-              <h1 className="text-xl font-bold">HireOG</h1>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#5b8cff] to-[#a855f7] bg-clip-text text-transparent">
+                  Interview Analysis Report
+                </h1>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm">Welcome, {user?.name || 'sagar'}</span>
+                <span className="text-white/70 text-sm">Candidate: {companyParams?.candidateName || user?.name || 'Candidate'}</span>
           </div>
-        </div>
+            </motion.div>
 
-        {/* Interview Details */}
-   
+            {/* Score Cards */}
+            <motion.div 
+              className="grid md:grid-cols-3 gap-6 mb-8"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, staggerChildren: 0.2 }}
+            >
+              {/* Overall Score */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center relative overflow-hidden"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <motion.div 
+                  className="text-6xl font-bold mb-4"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                >
+                  <span className="bg-gradient-to-r from-[#2ad17e] to-[#20c997] bg-clip-text text-transparent">
+                    {Math.round((feedback.score || 0) * 10)}
+                  </span>
+                  <span className="text-2xl text-white/60">%</span>
+                </motion.div>
+                <p className="text-white font-semibold text-lg">Overall Score</p>
+                <p className="text-white/70 text-sm mt-2">
+                  {feedback.score >= 9 ? 'Excellent Performance!' : 
+                   feedback.score >= 8 ? 'Great Job!' : 
+                   feedback.score >= 7 ? 'Good Performance' : 
+                   feedback.score >= 6 ? 'Satisfactory' : 
+                   'Room for Improvement'}
+                </p>
+                <motion.div 
+                  className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-[#2ad17e] to-[#20c997] opacity-20"
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                />
+              </motion.div>
 
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">You Are Here</span>
-              <span className="text-sm font-medium">{interviewLevel}</span>
-            </div>
-            <div className="relative">
-              <div className="w-full bg-[color:var(--surface)] rounded-full h-3 border border-[color:var(--border)]">
-                <div 
-                  className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-1000"
-                  style={{ width: `${Math.min((feedback.score / 10) * 100, 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between mt-2 text-xs text-gray-600">
-                <span>Incomplete</span>
-                <span>Entry-Level</span>
-                <span>Professional</span>
-                <span>Advanced</span>
-                <span>Expert</span>
-                <span>Extraordinary</span>
-              </div>
-            </div>
-          </div>
+              {/* Technical Skills */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center relative overflow-hidden"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <motion.div 
+                  className="text-6xl font-bold mb-4"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
+                >
+                  <span className="bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] bg-clip-text text-transparent">
+                    {Math.round(feedback.technicalScore || 0)}
+                  </span>
+                  <span className="text-2xl text-white/60">%</span>
+                </motion.div>
+                <p className="text-white font-semibold text-lg">Technical Skills</p>
+                <p className="text-white/70 text-sm mt-2">Code quality & problem solving</p>
+                <motion.div 
+                  className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] opacity-20"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
+                />
+              </motion.div>
 
-          {/* Performance Gauges */}
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
-            {/* Interview Level Gauge */}
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 border-b border-[color:var(--border)] pb-2">Interview Level</h3>
-              <div className="flex items-center justify-center">
-                <div className="relative w-32 h-32">
-                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="8"
-                    />
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 50}`}
-                      strokeDashoffset={`${2 * Math.PI * 50 * (1 - feedback.score / 10)}`}
-                      className="transition-all duration-1000"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">{interviewLevel}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Technical Competency Gauge */}
-            <div className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 border-b border-[color:var(--border)] pb-2">Technical Competency</h3>
-              <div className="flex items-center justify-center">
-                <div className="relative w-32 h-32">
-                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="8"
-                    />
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="#8b5cf6"
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 50}`}
-                      strokeDashoffset={`${2 * Math.PI * 50 * (1 - feedback.score / 10)}`}
-                      className="transition-all duration-1000"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600">{technicalCompetency}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Per-Question Detailed Analysis with recorded videos */}
-          {feedback.questionAnalysis && feedback.questionAnalysis.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-6">Question-by-Question Analysis</h2>
-              <div className="space-y-6">
-                {feedback.questionAnalysis.map((qa: any, index: number) => {
-                  // Find the corresponding message with video
-                  const interviewerQuestion = qa.question || messages.find(m => m.role==='interviewer' && m.content)?.content;
-                  // pair by order: take the Nth candidate video after the Nth interviewer question
-                  const candidateMsgs = messages.filter(m => m.role === 'candidate' && m.videoUrl);
-                  const candidateMsg = candidateMsgs[index] || null;
-                  
-                  return (
-                    <div key={index} className="bg-[color:var(--surface)] border border-[color:var(--border)] rounded-lg overflow-hidden shadow-sm">
-                      {/* Question Header */}
-                      <div className="bg-[color:var(--surface)] p-4 border-b border-[color:var(--border)]">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold">Question {qa.questionNumber}</h3>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm">Score:</span>
-                            <span className={`text-lg font-bold ${
-                              qa.score >= 8 ? 'text-green-600' : 
-                              qa.score >= 6 ? 'text-blue-600' : 
-                              qa.score >= 4 ? 'text-yellow-600' : 
-                              'text-red-600'
-                            }`}>
-                              {qa.score}/10
+              {/* Communication */}
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center relative overflow-hidden"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <motion.div 
+                  className="text-6xl font-bold mb-4"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, type: "tween" }}
+                >
+                  <span className="bg-gradient-to-r from-[#ffb21e] to-[#ff6b6b] bg-clip-text text-transparent">
+                    {Math.round(feedback.communicationScore || 0)}
                             </span>
-                          </div>
-                        </div>
-                      </div>
+                  <span className="text-2xl text-white/60">%</span>
+                </motion.div>
+                <p className="text-white font-semibold text-lg">Communication</p>
+                <p className="text-white/70 text-sm mt-2">Clarity & articulation</p>
+                <motion.div 
+                  className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-[#ffb21e] to-[#ff6b6b] opacity-20"
+                  animate={{ scale: [1, 1.4, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                />
+              </motion.div>
+            </motion.div>
 
-                      <div className="p-6">
-                        {/* Question */}
-                        <div className="mb-4">
-                          <h4 className="text-sm font-semibold mb-2">Question:</h4>
-                          <p className="bg-[color:var(--surface)] p-3 rounded border border-[color:var(--border)]">{qa.question}</p>
-                        </div>
-
-                        {/* Answer with Video */}
-                        <div className="mb-4">
-                          <h4 className="text-sm font-semibold mb-2">Your Answer:</h4>
-                          <div className="grid md:grid-cols-2 gap-4">
-                            {/* Video Playback */}
-                            {candidateMsg?.videoUrl && (
-                              <div className="bg-black rounded-lg overflow-hidden">
-                                <video 
-                                  src={candidateMsg.videoUrl} 
-                                  controls 
-                                  className="w-full h-auto"
-                                  style={{ maxHeight: '300px' }}
-                                >
-                                  Your browser does not support video playback.
-                                </video>
-                              </div>
-                            )}
-                            
-                            {/* Answer Text */}
-                            <div className={candidateMsg?.videoUrl ? '' : 'md:col-span-2'}>
-                              <p className="bg-[color:var(--surface)] p-3 rounded h-full border border-[color:var(--border)]">{qa.answer}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Feedback */}
-                        <div className="mb-4">
-                          <h4 className="text-sm font-semibold mb-2">Feedback:</h4>
-                          <p className="bg-[color:var(--surface)] p-3 rounded border-l-4 border-blue-400 border border-[color:var(--border)]">{qa.feedback}</p>
-                        </div>
-
-                        {/* Strengths and Improvements */}
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {/* Strengths */}
-                          {qa.strengths && qa.strengths.length > 0 && (
+            {/* Detailed Feedback */}
+            <motion.div 
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.0 }}
+              whileHover={{ scale: 1.01 }}
+            >
+              <motion.h2 
+                className="text-2xl font-bold text-white mb-6 flex items-center gap-3"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.2 }}
+              >
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                >
+                  <MessageCircle className="w-8 h-8 text-[#2ad17e]" />
+                </motion.div>
+                Detailed Feedback
+              </motion.h2>
+              
+              <motion.div 
+                className="prose prose-invert max-w-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.4 }}
+              >
+                <div className="text-white/90 leading-relaxed space-y-6">
+                  {((): React.ReactNode => {
+                    const feedbackData = feedback.detailedFeedback || feedback.feedback || feedback;
+                    
+                    // If feedback is a string, render it directly
+                    if (typeof feedbackData === 'string') {
+                      return <div className="whitespace-pre-wrap">{feedbackData}</div>;
+                    }
+                    
+                    // If feedback is an object with structured data
+                    if (typeof feedbackData === 'object' && feedbackData !== null) {
+                      return (
+                        <div className="space-y-6">
+                        {/* Summary */}
+                        {feedbackData.summary && (
                             <div>
-                              <h4 className="text-sm font-semibold text-green-400 mb-2">✓ Strengths:</h4>
-                              <ul className="space-y-1">
-                                {qa.strengths.map((strength: string, i: number) => (
-                                  <li key={i} className="text-sm bg-[color:var(--surface)] p-2 rounded flex items-start gap-2 border border-[color:var(--border)]">
-                                    <span className="text-green-400 mt-0.5">•</span>
-                                    <span>{strength}</span>
+                              <h3 className="text-lg font-semibold text-[#2ad17e] mb-3">Summary</h3>
+                              <p className="text-white/90">{feedbackData.summary}</p>
+                        </div>
+                          )}
+
+                          {/* Strengths */}
+                          {feedbackData.strengths && (
+                            <div>
+                              <h3 className="text-lg font-semibold text-[#5cd3ff] mb-3">Strengths</h3>
+                              {Array.isArray(feedbackData.strengths) ? (
+                                <ul className="space-y-2">
+                                  {feedbackData.strengths.map((strength: string, index: number) => (
+                                    <li key={index} className="flex items-start gap-3">
+                                      <span className="text-[#2ad17e] mt-1">✓</span>
+                                      <span className="text-white/90">{strength}</span>
                                   </li>
                                 ))}
                               </ul>
+                              ) : (
+                                <p className="text-white/90">{feedbackData.strengths}</p>
+                              )}
                             </div>
                           )}
 
                           {/* Improvements */}
-                          {qa.improvements && qa.improvements.length > 0 && (
+                          {feedbackData.improvements && (
                             <div>
-                              <h4 className="text-sm font-semibold text-yellow-400 mb-2">💡 Areas to Improve:</h4>
-                              <ul className="space-y-1">
-                                {qa.improvements.map((improvement: string, i: number) => (
-                                  <li key={i} className="text-sm bg-[color:var(--surface)] p-2 rounded flex items-start gap-2 border border-[color:var(--border)]">
-                                    <span className="text-yellow-400 mt-0.5">•</span>
-                                    <span>{improvement}</span>
+                              <h3 className="text-lg font-semibold text-[#ffb21e] mb-3">Areas for Improvement</h3>
+                              {Array.isArray(feedbackData.improvements) ? (
+                                <ul className="space-y-2">
+                                  {feedbackData.improvements.map((improvement: string, index: number) => (
+                                    <li key={index} className="flex items-start gap-3">
+                                      <span className="text-[#ffb21e] mt-1">→</span>
+                                      <span className="text-white/90">{improvement}</span>
                                   </li>
                                 ))}
                               </ul>
+                              ) : (
+                                <p className="text-white/90">{feedbackData.improvements}</p>
+                              )}
                             </div>
                           )}
+
+                          {/* Categories/Skills */}
+                          {feedbackData.categories && (
+                            <div>
+                              <h3 className="text-lg font-semibold text-[#6f5af6] mb-3">Skill Categories</h3>
+                          <div className="grid md:grid-cols-2 gap-4">
+                                {Object.entries(feedbackData.categories as Record<string, number | string>).map(([category, score]: [string, number | string]) => (
+                                  <div key={category} className="bg-white/5 rounded-2xl p-4">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-white/90 capitalize">{category.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
+                                      <span className="text-[#2ad17e] font-semibold">
+                                        {typeof score === 'number' ? `${Math.round(score)}/10` : score}
+                                      </span>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                                ))}
               </div>
             </div>
           )}
-
-          {/* Fallback: Recorded Answers (video) paired by conversation order */}
-          {(!feedback.questionAnalysis || feedback.questionAnalysis.length === 0) && (
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white-900 mb-6">Recorded Answers</h2>
-              <div className="space-y-6">
-                {(() => {
-                  const pairs: { q: string; cand?: any }[] = [];
-                  const candQueue = messages.filter(m => m.role === 'candidate' && m.videoUrl);
-                  let ci = 0;
-                  for (let i = 0; i < messages.length; i++) {
-                    const m = messages[i];
-                    if (m.role === 'interviewer') {
-                      const q = m.content;
-                      // find next candidate with video
-                      let cand: any = undefined;
-                      while (ci < candQueue.length && !cand) {
-                        cand = candQueue[ci++];
-                      }
-                      pairs.push({ q, cand });
+                    </div>
+                      );
                     }
-                  }
-                  return pairs
-                    .filter(p => p.cand && p.cand.videoUrl)
-                    .map((p, idx) => (
-                      <div key={idx} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                        <div className="bg-purple-50 p-4 border-b border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-gray-900">Question {idx + 1}</h3>
+                    
+                    // Fallback
+                  return (
+                      <div className="text-white/90">
+                        Comprehensive analysis of the candidate's interview performance with detailed feedback on technical skills and communication.
                           </div>
+                  );
+                  })() as React.ReactNode}
                         </div>
-                        <div className="p-6">
+              </motion.div>
+            </motion.div>
+
+            {/* Per-Question Analysis */}
+            {questionAnalysis && questionAnalysis.length > 0 && (
+              <motion.div 
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 }}
+                whileHover={{ scale: 1.01 }}
+              >
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-[#5cd3ff]">📋</span>
+                  Question-by-Question Analysis
+                </h2>
+                <div className="space-y-4">
+                  {questionAnalysis.map((qa: any, idx: number) => {
+                    // Find the corresponding message with video
+                    const candidateMsgs = messages.filter(m => m.role === 'candidate' && m.videoUrl);
+                    const candidateMsg = candidateMsgs[idx] || null;
+                    
+                    return (
+                      <motion.div 
+                        key={idx} 
+                        className="rounded-2xl bg-white/5 p-6 border border-white/10"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.4 + idx * 0.1 }}
+                      >
+                        <div className="flex flex-col gap-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <p className="text-white/70 text-sm mb-2">Question {qa.questionNumber || idx + 1}</p>
+                              <p className="text-white font-semibold text-lg mb-3">{qa.question}</p>
+                              
+                              {/* Answer with Video */}
                           <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-gray-700 mb-2">Question:</h4>
-                            <p className="text-gray-800 bg-gray-50 p-3 rounded">{p.q}</p>
-                          </div>
+                                <h4 className="text-sm font-semibold text-white/80 mb-2">Candidate Answer:</h4>
                           <div className="grid md:grid-cols-2 gap-4">
+                                  {/* Video Playback */}
+                                  {candidateMsg?.videoUrl && (
                             <div className="bg-black rounded-lg overflow-hidden">
                               <video 
-                                src={p.cand.videoUrl}
+                                        src={candidateMsg.videoUrl} 
                                 controls 
                                 className="w-full h-auto"
                                 style={{ maxHeight: '300px' }}
                               >
                                 Your browser does not support video playback.
                               </video>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-semibold text-gray-700 mb-2">Transcript (approx):</h4>
-                              <p className="text-gray-800 bg-gray-50 p-3 rounded">{p.cand.content}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ));
-                })()}
-              </div>
             </div>
           )}
 
-          {/* Overall Summary */}
-          <h2 className="text-2xl font-bold text-white-900 mb-6">Overall Summary</h2>
-          
-          {/* Detailed Analysis */}
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Strengths */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Strengths</h3>
-              <div className="space-y-3">
-                {(feedback.feedback?.strengths || feedback.strengths || []).map((strength: string, index: number) => (
-                  <div key={index} className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      <span className="text-gray-800">{strength}</span>
+                                  {/* Answer Text */}
+                                  <div className={candidateMsg?.videoUrl ? '' : 'md:col-span-2'}>
+                                    <p className="bg-white/5 p-3 rounded-lg h-full border border-white/10 text-white/90 text-sm whitespace-pre-wrap">
+                                      {qa.answer || candidateMsg?.content || 'No answer provided'}
+                                    </p>
                     </div>
                   </div>
-                )) || [
-                  "Good understanding of basic concepts",
-                  "Clear communication style",
-                  "Willingness to learn and improve"
-                ].map((strength, index) => (
-                  <div key={index} className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      <span className="text-gray-800">{strength}</span>
                     </div>
                   </div>
-                ))}
+                            <div className="text-right">
+                              <p className="text-white/70 text-xs mb-1">Score</p>
+                              <motion.div
+                                className={`text-3xl font-bold ${
+                                  qa.score >= 8 ? 'text-[#2ad17e]' : 
+                                  qa.score >= 6 ? 'text-[#5cd3ff]' : 
+                                  qa.score >= 4 ? 'text-[#ffb21e]' : 
+                                  'text-[#ff6b6b]'
+                                }`}
+                                animate={{ scale: [1, 1.1, 1] }}
+                                transition={{ duration: 0.5 }}
+                              >
+                                {typeof qa.score === 'number' ? qa.score.toFixed(1) : qa.score || 'N/A'}
+                              </motion.div>
+                              <p className="text-white/50 text-xs mt-1">/10</p>
               </div>
             </div>
 
-            {/* Areas for Improvement */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Areas for Improvement</h3>
-              <div className="space-y-3">
-                {(feedback.feedback?.improvements || feedback.improvements || []).map((improvement: string, index: number) => (
-                  <div key={index} className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-yellow-500">💡</span>
-                      <span className="text-gray-800">{improvement}</span>
+                          {/* Detailed Feedback */}
+                          {qa.feedback && (
+                            <div className="mt-4 p-4 bg-white/5 rounded-xl border-l-4 border-[#5cd3ff]">
+                              <h4 className="text-sm font-semibold text-[#5cd3ff] mb-2">Detailed Feedback:</h4>
+                              <p className="text-white/90 text-sm leading-relaxed">{qa.feedback}</p>
                     </div>
+                          )}
+                          
+                          {/* Strengths and Improvements */}
+                          <div className="grid md:grid-cols-2 gap-4 mt-4">
+                            {Array.isArray(qa.strengths) && qa.strengths.length > 0 && (
+                              <div className="bg-gradient-to-br from-[#2ad17e]/10 to-[#2ad17e]/5 rounded-xl p-4 border border-[#2ad17e]/20">
+                                <p className="text-[#2ad17e] font-semibold mb-3 flex items-center gap-2">
+                                  <span>✓</span>
+                                  Strengths
+                                </p>
+                                <ul className="list-disc list-inside text-white/85 text-sm space-y-2">
+                                  {qa.strengths.map((s: string, i: number) => (
+                                    <li key={i} className="leading-relaxed">{s}</li>
+                                  ))}
+                                </ul>
                   </div>
-                )) || [
-                  "Practice more coding problems",
-                  "Study advanced JavaScript concepts",
-                  "Improve system design knowledge"
-                ].map((improvement, index) => (
-                  <div key={index} className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-yellow-500">💡</span>
-                      <span className="text-gray-800">{improvement}</span>
-                    </div>
-                  </div>
-                ))}
+                            )}
+                            {Array.isArray(qa.improvements) && qa.improvements.length > 0 && (
+                              <div className="bg-gradient-to-br from-[#ffb21e]/10 to-[#ffb21e]/5 rounded-xl p-4 border border-[#ffb21e]/20">
+                                <p className="text-[#ffb21e] font-semibold mb-3 flex items-center gap-2">
+                                  <span>→</span>
+                                  Improvements
+                                </p>
+                                <ul className="list-disc list-inside text-white/85 text-sm space-y-2">
+                                  {qa.improvements.map((s: string, i: number) => (
+                                    <li key={i} className="leading-relaxed">{s}</li>
+                                  ))}
+                                </ul>
               </div>
-            </div>
+                            )}
           </div>
 
-          {/* Profile-based Categories */}
-          {feedback.feedback?.categories && (
-            <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Category Ratings</h3>
-              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {Object.entries(feedback.feedback.categories).map(([k, v]: any) => {
-                  const isObj = v && typeof v === 'object';
-                  const rating = isObj ? (v.rating ?? v.score ?? v.value ?? null) : v;
-                  const desc = isObj ? (v.description ?? v.summary ?? '') : '';
-                  return (
-                    <div key={k} className="p-4 bg-gray-50 rounded border">
-                      <div className="text-sm text-gray-600 capitalize">{String(k).replace(/_/g, ' ')}</div>
-                      {rating !== null && rating !== undefined ? (
-                        <div className="text-xl font-bold text-purple-600">{rating}/10</div>
-                      ) : (
-                        <div className="text-sm text-gray-700">Not rated</div>
-                      )}
-                      {desc && (
-                        <div className="mt-1 text-xs text-gray-600">{desc}</div>
+                          {/* Response Type and Confidence */}
+                          {qa.responseType && (
+                            <div className="flex items-center gap-4 mt-3 text-xs text-white/60 pt-3 border-t border-white/10">
+                              <span className="opacity-80">Response Type:</span>
+                              <span className="uppercase tracking-wide font-semibold text-white/70 bg-white/5 px-2 py-1 rounded">
+                                {qa.responseType}
+                              </span>
+                              {typeof qa.confidence === 'number' && (
+                                <span className="ml-auto">Confidence: {(qa.confidence * 100).toFixed(0)}%</span>
+                              )}
+                            </div>
                       )}
                     </div>
+                      </motion.div>
                   );
                 })}
               </div>
-            </div>
-          )}
-
-          {/* Overall Score */}
-          <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Overall Performance</h3>
-              <div className="text-6xl font-bold text-purple-600 mb-2">{feedback.score || 7}/10</div>
-              <p className="text-gray-600 mb-4">Great job! Keep practicing to reach the next level.</p>
-            </div>
-          </div>
-
-          {/* Personalized Study Plan */}
-          {feedback.studyPlan && (
-            <div className="mt-8 bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-8 shadow-lg">
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">📚 Your Personalized 30-Day Study Plan</h2>
-                <p className="text-gray-600">Based on your interview performance, here's a customized roadmap to improve</p>
-              </div>
-
-              {/* Daily Practice */}
-              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">⏰ Daily Practice Routine</h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <div className="text-3xl font-bold text-purple-600">{feedback.studyPlan.dailyPractice.problems}</div>
-                    <div className="text-sm text-gray-600 mt-1">Coding Problems</div>
-                  </div>
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-3xl font-bold text-blue-600">{feedback.studyPlan.dailyPractice.readingTime} min</div>
-                    <div className="text-sm text-gray-600 mt-1">Reading</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-3xl font-bold text-green-600">{feedback.studyPlan.dailyPractice.videoTime} min</div>
-                    <div className="text-sm text-gray-600 mt-1">Videos</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Weekly Goals */}
-              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">🎯 Weekly Breakdown</h3>
-                <div className="space-y-4">
-                  {feedback.studyPlan.weeklyGoals.map((week: any, index: number) => (
-                    <div key={index} className="border-l-4 border-purple-500 pl-4 py-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">Week {week.week}</span>
-                        <h4 className="font-semibold text-gray-900">{week.focus}</h4>
-                      </div>
-                      <div className="mb-2">
-                        <p className="text-sm font-medium text-gray-700 mb-1">Goals:</p>
-                        <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                          {week.goals.map((goal: string, i: number) => (
-                            <li key={i}>{goal}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">Resources:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {week.resources.map((resource: string, i: number) => (
-                            <span key={i} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                              {resource}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Key Resources */}
-              <div className="bg-white rounded-lg p-6 mb-6 border border-purple-100">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">📖 Recommended Resources</h3>
-                <div className="flex flex-wrap gap-2">
-                  {feedback.studyPlan.keyResources.map((resource: string, index: number) => (
-                    <span key={index} className="bg-purple-100 text-purple-700 px-3 py-2 rounded-lg text-sm font-medium">
-                      {resource}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Milestones */}
-              <div className="bg-white rounded-lg p-6 border border-purple-100">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">🏆 Milestones to Achieve</h3>
-                <div className="grid md:grid-cols-2 gap-3">
-                  {feedback.studyPlan.milestones.map((milestone: string, index: number) => (
-                    <div key={index} className="flex items-start gap-2 p-3 bg-green-50 rounded-lg">
-                      <span className="text-green-600 mt-0.5">✓</span>
-                      <span className="text-sm text-gray-700">{milestone}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="mt-8 flex justify-center gap-4">
-            <button
-              onClick={() => {
-                setCurrentStep('setup');
-                setSession(null);
-                setMessages([]);
-                setFeedback(null);
-              }}
-              className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-all transform hover:scale-105 font-semibold"
-            >
-              Start New Interview
-            </button>
-      
-            {feedback.studyPlan && (
-              <button className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 font-semibold">
-                Save Study Plan
-              </button>
+              </motion.div>
             )}
+
+            {/* Action Buttons */}
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center mt-8"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.6 }}
+            >
+              <motion.button
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white font-bold shadow-lg overflow-hidden"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(42, 209, 126, 0.3)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                onClick={() => {
+                  setCurrentStep('setup');
+                  setSession(null);
+                  setMessages([]);
+                  setFeedback(null);
+                }}
+              >
+                <motion.span className="relative z-10">Start New Interview</motion.span>
+                
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-[#20c997] to-[#2ad17e]"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "0%" }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.button>
+
+              <motion.button
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-white/10 to-white/5 border-2 border-white/20 text-white font-bold hover:border-white/40 transition-all duration-300"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 10px 25px rgba(255, 255, 255, 0.1)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                onClick={() => router.push('/hiring/dashboard')}
+              >
+                <motion.span className="relative z-10">Back to Dashboard</motion.span>
+              </motion.button>
+            </motion.div>
+          </motion.div>
+            </div>
           </div>
-          </div>
-        </div>
-      </div>
     );
   }
 
