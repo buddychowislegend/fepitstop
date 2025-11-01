@@ -406,27 +406,30 @@ Return ONLY the question text.`;
 
 ${examples}
 
-Analyze the candidate's performance based on the interview conversation.
+Analyze the candidate's performance based on the ACTUAL interview conversation provided below.
 
 Context: ${jdText ? `Job Description: ${jdText.slice(0, 1200)}` : `General ${profileData.title.toLowerCase()} interview`}
 Role: ${profileData.title}
 Framework: ${framework || profileData.frameworks[0]}
 Level: ${level}
 
+IMPORTANT: Your analysis MUST be based ONLY on the actual questions asked and answers given. Do not make generic statements. Be specific and reference what the candidate actually said.
+
 Provide a comprehensive analysis including:
-1. Technical knowledge assessment in ${profileData.title.toLowerCase()} domain
-2. Problem-solving approach evaluation
-3. Communication skills evaluation
-4. Areas of strength and improvement
-5. Overall fit for the ${profileData.title} role
+1. Technical knowledge assessment in ${profileData.title.toLowerCase()} domain - reference specific answers
+2. Problem-solving approach evaluation - cite examples from their responses
+3. Communication skills evaluation - reference how they explained concepts
+4. Areas of strength - be specific about what they did well based on their actual answers
+5. Areas for improvement - be specific about gaps or weaknesses shown in their actual responses
+6. Overall fit for the ${profileData.title} role
 
 Rate the candidate on these criteria: ${profileData.criteria.join(', ')}
 
 Return STRICT JSON with keys: {
-  "summary": string,
-  "strengths": string[],
-  "improvements": string[],
-  "categories": object // ${profileData.criteria.join(', ')}
+  "summary": string (comprehensive summary referencing specific questions and answers),
+  "strengths": string[] (each strength should reference specific answers/behaviors observed),
+  "improvements": string[] (each improvement should be specific to gaps shown in their actual responses),
+  "categories": object // ${profileData.criteria.join(', ')} with scores 0-10
 }
 
 Do not include markdown fences or extra text.`;
@@ -696,8 +699,13 @@ Return ONLY your response as the interviewer.`;
   }
 }
 
-async function generateEndSummary(opts: { framework?: string; jdText?: string; profile?: string; }) {
-  const { framework, jdText, profile } = opts;
+async function generateEndSummary(opts: { framework?: string; jdText?: string; profile?: string; qaPairs?: Array<{ question: string; answer: string }> }) {
+  const { framework, jdText, profile, qaPairs } = opts;
+  
+  // Build Q&A context string
+  const qaContext = qaPairs && qaPairs.length > 0
+    ? qaPairs.map((qa, idx) => `Question ${idx + 1}: ${qa.question}\nAnswer: ${qa.answer}`).join('\n\n')
+    : 'No questions and answers provided.';
   
   // Use enhanced prompt engineering for analysis
   const context: InterviewContext = {
@@ -707,7 +715,45 @@ async function generateEndSummary(opts: { framework?: string; jdText?: string; p
     jdText
   };
   
-  const prompt = buildEnhancedInterviewPrompt(context, 'analysis');
+  // Get profile data
+  const profileData = PROFILE_DATA[profile as keyof typeof PROFILE_DATA] || PROFILE_DATA.frontend;
+  const basePersona = `You are a senior ${profileData.title} interviewer with 10+ years of experience analyzing technical interviews.`;
+  
+  // Build comprehensive analysis prompt with actual Q&A
+  const prompt = `${basePersona}
+
+ACTUAL INTERVIEW CONVERSATION:
+${qaContext}
+
+${jdText ? `Job Description Context: ${jdText.slice(0, 1200)}` : ''}
+Role: ${profileData.title}
+${framework ? `Framework: ${framework}` : ''}
+
+CRITICAL REQUIREMENTS:
+1. Your analysis MUST be based ONLY on the actual questions asked and answers given above
+2. Do NOT make generic statements - reference specific answers
+3. Strengths must cite specific examples from their actual responses
+4. Improvements must identify actual gaps or weaknesses shown in their answers
+5. Be specific and constructive
+
+Provide a comprehensive analysis including:
+1. Technical knowledge assessment - reference what they actually said about specific topics
+2. Problem-solving approach - cite examples of how they approached questions
+3. Communication skills - reference how they explained their answers
+4. Specific strengths - what did they demonstrate well? (reference specific answers)
+5. Specific improvements - what gaps did you observe? (reference specific answers)
+6. Overall assessment for ${profileData.title} role
+
+Rate the candidate on these criteria: ${profileData.criteria.join(', ')}
+
+Return STRICT JSON with keys: {
+  "summary": string (comprehensive summary referencing specific Q&A pairs - mention question numbers and what they said),
+  "strengths": string[] (each must reference specific answers, e.g., "In Q2, demonstrated strong understanding of closures by..."),
+  "improvements": string[] (each must identify specific gaps, e.g., "In Q3, answer lacked depth on async operations..."),
+  "categories": object // ${profileData.criteria.join(', ')} with scores 0-10
+}
+
+Do not include markdown fences or extra text.`;
 
   try {
     const text = await callAIWithRetry(prompt);
@@ -721,7 +767,7 @@ async function generateEndSummary(opts: { framework?: string; jdText?: string; p
     }
     if (!json) {
       return {
-        summary: 'Thanks for participating. We will prepare a detailed analysis.',
+        summary: 'Thanks for participating. We will prepare a detailed analysis based on your responses.',
         strengths: [],
         improvements: [],
         categories: {}
@@ -731,6 +777,81 @@ async function generateEndSummary(opts: { framework?: string; jdText?: string; p
   } catch (err: any) {
     console.error('[AI][end] error=', err?.message || err);
     throw err;
+  }
+}
+
+// Generate AI-powered per-question analysis
+async function generateQuestionAnalysis(qa: { question: string; answer: string }, questionNumber: number, profile?: string, framework?: string): Promise<any> {
+  const profileData = PROFILE_DATA[profile as keyof typeof PROFILE_DATA] || PROFILE_DATA.frontend;
+  
+  const prompt = `You are a senior ${profileData.title} interviewer analyzing a specific interview Q&A.
+
+Question ${questionNumber}: ${qa.question}
+Candidate Answer: ${qa.answer}
+
+${framework ? `Framework: ${framework}` : ''}
+
+Analyze this specific question and answer:
+1. Score the answer (0-10) based on accuracy, depth, and relevance
+2. Provide specific feedback about what they did well or poorly
+3. Identify specific strengths in their answer (reference what they actually said)
+4. Identify specific improvements needed (reference gaps in their answer)
+
+Return STRICT JSON with keys: {
+  "score": number (0-10),
+  "feedback": string (specific feedback about this answer),
+  "strengths": string[] (specific strengths - what did they say well?),
+  "improvements": string[] (specific gaps - what was missing or incorrect?)
+}
+
+Do not include markdown fences or extra text.`;
+
+  try {
+    const text = await callAIWithRetry(prompt);
+    let json: any = null;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      const match = text.match(/\{[\s\S]*\}/);
+      json = match ? JSON.parse(match[0]) : null;
+    }
+    
+    if (!json) {
+      // Fallback to basic analysis
+      return {
+        questionNumber,
+        question: qa.question,
+        answer: qa.answer,
+        score: qa.answer.trim().length > 50 ? 5 : 2,
+        feedback: 'Unable to analyze this response in detail.',
+        strengths: [],
+        improvements: ['Provide more detailed and structured responses']
+      };
+    }
+    
+    return {
+      questionNumber,
+      question: qa.question,
+      answer: qa.answer,
+      score: typeof json.score === 'number' ? Math.max(0, Math.min(10, json.score)) : 5,
+      feedback: json.feedback || 'Analyzed response.',
+      strengths: Array.isArray(json.strengths) ? json.strengths : [],
+      improvements: Array.isArray(json.improvements) ? json.improvements : [],
+      responseType: 'valid',
+      confidence: 0.8
+    };
+  } catch (err: any) {
+    console.error('[AI][question-analysis] error=', err?.message || err);
+    // Return basic fallback
+    return {
+      questionNumber,
+      question: qa.question,
+      answer: qa.answer,
+      score: qa.answer.trim().length > 50 ? 5 : 2,
+      feedback: 'Unable to analyze this response.',
+      strengths: [],
+      improvements: ['Provide more detailed responses']
+    };
   }
 }
 
@@ -848,12 +969,14 @@ export async function POST(req: NextRequest) {
         const normalized: Array<{ question: string; answer: string }> = Array.isArray(qaPairs)
           ? qaPairs.filter((p: any) => p && typeof p.question === 'string').map((p: any) => ({ question: p.question, answer: String(p.answer || '') }))
           : [];
-        const questionAnalysis = normalized.map((qa, idx) => {
+        
+        // Generate AI-powered analysis for each question (in parallel for speed)
+        const questionAnalysisPromises = normalized.map((qa, idx) => {
           const len = qa.answer.trim().length;
           
-          // If no answer was provided, return a minimal analysis for this question
+          // If no answer was provided, return a minimal analysis
           if (len === 0) {
-            return {
+            return Promise.resolve({
               questionNumber: idx + 1,
               question: qa.question,
               answer: qa.answer,
@@ -866,74 +989,38 @@ export async function POST(req: NextRequest) {
               ],
               responseType: 'empty',
               confidence: 1
-            };
+            });
           }
 
-          // Classify the response to adjust scoring
+          // Classify the response first
           const responseClassification = classifyResponse(qa.answer, qa.question);
           
-          let baseScore = 0;
-          let improvements: string[] = [];
-          let strengths: string[] = [];
-          let feedback = '';
-          
-          // Handle different response types
-          if (responseClassification.type === 'nonsense') {
-            baseScore = 1;
-            feedback = 'Inappropriate or nonsensical response. Please provide a serious technical answer.';
-            improvements = ['Give a proper technical response', 'Focus on the question asked', 'Avoid nonsensical answers'];
-          } else if (responseClassification.type === 'inappropriate') {
-            baseScore = 0;
-            feedback = 'Inappropriate language used. Please maintain professionalism.';
-            improvements = ['Use professional language', 'Focus on technical content', 'Maintain appropriate tone'];
-          } else if (responseClassification.type === 'joke') {
-            baseScore = 2;
-            feedback = 'This is a professional interview. Please provide a serious technical response.';
-            improvements = ['Give a serious technical answer', 'Focus on the technical question', 'Maintain professional tone'];
-          } else if (responseClassification.type === 'off-topic') {
-            baseScore = 3;
-            feedback = 'Response is off-topic. Please address the technical question directly.';
-            improvements = ['Answer the specific question asked', 'Stay focused on the technical topic', 'Provide relevant examples'];
-          } else if (responseClassification.type === 'incomplete') {
-            baseScore = 4;
-            feedback = 'Response is too brief. Please provide more detail.';
-            improvements = ['Elaborate on your answer', 'Provide specific examples', 'Explain your reasoning'];
-          } else {
-            // Valid response - use original scoring logic
-            const coverageScore = Math.max(0, Math.min(10, Math.floor(len / 100))); // 0–10 rough by length
-            // Simple heuristics for structure
-            const hasExamples = /(for example|e\.g\.|example|code|snippet|demo)/i.test(qa.answer) ? 2 : 0;
-            const hasTradeoffs = /(trade-?offs?|pros|cons|pitfalls|edge cases|limitations)/i.test(qa.answer) ? 2 : 0;
-            const structureBoost = Math.min(3, hasExamples + hasTradeoffs);
-            baseScore = Math.min(10, coverageScore + structureBoost);
-            
-            if (baseScore >= 8) {
-              feedback = 'Strong, well-structured answer.';
-              strengths = ['Clear explanation', 'Good structure', 'Comprehensive'];
-            } else if (baseScore >= 6) {
-              feedback = 'Good answer with room to deepen.';
-              strengths = ['Clear explanation'];
-            } else {
-              feedback = 'Needs more depth and clarity.';
-            }
-            
-            if (len < 200) improvements.push('Provide more detail and concrete steps.');
-            if (hasExamples === 0) improvements.push('Add examples or code snippets.');
-            if (hasTradeoffs === 0) improvements.push('Discuss trade-offs and edge cases.');
+          // For invalid responses, return quick analysis
+          if (responseClassification.type === 'nonsense' || 
+              responseClassification.type === 'inappropriate' || 
+              responseClassification.type === 'joke') {
+            return Promise.resolve({
+              questionNumber: idx + 1,
+              question: qa.question,
+              answer: qa.answer,
+              score: responseClassification.type === 'inappropriate' ? 0 : 1,
+              feedback: responseClassification.type === 'nonsense' 
+                ? 'Inappropriate or nonsensical response. Please provide a serious technical answer.'
+                : responseClassification.type === 'inappropriate'
+                ? 'Inappropriate language used. Please maintain professionalism.'
+                : 'This is a professional interview. Please provide a serious technical response.',
+              strengths: [],
+              improvements: ['Provide a proper technical response', 'Focus on the question asked'],
+              responseType: responseClassification.type,
+              confidence: responseClassification.confidence
+            });
           }
-          
-          return {
-            questionNumber: idx + 1,
-            question: qa.question,
-            answer: qa.answer,
-            score: baseScore,
-            feedback,
-            strengths,
-            improvements,
-            responseType: responseClassification.type,
-            confidence: responseClassification.confidence
-          };
+
+          // For valid responses, use AI to generate detailed analysis
+          return generateQuestionAnalysis(qa, idx + 1, profile, framework);
         });
+        
+        const questionAnalysis = await Promise.all(questionAnalysisPromises);
         const answeredCount = normalized.filter((qa: any) => qa.answer && qa.answer.trim().length > 0).length;
 
         // If no answers were provided, return a minimal, fair analysis without generic strengths
@@ -951,8 +1038,8 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ score: 1, technicalScore: 0, communicationScore: 0, feedback: minimalFeedback, questionAnalysis });
         }
 
-        // Otherwise generate the closing summary and compute overall score
-        const closing = await generateEndSummary({ framework, jdText, profile });
+        // Otherwise generate the closing summary and compute overall score (with actual Q&A pairs)
+        const closing = await generateEndSummary({ framework, jdText, profile, qaPairs: normalized });
         const avg = questionAnalysis.length > 0 ? Math.round(questionAnalysis.reduce((s, q) => s + (q.score || 0), 0) / questionAnalysis.length) : 7;
         // Factor in number of questions answered: scale by coverage ratio
         const coverage = normalized.length > 0 ? answeredCount / normalized.length : 1;
