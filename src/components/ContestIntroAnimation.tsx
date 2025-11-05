@@ -468,18 +468,63 @@ function Scene({ onComplete, walkTrigger }: { onComplete: () => void, walkTrigge
   const [walking, setWalking] = useState(false);
   const doorX = 5;
 
+  // Footstep audio
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const lastStepAccumRef = useRef<number>(0);
+  const prevXRef = useRef<number>(-5);
+
+  useEffect(() => {
+    if (!audioCtxRef.current) {
+      const AC = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (AC) audioCtxRef.current = new AC();
+    }
+  }, []);
+
+  const playFootstep = () => {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 600;
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(140, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.08);
+
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.14);
+  };
+ 
   // Start walking when parent triggers
   useEffect(() => {
     if (walkTrigger > 0) {
       setWalking(true);
     }
   }, [walkTrigger]);
-
+ 
   useFrame((_, delta) => {
     if (walking) {
       const speed = 1.5;
       const nx = Math.min(manX + speed * delta, doorX + 0.6);
       setManX(nx);
+      // Footstep every ~0.45 units
+      const moved = Math.abs(nx - prevXRef.current);
+      lastStepAccumRef.current += moved;
+      if (lastStepAccumRef.current >= 0.45) {
+        lastStepAccumRef.current = 0;
+        playFootstep();
+      }
+      prevXRef.current = nx;
       if (nx >= doorX + 0.6) {
         setWalking(false);
         setTimeout(() => onComplete(), 800);
@@ -491,46 +536,79 @@ function Scene({ onComplete, walkTrigger }: { onComplete: () => void, walkTrigge
       cameraRef.current.lookAt(target);
     }
   });
-
+ 
   const openAmount = Math.min(1, Math.max(0, (manX - (doorX - 1.2)) / 2));
-
+ 
   return (
     <>
       <ambientLight intensity={0.6} />
       <directionalLight position={[5, 8, 5]} intensity={1.2} />
       <Stars radius={80} depth={40} count={3000} factor={3} fade speed={0.6} />
-
+ 
       {/* Ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
         <planeGeometry args={[40, 20]} />
         <meshStandardMaterial color="#0f1427" />
       </mesh>
-
+ 
       {/* Path */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
         <planeGeometry args={[12, 2.5]} />
         <meshStandardMaterial color="#1a1f3b" />
       </mesh>
-
+ 
       {/* Soldier character */}
       <Soldier position={[manX, 0, 0]} walking={walking} />
-
-      {/* Door */}
+ 
+      {/* Curtain-style gate */}
       <group position={[doorX, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <mesh position={[0, 1.2, 0]}>
-          <boxGeometry args={[2, 2.4, 0.2]} />
-          <meshStandardMaterial color="#222" />
+        {/* Top rod */}
+        <mesh position={[0, 2.6, 0]}>
+          <cylinderGeometry args={[0.07, 0.07, 2.4, 16]} />
+          <meshStandardMaterial color="#cccccc" metalness={0.6} roughness={0.4} />
         </mesh>
-        <group position={[-0.9, 0, 0.11]} rotation={[0, -openAmount * Math.PI / 2, 0]}>
-          <mesh position={[0.9, 1.2, 0]}>
-            <boxGeometry args={[1.8, 2.4, 0.1]} />
-            <meshStandardMaterial color="#5cd3ff" />
+        {/* Left curtain panel */}
+        <group position={[-0.6 - openAmount * 0.7, 1.3, 0.05]}>
+          <mesh>
+            <planeGeometry args={[1.2, 2.4, 12, 24]} />
+            <meshStandardMaterial color="#5cd3ff" transparent opacity={0.55} side={THREE.DoubleSide} />
           </mesh>
+          {/* Decorative vertical pleats */}
+          {[...Array(5)].map((_, i) => (
+            <mesh key={i} position={[(-0.5 + i * 0.25), 0, 0.02]}>
+              <boxGeometry args={[0.02, 2.4, 0.02]} />
+              <meshStandardMaterial color="#ffffff" transparent opacity={0.12} />
+            </mesh>
+          ))}
         </group>
+        {/* Right curtain panel */}
+        <group position={[0.6 + openAmount * 0.7, 1.3, 0.05]}>
+          <mesh>
+            <planeGeometry args={[1.2, 2.4, 12, 24]} />
+            <meshStandardMaterial color="#5cd3ff" transparent opacity={0.55} side={THREE.DoubleSide} />
+          </mesh>
+          {[...Array(5)].map((_, i) => (
+            <mesh key={i} position={[(-0.5 + i * 0.25), 0, 0.02]}>
+              <boxGeometry args={[0.02, 2.4, 0.02]} />
+              <meshStandardMaterial color="#ffffff" transparent opacity={0.12} />
+            </mesh>
+          ))}
+        </group>
+        {/* Floor threshold glow */}
+        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[2.2, 0.15]} />
+          <meshStandardMaterial color="#5cd3ff" emissive="#5cd3ff" emissiveIntensity={0.4} transparent opacity={0.3} />
+        </mesh>
       </group>
-
+ 
       {/* Camera */}
       <PerspectiveCamera makeDefault ref={cameraRef} position={[-6, 3, 8]} fov={60} />
+ 
+      {/* Click to start walking */}
+      <mesh onClick={() => setWalking(true)}>
+        <boxGeometry args={[0.01, 0.01, 0.01]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
     </>
   );
 }
