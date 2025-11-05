@@ -364,32 +364,8 @@ export default function ContestRegisterPage() {
               {/* Full Width Fields */}
               <div className="space-y-6 mb-6">
                 {/* Highest education removed per request */}
-                <div>
-                  <label className="block text-white font-medium mb-2">
-                    LinkedIn Profile (Optional)
-                  </label>
-                  <input
-                    type="url"
-                    name="linkedinProfile"
-                    value={formData.linkedinProfile}
-                    onChange={handleInputChange}
-                    placeholder="https://linkedin.com/in/yourprofile"
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#5cd3ff] focus:ring-2 focus:ring-[#5cd3ff]/50 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-white font-medium mb-2">
-                    Why do you want to participate? <span className="text-white/50 text-sm">(Optional)</span>
-                  </label>
-                  <textarea
-                    name="participationReason"
-                    value={formData.participationReason}
-                    onChange={handleInputChange}
-                    rows={4}
-                    placeholder="Tell us why you want to participate in this competition... (optional)"
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#5cd3ff] focus:ring-2 focus:ring-[#5cd3ff]/50 transition-all resize-none"
-                  />
-                </div>
+         
+        
               </div>
 
               {/* Terms and Conditions */}

@@ -196,7 +196,7 @@ export default function ContestPage() {
           >
             HIREOG
           </motion.div>
-          <nav className="hidden md:flex gap-8 text-sm font-medium text-white">
+          {/* <nav className="hidden md:flex gap-8 text-sm font-medium text-white">
             {['How it Works', 'Prizes', 'Partners'].map((item, index) => (
               <motion.a 
                 key={item}
@@ -212,7 +212,7 @@ export default function ContestPage() {
                 />
               </motion.a>
             ))}
-          </nav>
+          </nav> */}
           <motion.button
             onClick={() => router.push('/contest/register')}
             className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] text-white font-semibold text-sm hover:opacity-90 transition-opacity"
@@ -428,7 +428,7 @@ export default function ContestPage() {
             The Winner's Spoils
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
                 title: "Top Tech Gadgets",
@@ -591,6 +591,110 @@ export default function ContestPage() {
                             duration: 2.5 + i * 0.3,
                             repeat: Infinity,
                             delay: i * 0.2 + 1,
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  </div>
+                )
+              },
+              {
+                title: "Trip to Sri Lanka",
+                description: "Experience the paradise island with an all-expenses-paid trip to Sri Lanka. Explore pristine beaches, ancient temples, and lush landscapes.",
+                image: (
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-emerald-500/30 bg-black">
+                    {/* Sri Lanka Image */}
+                    <motion.div
+                      className="relative w-full h-full"
+                      animate={{ 
+                        y: [0, -5, 0],
+                        scale: [1, 1.02, 1]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, delay: 1.5 }}
+                    >
+                      <Image
+                        src="/images/srilanka_contest.png"
+                        alt="Trip to Sri Lanka"
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                      {/* Overlay glow effect */}
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent"
+                        animate={{ opacity: [0.3, 0.5, 0.3] }}
+                        transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
+                      />
+                      {/* Floating particles overlay */}
+                      {[...Array(5)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 bg-emerald-400 rounded-full"
+                          style={{
+                            left: `${20 + i * 15}%`,
+                            top: `${30 + (i % 2) * 40}%`,
+                          }}
+                          animate={{
+                            y: [-10, 10, -10],
+                            opacity: [0.3, 1, 0.3],
+                            scale: [1, 1.5, 1],
+                          }}
+                          transition={{
+                            duration: 2 + i * 0.5,
+                            repeat: Infinity,
+                            delay: i * 0.3 + 1.5,
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  </div>
+                )
+              },
+              {
+                title: "Trip to Goa",
+                description: "Unwind on the beautiful beaches of Goa with a fully sponsored vacation. Enjoy the vibrant nightlife, Portuguese heritage, and stunning coastline.",
+                image: (
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-orange-500/30 bg-black">
+                    {/* Goa Image */}
+                    <motion.div
+                      className="relative w-full h-full"
+                      animate={{ 
+                        y: [0, -5, 0],
+                        scale: [1, 1.02, 1]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, delay: 2 }}
+                    >
+                      <Image
+                        src="/images/goa_contest.png"
+                        alt="Trip to Goa"
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                      {/* Overlay glow effect */}
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent"
+                        animate={{ opacity: [0.3, 0.5, 0.3] }}
+                        transition={{ duration: 3, repeat: Infinity, delay: 2 }}
+                      />
+                      {/* Floating particles overlay */}
+                      {[...Array(5)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 bg-orange-400 rounded-full"
+                          style={{
+                            left: `${20 + i * 15}%`,
+                            top: `${30 + (i % 2) * 40}%`,
+                          }}
+                          animate={{
+                            y: [-10, 10, -10],
+                            opacity: [0.3, 1, 0.3],
+                            scale: [1, 1.5, 1],
+                          }}
+                          transition={{
+                            duration: 2 + i * 0.5,
+                            repeat: Infinity,
+                            delay: i * 0.3 + 2,
                           }}
                         />
                       ))}
