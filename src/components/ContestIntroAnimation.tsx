@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, PerspectiveCamera, Stars } from '@react-three/drei';
+import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -430,138 +431,106 @@ function useSoundEffects(speed: number, progress: number, isComplete: boolean) {
   }, [speed, audioInitialized]);
 }
 
-// Main Scene
-function Scene({ onComplete, onProgressUpdate }: { onComplete: () => void, onProgressUpdate: (progress: number, speed: number) => void }) {
-  const [progress, setProgress] = useState(0);
-  const [speed, setSpeed] = useState(0);
-  const carRef = useRef<THREE.Group>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera>(null);
-  const [showComplete, setShowComplete] = useState(false);
-  
-  // Initialize sound effects
-  useSoundEffects(speed, progress, showComplete);
-  
-  // Track path
-  const getTrackPosition = (t: number): [number, number, number] => {
-    const x = -20 + t * 40;
-    const z = Math.sin(t * Math.PI * 1.5) * 3;
-    return [x, 0.5, z];
-  };
-  
-  const getTrackRotation = (t: number): [number, number, number] => {
-    const nextT = Math.min(t + 0.01, 1);
-    const currentPos = getTrackPosition(t);
-    const nextPos = getTrackPosition(nextT);
-    const angle = Math.atan2(nextPos[2] - currentPos[2], nextPos[0] - currentPos[0]);
-    return [0, angle + Math.PI / 2, 0];
-  };
+// Soldier model with animations (Idle/Walk) from three.js examples
+function Soldier({ position, walking }: { position: [number, number, number]; walking: boolean }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { scene, animations } = useGLTF('https://threejs.org/examples/models/gltf/Soldier.glb') as any;
+  const groupRef = useRef<THREE.Group>(null);
+  const { actions } = useAnimations(animations, groupRef);
 
-  useFrame((state, delta) => {
-    if (progress < 1) {
-      // Non-linear acceleration for game feel - slower animation
-      const acceleration = 0.005; // Reduced from 0.01
-      const speedMultiplier = 1 + progress * 2; // Reduced from 3
-      const newProgress = Math.min(progress + acceleration * speedMultiplier, 1);
-      const newSpeed = newProgress;
-      setProgress(newProgress);
-      setSpeed(newSpeed);
-      onProgressUpdate(newProgress, newSpeed);
-      
-      // Update car position
-      if (carRef.current) {
-        const pos = getTrackPosition(newProgress);
-        const rot = getTrackRotation(newProgress);
-        carRef.current.position.set(pos[0], pos[1], pos[2]);
-        carRef.current.rotation.set(rot[0], rot[1], rot[2]);
+  useEffect(() => {
+    if (!actions) return;
+    const idle = actions['Idle'] || actions['idle'];
+    const walk = actions['Walk'] || actions['walk'];
+    if (walking) {
+      if (idle) idle.fadeOut(0.3);
+      if (walk) walk.reset().fadeIn(0.3).play();
+    } else {
+      if (walk) walk.fadeOut(0.3);
+      if (idle) idle.reset().fadeIn(0.3).play();
+    }
+  }, [actions, walking]);
+
+  // Ensure soldier faces +X (adjust as needed for the model)
+  return (
+    <group ref={groupRef} position={position} rotation={[0, -Math.PI / 2, 0]} scale={1.2}>
+      <primitive object={scene} />
+    </group>
+  );
+}
+
+useGLTF.preload('https://threejs.org/examples/models/gltf/Soldier.glb');
+
+// Main Scene
+function Scene({ onComplete, walkTrigger }: { onComplete: () => void, walkTrigger: number }) {
+  const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+  const [manX, setManX] = useState(-5);
+  const [walking, setWalking] = useState(false);
+  const doorX = 5;
+
+  // Start walking when parent triggers
+  useEffect(() => {
+    if (walkTrigger > 0) {
+      setWalking(true);
+    }
+  }, [walkTrigger]);
+
+  useFrame((_, delta) => {
+    if (walking) {
+      const speed = 1.5;
+      const nx = Math.min(manX + speed * delta, doorX + 0.6);
+      setManX(nx);
+      if (nx >= doorX + 0.6) {
+        setWalking(false);
+        setTimeout(() => onComplete(), 800);
       }
-      
-      // Update camera to follow car - better tracking
-      if (cameraRef.current && carRef.current) {
-        const carPos = carRef.current.position;
-        
-        // Smooth camera following throughout
-        const distance = 6;
-        const height = 4;
-        const sideOffset = 3;
-        
-        const targetX = carPos.x - distance;
-        const targetY = carPos.y + height;
-        const targetZ = carPos.z + sideOffset;
-        
-        cameraRef.current.position.lerp(
-          new THREE.Vector3(targetX, targetY, targetZ),
-          0.15
-        );
-        cameraRef.current.lookAt(carPos);
-      }
-      
-      // Complete animation
-      if (newProgress >= 1 && !showComplete) {
-        setShowComplete(true);
-        setTimeout(() => {
-          onComplete();
-        }, 4000); // Wait 4 seconds after completion
-      }
+    }
+    if (cameraRef.current) {
+      const target = new THREE.Vector3(manX, 1.2, 0);
+      cameraRef.current.position.lerp(new THREE.Vector3(manX - 3, 2.5, 8), 0.1);
+      cameraRef.current.lookAt(target);
     }
   });
 
-  const carPosition = getTrackPosition(progress);
-  const carRotation = getTrackRotation(progress);
+  const openAmount = Math.min(1, Math.max(0, (manX - (doorX - 1.2)) / 2));
 
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[10, 10, 5]} intensity={1.2} />
-      <pointLight position={[20, 5, 0]} intensity={1} color="#5cd3ff" />
-      <pointLight position={[-20, 5, 0]} intensity={1} color="#6f5af6" />
-      <pointLight position={[20, 5, 0]} intensity={0.5} color="#ffffff" />
-      
-      {/* Stars background */}
-      <Stars radius={100} depth={50} count={5000} factor={4} fade speed={1} />
-      
-      {/* Track */}
-      <Track />
-      
-      
-      {/* Car */}
-      <group ref={carRef}>
-        <Car position={carPosition} rotation={carRotation} speed={speed} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 8, 5]} intensity={1.2} />
+      <Stars radius={80} depth={40} count={3000} factor={3} fade speed={0.6} />
+
+      {/* Ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
+        <planeGeometry args={[40, 20]} />
+        <meshStandardMaterial color="#0f1427" />
+      </mesh>
+
+      {/* Path */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <planeGeometry args={[12, 2.5]} />
+        <meshStandardMaterial color="#1a1f3b" />
+      </mesh>
+
+      {/* Soldier character */}
+      <Soldier position={[manX, 0, 0]} walking={walking} />
+
+      {/* Door */}
+      <group position={[doorX, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <mesh position={[0, 1.2, 0]}>
+          <boxGeometry args={[2, 2.4, 0.2]} />
+          <meshStandardMaterial color="#222" />
+        </mesh>
+        <group position={[-0.9, 0, 0.11]} rotation={[0, -openAmount * Math.PI / 2, 0]}>
+          <mesh position={[0.9, 1.2, 0]}>
+            <boxGeometry args={[1.8, 2.4, 0.1]} />
+            <meshStandardMaterial color="#5cd3ff" />
+          </mesh>
+        </group>
       </group>
-      
-      
-      {/* Speed lines effect */}
-      {speed > 0.3 && (
-        <>
-          {[...Array(30)].map((_, i) => (
-            <mesh
-              key={i}
-              position={[
-                carPosition[0] - (i * 0.3),
-                carPosition[1] - 0.1,
-                carPosition[2] + (Math.sin(i * 0.5) * 0.5)
-              ]}
-              rotation={[-Math.PI / 2, 0, 0]}
-            >
-              <planeGeometry args={[0.15, 3]} />
-              <meshStandardMaterial 
-                color="#5cd3ff" 
-                transparent 
-                opacity={0.4 - (i * 0.01)} 
-              />
-            </mesh>
-          ))}
-        </>
-      )}
-      
-      {/* Camera - better initial position */}
-      <PerspectiveCamera
-        ref={cameraRef}
-        makeDefault
-        position={[-6, 4, 3]}
-        fov={75}
-        near={0.1}
-        far={100}
-      />
+
+      {/* Camera */}
+      <PerspectiveCamera makeDefault ref={cameraRef} position={[-6, 3, 8]} fov={60} />
     </>
   );
 }
@@ -570,6 +539,7 @@ export default function ContestIntroAnimation({ onComplete }: { onComplete: () =
   const [mounted, setMounted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [speed, setSpeed] = useState(0);
+  const [walkTrigger, setWalkTrigger] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -607,7 +577,7 @@ export default function ContestIntroAnimation({ onComplete }: { onComplete: () =
             dpr={[1, 2]}
             camera={{ position: [0, 5, 10], fov: 75 }}
           >
-            <Scene onComplete={onComplete} onProgressUpdate={handleProgressUpdate} />
+            <Scene onComplete={onComplete} walkTrigger={walkTrigger} />
           </Canvas>
         </div>
         
@@ -638,6 +608,18 @@ export default function ContestIntroAnimation({ onComplete }: { onComplete: () =
             <Speedometer speed={speed} />
           </div>
 
+          {/* Enter button (starts walking) */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 pointer-events-auto">
+            <motion.button
+              onClick={() => setWalkTrigger((v) => v + 1)}
+              className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] text-white font-bold shadow-2xl hover:opacity-90"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Enter
+            </motion.button>
+          </div>
+
           {/* Game Instructions - hidden on mobile */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -647,7 +629,7 @@ export default function ContestIntroAnimation({ onComplete }: { onComplete: () =
           >
             <div className="text-[#5cd3ff] font-bold text-sm mb-2">🎮 MISSION</div>
             <div className="text-white/80 text-xs">
-              Race to your Dream Job! Complete the journey and unlock your career potential.
+              Click Enter to walk through the gate and start your journey.
             </div>
           </motion.div>
         </div>
