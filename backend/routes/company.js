@@ -16,7 +16,8 @@ const companyAuth = (req, res, next) => {
   const companyPassword = req.header('X-Company-Password');
   
   // Simple authentication for demo
-  if (companyId === 'hireog' && companyPassword === 'manasi22') {
+  if ((companyId === 'hireog' && companyPassword === 'manasi22') ||
+      (companyId === 'xtremesolution' && companyPassword === 'Xtreme@2025!')) {
     req.companyId = companyId;
     next();
   } else {

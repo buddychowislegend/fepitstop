@@ -12,11 +12,12 @@ export default function HiringSignIn() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Configured credentials for hiring module
-  const validCredentials = {
-    username: "admin@hireog.com",
-    password: "hireog123"
-  };
+  // Configured credentials for hiring module (multi-company)
+  const validUsers: Array<{ username: string; password: string; companyId: string; companyPassword: string }> = [
+    { username: "admin@hireog.com", password: "hireog123", companyId: "hireog", companyPassword: "manasi22" },
+    // New company user
+    { username: "hr@xtremesolution.in", password: "Xtreme@2025!", companyId: "xtremesolution", companyPassword: "Xtreme@2025!" },
+  ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,12 +36,14 @@ export default function HiringSignIn() {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Check credentials
-    if (credentials.username === validCredentials.username && 
-        credentials.password === validCredentials.password) {
+    // Check credentials against list
+    const matched = validUsers.find(u => u.username === credentials.username && u.password === credentials.password);
+    if (matched) {
       // Store authentication state (you can use localStorage, cookies, or context)
       localStorage.setItem('hiring_authenticated', 'true');
-      localStorage.setItem('hiring_user', credentials.username);
+      localStorage.setItem('hiring_user', matched.username);
+      localStorage.setItem('hiring_company_id', matched.companyId);
+      localStorage.setItem('hiring_company_password', matched.companyPassword);
       
       // Redirect to hiring dashboard
       router.push('/hiring/dashboard');

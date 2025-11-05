@@ -90,6 +90,7 @@ export default function CompanyDashboard() {
   const [newCandidate, setNewCandidate] = useState({ name: "", email: "", profile: "" });
   const [newDrive, setNewDrive] = useState({ name: "", selectedCandidates: [] as string[] });
   const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
+  const [companyDisplayName, setCompanyDisplayName] = useState<string>("Company");
   const router = useRouter();
 
   useEffect(() => {
@@ -100,6 +101,16 @@ export default function CompanyDashboard() {
       return;
     }
 
+    // Derive company display name from username email between '@' and '.in'
+    const userEmail = localStorage.getItem('hiring_user') || '';
+    const match = userEmail.match(/@(.*?)\.in/i);
+    let derived = match && match[1] ? match[1] : (localStorage.getItem('hiring_company_id') || 'Company');
+    // Beautify: replace separators and title-case
+    derived = derived
+      .replace(/[._-]+/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    setCompanyDisplayName(derived);
+
     // Load data from backend
     loadDashboardData();
     loadScreenings();
@@ -107,14 +118,16 @@ export default function CompanyDashboard() {
 
   const loadDashboardData = async () => {
     try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       // Add cache-busting parameter to ensure fresh data
       const cacheBuster = `?_t=${Date.now()}`;
       const response = await fetch(`${backendUrl}/api/company/dashboard${cacheBuster}`, {
         method: 'GET',
         headers: {
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword,
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
@@ -151,14 +164,16 @@ export default function CompanyDashboard() {
 
   const loadScreenings = async () => {
     try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       // Add cache-busting parameter to ensure fresh data
       const cacheBuster = `?_t=${Date.now()}`;
       const response = await fetch(`${backendUrl}/api/company/screenings${cacheBuster}`, {
         method: 'GET',
         headers: {
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword,
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
@@ -734,7 +749,7 @@ export default function CompanyDashboard() {
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 whileHover={{ scale: 1.1 }}
               >
-                <span className="text-white font-bold text-sm">SB</span>
+                <span className="text-white font-bold text-sm">XS</span>
               </motion.div>
               <div className="text-sm">
                 <motion.div 
@@ -743,7 +758,7 @@ export default function CompanyDashboard() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.8 }}
                 >
-                  Sagar Bhatnagar
+                  {companyDisplayName}
                 </motion.div>
                 <motion.div 
                   className="text-white/70"
@@ -751,7 +766,6 @@ export default function CompanyDashboard() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1.0 }}
                 >
-                  Innovate Inc.
                 </motion.div>
               </div>
             </motion.div>
@@ -805,7 +819,7 @@ export default function CompanyDashboard() {
                   }}
                 >
                   <span className="bg-gradient-to-r from-[#2ad17e] via-[#5cd3ff] to-[#ffb21e] bg-clip-text text-transparent bg-[length:200%_100%]">
-                    Welcome Back, Innovate Inc!
+                    Welcome Back, {companyDisplayName}!
                   </span>
                 </motion.h1>
                 <motion.p 

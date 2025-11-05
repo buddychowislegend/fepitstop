@@ -179,6 +179,7 @@ function Speedometer({ speed }: { speed: number }) {
 
 // Progress indicator
 function ProgressBar({ progress }: { progress: number }) {
+  return null;
   return (
     <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-lg border-2 border-[#5cd3ff] rounded-xl p-4 min-w-[300px]">
       <div className="text-white/80 text-sm mb-2 text-center">JOURNEY TO DREAM JOB</div>
@@ -522,12 +523,10 @@ function Scene({ onComplete, onProgressUpdate }: { onComplete: () => void, onPro
       <Track />
       
       
-      {/* Car - only show when progress > 0 to avoid showing at start */}
-      {progress > 0 && (
-        <group ref={carRef}>
-          <Car position={carPosition} rotation={carRotation} speed={speed} />
-        </group>
-      )}
+      {/* Car */}
+      <group ref={carRef}>
+        <Car position={carPosition} rotation={carRotation} speed={speed} />
+      </group>
       
       
       {/* Speed lines effect */}
@@ -634,15 +633,17 @@ export default function ContestIntroAnimation({ onComplete }: { onComplete: () =
           {/* Progress Bar */}
           <ProgressBar progress={progress} />
 
-          {/* Speedometer */}
-          <Speedometer speed={speed} />
+          {/* Speedometer - hidden on mobile */}
+          <div className="hidden md:block">
+            <Speedometer speed={speed} />
+          </div>
 
-          {/* Game Instructions */}
+          {/* Game Instructions - hidden on mobile */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="absolute bottom-8 right-8 bg-black/50 backdrop-blur-lg border-2 border-[#5cd3ff] rounded-xl p-4 max-w-[250px]"
+            className="hidden md:block absolute bottom-8 right-8 bg-black/50 backdrop-blur-lg border-2 border-[#5cd3ff] rounded-xl p-4 max-w-[250px]"
           >
             <div className="text-[#5cd3ff] font-bold text-sm mb-2">🎮 MISSION</div>
             <div className="text-white/80 text-xs">
