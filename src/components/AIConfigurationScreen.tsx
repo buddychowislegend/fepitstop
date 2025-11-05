@@ -35,7 +35,9 @@ import {
   Plus,
   Edit3,
   Globe,
-  Sparkles
+  Sparkles,
+  X,
+  Trash2
 } from "lucide-react";
 
 interface ScreeningDetails {
@@ -291,6 +293,22 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
       setScreeningDetails(prev => ({
         ...prev,
         [section]: [...prev[section], newRequirement.trim()]
+      }));
+    }
+  };
+
+  const removeRequirement = (section: 'mustHaves' | 'goodToHaves' | 'culturalFit', index: number) => {
+    setScreeningDetails(prev => ({
+      ...prev,
+      [section]: prev[section].filter((_, i) => i !== index)
+    }));
+  };
+
+  const clearSection = (section: 'mustHaves' | 'goodToHaves' | 'culturalFit') => {
+    if (confirm(`Clear all ${section.replace(/([A-Z])/g, ' $1').toLowerCase()}?`)) {
+      setScreeningDetails(prev => ({
+        ...prev,
+        [section]: []
       }));
     }
   };
@@ -764,15 +782,28 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
                 Must Haves
               </motion.h3>
             </div>
-            <motion.div
-              className="flex items-center gap-2 bg-gradient-to-r from-[#2ad17e]/20 to-[#20c997]/20 px-4 py-2 rounded-xl border border-[#2ad17e]/30"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1.6, type: "spring", stiffness: 300 }}
-            >
-              <Clock className="w-4 h-4 text-[#2ad17e]" />
-              <span className="text-sm font-semibold text-white">{screeningDetails.estimatedTime.mustHaves} min</span>
-            </motion.div>
+            <div className="flex items-center gap-3">
+              <motion.button
+                onClick={() => clearSection('mustHaves')}
+                className="flex items-center gap-2 text-white/70 hover:text-white text-xs px-3 py-1 rounded-lg border border-white/20"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.6 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Trash2 className="w-3 h-3" /> Clear all
+              </motion.button>
+              <motion.div
+                className="flex items-center gap-2 bg-gradient-to-r from-[#2ad17e]/20 to-[#20c997]/20 px-4 py-2 rounded-xl border border-[#2ad17e]/30"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1.6, type: "spring", stiffness: 300 }}
+              >
+                <Clock className="w-4 h-4 text-[#2ad17e]" />
+                <span className="text-sm font-semibold text-white">{screeningDetails.estimatedTime.mustHaves} min</span>
+              </motion.div>
+            </div>
           </motion.div>
 
           <motion.ul 
@@ -807,12 +838,19 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
                   transition={{ duration: 2, repeat: Infinity, type: "tween" }}
                 />
                 <motion.span 
-                  className="text-white/90 leading-relaxed group-hover:text-white transition-colors"
+                  className="text-white/90 leading-relaxed group-hover:text-white transition-colors flex-1"
                   initial={{ opacity: 0.9 }}
                   whileHover={{ opacity: 1 }}
                 >
                   {item}
                 </motion.span>
+                <button
+                  type="button"
+                  onClick={() => removeRequirement('mustHaves', index)}
+                  className="opacity-60 hover:opacity-100 text-white/80 bg-white/10 border border-white/20 rounded-md px-2 py-1 text-xs"
+                >
+                  Remove
+                </button>
               </motion.li>
             ))}
           </motion.ul>
@@ -891,15 +929,28 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
                 Good to Haves
               </motion.h3>
             </div>
-            <motion.div
-              className="flex items-center gap-2 bg-gradient-to-r from-[#5cd3ff]/20 to-[#6f5af6]/20 px-4 py-2 rounded-xl border border-[#5cd3ff]/30"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1.8, type: "spring", stiffness: 300 }}
-            >
-              <Clock className="w-4 h-4 text-[#5cd3ff]" />
-              <span className="text-sm font-semibold text-white">{screeningDetails.estimatedTime.goodToHaves} min</span>
-            </motion.div>
+            <div className="flex items-center gap-3">
+              <motion.button
+                onClick={() => clearSection('goodToHaves')}
+                className="flex items-center gap-2 text-white/70 hover:text-white text-xs px-3 py-1 rounded-lg border border-white/20"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.8 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Trash2 className="w-3 h-3" /> Clear all
+              </motion.button>
+              <motion.div
+                className="flex items-center gap-2 bg-gradient-to-r from-[#5cd3ff]/20 to-[#6f5af6]/20 px-4 py-2 rounded-xl border border-[#5cd3ff]/30"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1.8, type: "spring", stiffness: 300 }}
+              >
+                <Clock className="w-4 h-4 text-[#5cd3ff]" />
+                <span className="text-sm font-semibold text-white">{screeningDetails.estimatedTime.goodToHaves} min</span>
+              </motion.div>
+            </div>
           </motion.div>
 
           <motion.ul 
@@ -934,12 +985,19 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
                   transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
                 />
                 <motion.span 
-                  className="text-white/90 leading-relaxed group-hover:text-white transition-colors"
+                  className="text-white/90 leading-relaxed group-hover:text-white transition-colors flex-1"
                   initial={{ opacity: 0.9 }}
                   whileHover={{ opacity: 1 }}
                 >
                   {item}
                 </motion.span>
+                <button
+                  type="button"
+                  onClick={() => removeRequirement('goodToHaves', index)}
+                  className="opacity-60 hover:opacity-100 text-white/80 bg-white/10 border border-white/20 rounded-md px-2 py-1 text-xs"
+                >
+                  Remove
+                </button>
               </motion.li>
             ))}
           </motion.ul>
@@ -1018,15 +1076,28 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
                 Cultural Fit
               </motion.h3>
             </div>
-            <motion.div
-              className="flex items-center gap-2 bg-gradient-to-r from-[#ffb21e]/20 to-[#ff6b6b]/20 px-4 py-2 rounded-xl border border-[#ffb21e]/30"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 2.0, type: "spring", stiffness: 300 }}
-            >
-              <Clock className="w-4 h-4 text-[#ffb21e]" />
-              <span className="text-sm font-semibold text-white">{screeningDetails.estimatedTime.culturalFit} min</span>
-            </motion.div>
+            <div className="flex items-center gap-3">
+              <motion.button
+                onClick={() => clearSection('culturalFit')}
+                className="flex items-center gap-2 text-white/70 hover:text-white text-xs px-3 py-1 rounded-lg border border-white/20"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 2.0 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Trash2 className="w-3 h-3" /> Clear all
+              </motion.button>
+              <motion.div
+                className="flex items-center gap-2 bg-gradient-to-r from-[#ffb21e]/20 to-[#ff6b6b]/20 px-4 py-2 rounded-xl border border-[#ffb21e]/30"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 2.0, type: "spring", stiffness: 300 }}
+              >
+                <Clock className="w-4 h-4 text-[#ffb21e]" />
+                <span className="text-sm font-semibold text-white">{screeningDetails.estimatedTime.culturalFit} min</span>
+              </motion.div>
+            </div>
           </motion.div>
 
           <motion.ul 
@@ -1061,12 +1132,19 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
                   transition={{ duration: 3, repeat: Infinity, type: "tween" }}
                 />
                 <motion.span 
-                  className="text-white/90 leading-relaxed group-hover:text-white transition-colors"
+                  className="text-white/90 leading-relaxed group-hover:text-white transition-colors flex-1"
                   initial={{ opacity: 0.9 }}
                   whileHover={{ opacity: 1 }}
                 >
                   {item}
                 </motion.span>
+                <button
+                  type="button"
+                  onClick={() => removeRequirement('culturalFit', index)}
+                  className="opacity-60 hover:opacity-100 text-white/80 bg-white/10 border border-white/20 rounded-md px-2 py-1 text-xs"
+                >
+                  Remove
+                </button>
               </motion.li>
             ))}
           </motion.ul>
