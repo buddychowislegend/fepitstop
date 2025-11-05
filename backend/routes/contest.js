@@ -32,20 +32,14 @@ router.post('/register', async (req, res) => {
       phoneNumber,
       currentRole,
       yearsOfExperience,
-      primarySkills,
-      highestEducation,
       linkedinProfile,
       participationReason,
       agreedToTerms,
     } = req.body;
 
     // Validation
-    if (!firstName || !lastName || !email || !phoneNumber || !currentRole || !primarySkills || !participationReason || !agreedToTerms) {
+    if (!firstName || !lastName || !email || !phoneNumber || !currentRole || !agreedToTerms) {
       return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    if (!Array.isArray(primarySkills) || primarySkills.length === 0) {
-      return res.status(400).json({ error: 'At least one primary skill must be selected' });
     }
 
     // Check if email already exists
@@ -62,10 +56,8 @@ router.post('/register', async (req, res) => {
       phoneNumber,
       currentRole,
       yearsOfExperience: yearsOfExperience || '',
-      primarySkills,
-      highestEducation: highestEducation || '',
       linkedinProfile: linkedinProfile || '',
-      participationReason,
+      participationReason: participationReason || '',
       agreedToTerms,
       status: 'pending',
     });

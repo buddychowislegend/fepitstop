@@ -199,6 +199,236 @@ function ProgressBar({ progress }: { progress: number }) {
   );
 }
 
+// Sound Manager using Web Audio API
+function useSoundEffects(speed: number, progress: number, isComplete: boolean) {
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const engineOscillatorRef = useRef<OscillatorNode | null>(null);
+  const engineGainRef = useRef<GainNode | null>(null);
+  const lastWhooshRef = useRef(0);
+  const [audioInitialized, setAudioInitialized] = useState(false);
+
+  useEffect(() => {
+    // Initialize audio context immediately when component mounts
+    const initAudio = async () => {
+      if (audioContextRef.current) return;
+      
+      try {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        audioContextRef.current = new AudioContextClass();
+        
+        // Try to resume immediately - some browsers allow this
+        if (audioContextRef.current.state === 'suspended') {
+          try {
+            await audioContextRef.current.resume();
+            setAudioInitialized(true);
+          } catch (e) {
+            // If resume fails, we'll need user interaction
+          }
+        } else {
+          setAudioInitialized(true);
+        }
+      } catch (error) {
+        console.log('Audio context initialization failed:', error);
+      }
+    };
+
+    initAudio();
+
+    // Also set up interaction handlers as fallback
+    const handleInteraction = async () => {
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        try {
+          await audioContextRef.current.resume();
+          setAudioInitialized(true);
+        } catch (e) {
+          console.log('Could not resume audio on interaction:', e);
+        }
+      }
+    };
+
+    // Add listeners for any user interaction
+    window.addEventListener('click', handleInteraction, { once: true });
+    window.addEventListener('touchstart', handleInteraction, { once: true });
+    window.addEventListener('keydown', handleInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
+    };
+  }, []);
+
+  // Try to resume audio context when animation starts
+  useEffect(() => {
+    if (audioContextRef.current && progress > 0 && !audioInitialized) {
+      const resumeAudio = async () => {
+        if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+          try {
+            await audioContextRef.current.resume();
+            setAudioInitialized(true);
+          } catch (error) {
+            console.log('Could not resume audio:', error);
+          }
+        }
+      };
+      resumeAudio();
+    }
+  }, [progress, audioInitialized]);
+
+  // Engine sound that varies with speed - more realistic
+  useEffect(() => {
+    if (!audioContextRef.current || !audioInitialized || progress >= 1) {
+      if (engineOscillatorRef.current) {
+        engineOscillatorRef.current.stop();
+        engineOscillatorRef.current = null;
+      }
+      return;
+    }
+
+    const audioContext = audioContextRef.current;
+
+    if (!engineOscillatorRef.current) {
+      // Create main engine sound with multiple oscillators for realism
+      const oscillator1 = audioContext.createOscillator();
+      const oscillator2 = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      const merger = audioContext.createChannelMerger(2);
+      
+      // Two oscillators for richer engine sound
+      oscillator1.type = 'sawtooth';
+      oscillator1.frequency.value = 60 + speed * 80;
+      
+      oscillator2.type = 'square';
+      oscillator2.frequency.value = 120 + speed * 160;
+      
+      gainNode.gain.value = 0.08 + speed * 0.12; // Volume increases with speed
+      
+      oscillator1.connect(merger, 0, 0);
+      oscillator2.connect(merger, 0, 1);
+      merger.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator1.start();
+      oscillator2.start();
+      
+      engineOscillatorRef.current = oscillator1; // Store reference to first
+      engineGainRef.current = gainNode;
+      
+      // Store second oscillator for cleanup
+      (engineOscillatorRef.current as any).oscillator2 = oscillator2;
+    } else {
+      // Update frequency and volume based on speed
+      const baseFreq1 = 60 + speed * 80;
+      const baseFreq2 = 120 + speed * 160;
+      const targetGain = 0.08 + speed * 0.12;
+      
+      engineOscillatorRef.current.frequency.setTargetAtTime(
+        baseFreq1,
+        audioContext.currentTime,
+        0.15
+      );
+      
+      // Update second oscillator if it exists
+      const osc2 = (engineOscillatorRef.current as any).oscillator2;
+      if (osc2) {
+        osc2.frequency.setTargetAtTime(
+          baseFreq2,
+          audioContext.currentTime,
+          0.15
+        );
+      }
+      
+      engineGainRef.current?.gain.setTargetAtTime(
+        targetGain,
+        audioContext.currentTime,
+        0.15
+      );
+    }
+
+    return () => {
+      if (engineOscillatorRef.current) {
+        engineOscillatorRef.current.stop();
+        const osc2 = (engineOscillatorRef.current as any).oscillator2;
+        if (osc2) {
+          osc2.stop();
+        }
+        engineOscillatorRef.current = null;
+      }
+    };
+  }, [speed, progress, audioInitialized]);
+
+  // Completion celebration sound
+  useEffect(() => {
+    if (!audioContextRef.current || !audioInitialized || !isComplete) return;
+
+    const audioContext = audioContextRef.current;
+    
+    // Create a celebratory sound with multiple tones
+    const playCelebrationSound = () => {
+      const frequencies = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C (major chord)
+      
+      frequencies.forEach((freq, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.value = freq;
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5 + index * 0.1);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start(audioContext.currentTime + index * 0.1);
+        oscillator.stop(audioContext.currentTime + 0.6 + index * 0.1);
+      });
+    };
+
+    playCelebrationSound();
+  }, [isComplete, audioInitialized]);
+
+  // Speed boost/whoosh sound when accelerating
+  useEffect(() => {
+    if (!audioContextRef.current || !audioInitialized || speed < 0.2) return;
+
+    const audioContext = audioContextRef.current;
+    const currentTime = Date.now();
+    
+    // Only play whoosh every 2-3 seconds during acceleration
+    if (currentTime - lastWhooshRef.current < 2000) return;
+    
+    // Play whoosh when speed increases significantly
+    const speedIncrease = speed > 0.3 && speed < 0.8;
+    
+    if (speedIncrease && Math.random() < 0.3) {
+      lastWhooshRef.current = currentTime;
+      
+      // Create a whoosh sound for acceleration
+      const playWhoosh = () => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.3);
+        
+        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.3);
+      };
+
+      playWhoosh();
+    }
+  }, [speed, audioInitialized]);
+}
+
 // Main Scene
 function Scene({ onComplete, onProgressUpdate }: { onComplete: () => void, onProgressUpdate: (progress: number, speed: number) => void }) {
   const [progress, setProgress] = useState(0);
@@ -206,6 +436,9 @@ function Scene({ onComplete, onProgressUpdate }: { onComplete: () => void, onPro
   const carRef = useRef<THREE.Group>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const [showComplete, setShowComplete] = useState(false);
+  
+  // Initialize sound effects
+  useSoundEffects(speed, progress, showComplete);
   
   // Track path
   const getTrackPosition = (t: number): [number, number, number] => {
@@ -289,10 +522,12 @@ function Scene({ onComplete, onProgressUpdate }: { onComplete: () => void, onPro
       <Track />
       
       
-      {/* Car */}
-      <group ref={carRef}>
-        <Car position={carPosition} rotation={carRotation} speed={speed} />
-      </group>
+      {/* Car - only show when progress > 0 to avoid showing at start */}
+      {progress > 0 && (
+        <group ref={carRef}>
+          <Car position={carPosition} rotation={carRotation} speed={speed} />
+        </group>
+      )}
       
       
       {/* Speed lines effect */}

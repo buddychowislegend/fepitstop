@@ -15,8 +15,6 @@ export default function ContestRegisterPage() {
     phoneNumber: "",
     currentRole: "",
     yearsOfExperience: "",
-    primarySkills: [] as string[],
-    highestEducation: "",
     linkedinProfile: "",
     participationReason: "",
     agreedToTerms: false,
@@ -25,16 +23,7 @@ export default function ContestRegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
-  const skillsOptions = [
-    "Frontend Development",
-    "Backend Development",
-    "Data Science",
-    "Machine Learning",
-    "Product Management",
-    "UI/UX Design",
-    "Digital Marketing",
-    "Business Analysis"
-  ];
+  // Primary skills removed per request
 
   const roleOptions = [
     "Software Engineer",
@@ -60,13 +49,7 @@ export default function ContestRegisterPage() {
     "8+ years"
   ];
 
-  const educationOptions = [
-    "High School",
-    "Bachelor's Degree",
-    "Master's Degree",
-    "PhD",
-    "Other"
-  ];
+  // Highest education removed per request
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -76,14 +59,7 @@ export default function ContestRegisterPage() {
     }));
   };
 
-  const handleCheckboxChange = (skill: string) => {
-    setFormData(prev => ({
-      ...prev,
-      primarySkills: prev.primarySkills.includes(skill)
-        ? prev.primarySkills.filter(s => s !== skill)
-        : [...prev.primarySkills, skill]
-    }));
-  };
+  // Primary skills selection removed
 
   const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -103,7 +79,17 @@ export default function ContestRegisterPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          currentRole: formData.currentRole,
+          yearsOfExperience: formData.yearsOfExperience,
+          linkedinProfile: formData.linkedinProfile,
+          participationReason: formData.participationReason,
+          agreedToTerms: formData.agreedToTerms,
+        }),
       });
 
       const data = await response.json();
@@ -122,8 +108,6 @@ export default function ContestRegisterPage() {
             phoneNumber: "",
             currentRole: "",
             yearsOfExperience: "",
-            primarySkills: [],
-            highestEducation: "",
             linkedinProfile: "",
             participationReason: "",
             agreedToTerms: false,
@@ -375,44 +359,11 @@ export default function ContestRegisterPage() {
                 </div>
               </div>
 
-              {/* Primary Skills */}
-              <div className="mb-6">
-                <label className="block text-white font-medium mb-3">
-                  &lt;&gt; Primary Skills/Interests <span className="text-red-400">*</span>
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {skillsOptions.map(skill => (
-                    <label key={skill} className="flex items-center gap-2 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={formData.primarySkills.includes(skill)}
-                        onChange={() => handleCheckboxChange(skill)}
-                        className="w-4 h-4 rounded bg-white/10 border-white/20 text-[#5cd3ff] focus:ring-[#5cd3ff] focus:ring-2"
-                      />
-                      <span className="text-white/80 group-hover:text-white text-sm transition-colors">{skill}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              {/* Primary skills removed per request */}
 
               {/* Full Width Fields */}
               <div className="space-y-6 mb-6">
-                <div>
-                  <label className="block text-white font-medium mb-2">
-                    Highest Education
-                  </label>
-                  <select
-                    name="highestEducation"
-                    value={formData.highestEducation}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:border-[#5cd3ff] focus:ring-2 focus:ring-[#5cd3ff]/50 transition-all"
-                  >
-                    <option value="">Select your education level</option>
-                    {educationOptions.map(edu => (
-                      <option key={edu} value={edu} className="bg-gray-900">{edu}</option>
-                    ))}
-                  </select>
-                </div>
+                {/* Highest education removed per request */}
                 <div>
                   <label className="block text-white font-medium mb-2">
                     LinkedIn Profile (Optional)
@@ -428,15 +379,14 @@ export default function ContestRegisterPage() {
                 </div>
                 <div>
                   <label className="block text-white font-medium mb-2">
-                    Why do you want to participate? <span className="text-red-400">*</span>
+                    Why do you want to participate? <span className="text-white/50 text-sm">(Optional)</span>
                   </label>
                   <textarea
                     name="participationReason"
                     value={formData.participationReason}
                     onChange={handleInputChange}
                     rows={4}
-                    placeholder="Tell us why you want to participate in this competition..."
-                    required
+                    placeholder="Tell us why you want to participate in this competition... (optional)"
                     className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#5cd3ff] focus:ring-2 focus:ring-[#5cd3ff]/50 transition-all resize-none"
                   />
                 </div>

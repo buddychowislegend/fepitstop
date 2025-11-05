@@ -616,41 +616,7 @@ export default function ContestPage() {
           </div>
         </section>
 
-        {/* BACKED BY INDUSTRY LEADERS SECTION */}
-        <section id="partners" className="max-w-7xl mx-auto px-6 py-20">
-          <motion.h2 
-            className="text-5xl font-bold text-white text-center mb-12"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            Backed by Industry Leaders
-          </motion.h2>
-
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {[
-              { name: "Google", icon: "G" },
-              { name: "Microsoft", icon: "⊞" },
-              { name: "Amazon", icon: "A" },
-              { name: "Spotify", icon: "♪" },
-              { name: "Slack", icon: "#" },
-              { name: "GitHub", icon: "🐙" }
-            ].map((company, index) => (
-              <motion.div
-                key={index}
-                className="text-white/60 hover:text-white text-4xl font-bold transition-colors cursor-pointer"
-                initial={{ y: 30, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ scale: 1.2, y: -5 }}
-              >
-                {company.icon}
-              </motion.div>
-            ))}
-          </div>
-        </section>
+   
 
         {/* FOOTER */}
         <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-white/10">
@@ -680,7 +646,7 @@ export default function ContestPage() {
                 ))}
               </div>
               <p className="text-white/50 text-xs text-center md:text-right">
-                © 2023 HIREOG. All rights reserved. Let the games begin.
+                © 2025 HIREOG. All rights reserved. Let the games begin.
               </p>
             </div>
           </div>

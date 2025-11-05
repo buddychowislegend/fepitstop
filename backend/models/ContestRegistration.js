@@ -31,11 +31,7 @@ const contestRegistrationSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  primarySkills: {
-    type: [String],
-    required: true,
-    default: [],
-  },
+  // Primary skills removed from required fields (now omitted)
   highestEducation: {
     type: String,
     trim: true,
@@ -46,7 +42,7 @@ const contestRegistrationSchema = new mongoose.Schema({
   },
   participationReason: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
   },
   agreedToTerms: {
