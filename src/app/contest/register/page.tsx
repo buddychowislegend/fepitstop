@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Trophy, Rocket, Users, Send, CheckCircle, XCircle } from "lucide-react";
+import { ArrowRight, Trophy, Rocket, Users, Send, CheckCircle, XCircle, Linkedin, Facebook, Instagram } from "lucide-react";
 import Image from "next/image";
 import { api } from "@/lib/config";
 
@@ -431,7 +431,7 @@ export default function ContestRegisterPage() {
                   </>
                 ) : (
                   <>
-                    LAUNCH MY CAREER
+                    Register
                     <Send className="w-5 h-5" />
                   </>
                 )}
@@ -507,8 +507,7 @@ export default function ContestRegisterPage() {
                 <motion.div 
                   className="w-16 h-16 rounded-full bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] flex items-center justify-center text-white mx-auto mb-6"
                   animate={{ 
-                    rotate: [0, 360],
-                    scale: [1, 1.1, 1]
+             
                   }}
                   transition={{ 
                     duration: 8,
@@ -525,6 +524,38 @@ export default function ContestRegisterPage() {
             ))}
           </div>
         </section>
+        {/* FOOTER */}
+        <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-white/10">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div>
+              <div className="text-2xl font-bold text-white uppercase tracking-wider mb-2">
+                HIREOG
+              </div>
+              <p className="text-white/70 text-sm">India's Premier Interview Competition.</p>
+            </div>
+            <div className="flex flex-col items-center md:items-end gap-4">
+              <div className="flex gap-6">
+                {[
+                  { icon: Linkedin, href: "https://www.linkedin.com/company/hireog" },
+                  { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61582513187245" },
+                  { icon: Instagram, href: "https://www.instagram.com/hireog_com" }
+                ].map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.href}
+                    className="text-white/60 hover:text-white transition-colors"
+                    target="_blank" rel="noopener noreferrer"
+                  >
+                    <social.icon className="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
+              <p className="text-white/50 text-xs text-center md:text-right">
+                © 2025 HIREOG. All rights reserved. Let the games begin.
+              </p>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

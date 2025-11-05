@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Trophy, Star, UserPlus, Linkedin, Twitter, Instagram, Briefcase, Award } from "lucide-react";
+import { ArrowRight, Trophy, Star, UserPlus, Linkedin, Facebook, Instagram, Briefcase, Award } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import ContestIntroAnimation from "@/components/ContestIntroAnimation";
@@ -630,9 +630,9 @@ export default function ContestPage() {
             <div className="flex flex-col items-center md:items-end gap-4">
               <div className="flex gap-6">
                 {[
-                  { icon: Linkedin, href: "#" },
-                  { icon: Twitter, href: "#" },
-                  { icon: Instagram, href: "#" }
+                  { icon: Linkedin, href: "https://www.linkedin.com/company/hireog" },
+                  { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61582513187245" },
+                  { icon: Instagram, href: "https://www.instagram.com/hireog_com" }
                 ].map((social, index) => (
                   <motion.a
                     key={index}
