@@ -4,9 +4,11 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Trophy, Star, UserPlus, Linkedin, Twitter, Instagram, Briefcase, Award } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import ContestIntroAnimation from "@/components/ContestIntroAnimation";
 
 export default function ContestPage() {
   const router = useRouter();
+  const [showIntro, setShowIntro] = useState(true);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 300], [0, -50]);
@@ -34,8 +36,19 @@ export default function ContestPage() {
     }
   };
 
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+    <>
+      {/* Intro Animation */}
+      {showIntro && (
+        <ContestIntroAnimation onComplete={handleIntroComplete} />
+      )}
+
+      {/* Main Contest Page */}
+      <div className={`min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden ${showIntro ? 'opacity-0' : 'opacity-100 transition-opacity duration-1000'}`}>
       {/* Animated Background with Geometric Pattern */}
       <div className="absolute inset-0">
         {/* Gradient Orbs */}
@@ -673,7 +686,8 @@ export default function ContestPage() {
           </div>
         </footer>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
