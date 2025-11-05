@@ -29,7 +29,8 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="mt-10 text-center text-xs text-slate-500 border-t border-slate-700 pt-6">© 2025 HireOG — All rights reserved.</div>
+      <div className="mt-10 text-center text-xs text-slate-500 border-t border-slate-700 pt-6">© 2025 HireOG. All rights reserved. Made with ❤️ in India for job seekers everywhere.
+      </div>
     </footer>
   );
 }

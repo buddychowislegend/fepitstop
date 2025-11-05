@@ -6,8 +6,9 @@ import Footer from './Footer';
 export default function ConditionalFooter() {
   const pathname = usePathname();
   const isHiringRoute = pathname.startsWith('/hiring');
+  const isContestRoute = pathname.startsWith('/contest');
   
-  if (isHiringRoute) {
+  if (isHiringRoute || isContestRoute) {
     return null;
   }
   

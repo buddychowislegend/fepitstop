@@ -1277,7 +1277,7 @@ export default function CompanyDashboard() {
                     <div key={index} className="flex-1 flex flex-col items-center">
                       <div 
                         className={`w-full ${item.color} rounded-t transition-all duration-300`}
-                        style={{ height: `${Math.max((item.value / Math.max(...candidates.map(c => 1)) * 80), 8)}px` }}
+                        style={{ height: `${Math.max((item.value - 1 / Math.max(...candidates.map(c => 1)) * 80), 8)}px` }}
                       ></div>
                       <div className="mt-2 text-center">
                         <div className="text-sm font-medium text-[color:var(--foreground)]">{item.value}</div>

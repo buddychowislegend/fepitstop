@@ -3354,7 +3354,7 @@ function AIInterviewContent() {
             )}
 
             {/* Video Feeds Container */}
-            <div className="flex-1 flex items-center justify-center gap-6 p-8 min-h-0">
+            <div className="flex-1 flex  justify-center gap-6 p-8 min-h-0">
               {/* AI Interviewer Video Frame */}
               <motion.div 
                 className="relative flex-1 max-w-md"
@@ -3449,7 +3449,7 @@ function AIInterviewContent() {
             </div>
 
             {/* Action Button Section */}
-            <div className="px-8 pb-8 pt-4 flex flex-col items-center gap-3 flex-shrink-0">
+            <div className="px-8 pb-70 pt-4 flex flex-col items-center gap-3 flex-shrink-0">
               <motion.button
                 onClick={!isRecording ? startAnswer : stopAnswer}
                 disabled={loading && !isRecording}
@@ -3631,7 +3631,7 @@ function AIInterviewContent() {
                   transition={{ duration: 2, repeat: Infinity }}
                 >
                   <MessageCircle className="w-4 h-4" />
-                  Question {session.currentQuestion} of {session.totalQuestions}
+                  Question {session?.currentQuestion || 0} of {session?.totalQuestions || 7}
                 </motion.span>
               </motion.div>
             </motion.div>
@@ -3642,20 +3642,20 @@ function AIInterviewContent() {
                 {messages.filter(msg => msg.role === 'interviewer').slice(-1).map((message, index) => (
                   <div key={index} className="card p-6">
                     <div className="flex items-center gap-3 mb-4">
-                      {session.interviewer.gender === 'female' ? (
+                      {session?.interviewer?.gender === 'female' ? (
                         <img
-                          src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
-                          alt={`${session.interviewer.name} avatar`}
+                          src={buildAvatarImageUrl(session?.interviewer?.avatar, 'female')}
+                          alt={`${session?.interviewer?.name || 'Interviewer'} avatar`}
                           className="w-23 h-23 rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
-                          {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                          {session?.interviewer?.name?.split(' ').map(n => n[0]).join('') || 'AI'}
                         </div>
                       )}
                       <div>
-                        <h3 className="font-semibold">{session.interviewer.name}</h3>
-                        <p className="text-sm opacity-80">{session.interviewer.role}</p>
+                        <h3 className="font-semibold">{session?.interviewer?.name || 'AI Interviewer'}</h3>
+                        <p className="text-sm opacity-80">{session?.interviewer?.role || 'Interviewer'}</p>
                       </div>
                     </div>
                     <div className="leading-relaxed mb-3">
@@ -3669,7 +3669,7 @@ function AIInterviewContent() {
                         text={message.content}
                         key={message.content}
                         autoPlay={true} // Auto-play latest message
-                        voice={session.interviewer.gender === 'female' ? 'en-IN-AnanyaNeural' : 'en-IN-KunalNeural'}
+                        voice={session?.interviewer?.gender === 'female' ? 'en-IN-AnanyaNeural' : 'en-IN-KunalNeural'}
                         rate={0.9}
                         pitch={0}
                       />
@@ -3704,15 +3704,15 @@ function AIInterviewContent() {
                 <div className="flex justify-start mb-4">
                   <div className="bg-purple-100 border-l-4 border-purple-500 p-4 rounded-lg">
                     <div className="flex items-center gap-2">
-                      {session.interviewer.gender === 'female' ? (
+                      {session?.interviewer?.gender === 'female' ? (
                         <img
-                          src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
-                          alt={`${session.interviewer.name} avatar`}
+                          src={buildAvatarImageUrl(session?.interviewer?.avatar, 'female')}
+                          alt={`${session?.interviewer?.name || 'Interviewer'} avatar`}
                           className="w-23 h-23 rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-xs font-bold text-white">
-                          {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                          {session?.interviewer?.name?.split(' ').map(n => n[0]).join('') || 'AI'}
                         </div>
                       )}
                       <div className="flex gap-1">
@@ -3750,7 +3750,7 @@ function AIInterviewContent() {
                         <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-purple-400 shadow-xl">
                           <video
                             ref={avatarVideoRef}
-                            src={avatarVideoUrl}
+                            src={avatarVideoUrl || undefined}
                             autoPlay
                             muted={false}
                             playsInline
@@ -3785,10 +3785,10 @@ function AIInterviewContent() {
                           />
                           
                           {/* Main avatar circle */}
-                          {session.interviewer.gender === 'female' ? (
+                          {session?.interviewer?.gender === 'female' ? (
                             <img
-                              src={buildAvatarImageUrl(session.interviewer.avatar, 'female')}
-                              alt={`${session.interviewer.name} avatar`}
+                              src={buildAvatarImageUrl(session?.interviewer?.avatar, 'female')}
+                              alt={`${session?.interviewer?.name || 'Interviewer'} avatar`}
                               className={`relative w-40 h-40 rounded-full mx-auto object-cover shadow-lg transition-all duration-300 ${
                                 isAISpeaking ? 'scale-110' : 'scale-100'
                               }`}
@@ -3805,7 +3805,7 @@ function AIInterviewContent() {
                                 animation: isAISpeaking ? 'none' : 'breathe 3s ease-in-out infinite'
                               }}
                             >
-                              {session.interviewer.name.split(' ').map(n => n[0]).join('')}
+                              {session?.interviewer?.name?.split(' ').map(n => n[0]).join('') || 'AI'}
                             </div>
                           )}
                           
@@ -3829,9 +3829,9 @@ function AIInterviewContent() {
                       )}
                     </div>
                     
-                    <h3 className="text-sm font-bold text-white-800">{session.interviewer.name}</h3>
-                    <p className="text-purple-600 text-xs font-semibold">{session.interviewer.role}</p>
-                    <p className="text-gray-600 text-xs">{session.interviewer.company}</p>
+                    <h3 className="text-sm font-bold text-white-800">{session?.interviewer?.name || 'AI Interviewer'}</h3>
+                    <p className="text-purple-600 text-xs font-semibold">{session?.interviewer?.role || 'Interviewer'}</p>
+                    <p className="text-gray-600 text-xs">{session?.interviewer?.company || ''}</p>
                     
                     {/* Status indicator */}
                     <div className="mt-2 flex items-center justify-center gap-2">
@@ -4893,7 +4893,7 @@ function AIInterviewContent() {
                   transition={{ duration: 2, repeat: Infinity, type: "tween" }}
                 >
                   <span className="bg-gradient-to-r from-[#2ad17e] to-[#20c997] bg-clip-text text-transparent">
-                    {Math.round(feedback.overallScore || 85)}
+                    {Math.round(feedback.overallScore || 0)}
                   </span>
                   <span className="text-2xl text-white/60">%</span>
                 </motion.div>
@@ -4952,7 +4952,7 @@ function AIInterviewContent() {
                   transition={{ duration: 3, repeat: Infinity, type: "tween" }}
                 >
                   <span className="bg-gradient-to-r from-[#ffb21e] to-[#ff6b6b] bg-clip-text text-transparent">
-                    {Math.round(feedback.communicationScore || 88)}
+                    {Math.round(feedback.communicationScore || 0)}
                             </span>
                   <span className="text-2xl text-white/60">%</span>
                 </motion.div>
