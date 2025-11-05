@@ -19,10 +19,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://hireog.com'),
   title: {
-    default: "HireOG — Master Frontend Interviews & Coding Challenges",
+    default: "HireOG — Master  Interviews & Coding Challenges with AI",
     template: "%s | HireOG"
   },
-  description: "Master frontend interviews with HireOG - AI-powered mock interviews, 500+ real coding challenges from Google, Meta, Amazon. Interactive code editor, voice analysis, confidence tracking, and personalized feedback. Practice JavaScript, React, React Native, CSS, and system design. Join 10,000+ developers who aced their interviews.",
+  description: "Master interviews with HireOG - AI-powered mock interviews, 500+ real coding challenges from Google, Meta, Amazon. Interactive code editor, voice analysis, confidence tracking, and personalized feedback. Practice JavaScript, React, React Native, CSS, and system design. Join 10,000+ developers who aced their interviews.",
   keywords: [
     "ai mock interview",
     "ai interview practice",

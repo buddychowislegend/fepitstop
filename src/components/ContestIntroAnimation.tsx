@@ -563,10 +563,10 @@ function Scene({ onComplete, walkTrigger }: { onComplete: () => void, walkTrigge
       {/* Curtain-style gate */}
       <group position={[doorX, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
         {/* Top rod */}
-        <mesh position={[0, 2.6, 0]}>
+        {/* <mesh position={[0, 2.6, 0]}>
           <cylinderGeometry args={[0.07, 0.07, 2.4, 16]} />
           <meshStandardMaterial color="#cccccc" metalness={0.6} roughness={0.4} />
-        </mesh>
+        </mesh> */}
         {/* Left curtain panel */}
         <group position={[-0.6 - openAmount * 0.7, 1.3, 0.05]}>
           <mesh>
