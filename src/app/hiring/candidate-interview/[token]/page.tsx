@@ -1209,123 +1209,13 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
     }
   };
 
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      // Stop any existing speech
-      if (speechSynthesisRef.current) {
-        speechSynthesis.cancel();
-      }
-
-      // Wait a bit for voices to load if they're not ready
-      const getVoices = () => {
-        let voices = speechSynthesis.getVoices();
-        if (voices.length === 0) {
-          // If no voices, wait a bit and try again
-          setTimeout(() => {
-            voices = speechSynthesis.getVoices();
-            if (voices.length > 0) {
-              speakWithVoice(text, voices);
-            } else {
-              // Use default voice
-              speakWithVoice(text, []);
-            }
-          }, 100);
-          return;
-        }
-        speakWithVoice(text, voices);
-      };
-
-      getVoices();
-    }
+  // Browser SpeechSynthesis disabled per requirement
+  const speakText = (_text: string) => {
+    return; 
   };
 
-  const speakWithVoice = (text: string, voices: SpeechSynthesisVoice[]) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;      // Slightly slower for clarity
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    
-    // Track speaking state for avatar animation
-    utterance.onstart = () => {
-      setIsAISpeaking(true);
-      startAudioVisualization();
-    };
-    
-    utterance.onend = () => {
-      setIsAISpeaking(false);
-      stopAudioVisualization();
-    };
-    
-    utterance.onerror = () => {
-      setIsAISpeaking(false);
-      stopAudioVisualization();
-    };
-    
-    console.log('Available voices:', voices.map(v => ({ name: v.name, lang: v.lang })));
-    
-    let selectedVoice = null;
-    
-    // Priority 1: Look for Indian English voices (en-IN)
-    if (!selectedVoice) {
-        selectedVoice = voices.find(voice => 
-        voice.lang && voice.lang.includes('en-IN')
-      );
-      if (selectedVoice) {
-        console.log(`✅ Selected Indian English voice: "${selectedVoice.name}"`);
-      }
-    }
-    
-    // Priority 2: Look for Indian voice by name (Google Play Services, Microsoft voices)
-        if (!selectedVoice) {
-          selectedVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes('hindi') ||
-        voice.name.toLowerCase().includes('indian') ||
-        voice.name.toLowerCase().includes('veena') ||  // Google India voice
-        voice.name.toLowerCase().includes('rishi') ||  // Rishi is male Indian
-        voice.name.toLowerCase().includes('priya') ||  // Female Indian name
-        (voice.name.toLowerCase().includes('google') && voice.lang?.includes('en-IN'))
-      );
-      if (selectedVoice) {
-        console.log(`✅ Selected Indian voice by name: "${selectedVoice.name}"`);
-      }
-    }
-    
-    // Priority 3: Handle gender-specific selection if needed
-    if (!selectedVoice && session?.interviewer?.gender) {
-      if (session.interviewer.gender === 'female') {
-          selectedVoice = voices.find(voice => 
-          voice.lang?.includes('en-IN') ||
-          voice.name.toLowerCase().includes('female') ||
-          voice.name.toLowerCase().includes('veena')
-        );
-      } else {
-        selectedVoice = voices.find(voice => 
-          voice.lang?.includes('en-IN') ||
-          voice.name.toLowerCase().includes('male') || 
-          voice.name.toLowerCase().includes('rishi')
-        );
-      }
-      if (selectedVoice) {
-        console.log(`✅ Selected ${session.interviewer.gender} Indian voice: "${selectedVoice.name}"`);
-      }
-    }
-    
-    // Priority 4: Fallback to any available voice
-    if (!selectedVoice && voices.length > 0) {
-      selectedVoice = voices[1];
-      console.log(`⚠️ No Indian voice found, using default: "${selectedVoice.name}"`);
-    }
-    
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-      utterance.lang = 'en-IN'; // Ensure language is set to Indian English
-      console.log(`🎤 Using voice: "${selectedVoice.name}" (${selectedVoice.lang})`);
-    } else {
-      utterance.lang = 'en-IN'; // Set language even if no specific voice found
-      console.log('⚠️ No voice selected, using browser default with en-IN locale');
-    }
-
-    // Try FreeTTS first with Indian locale
+  const speakWithVoice = (_text: string, _voices: SpeechSynthesisVoice[]) => {
+    // Try FreeTTS first with Indian locale (kept)
     const tryFreeTTS = async () => {
       try {
         const gender = session?.interviewer?.gender || lastInterviewerGenderRef.current || 'female';
@@ -1335,7 +1225,7 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            text, 
+            text: _text, 
             voiceType: gender,
             locale: 'en-IN',  // Indian English locale
             rate: 0.9,        // Clear speech
@@ -1374,15 +1264,10 @@ function CandidateInterviewPageClient({ params }: { params: { token: string } })
     };
 
     (async () => {
-      const ok = await tryFreeTTS();
-      if (!ok) {
-        console.log('🔊 FreeTTS fallback → using Browser SpeechSynthesis with Indian English');
-        speechSynthesisRef.current = utterance;
-        speechSynthesis.speak(utterance);
-      }
+      await tryFreeTTS();
     })();
     
-    console.log('AI is speaking:', text);
+    console.log('AI is speaking:', _text);
   };
 
   // Loading state

@@ -3345,6 +3345,7 @@ function AIInterviewContent() {
                   voice={session.interviewer.gender === 'female' ? 'en-IN-AnanyaNeural' : 'en-IN-KunalNeural'}
                   rate={0.9}
                   pitch={0}
+                  onLoadingChange={(loading) => setIsAIAudioLoading(loading)}
                   onComplete={() => {
                     setIsAISpeaking(false);
                     console.log('✅ Azure TTS autoplay completed');

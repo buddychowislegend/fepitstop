@@ -9,6 +9,7 @@ interface AzureTTSPlayerProps {
   voice?: string;
   rate?: number;
   pitch?: number;
+  onLoadingChange?: (loading: boolean) => void; // notify parent for loading UI
 }
 
 export default function AzureTTSPlayer({ 
@@ -17,7 +18,8 @@ export default function AzureTTSPlayer({
   autoPlay = true, 
   voice = 'en-US-AriaNeural',
   rate = 0.9,
-  pitch = 0
+  pitch = 0,
+  onLoadingChange
 }: AzureTTSPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +49,7 @@ export default function AzureTTSPlayer({
     const generateTTS = async () => {
       console.log(`🎙️ AzureTTSPlayer: Generating TTS for text (${text.length} chars), autoPlay=${autoPlay}, voice=${voice}`);
       setIsLoading(true);
+      if (onLoadingChange) onLoadingChange(true);
       setError('');
       
       // Cancel any browser TTS that might be playing
@@ -73,41 +76,7 @@ export default function AzureTTSPlayer({
 
         if (!response.ok) {
           const errorData = await response.json();
-          if (errorData.useBrowserTTS) {
-            // Only use browser TTS if Azure TTS completely fails
-            // Cancel any existing browser TTS first
-            if ('speechSynthesis' in window) {
-              speechSynthesis.cancel();
-              
-              const utterance = new SpeechSynthesisUtterance(text);
-              utterance.rate = rate;
-              utterance.pitch = pitch;
-              utterance.volume = 1;
-              
-              utterance.onstart = () => {
-                setIsPlaying(true);
-                // Make sure Azure audio is not playing
-                if (audioRef.current) {
-                  audioRef.current.pause();
-                }
-              };
-              utterance.onend = () => {
-                setIsPlaying(false);
-                if (onComplete) onComplete();
-              };
-              utterance.onerror = () => {
-                setError('Speech synthesis failed');
-                setIsPlaying(false);
-              };
-              
-              if (autoPlay) {
-                speechSynthesis.speak(utterance);
-              }
-            } else {
-              setError('Speech synthesis not supported');
-            }
-            return;
-          }
+          // Browser speech synthesis disabled
           throw new Error('Failed to generate TTS');
         }
 
@@ -133,48 +102,15 @@ export default function AzureTTSPlayer({
             console.log('⏸️ Auto-play disabled, audio ready for manual play');
           }
         } else {
-          // JSON response (fallback)
-          const data = await response.json();
-          if (data.useBrowserTTS) {
-            // Only use browser TTS if explicitly requested
-            // Cancel any existing browser TTS first
-            if ('speechSynthesis' in window) {
-              speechSynthesis.cancel();
-              
-              const utterance = new SpeechSynthesisUtterance(text);
-              utterance.rate = rate;
-              utterance.pitch = pitch;
-              utterance.volume = 1;
-              
-              utterance.onstart = () => {
-                setIsPlaying(true);
-                // Make sure Azure audio is not playing
-                if (audioRef.current) {
-                  audioRef.current.pause();
-                }
-              };
-              utterance.onend = () => {
-                setIsPlaying(false);
-                if (onComplete) onComplete();
-              };
-              utterance.onerror = () => {
-                setError('Speech synthesis failed');
-                setIsPlaying(false);
-              };
-              
-              if (autoPlay) {
-                speechSynthesis.speak(utterance);
-              }
-            } else {
-              setError('Speech synthesis not supported');
-            }
-          }
+          // Ignore JSON fallback; browser TTS disabled
+          await response.json().catch(() => undefined);
         }
       } catch (err) {
         console.error('TTS generation failed:', err);
         setError('Failed to generate speech');
       } finally {
         setIsLoading(false);
+        if (onLoadingChange) onLoadingChange(false);
       }
     };
 
@@ -257,33 +193,6 @@ export default function AzureTTSPlayer({
       // Azure TTS audio - prefer this
       audioRef.current.play();
       setIsPlaying(true);
-    } else if ('speechSynthesis' in window) {
-      // Browser TTS fallback - only if no Azure audio
-      // Cancel any existing browser TTS
-      speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = rate;
-      utterance.pitch = pitch;
-      utterance.volume = 1;
-      
-      utterance.onstart = () => {
-        setIsPlaying(true);
-        // Make sure Azure audio is not playing
-        if (audioRef.current) {
-          audioRef.current.pause();
-        }
-      };
-      utterance.onend = () => {
-        setIsPlaying(false);
-        if (onComplete) onComplete();
-      };
-      utterance.onerror = () => {
-        setError('Speech synthesis failed');
-        setIsPlaying(false);
-      };
-      
-      speechSynthesis.speak(utterance);
     }
   };
 
