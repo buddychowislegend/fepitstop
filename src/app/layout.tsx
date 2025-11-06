@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://hireog.com",
-    title: "HireOG — Master Frontend Interviews with AI",
+    title: "HireOG — Master  Interviews with AI",
     description: "AI-powered mock interviews with voice analysis, confidence tracking, and personalized feedback. Practice 500+ real coding challenges from Google, Meta, Amazon. Interactive code editor, system design prep, and interview analytics.",
     siteName: "HireOG",
     images: [
@@ -85,13 +85,13 @@ export const metadata: Metadata = {
         url: "https://hireog.com/og-image.png",
         width: 1200,
         height: 630,
-        alt: "HireOG - Master Frontend Interviews with AI"
+        alt: "HireOG - Master  Interviews with AI"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "HireOG — Master Frontend Interviews with AI",
+    title: "HireOG — Master  Interviews with AI",
     description: "AI-powered mock interviews with voice analysis and confidence tracking. Practice 500+ real coding challenges from Google, Meta, Amazon with interactive code editor.",
     images: ["https://hireog.com/og-image.png"],
     creator: "@hireog",
@@ -127,7 +127,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "HireOG",
-    "description": "Master frontend interviews with AI-powered mock interviews, voice analysis, confidence tracking, and personalized feedback. Practice 500+ real coding challenges from Google, Meta, Amazon.",
+    "description": "Master  interviews with AI-powered mock interviews, voice analysis, confidence tracking, and personalized feedback. Practice 500+ real coding challenges from Google, Meta, Amazon.",
     "url": "https://hireog.com",
     "inLanguage": "en-US",
     "isAccessibleForFree": true,

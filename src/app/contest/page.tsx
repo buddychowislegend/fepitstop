@@ -242,7 +242,7 @@ export default function ContestPage() {
               INDIA'S FIRST
             </motion.p>
             <motion.h1 
-              className="text-6xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-6 leading-tight"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold text-white mb-6 leading-tight px-4"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.5 }}
@@ -250,15 +250,15 @@ export default function ContestPage() {
               <span className="bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] bg-clip-text text-transparent">
                 INTERVIEW
               </span>{' '}
-              COMPETITION
+              <span className="break-words">COMPETITION</span>
             </motion.h1>
             <motion.p 
-              className="text-xl text-white/90 max-w-3xl mx-auto mb-10 leading-relaxed"
+              className="text-xl text-white/90 max-w-3xl mx-auto mb-10 leading-relaxed px-4"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}
             >
-              Your skills are your greatest asset. Prove them in the ultimate arena, win epic prizes, and get fast-tracked into India's leading tech companies.
+              Your skills are your greatest asset. Step into the ultimate challenge, showcase your talent, and win epic prizes—whether you're a student, working professional, or simply looking to test your abilities.
             </motion.p>
             <motion.button
               onClick={() => router.push('/contest/register')}
@@ -372,8 +372,8 @@ export default function ContestPage() {
               {
                 step: 3,
                 icon: <Star className="w-8 h-8" />,
-                title: "Win & Get Hired",
-                description: "Top performers win amazing gadgets and a golden ticket to skip the first round at partner companies."
+                title: "Win Big",
+                description: "Top performers take home exciting prizes, exclusive goodies, and a chance to fast-track hiring opportunities with partner companies."
               }
             ].map((item, index) => (
               <motion.div
@@ -425,14 +425,14 @@ export default function ContestPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            The Winner's Spoils
+            Where Skills Turn Into Rewards
           </motion.h2>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                title: "Top Tech Gadgets",
-                description: "Win the latest gear like MacBook Pros, flagship smartphones, and high-end accessories to power up your workspace.",
+                title: "Rank 1 — Win a Brand-New Apple MacBook",
+                description: "The ultimate champion walks away with the iconic Apple MacBook. Sleek, powerful, and built for success—perfect for work, creativity, or your next big idea.",
                 image: (
                   <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-700/50 bg-black">
                     {/* MacBook Image */}
@@ -483,11 +483,11 @@ export default function ContestPage() {
                 )
               },
               {
-                title: "Interview Fast-Track",
-                description: "The ultimate prize: Top contestants get a direct pass to final interview rounds with our prestigious partner companies.",
+                title: "Rank 2 — Trip to Sri Lanka",
+                description: "Escape to the paradise island! Rank 2 wins a 2-night, 3-day Sri Lanka getaway. A beautiful destination and a memorable experience—on us.",
                 image: (
-                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-yellow-500/30 bg-black">
-                    {/* Golden Ticket Image */}
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-emerald-500/30 bg-black">
+                    {/* Sri Lanka Image */}
                     <motion.div
                       className="relative w-full h-full"
                       animate={{ 
@@ -497,42 +497,36 @@ export default function ContestPage() {
                       transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
                     >
                       <Image
-                        src="/images/golden_ticket_contest.png"
-                        alt="Golden Ticket"
+                        src="/images/srilanka_contest.png"
+                        alt="Trip to Sri Lanka"
                         fill
                         className="object-cover"
                         priority
                       />
                       {/* Overlay glow effect */}
                       <motion.div 
-                        className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-transparent"
-                        animate={{ opacity: [0.3, 0.7, 0.3] }}
+                        className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent"
+                        animate={{ opacity: [0.3, 0.5, 0.3] }}
                         transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
                       />
-                      {/* Enhanced golden glow */}
-                      <motion.div 
-                        className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-transparent to-yellow-400/10"
-                        animate={{ opacity: [0.4, 0.8, 0.4] }}
-                        transition={{ duration: 2.5, repeat: Infinity }}
-                      />
-                      {/* Floating golden particles overlay */}
-                      {[...Array(8)].map((_, i) => (
+                      {/* Floating particles overlay */}
+                      {[...Array(5)].map((_, i) => (
                         <motion.div
                           key={i}
-                          className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full"
+                          className="absolute w-1 h-1 bg-emerald-400 rounded-full"
                           style={{
-                            left: `${15 + i * 10}%`,
-                            top: `${20 + (i % 3) * 30}%`,
+                            left: `${20 + i * 15}%`,
+                            top: `${30 + (i % 2) * 40}%`,
                           }}
                           animate={{
-                            y: [-8, 8, -8],
-                            opacity: [0.4, 1, 0.4],
-                            scale: [1, 1.8, 1],
+                            y: [-10, 10, -10],
+                            opacity: [0.3, 1, 0.3],
+                            scale: [1, 1.5, 1],
                           }}
                           transition={{
-                            duration: 2.5 + i * 0.4,
+                            duration: 2 + i * 0.5,
                             repeat: Infinity,
-                            delay: i * 0.2,
+                            delay: i * 0.3 + 0.5,
                           }}
                         />
                       ))}
@@ -541,11 +535,11 @@ export default function ContestPage() {
                 )
               },
               {
-                title: "Exclusive Swag & Perks",
-                description: "Get your hands on exclusive HIREOG merchandise, premium subscriptions, and other cool perks from our sponsors.",
+                title: "Rank 3 — Trip to Goa",
+                description: "Sun, sand, and serenity! Rank 3 enjoys a 2-night, 3-day Goa trip. Your perfect tropical escape awaits.",
                 image: (
-                  <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-700/50 bg-black">
-                    {/* Swag Merchandise Image */}
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-orange-500/30 bg-black">
+                    {/* Goa Image */}
                     <motion.div
                       className="relative w-full h-full"
                       animate={{ 
@@ -555,8 +549,112 @@ export default function ContestPage() {
                       transition={{ duration: 4, repeat: Infinity, delay: 1 }}
                     >
                       <Image
+                        src="/images/goa_contest.png"
+                        alt="Trip to Goa"
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                      {/* Overlay glow effect */}
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent"
+                        animate={{ opacity: [0.3, 0.5, 0.3] }}
+                        transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+                      />
+                      {/* Floating particles overlay */}
+                      {[...Array(5)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 bg-orange-400 rounded-full"
+                          style={{
+                            left: `${20 + i * 15}%`,
+                            top: `${30 + (i % 2) * 40}%`,
+                          }}
+                          animate={{
+                            y: [-10, 10, -10],
+                            opacity: [0.3, 1, 0.3],
+                            scale: [1, 1.5, 1],
+                          }}
+                          transition={{
+                            duration: 2 + i * 0.5,
+                            repeat: Infinity,
+                            delay: i * 0.3 + 1,
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  </div>
+                )
+              },
+              {
+                title: "Rank 4 – 50 — Premium Headsets",
+                description: "Top 50 deserve something special. Winners from Rank 4 to 50 get high-quality headsets to upgrade their music, calls, and work setup.",
+                image: (
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-purple-500/30 bg-black">
+                    {/* Premium Headsets Image */}
+                    <motion.div
+                      className="relative w-full h-full"
+                      animate={{ 
+                        y: [0, -5, 0],
+                        scale: [1, 1.02, 1]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, delay: 2.5 }}
+                    >
+                      <Image
+                        src="/images/headsets_contest.png"
+                        alt="Premium Headsets"
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                      {/* Overlay glow effect */}
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent"
+                        animate={{ opacity: [0.3, 0.5, 0.3] }}
+                        transition={{ duration: 3, repeat: Infinity, delay: 2.5 }}
+                      />
+                      {/* Floating particles overlay */}
+                      {[...Array(5)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 bg-purple-400 rounded-full"
+                          style={{
+                            left: `${20 + i * 15}%`,
+                            top: `${30 + (i % 2) * 40}%`,
+                          }}
+                          animate={{
+                            y: [-10, 10, -10],
+                            opacity: [0.3, 1, 0.3],
+                            scale: [1, 1.5, 1],
+                          }}
+                          transition={{
+                            duration: 2 + i * 0.5,
+                            repeat: Infinity,
+                            delay: i * 0.3 + 2.5,
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  </div>
+                )
+              },
+              {
+                title: "Rank 51 – 100 — Exclusive Goodies",
+                description: "From cool merchandise to surprise perks—ranks 51 to 100 take home exclusive goodies and collectibles.",
+                image: (
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-700/50 bg-black">
+                    {/* Exclusive Goodies Image */}
+                    <motion.div
+                      className="relative w-full h-full"
+                      animate={{ 
+                        y: [0, -5, 0],
+                        scale: [1, 1.02, 1]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, delay: 2.5 }}
+                    >
+                      <Image
                         src="/images/swag_contest.png"
-                        alt="Exclusive Swag & Perks"
+                        alt="Exclusive Goodies"
                         fill
                         className="object-cover"
                         priority
@@ -565,7 +663,7 @@ export default function ContestPage() {
                       <motion.div 
                         className="absolute inset-0 bg-gradient-to-br from-[#5cd3ff]/10 to-transparent"
                         animate={{ opacity: [0.3, 0.5, 0.3] }}
-                        transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+                        transition={{ duration: 3, repeat: Infinity, delay: 2.5 }}
                       />
                       {/* Enhanced teal glow */}
                       <motion.div 
@@ -590,7 +688,7 @@ export default function ContestPage() {
                           transition={{
                             duration: 2.5 + i * 0.3,
                             repeat: Infinity,
-                            delay: i * 0.2 + 1,
+                            delay: i * 0.2 + 2.5,
                           }}
                         />
                       ))}
@@ -599,37 +697,37 @@ export default function ContestPage() {
                 )
               },
               {
-                title: "Trip to Sri Lanka",
-                description: "Experience the paradise island with an all-expenses-paid trip to Sri Lanka. Explore pristine beaches, ancient temples, and lush landscapes.",
+                title: "Refer & Win — Apple AirPods",
+                description: "Invite friends, help them prepare for success, and you could win brand-new Apple AirPods. More friends = more chances!",
                 image: (
-                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-emerald-500/30 bg-black">
-                    {/* Sri Lanka Image */}
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-blue-500/30 bg-black">
+                    {/* Apple AirPods Image */}
                     <motion.div
                       className="relative w-full h-full"
                       animate={{ 
                         y: [0, -5, 0],
                         scale: [1, 1.02, 1]
                       }}
-                      transition={{ duration: 4, repeat: Infinity, delay: 1.5 }}
+                      transition={{ duration: 4, repeat: Infinity, delay: 3 }}
                     >
                       <Image
-                        src="/images/srilanka_contest.png"
-                        alt="Trip to Sri Lanka"
+                        src="/images/airpods_contest.png"
+                        alt="Apple AirPods"
                         fill
                         className="object-cover"
                         priority
                       />
                       {/* Overlay glow effect */}
                       <motion.div 
-                        className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent"
+                        className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent"
                         animate={{ opacity: [0.3, 0.5, 0.3] }}
-                        transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
+                        transition={{ duration: 3, repeat: Infinity, delay: 3 }}
                       />
                       {/* Floating particles overlay */}
                       {[...Array(5)].map((_, i) => (
                         <motion.div
                           key={i}
-                          className="absolute w-1 h-1 bg-emerald-400 rounded-full"
+                          className="absolute w-1 h-1 bg-blue-400 rounded-full"
                           style={{
                             left: `${20 + i * 15}%`,
                             top: `${30 + (i % 2) * 40}%`,
@@ -642,59 +740,7 @@ export default function ContestPage() {
                           transition={{
                             duration: 2 + i * 0.5,
                             repeat: Infinity,
-                            delay: i * 0.3 + 1.5,
-                          }}
-                        />
-                      ))}
-                    </motion.div>
-                  </div>
-                )
-              },
-              {
-                title: "Trip to Goa",
-                description: "Unwind on the beautiful beaches of Goa with a fully sponsored vacation. Enjoy the vibrant nightlife, Portuguese heritage, and stunning coastline.",
-                image: (
-                  <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-orange-500/30 bg-black">
-                    {/* Goa Image */}
-                    <motion.div
-                      className="relative w-full h-full"
-                      animate={{ 
-                        y: [0, -5, 0],
-                        scale: [1, 1.02, 1]
-                      }}
-                      transition={{ duration: 4, repeat: Infinity, delay: 2 }}
-                    >
-                      <Image
-                        src="/images/goa_contest.png"
-                        alt="Trip to Goa"
-                        fill
-                        className="object-cover"
-                        priority
-                      />
-                      {/* Overlay glow effect */}
-                      <motion.div 
-                        className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent"
-                        animate={{ opacity: [0.3, 0.5, 0.3] }}
-                        transition={{ duration: 3, repeat: Infinity, delay: 2 }}
-                      />
-                      {/* Floating particles overlay */}
-                      {[...Array(5)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-1 h-1 bg-orange-400 rounded-full"
-                          style={{
-                            left: `${20 + i * 15}%`,
-                            top: `${30 + (i % 2) * 40}%`,
-                          }}
-                          animate={{
-                            y: [-10, 10, -10],
-                            opacity: [0.3, 1, 0.3],
-                            scale: [1, 1.5, 1],
-                          }}
-                          transition={{
-                            duration: 2 + i * 0.5,
-                            repeat: Infinity,
-                            delay: i * 0.3 + 2,
+                            delay: i * 0.3 + 3,
                           }}
                         />
                       ))}
@@ -720,7 +766,58 @@ export default function ContestPage() {
           </div>
         </section>
 
-   
+        {/* TRUSTED BY MONGODB SECTION */}
+        <section className="max-w-7xl mx-auto px-6 py-12">
+          <motion.div
+            className="flex flex-col items-center justify-center gap-4"
+            initial={{ y: 30, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <p className="text-white/60 text-sm uppercase tracking-wider mb-2">Trusted by</p>
+            <motion.div
+              className="flex items-center gap-3"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              {/* MongoDB Logo */}
+              <svg
+                width="140"
+                height="32"
+                viewBox="0 0 140 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* MongoDB Leaf Icon */}
+                <path
+                  d="M16 2C16 2 12 6 10 10C8 14 6 20 6 24C6 28 8 30 10 30C12 30 14 28 14 26C14 24 14 20 16 16C18 12 20 8 20 6C20 4 18 2 16 2Z"
+                  fill="#00ED64"
+                />
+                <path
+                  d="M16 2C16 2 20 6 22 10C24 14 26 20 26 24C26 28 24 30 22 30C20 30 18 28 18 26C18 24 18 20 16 16C14 12 12 8 12 6C12 4 14 2 16 2Z"
+                  fill="#00684A"
+                />
+                <path
+                  d="M16 2C18 2 20 4 20 6C20 8 18 12 16 16C14 20 14 24 14 26C14 28 12 30 10 30C8 30 6 28 6 24C6 20 8 14 10 10C12 6 16 2 16 2Z"
+                  fill="#00ED64"
+                />
+                {/* MongoDB Text */}
+                <text
+                  x="28"
+                  y="22"
+                  fill="white"
+                  fontSize="20"
+                  fontWeight="600"
+                  fontFamily="system-ui, -apple-system, sans-serif"
+                  letterSpacing="0.5px"
+                >
+                  MongoDB
+                </text>
+              </svg>
+            </motion.div>
+          </motion.div>
+        </section>
 
         {/* FOOTER */}
         <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-white/10">
