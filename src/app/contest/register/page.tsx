@@ -14,10 +14,10 @@ export default function ContestRegisterPage() {
     email: "",
     phoneNumber: "",
     currentRole: "",
+    otherRole: "",
     yearsOfExperience: "",
     linkedinProfile: "",
     participationReason: "",
-    agreedToTerms: false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,13 +61,6 @@ export default function ContestRegisterPage() {
 
   // Primary skills selection removed
 
-  const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      agreedToTerms: e.target.checked
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -84,11 +77,10 @@ export default function ContestRegisterPage() {
           lastName: formData.lastName,
           email: formData.email,
           phoneNumber: formData.phoneNumber,
-          currentRole: formData.currentRole,
+          currentRole: formData.currentRole === 'Other' ? formData.otherRole : formData.currentRole,
           yearsOfExperience: formData.yearsOfExperience,
           linkedinProfile: formData.linkedinProfile,
           participationReason: formData.participationReason,
-          agreedToTerms: formData.agreedToTerms,
         }),
       });
 
@@ -107,10 +99,10 @@ export default function ContestRegisterPage() {
             email: "",
             phoneNumber: "",
             currentRole: "",
+            otherRole: "",
             yearsOfExperience: "",
             linkedinProfile: "",
             participationReason: "",
-            agreedToTerms: false,
           });
         }, 2000);
       } else {
@@ -340,6 +332,22 @@ export default function ContestRegisterPage() {
                       <option key={role} value={role} className="bg-gray-900">{role}</option>
                     ))}
                   </select>
+                  {formData.currentRole === 'Other' && (
+                    <div className="mt-3">
+                      <label className="block text-white font-medium mb-2">
+                        Please specify your role <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="otherRole"
+                        value={formData.otherRole}
+                        onChange={handleInputChange}
+                        placeholder="Type your role"
+                        required
+                        className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#5cd3ff] focus:ring-2 focus:ring-[#5cd3ff]/50 transition-all"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-white font-medium mb-2">
@@ -368,25 +376,7 @@ export default function ContestRegisterPage() {
         
               </div>
 
-              {/* Terms and Conditions */}
-              <div className="mb-8">
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={formData.agreedToTerms}
-                    onChange={handleTermsChange}
-                    required
-                    className="mt-1 w-4 h-4 rounded bg-white/10 border-white/20 text-[#5cd3ff] focus:ring-[#5cd3ff] focus:ring-2"
-                  />
-                  <span className="text-white/80 text-sm group-hover:text-white transition-colors">
-                    I agree to the{' '}
-                    <a href="/terms" className="text-[#5cd3ff] hover:underline">Terms and Conditions</a>
-                    {' '}and{' '}
-                    <a href="/privacy" className="text-[#5cd3ff] hover:underline">Privacy Policy</a>.
-                    I understand that this is a competitive event and my participation data may be used for evaluation purposes.
-                  </span>
-                </label>
-              </div>
+              {/* Terms and Conditions removed per request */}
 
               {/* Submit Button */}
               <motion.button
