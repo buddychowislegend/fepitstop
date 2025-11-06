@@ -103,5 +103,24 @@ router.get('/register', async (req, res) => {
   }
 });
 
+// GET /api/contest/count - Get total registration count (1352 + database records)
+router.get('/count', async (req, res) => {
+  try {
+    await connectDB();
+
+    const dbCount = await ContestRegistration.countDocuments();
+    const totalCount = 1352 + dbCount;
+
+    res.json({ 
+      count: totalCount,
+      dbCount: dbCount,
+      baseCount: 1352
+    });
+  } catch (error) {
+    console.error('Get registration count error:', error);
+    res.status(500).json({ error: 'Failed to fetch registration count' });
+  }
+});
+
 module.exports = router;
 

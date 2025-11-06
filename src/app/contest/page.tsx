@@ -1,15 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Trophy, Star, UserPlus, Linkedin, Facebook, Instagram, Briefcase, Award } from "lucide-react";
+import { ArrowRight, Trophy, Star, UserPlus, Linkedin, Facebook, Instagram, Briefcase, Award, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import ContestIntroAnimation from "@/components/ContestIntroAnimation";
+import { api } from "@/lib/config";
 
 export default function ContestPage() {
   const router = useRouter();
   const [showIntro, setShowIntro] = useState(true);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [registrationCount, setRegistrationCount] = useState(1352);
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 300], [0, -50]);
   const y2 = useTransform(scrollY, [0, 300], [0, -25]);
@@ -24,6 +26,36 @@ export default function ContestPage() {
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Fetch registration count from API
+  useEffect(() => {
+    const fetchRegistrationCount = async () => {
+      try {
+        const response = await fetch(api('/contest/count'));
+        if (response.ok) {
+          const data = await response.json();
+          setRegistrationCount(data.count);
+        } else {
+          // Fallback to 1352 if API fails
+          setRegistrationCount(1352);
+        }
+      } catch (error) {
+        console.error('Failed to fetch registration count:', error);
+        // Fallback to 1352 if API fails
+        setRegistrationCount(1352);
+      }
+    };
+
+    fetchRegistrationCount();
+
+    // Listen for registration count updates
+    const handleRegistrationUpdate = async () => {
+      await fetchRegistrationCount();
+    };
+
+    window.addEventListener('registrationCountUpdated', handleRegistrationUpdate);
+    return () => window.removeEventListener('registrationCountUpdated', handleRegistrationUpdate);
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -196,6 +228,19 @@ export default function ContestPage() {
           >
             HIREOG
           </motion.div>
+          
+          {/* Registration Count */}
+          <motion.div
+            className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20"
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Users className="w-4 h-4 text-[#5cd3ff]" />
+            <span className="text-white/90 text-sm font-medium">
+              <span className="text-[#5cd3ff] font-bold">{registrationCount.toLocaleString()}</span> Registered
+            </span>
+          </motion.div>
           {/* <nav className="hidden md:flex gap-8 text-sm font-medium text-white">
             {['How it Works', 'Prizes', 'Partners'].map((item, index) => (
               <motion.a 
@@ -253,13 +298,27 @@ export default function ContestPage() {
               <span className="break-words">COMPETITION</span>
             </motion.h1>
             <motion.p 
-              className="text-xl text-white/90 max-w-3xl mx-auto mb-10 leading-relaxed px-4"
+              className="text-xl text-white/90 max-w-3xl mx-auto mb-6 leading-relaxed px-4"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}
             >
               Your skills are your greatest asset. Step into the ultimate challenge, showcase your talent, and win epic prizes—whether you're a student, working professional, or simply looking to test your abilities.
             </motion.p>
+            
+            {/* Registration Count - Mobile & Desktop */}
+            <motion.div
+              className="flex md:hidden items-center justify-center gap-2 mb-8 px-4 py-3 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 max-w-xs mx-auto"
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+            >
+              <Users className="w-4 h-4 text-[#5cd3ff]" />
+              <span className="text-white/90 text-sm font-medium">
+                <span className="text-[#5cd3ff] font-bold">{registrationCount.toLocaleString()}</span> Registered
+              </span>
+            </motion.div>
+            
             <motion.button
               onClick={() => router.push('/contest/register')}
               className="inline-flex items-center gap-3 px-10 py-4 rounded-xl bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] text-white font-bold text-lg uppercase tracking-wide hover:opacity-90 transition-opacity shadow-2xl"

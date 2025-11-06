@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Trophy, Rocket, Users, Send, CheckCircle, XCircle, Linkedin, Facebook, Instagram } from "lucide-react";
@@ -8,6 +8,7 @@ import { api } from "@/lib/config";
 
 export default function ContestRegisterPage() {
   const router = useRouter();
+  const [registrationCount, setRegistrationCount] = useState(1352);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -61,6 +62,36 @@ export default function ContestRegisterPage() {
 
   // Primary skills selection removed
 
+  // Fetch registration count from API
+  useEffect(() => {
+    const fetchRegistrationCount = async () => {
+      try {
+        const response = await fetch(api('/contest/count'));
+        if (response.ok) {
+          const data = await response.json();
+          setRegistrationCount(data.count);
+        } else {
+          // Fallback to 1352 if API fails
+          setRegistrationCount(1352);
+        }
+      } catch (error) {
+        console.error('Failed to fetch registration count:', error);
+        // Fallback to 1352 if API fails
+        setRegistrationCount(1352);
+      }
+    };
+
+    fetchRegistrationCount();
+
+    // Listen for registration count updates
+    const handleRegistrationUpdate = async () => {
+      await fetchRegistrationCount();
+    };
+
+    window.addEventListener('registrationCountUpdated', handleRegistrationUpdate);
+    return () => window.removeEventListener('registrationCountUpdated', handleRegistrationUpdate);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -91,6 +122,24 @@ export default function ContestRegisterPage() {
           type: 'success',
           message: data.message || 'Registration successful! You will receive a confirmation email within 24 hours.'
         });
+        
+        // Update registration count locally and dispatch event
+        const fetchUpdatedCount = async () => {
+          try {
+            const countResponse = await fetch(api('/contest/count'));
+            if (countResponse.ok) {
+              const countData = await countResponse.json();
+              setRegistrationCount(countData.count);
+            }
+          } catch (error) {
+            console.error('Failed to fetch updated count:', error);
+          }
+        };
+        
+        fetchUpdatedCount();
+        // Dispatch event to update count on contest page (will fetch from API)
+        window.dispatchEvent(new CustomEvent('registrationCountUpdated'));
+        
         // Reset form after successful submission
         setTimeout(() => {
           setFormData({
@@ -196,25 +245,35 @@ export default function ContestRegisterPage() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <motion.div 
-            className="text-2xl font-bold text-white uppercase tracking-wider cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-            onClick={() => router.push('/contest')}
-          >
-            PORTAL
-          </motion.div>
-          <motion.button
-            onClick={() => router.push('/contest')}
-            className="px-6 py-2 rounded-lg border border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-all"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Back to Contest
-          </motion.button>
+ 
+          
+          <div className="flex items-center gap-4">
+            {/* Registration Count */}
+            <motion.div
+              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20"
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Users className="w-4 h-4 text-[#5cd3ff]" />
+              <span className="text-white/90 text-sm font-medium">
+                <span className="text-[#5cd3ff] font-bold">{registrationCount.toLocaleString()}</span> Registered
+              </span>
+            </motion.div>
+            
+            <motion.button
+              onClick={() => router.push('/contest')}
+              className="px-6 py-2 rounded-lg border border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Back to Contest
+            </motion.button>
+          </div>
         </motion.header>
 
         {/* HERO SECTION */}
-        <section className="max-w-7xl mx-auto px-6 py-12 text-center relative">
+        <section className="max-w-7xl mx-auto px-6 pt-12 pb-6 text-center relative">
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -232,18 +291,31 @@ export default function ContestRegisterPage() {
               </span>
             </motion.h1>
             <motion.p 
-              className="text-xl text-white/90 max-w-3xl mx-auto mb-10 leading-relaxed"
+              className="text-xl text-white/90 max-w-3xl mx-auto mb-6 leading-relaxed"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.5 }}
             >
               Register now for India's first interview competition. Showcase your skills, win amazing prizes, and fast-track your career.
             </motion.p>
+            
+            {/* Registration Count - Mobile */}
+            <motion.div
+              className="flex md:hidden items-center justify-center gap-2 mb-8 px-4 py-3 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 max-w-xs mx-auto"
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            >
+              <Users className="w-4 h-4 text-[#5cd3ff]" />
+              <span className="text-white/90 text-sm font-medium">
+                <span className="text-[#5cd3ff] font-bold">{registrationCount.toLocaleString()}</span> Registered
+              </span>
+            </motion.div>
           </motion.div>
         </section>
 
         {/* REGISTRATION FORM SECTION */}
-        <section className="max-w-4xl mx-auto px-6 py-12">
+        <section className="max-w-4xl mx-auto px-6 pt-6 pb-12">
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
