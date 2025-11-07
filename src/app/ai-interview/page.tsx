@@ -44,6 +44,47 @@ type InterviewSession = {
   timeRemaining: number;
 };
 
+type ProfileOption = 'frontend' | 'backend' | 'product' | 'business' | 'qa' | 'hr' | 'data';
+
+const FRONTEND_FOCUS_OPTIONS = [
+  { id: 'javascript', title: 'JavaScript', desc: 'Core JavaScript concepts', icon: '⚡', gradient: 'from-[#ffb21e] to-[#f59f00]' },
+  { id: 'react', title: 'React', desc: 'React ecosystem & patterns', icon: '⚛️', gradient: 'from-[#5cd3ff] to-[#6f5af6]' },
+  { id: 'fullstack', title: 'Fullstack', desc: 'Full-stack development', icon: '🌐', gradient: 'from-[#a855f7] to-[#6f5af6]' }
+] as const;
+
+const FRONTEND_FRAMEWORKS = ['react', 'react-native', 'vue', 'angular', 'svelte', 'nextjs'] as const;
+
+const PROFILE_FOCUS_MAP: Record<ProfileOption, string> = {
+  frontend: 'fullstack',
+  backend: 'backend_architecture',
+  product: 'product_strategy',
+  business: 'business_development',
+  qa: 'quality_assurance',
+  hr: 'hr_processes',
+  data: 'data_analytics'
+};
+
+const PROFILE_FRAMEWORK_MAP: Record<ProfileOption, string> = {
+  frontend: 'react',
+  backend: 'spring_boot',
+  product: 'product_management',
+  business: 'business_strategy',
+  qa: 'qa_automation',
+  hr: 'hr_operations',
+  data: 'data_tooling'
+};
+
+const mapProfileString = (value?: string | null): ProfileOption => {
+  const lower = (value || '').toLowerCase();
+  if (lower.includes('back')) return 'backend';
+  if (lower.includes('product')) return 'product';
+  if (lower.includes('hr') || lower.includes('human')) return 'hr';
+  if (lower.includes('business') || lower.includes('sales')) return 'business';
+  if (lower.includes('qa') || lower.includes('quality') || lower.includes('test')) return 'qa';
+  if (lower.includes('data') || lower.includes('analyt')) return 'data';
+  return 'frontend';
+};
+
 function AIInterviewContent() {
   const { user, token, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -52,19 +93,7 @@ function AIInterviewContent() {
   // Mouse tracking for background animations
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
-      });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-  
-  // Company interview parameters
+  const initialProfile = useMemo(() => mapProfileString(user?.profile), [user?.profile]);
   const [companyParams, setCompanyParams] = useState<{
     token?: string;
     company?: string;
@@ -145,10 +174,10 @@ function AIInterviewContent() {
   const currentQuestionStartTimeRef = useRef<Date | null>(null);
   
   // Settings
-  const [profile, setProfile] = useState<'frontend' | 'product' | 'business' | 'qa' | 'hr' | 'backend'>(user?.profile as any || 'frontend');
+  const [profile, setProfile] = useState<ProfileOption>(initialProfile);
   const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>('mid');
-  const [focus, setFocus] = useState<'javascript' | 'react' | 'fullstack'>('fullstack');
-  const [framework, setFramework] = useState<'react' | 'react-native' | 'vue' | 'angular' | 'svelte' | 'nextjs'>('react');
+  const [focus, setFocus] = useState<string>(PROFILE_FOCUS_MAP[initialProfile]);
+  const [framework, setFramework] = useState<string>(PROFILE_FRAMEWORK_MAP[initialProfile]);
   const [jdText, setJdText] = useState<string>('');
   const [jdUploading, setJdUploading] = useState<boolean>(false);
   const [selectedInterviewer, setSelectedInterviewer] = useState<Interviewer | null>(null);
@@ -466,6 +495,48 @@ function AIInterviewContent() {
           specialties: ['Leadership Development', 'Change Management', 'HR Analytics'],
           gender: 'male' as const
         }
+      ],
+      data: [
+        {
+          id: 'ananya-iyer',
+          name: 'Ananya Iyer',
+          role: 'Lead Data Analyst',
+          company: 'Google',
+          experience: '9+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['SQL', 'Data Modeling', 'A/B Testing'],
+          gender: 'female' as const
+        },
+        {
+          id: 'rohan-mehta',
+          name: 'Rohan Mehta',
+          role: 'Senior Analytics Manager',
+          company: 'Amazon',
+          experience: '11+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Business Intelligence', 'Forecasting', 'Dashboards'],
+          gender: 'male' as const
+        },
+        {
+          id: 'sarah-williams',
+          name: 'Sarah Williams',
+          role: 'Principal Data Scientist',
+          company: 'Meta',
+          experience: '10+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Machine Learning', 'Statistics', 'Experimentation'],
+          gender: 'female' as const
+        },
+        {
+          id: 'li-wei',
+          name: 'Li Wei',
+          role: 'Analytics Lead',
+          company: 'Netflix',
+          experience: '8+ years',
+          avatar: '/api/placeholder/200/200',
+          specialties: ['Data Storytelling', 'Product Analytics', 'ETL Pipelines'],
+          gender: 'male' as const
+        }
       ]
     };
 
@@ -525,17 +596,7 @@ function AIInterviewContent() {
               });
 
               // Auto-select profile based on screening configuration
-              const profileMapping: { [key: string]: any } = {
-                'frontend': 'frontend',
-                'backend': 'backend',
-                'fullstack': 'fullstack',
-                'product': 'product',
-                'business': 'business',
-                'qa': 'qa',
-                'hr': 'hr'
-              };
-              
-              const mappedProfile = profileMapping[config.candidateProfile?.toLowerCase()] || 'frontend';
+              const mappedProfile = mapProfileString(config.candidateProfile || config.positionTitle);
               setProfile(mappedProfile);
 
               // Skip setup and go directly to interviewer selection for company interviews
@@ -707,6 +768,9 @@ function AIInterviewContent() {
   const startInterview = async () => {
     if (!user || !token || !selectedInterviewer) return;
     
+    const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
+    const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
+    
     // Track interview start
     trackAIEvent('interview_started', {
       interviewer: selectedInterviewer.name,
@@ -726,7 +790,8 @@ function AIInterviewContent() {
           action: 'start',
           profile,
           level,
-          ...(profile === 'frontend' ? { focus, framework } : {}),
+          focus: focusForRequest,
+          framework: frameworkForRequest,
           jdText,
           interviewer: selectedInterviewer
         })
@@ -742,7 +807,7 @@ function AIInterviewContent() {
         id: data.sessionId,
         interviewer: selectedInterviewer,
         level,
-        focus,
+        focus: focusForRequest,
         startTime: new Date(),
         messages: [{
           role: 'interviewer',
@@ -1073,6 +1138,8 @@ function AIInterviewContent() {
       
       setLoading(true);
       try {
+        const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
+        const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
         const response = await fetch('/api/ai-interview', {
           method: 'POST',
           headers: {
@@ -1087,7 +1154,8 @@ function AIInterviewContent() {
             profile,
             level,
             currentQuestion: session.currentQuestion,
-            ...(profile === 'frontend' ? { focus, framework } : {}),
+            focus: focusForRequest,
+            framework: frameworkForRequest,
             jdText
           })
         });
@@ -1149,6 +1217,8 @@ function AIInterviewContent() {
       
       setLoading(true);
       try {
+        const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
+        const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
         const response = await fetch('/api/ai-interview', {
           method: 'POST',
           headers: {
@@ -1163,7 +1233,8 @@ function AIInterviewContent() {
             profile,
             level,
             currentQuestion: session.currentQuestion,
-            ...(profile === 'frontend' ? { focus, framework } : {}),
+            focus: focusForRequest,
+            framework: frameworkForRequest,
             jdText
           })
         });
