@@ -38,7 +38,7 @@ router.post('/register', async (req, res) => {
     } = req.body;
 
     // Validation
-    if (!firstName || !lastName || !email || !phoneNumber || !currentRole || !agreedToTerms) {
+    if (!firstName || !lastName || !email || !phoneNumber || !currentRole) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -58,7 +58,7 @@ router.post('/register', async (req, res) => {
       yearsOfExperience: yearsOfExperience || '',
       linkedinProfile: linkedinProfile || '',
       participationReason: participationReason || '',
-      agreedToTerms,
+      agreedToTerms: agreedToTerms || false, // Optional field, default to false
       status: 'pending',
     });
 

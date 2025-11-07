@@ -673,9 +673,9 @@ export default function ContestIntroAnimation({ onComplete }: { onComplete: () =
                 INDIA'S FIRST
               </span>
             </h1>
-            <h2 className="text-4xl md:text-6xl font-bold text-white">
+            <h3 className="text-4xl md:text-6xl font-bold text-white">
               INTERVIEW COMPETITION
-            </h2>
+            </h3>
           </motion.div>
 
           {/* Progress Bar */}

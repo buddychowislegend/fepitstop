@@ -1,10 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { ArrowRight, Target, Brain, ClipboardList } from "lucide-react";
+import { ArrowRight, Target, Brain, ClipboardList, Trophy, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showBanner, setShowBanner] = useState(true);
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 300], [0, -50]);
   const y2 = useTransform(scrollY, [0, 300], [0, -25]);
@@ -85,6 +88,56 @@ export default function Home() {
           />
         ))}
       </div>
+
+      {/* Competition Banner */}
+      {showBanner && (
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -100, opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative z-20 w-full bg-gradient-to-r from-[#5cd3ff] via-[#6f5af6] to-[#5cd3ff] border-b border-white/20"
+        >
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
+              <div className="flex items-center gap-3 md:gap-4 flex-1">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="flex-shrink-0"
+                >
+                  <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                </motion.div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-bold text-base md:text-lg lg:text-xl">
+                    🎉 India's First Interview Competition is Live!
+                  </p>
+                  <p className="text-white/90 text-xs md:text-sm lg:text-base hidden sm:block">
+                    Win amazing prizes, showcase your skills, and fast-track your career
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
+                <motion.button
+                  onClick={() => router.push('/contest')}
+                  className="flex-1 md:flex-none px-4 md:px-6 py-2 rounded-lg bg-white text-[#5cd3ff] font-bold text-sm hover:opacity-90 transition-opacity whitespace-nowrap"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Join Now
+                </motion.button>
+                <button
+                  onClick={() => setShowBanner(false)}
+                  className="p-2 rounded-lg hover:bg-white/20 transition-colors flex-shrink-0"
+                  aria-label="Close banner"
+                >
+                  <X className="w-5 h-5 text-white" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
       {/* HERO */}

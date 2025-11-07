@@ -47,7 +47,7 @@ const contestRegistrationSchema = new mongoose.Schema({
   },
   agreedToTerms: {
     type: Boolean,
-    required: true,
+    required: false,
     default: false,
   },
   createdAt: {

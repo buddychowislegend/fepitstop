@@ -3355,7 +3355,7 @@ function AIInterviewContent() {
             )}
 
             {/* Video Feeds Container */}
-            <div className="flex-1 flex  justify-center gap-6 p-8 min-h-0">
+            <div className="flex-1 flex  justify-center gap-6 px-8 pt-8 pb-8 mb-6 min-h-0">
               {/* AI Interviewer Video Frame */}
               <motion.div 
                 className="relative flex-1 max-w-md"
@@ -3450,11 +3450,11 @@ function AIInterviewContent() {
             </div>
 
             {/* Action Button Section */}
-            <div className="px-8 pb-70 pt-4 flex flex-col items-center gap-3 flex-shrink-0">
+            <div className="mt-12 px-8 pb-70 pt-4 flex flex-col items-center gap-4 flex-shrink-0">
               <motion.button
                 onClick={!isRecording ? startAnswer : stopAnswer}
                 disabled={loading && !isRecording}
-                className={`px-12 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                className={`mt-6 px-12 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
                   isRecording 
                     ? 'bg-red-600 text-white hover:bg-red-700' 
                     : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg'
