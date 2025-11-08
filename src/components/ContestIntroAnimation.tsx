@@ -514,7 +514,7 @@ function Scene({ onComplete, walkTrigger }: { onComplete: () => void, walkTrigge
  
   useFrame((_, delta) => {
     if (walking) {
-      const speed = 1.5;
+      const speed = 3.0;
       const nx = Math.min(manX + speed * delta, doorX + 0.6);
       setManX(nx);
       // Footstep every ~0.45 units
@@ -682,9 +682,7 @@ export default function ContestIntroAnimation({ onComplete }: { onComplete: () =
           <ProgressBar progress={progress} />
 
           {/* Speedometer - hidden on mobile */}
-          <div className="hidden md:block">
-            <Speedometer speed={speed} />
-          </div>
+        
 
           {/* Enter button (starts walking) */}
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 pointer-events-auto">

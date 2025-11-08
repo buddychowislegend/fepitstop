@@ -1,4 +1,5 @@
 const { MongoClient } = require('mongodb');
+const { generateUniqueReferralCode } = require('../utils/referralCode');
 
 class MongoDatabase {
   constructor() {
@@ -55,9 +56,17 @@ class MongoDatabase {
 
   async createUser(userData) {
     await this.ensureConnection();
+    
+    // Generate unique referral code
+    const referralCode = await generateUniqueReferralCode(async (code) => {
+      const existing = await this.db.collection('users').findOne({ referralCode: code });
+      return !!existing;
+    });
+    
     const user = {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       ...userData,
+      referralCode,
       createdAt: new Date().toISOString(),
       completedProblems: [],
       streak: 0,

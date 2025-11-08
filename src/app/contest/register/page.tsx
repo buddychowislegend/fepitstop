@@ -1,25 +1,30 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Trophy, Rocket, Users, Send, CheckCircle, XCircle, Linkedin, Facebook, Instagram, MessageCircle } from "lucide-react";
+import { ArrowRight, Trophy, Rocket, Users, Send, CheckCircle, XCircle, Linkedin, Facebook, Instagram, MessageCircle, Copy } from "lucide-react";
 import Image from "next/image";
 import { api } from "@/lib/config";
+import { useSearchParams } from "next/navigation";
 
-export default function ContestRegisterPage() {
+function ContestRegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [registrationCount, setRegistrationCount] = useState(1352);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [userReferralCode, setUserReferralCode] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phoneNumber: "",
+    city: "",
     currentRole: "",
     otherRole: "",
     yearsOfExperience: "",
     linkedinProfile: "",
     participationReason: "",
+    referredByCode: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,6 +67,17 @@ export default function ContestRegisterPage() {
   };
 
   // Primary skills selection removed
+
+  // Read referral code from URL on mount
+  useEffect(() => {
+    const refCode = searchParams.get('refCode');
+    if (refCode) {
+      setFormData(prev => ({
+        ...prev,
+        referredByCode: refCode.toUpperCase()
+      }));
+    }
+  }, [searchParams]);
 
   // Fetch registration count from API
   useEffect(() => {
@@ -109,16 +125,23 @@ export default function ContestRegisterPage() {
           lastName: formData.lastName,
           email: formData.email,
           phoneNumber: formData.phoneNumber,
+          city: formData.city,
           currentRole: formData.currentRole === 'Other' ? formData.otherRole : formData.currentRole,
           yearsOfExperience: formData.yearsOfExperience,
           linkedinProfile: formData.linkedinProfile,
           participationReason: formData.participationReason,
+          referredByCode: formData.referredByCode || undefined,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
+        // Store user's referral code if available
+        if (data.referralCode) {
+          setUserReferralCode(data.referralCode);
+        }
+        
         setSubmitStatus({
           type: 'success',
           message: data.message || 'Registration successful! You will receive a confirmation email within 24 hours.'
@@ -151,11 +174,13 @@ export default function ContestRegisterPage() {
             lastName: "",
             email: "",
             phoneNumber: "",
+            city: "",
             currentRole: "",
             otherRole: "",
             yearsOfExperience: "",
             linkedinProfile: "",
             participationReason: "",
+            referredByCode: "",
           });
         }, 2000);
       } else {
@@ -394,6 +419,20 @@ export default function ContestRegisterPage() {
                 </div>
                 <div>
                   <label className="block text-white font-medium mb-2">
+                    City <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    placeholder="Enter your city"
+                    required
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#5cd3ff] focus:ring-2 focus:ring-[#5cd3ff]/50 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white font-medium mb-2">
                     Current Role <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -448,8 +487,23 @@ export default function ContestRegisterPage() {
               {/* Full Width Fields */}
               <div className="space-y-6 mb-6">
                 {/* Highest education removed per request */}
-         
-        
+                <div>
+                  <label className="block text-white font-medium mb-2">
+                    Referral Code (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="referredByCode"
+                    value={formData.referredByCode}
+                    onChange={handleInputChange}
+                    placeholder="Enter referral code if you have one"
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#5cd3ff] focus:ring-2 focus:ring-[#5cd3ff]/50 transition-all uppercase"
+                    style={{ textTransform: 'uppercase' }}
+                  />
+                  <p className="text-white/60 text-sm mt-1">
+                    If someone referred you, enter their referral code here
+                  </p>
+                </div>
               </div>
 
               {/* Terms and Conditions removed per request */}
@@ -674,10 +728,57 @@ export default function ContestRegisterPage() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-white/80 text-lg mb-8"
+              className="text-white/80 text-lg mb-6"
             >
               You're all set! Join our WhatsApp group to stay updated and connect with other participants.
             </motion.p>
+
+            {/* Referral Code Section */}
+            {userReferralCode && (
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mb-6 p-4 rounded-xl bg-white/10 border border-white/20"
+              >
+                <p className="text-white/90 font-medium mb-2">Your Referral Code</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <code className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-[#5cd3ff] font-bold text-xl text-center">
+                    {userReferralCode}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(userReferralCode);
+                      // You could add a toast notification here
+                    }}
+                    className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all"
+                    title="Copy code"
+                  >
+                    <Copy className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-white/70 text-sm mb-3">Share your referral link:</p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`https://hireog.com/contest/register?refCode=${userReferralCode}`}
+                    className="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm"
+                  />
+                  <button
+                    onClick={() => {
+                      const link = `https://hireog.com/contest/register?refCode=${userReferralCode}`;
+                      navigator.clipboard.writeText(link);
+                      // You could add a toast notification here
+                    }}
+                    className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all"
+                    title="Copy link"
+                  >
+                    <Copy className="w-5 h-5" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
             {/* WhatsApp CTA Button */}
             <motion.a
@@ -686,7 +787,7 @@ export default function ContestRegisterPage() {
               rel="noopener noreferrer"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: userReferralCode ? 0.6 : 0.5 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-lg hover:opacity-90 transition-opacity shadow-2xl mb-4"
@@ -704,3 +805,16 @@ export default function ContestRegisterPage() {
   );
 }
 
+export default function ContestRegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] flex items-center justify-center">
+        <div className="text-white/60 text-sm uppercase tracking-[0.3em]">
+          Loading...
+        </div>
+      </div>
+    }>
+      <ContestRegisterForm />
+    </Suspense>
+  );
+}

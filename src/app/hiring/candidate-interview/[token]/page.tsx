@@ -2,33 +2,31 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 const AIInterviewPage = dynamic(() => import("@/app/ai-interview/page"), {
   ssr: false,
 });
 
-type CandidateInterviewPageProps = {
-  params: { token: string };
-};
-
-export default function CandidateInterviewPage({ params }: CandidateInterviewPageProps) {
+export default function CandidateInterviewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
   const { user, isLoading: authLoading } = useAuth();
 
+  const token = params?.token as string;
   const searchParamString = useMemo(() => searchParams.toString(), [searchParams]);
   const currentToken = searchParams.get("token");
-  const hasSyncedToken = currentToken === params.token;
+  const hasSyncedToken = currentToken === token;
 
   useEffect(() => {
-    if (!params.token || hasSyncedToken) {
+    if (!token || hasSyncedToken) {
           return;
         }
         
     const newParams = new URLSearchParams(searchParamString);
-    newParams.set("token", params.token);
+    newParams.set("token", token);
 
     if (!newParams.get("company")) {
       newParams.set("company", "HireOG");
@@ -36,9 +34,9 @@ export default function CandidateInterviewPage({ params }: CandidateInterviewPag
 
     const newQuery = newParams.toString();
     router.replace(
-      `/hiring/candidate-interview/${params.token}${newQuery ? `?${newQuery}` : ""}`
+      `/hiring/candidate-interview/${token}${newQuery ? `?${newQuery}` : ""}`
     );
-  }, [params.token, hasSyncedToken, searchParamString, router]);
+  }, [token, hasSyncedToken, searchParamString, router]);
 
   useEffect(() => {
     if (authLoading) {
@@ -47,10 +45,10 @@ export default function CandidateInterviewPage({ params }: CandidateInterviewPag
 
     if (!user) {
       const redirectQuery = searchParamString.length ? `?${searchParamString}` : "";
-      const redirectUrl = `/hiring/candidate-interview/${params.token}${redirectQuery}`;
+      const redirectUrl = `/hiring/candidate-interview/${token}${redirectQuery}`;
       router.replace(`/signin?redirect=${encodeURIComponent(redirectUrl)}`);
     }
-  }, [authLoading, user, router, params.token, searchParamString]);
+  }, [authLoading, user, router, token, searchParamString]);
 
   if (!hasSyncedToken || authLoading || !user) {
     return (

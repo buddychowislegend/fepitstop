@@ -102,7 +102,7 @@ router.post('/verify-otp-and-signup', async (req, res) => {
     res.status(201).json({
       message: 'User created successfully',
       token,
-      user: { id: user.id, email: user.email, name: user.name, profile: user.profile },
+      user: { id: user.id, email: user.email, name: user.name, profile: user.profile, referralCode: user.referralCode },
     });
   } catch (error) {
     console.error('Verify OTP error:', error);
@@ -177,7 +177,7 @@ router.post('/signup', async (req, res) => {
     res.status(201).json({
       message: 'User created successfully',
       token,
-      user: { id: user.id, email: user.email, name: user.name, profile: user.profile },
+      user: { id: user.id, email: user.email, name: user.name, profile: user.profile, referralCode: user.referralCode },
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -229,7 +229,7 @@ router.post('/signin', async (req, res) => {
     res.json({
       message: 'Login successful',
       token,
-      user: { id: user.id, email: user.email, name: user.name, profile: user.profile },
+      user: { id: user.id, email: user.email, name: user.name, profile: user.profile, referralCode: user.referralCode },
     });
   } catch (error) {
     console.error('Signin error:', error);

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const ContestRegistration = require('../models/ContestRegistration');
+const { generateUniqueReferralCode } = require('../utils/referralCode');
 
 // Connect to MongoDB
 const connectDB = async () => {
@@ -30,15 +31,17 @@ router.post('/register', async (req, res) => {
       lastName,
       email,
       phoneNumber,
+      city,
       currentRole,
       yearsOfExperience,
       linkedinProfile,
       participationReason,
       agreedToTerms,
+      referredByCode,
     } = req.body;
 
     // Validation
-    if (!firstName || !lastName || !email || !phoneNumber || !currentRole) {
+    if (!firstName || !lastName || !email || !phoneNumber || !city || !currentRole) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -48,17 +51,29 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ error: 'Email already registered for this competition' });
     }
 
+    // Normalize referral code if provided
+    const normalizedRefCode = referredByCode ? referredByCode.trim().toUpperCase() : null;
+
+    // Generate unique referral code for this registration
+    const userReferralCode = await generateUniqueReferralCode(async (code) => {
+      const existing = await ContestRegistration.findOne({ referralCode: code });
+      return !!existing;
+    });
+
     // Create new registration
     const registration = new ContestRegistration({
       firstName,
       lastName,
       email,
       phoneNumber,
+      city,
       currentRole,
       yearsOfExperience: yearsOfExperience || '',
       linkedinProfile: linkedinProfile || '',
       participationReason: participationReason || '',
       agreedToTerms: agreedToTerms || false, // Optional field, default to false
+      referredByCode: normalizedRefCode,
+      referralCode: userReferralCode,
       status: 'pending',
     });
 
@@ -68,6 +83,7 @@ router.post('/register', async (req, res) => {
       success: true,
       message: 'Registration successful! You will receive a confirmation email within 24 hours.',
       registrationId: registration._id,
+      referralCode: userReferralCode,
     });
   } catch (error) {
     console.error('Registration error:', error);
