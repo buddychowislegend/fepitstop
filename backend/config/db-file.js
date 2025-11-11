@@ -741,15 +741,28 @@ class Database {
     if (!db.interviewDrives) {
       db.interviewDrives = [];
     }
+
+    const candidateIds = Array.isArray(driveData.candidateIds)
+      ? driveData.candidateIds
+      : Array.isArray(driveData.candidates)
+        ? driveData.candidates
+        : [];
+
     const drive = {
       id: Date.now().toString(),
       companyId: driveData.companyId,
       name: driveData.name,
-      status: 'draft',
-      candidates: driveData.candidateIds || [],
-      createdAt: new Date().toISOString()
+      status: driveData.status || 'draft',
+      candidateIds,
+      questions: Array.isArray(driveData.questions) ? driveData.questions : [],
+      jobDescription: driveData.jobDescription || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
-    
+
+    // Backward compatibility for any legacy code still reading `candidates`
+    drive.candidates = drive.candidateIds;
+
     db.interviewDrives.push(drive);
     this.write(db);
     return drive;
@@ -761,7 +774,23 @@ class Database {
       db.interviewDrives = [];
       this.write(db);
     }
-    return db.interviewDrives.filter(d => d.companyId === companyId);
+    return db.interviewDrives
+      .filter(d => d.companyId === companyId)
+      .map(drive => ({
+        ...drive,
+        candidateIds: Array.isArray(drive.candidateIds)
+          ? drive.candidateIds
+          : Array.isArray(drive.candidates)
+            ? drive.candidates
+            : [],
+        candidates: Array.isArray(drive.candidateIds)
+          ? drive.candidateIds
+          : Array.isArray(drive.candidates)
+            ? drive.candidates
+            : [],
+        questions: Array.isArray(drive.questions) ? drive.questions : [],
+        jobDescription: drive.jobDescription || '',
+      }));
   }
 
   async updateInterviewDrive(driveId, updateData) {
@@ -771,7 +800,24 @@ class Database {
     }
     const index = db.interviewDrives.findIndex(d => d.id === driveId);
     if (index !== -1) {
-      db.interviewDrives[index] = { ...db.interviewDrives[index], ...updateData };
+      const existing = db.interviewDrives[index];
+      const candidateIds = Array.isArray(updateData.candidateIds)
+        ? updateData.candidateIds
+        : existing.candidateIds;
+      const questions = Array.isArray(updateData.questions)
+        ? updateData.questions
+        : existing.questions || [];
+
+      db.interviewDrives[index] = {
+        ...existing,
+        ...updateData,
+        candidateIds,
+        candidates: candidateIds,
+        questions,
+        jobDescription: updateData.jobDescription !== undefined ? updateData.jobDescription : (existing.jobDescription || ''),
+        updatedAt: new Date().toISOString()
+      };
+
       this.write(db);
       return db.interviewDrives[index];
     }
@@ -851,7 +897,23 @@ class Database {
     if (!db.interviewDrives) {
       db.interviewDrives = [];
     }
-    return db.interviewDrives.find(d => d.id === driveId);
+    const drive = db.interviewDrives.find(d => d.id === driveId);
+    if (!drive) {
+      return null;
+    }
+    const candidateIds = Array.isArray(drive.candidateIds)
+      ? drive.candidateIds
+      : Array.isArray(drive.candidates)
+        ? drive.candidates
+        : [];
+
+    return {
+      ...drive,
+      candidateIds,
+      candidates: candidateIds,
+      questions: Array.isArray(drive.questions) ? drive.questions : [],
+      jobDescription: drive.jobDescription || '',
+    };
   }
 
   // Screening methods

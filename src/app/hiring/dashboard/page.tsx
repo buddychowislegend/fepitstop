@@ -65,6 +65,22 @@ interface InterviewDrive {
   questions?: string[];
 }
 
+interface NewDriveFormState {
+  name: string;
+  selectedCandidates: string[];
+  jobDescription: string;
+  questions: string[];
+}
+
+type DriveCreationMode = 'selection' | 'jd' | 'custom';
+
+const createEmptyDriveForm = (): NewDriveFormState => ({
+  name: "",
+  selectedCandidates: [],
+  jobDescription: "",
+  questions: [],
+});
+
 export default function CompanyDashboard() {
   // Mouse tracking for background animations
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -90,18 +106,30 @@ export default function CompanyDashboard() {
   const [interviewDrives, setInterviewDrives] = useState<InterviewDrive[]>([]);
   const [showAddCandidate, setShowAddCandidate] = useState(false);
   const [showCreateDrive, setShowCreateDrive] = useState(false);
+  const [driveCreationMode, setDriveCreationMode] = useState<DriveCreationMode>('selection');
   const [newCandidate, setNewCandidate] = useState({ name: "", email: "", profile: "" });
-  const [newDrive, setNewDrive] = useState({ 
-    name: "", 
-    selectedCandidates: [] as string[],
-    jobDescription: "",
-    questions: [] as string[]
-  });
+  const [newDrive, setNewDrive] = useState<NewDriveFormState>(() => createEmptyDriveForm());
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [newQuestion, setNewQuestion] = useState("");
   const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const [companyDisplayName, setCompanyDisplayName] = useState<string>("Company");
   const router = useRouter();
+
+  const handleOpenCreateDrive = () => {
+    setDriveCreationMode('selection');
+    setNewDrive(createEmptyDriveForm());
+    setNewQuestion("");
+    setIsGeneratingQuestions(false);
+    setShowCreateDrive(true);
+  };
+
+  const handleCloseCreateDrive = () => {
+    setShowCreateDrive(false);
+    setDriveCreationMode('selection');
+    setNewDrive(createEmptyDriveForm());
+    setNewQuestion("");
+    setIsGeneratingQuestions(false);
+  };
 
   useEffect(() => {
     // Check authentication
@@ -349,6 +377,10 @@ export default function CompanyDashboard() {
   };
 
   const handleGenerateQuestions = async () => {
+    if (driveCreationMode !== 'jd') {
+      return;
+    }
+
     if (!newDrive.jobDescription.trim()) {
       alert('Please enter a job description first');
       return;
@@ -372,7 +404,10 @@ export default function CompanyDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setNewDrive({ ...newDrive, questions: data.questions || [] });
+        setNewDrive(prev => ({
+          ...prev,
+          questions: data.questions || []
+        }));
       } else {
         const error = await response.json();
         alert(`Error: ${error.error || 'Failed to generate questions'}`);
@@ -386,17 +421,21 @@ export default function CompanyDashboard() {
   };
 
   const handleAddQuestion = () => {
-    if (newQuestion.trim()) {
-      setNewDrive({ ...newDrive, questions: [...newDrive.questions, newQuestion.trim()] });
-      setNewQuestion("");
-    }
+    const trimmed = newQuestion.trim();
+    if (!trimmed) return;
+
+    setNewDrive(prev => ({
+      ...prev,
+      questions: [...prev.questions, trimmed]
+    }));
+    setNewQuestion("");
   };
 
   const handleRemoveQuestion = (index: number) => {
-    setNewDrive({ 
-      ...newDrive, 
-      questions: newDrive.questions.filter((_, i) => i !== index) 
-    });
+    setNewDrive(prev => ({
+      ...prev,
+      questions: prev.questions.filter((_, i) => i !== index)
+    }));
   };
 
   const handleCreateDrive = async (e: React.FormEvent) => {
@@ -437,8 +476,7 @@ export default function CompanyDashboard() {
           completedInterviews: 0
         };
         setInterviewDrives([...interviewDrives, drive]);
-        setNewDrive({ name: "", selectedCandidates: [], jobDescription: "", questions: [] });
-        setShowCreateDrive(false);
+        handleCloseCreateDrive();
       } else {
         const error = await response.json();
         alert(`Error: ${error.error}`);
@@ -447,6 +485,297 @@ export default function CompanyDashboard() {
       console.error('Error creating drive:', error);
       alert('Failed to create interview drive');
     }
+  };
+
+  const renderDriveTypeSelection = () => (
+    <div className="space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="space-y-2"
+      >
+        <h3 className="text-3xl font-bold text-white">Create Interview Drive</h3>
+        <p className="text-white/60 max-w-2xl">
+          Choose how you want to build this drive&apos;s interview experience. Pick an AI-powered JD flow or craft a custom question set from scratch.
+        </p>
+      </motion.div>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        <motion.button
+          type="button"
+          onClick={() => {
+            setNewDrive(createEmptyDriveForm());
+            setNewQuestion("");
+            setDriveCreationMode('jd');
+          }}
+          className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-white/2 to-white/5 p-6 text-left transition-all duration-300"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, delay: 0.05 }}
+          whileHover={{ scale: 1.03, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#5cd3ff]/20 via-[#6f5af6]/10 to-[#2ad17e]/20 blur-lg" />
+          </div>
+          <div className="relative flex h-full flex-col gap-4">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#5cd3ff]/30 via-[#6f5af6]/30 to-[#2ad17e]/30 text-[#5cd3ff]">
+              <Brain className="w-6 h-6" />
+            </div>
+            <div className="space-y-1.5">
+              <h4 className="text-lg font-semibold text-white">JD-based Drive</h4>
+              <p className="text-sm text-white/60 leading-relaxed">
+                Paste a job description and let AI craft a tailored question set. Perfect for rapid, role-aligned interviews with minimal manual work.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-[#5cd3ff] transition-colors group-hover:text-white">
+              Use AI question builder
+              <ArrowRight className="w-4 h-4" />
+            </span>
+          </div>
+        </motion.button>
+
+        <motion.button
+          type="button"
+          onClick={() => {
+            setNewDrive(createEmptyDriveForm());
+            setNewQuestion("");
+            setDriveCreationMode('custom');
+          }}
+          className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-transparent to-white/5 p-6 text-left transition-all duration-300"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, delay: 0.15 }}
+          whileHover={{ scale: 1.03, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#ff7de9]/15 via-[#a855f7]/10 to-[#ffb21e]/15 blur-lg" />
+          </div>
+          <div className="relative flex h-full flex-col gap-4">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#a855f7]/40 via-[#ff7de9]/30 to-[#ffb21e]/30 text-[#ff9bd6]">
+              <Settings className="w-6 h-6" />
+            </div>
+            <div className="space-y-1.5">
+              <h4 className="text-lg font-semibold text-white">Custom Drive</h4>
+              <p className="text-sm text-white/60 leading-relaxed">
+                Start from scratch and build your own list of interview questions. Ideal for bespoke rounds, leadership panels, or experimental hiring flows.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-[#a855f7] transition-colors group-hover:text-white">
+              Build manually
+              <ArrowRight className="w-4 h-4" />
+            </span>
+          </div>
+        </motion.button>
+      </div>
+    </div>
+  );
+
+  const renderDriveForm = () => {
+    const isJDMode = driveCreationMode === 'jd';
+
+    const questionSection = (
+      <div className="space-y-3">
+        <label className="block text-sm font-semibold text-white">
+          Interview Questions <span className="text-red-400">*</span> ({newDrive.questions.length})
+        </label>
+        <div className="space-y-2 max-h-72 overflow-y-auto rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+          {newDrive.questions.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-white/20 bg-white/[0.04] p-6 text-center text-sm text-white/50">
+              {isJDMode
+                ? 'Generate questions from the JD or add your own.'
+                : 'Add the questions you want to ask candidates in this drive.'}
+            </div>
+          ) : (
+            newDrive.questions.map((question, index) => (
+              <div key={index} className="flex items-start gap-2 rounded-lg bg-white/[0.08] p-3 shadow-inner">
+                <span className="mt-1 text-sm text-white/40">{index + 1}.</span>
+                <span className="flex-1 text-sm leading-relaxed text-white/90">{question}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveQuestion(index)}
+                  className="text-red-400 transition-colors hover:text-red-300"
+                  title="Remove question"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            type="text"
+            value={newQuestion}
+            onChange={(e) => setNewQuestion(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddQuestion();
+              }
+            }}
+            className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-[#5cd3ff] focus:outline-none focus:ring-2 focus:ring-[#5cd3ff]/40 placeholder:text-white/40"
+            placeholder="Add a custom question..."
+          />
+          <button
+            type="button"
+            onClick={handleAddQuestion}
+            className="inline-flex items-center justify-center rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20"
+          >
+            Add
+          </button>
+        </div>
+        {newDrive.questions.length === 0 && (
+          <p className="text-xs text-red-400">At least one question is required</p>
+        )}
+      </div>
+    );
+
+    return (
+      <motion.form
+        onSubmit={handleCreateDrive}
+        className="space-y-8"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <h3 className="text-3xl font-bold text-white">
+              {isJDMode ? 'JD-based Interview Drive' : 'Custom Interview Drive'}
+            </h3>
+            <p className="text-sm text-white/60 max-w-2xl">
+              {isJDMode
+                ? 'Paste your JD and fine-tune the generated questions before sending invites.'
+                : 'Craft your own question set and send invites when you’re ready.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setDriveCreationMode('selection');
+              setNewDrive(createEmptyDriveForm());
+              setNewQuestion("");
+              setIsGeneratingQuestions(false);
+            }}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-white">
+            Drive Name <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            value={newDrive.name}
+            onChange={(e) => setNewDrive(prev => ({ ...prev, name: e.target.value }))}
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white focus:border-[#5cd3ff] focus:outline-none focus:ring-2 focus:ring-[#5cd3ff]/40 placeholder:text-white/40"
+            placeholder="e.g., Frontend Screening - January 2026"
+            required
+          />
+        </div>
+
+        {isJDMode ? (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-white">
+                Job Description <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                value={newDrive.jobDescription}
+                onChange={(e) => setNewDrive(prev => ({ ...prev, jobDescription: e.target.value }))}
+                placeholder="Paste the job description here. We'll tailor the questions to this JD."
+                className="min-h-[14rem] w-full rounded-xl border border-white/10 bg-[#0f1729]/70 px-3 py-3 text-sm leading-relaxed text-white focus:border-[#5cd3ff] focus:outline-none focus:ring-2 focus:ring-[#5cd3ff]/40 placeholder:text-white/40"
+              />
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={handleGenerateQuestions}
+                  disabled={isGeneratingQuestions || !newDrive.jobDescription.trim()}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] px-4 py-2 text-sm font-semibold text-white transition-all hover:shadow-[0_12px_30px_rgba(108,90,246,0.35)] disabled:cursor-not-allowed disabled:from-white/10 disabled:to-white/10"
+                >
+                  {isGeneratingQuestions ? 'Generating…' : '🤖 Generate Questions from JD'}
+                </button>
+                <p className="text-xs text-white/50 sm:ml-2">
+                  AI generates ~10 questions aligned to this JD. Edit or add more anytime.
+                </p>
+              </div>
+            </div>
+            {questionSection}
+          </div>
+        ) : (
+          questionSection
+        )}
+
+        {!isJDMode && (
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-white">
+              Select Candidates <span className="text-red-400">*</span>
+            </label>
+            <div className="max-h-48 space-y-2 overflow-y-auto rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+              {candidates.length === 0 ? (
+                <p className="text-sm text-white/60">
+                  No candidates available yet. Add candidates first to invite them to this drive.
+                </p>
+              ) : (
+                candidates.map((candidate) => (
+                  <label key={candidate.id} className="flex items-center gap-3 rounded-lg bg-white/[0.08] p-3 shadow-inner">
+                    <input
+                      type="checkbox"
+                      checked={newDrive.selectedCandidates.includes(candidate.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setNewDrive(prev => ({
+                            ...prev,
+                            selectedCandidates: [...prev.selectedCandidates, candidate.id]
+                          }));
+                        } else {
+                          setNewDrive(prev => ({
+                            ...prev,
+                            selectedCandidates: prev.selectedCandidates.filter(id => id !== candidate.id)
+                          }));
+                        }
+                      }}
+                      className="rounded border-white/20 bg-transparent text-[#5cd3ff] focus:ring-[#5cd3ff]"
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-white">{candidate.name}</div>
+                      <div className="text-xs text-white/60">{candidate.profile}</div>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:gap-3">
+          <button
+            type="submit"
+            disabled={
+              newDrive.questions.length === 0 ||
+              (!isJDMode && newDrive.selectedCandidates.length === 0)
+            }
+            className="w-full rounded-lg bg-gradient-to-r from-[#6f5af6] via-[#5cd3ff] to-[#2ad17e] px-4 py-2 text-sm font-semibold text-white shadow-[0_15px_40px_rgba(92,211,255,0.25)] transition-all hover:shadow-[0_20px_50px_rgba(92,211,255,0.35)] disabled:cursor-not-allowed disabled:from-white/10 disabled:via-white/10 disabled:to-white/10 sm:flex-1"
+          >
+            Create Drive
+          </button>
+          <button
+            type="button"
+            onClick={handleCloseCreateDrive}
+            className="w-full rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:flex-1"
+          >
+            Cancel
+          </button>
+        </div>
+      </motion.form>
+    );
   };
 
   const handleLogout = () => {
@@ -770,10 +1099,7 @@ export default function CompanyDashboard() {
           >
             {/* Create New Drive Button */}
             <motion.button
-              onClick={() => {
-                setAiPrompt("Create a new screening drive for...");
-                setShowAIConfig(true);
-              }}
+              onClick={handleOpenCreateDrive}
               className="group relative bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white px-6 py-3 rounded-xl hover:shadow-xl hover:shadow-[#2ad17e]/20 transition-all duration-300 flex items-center gap-2 overflow-hidden"
               variants={{
                 hidden: { opacity: 0, scale: 0.8 },
@@ -1298,7 +1624,7 @@ export default function CompanyDashboard() {
                 <h2 className="text-xl font-semibold text-[color:var(--foreground)]">Recent Drives</h2>
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={() => setShowCreateDrive(true)}
+                    onClick={handleOpenCreateDrive}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#5b8cff] to-[#22d3ee] text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
                   >
                     <Plus className="w-4 h-4" />
@@ -1640,141 +1966,29 @@ export default function CompanyDashboard() {
 
       {/* Create Drive Modal */}
       {showCreateDrive && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-3xl my-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Create Interview Drive</h3>
-            <form onSubmit={handleCreateDrive} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Drive Name <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  value={newDrive.name}
-                  onChange={(e) => setNewDrive({ ...newDrive, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="e.g., Frontend Screening - Jan 2024"
-                  required
-                />
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 40 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="relative w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0b1020]/95 via-[#10162a]/95 to-[#1a0f2e]/95 shadow-[0_40px_100px_rgba(9,12,24,0.65)]"
+          >
+            <div className="pointer-events-none absolute -top-20 -right-24 h-72 w-72 rounded-full bg-gradient-to-bl from-[#6f5af6]/50 via-[#5cd3ff]/20 to-transparent blur-3xl opacity-70" />
+            <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-[#2ad17e]/40 via-[#ffb21e]/20 to-transparent blur-3xl opacity-60" />
+            <div className="relative p-8 md:p-10">
+              <button
+                type="button"
+                onClick={handleCloseCreateDrive}
+                className="absolute right-4 top-4 rounded-full p-2 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Description</label>
-                <textarea
-                  value={newDrive.jobDescription}
-                  onChange={(e) => setNewDrive({ ...newDrive, jobDescription: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Paste the job description here. AI will generate interview questions based on this."
-                  rows={6}
-                />
-                <button
-                  type="button"
-                  onClick={handleGenerateQuestions}
-                  disabled={isGeneratingQuestions || !newDrive.jobDescription.trim()}
-                  className="mt-2 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
-                >
-                  {isGeneratingQuestions ? 'Generating...' : '🤖 Generate Questions from JD'}
-                </button>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Interview Questions <span className="text-red-500">*</span> ({newDrive.questions.length})
-                </label>
-                <div className="space-y-2 mb-2">
-                  {newDrive.questions.map((question, index) => (
-                    <div key={index} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
-                      <span className="text-gray-500 text-sm mt-1">{index + 1}.</span>
-                      <span className="flex-1 text-gray-700 text-sm">{question}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveQuestion(index)}
-                        className="text-red-500 hover:text-red-700 text-sm"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newQuestion}
-                    onChange={(e) => setNewQuestion(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddQuestion();
-                      }
-                    }}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                    placeholder="Add a custom question..."
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddQuestion}
-                    className="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm"
-                  >
-                    Add
-                  </button>
-                </div>
-                {newDrive.questions.length === 0 && (
-                  <p className="text-red-500 text-xs mt-1">At least one question is required</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Select Candidates <span className="text-red-500">*</span></label>
-                <div className="max-h-40 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-3">
-                  {candidates.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No candidates available. Add candidates first.</p>
-                  ) : (
-                    candidates.map((candidate) => (
-                      <label key={candidate.id} className="flex items-center space-x-3">
-                        <input
-                          type="checkbox"
-                          checked={newDrive.selectedCandidates.includes(candidate.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setNewDrive({
-                                ...newDrive,
-                                selectedCandidates: [...newDrive.selectedCandidates, candidate.id]
-                              });
-                            } else {
-                              setNewDrive({
-                                ...newDrive,
-                                selectedCandidates: newDrive.selectedCandidates.filter(id => id !== candidate.id)
-                              });
-                            }
-                          }}
-                          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                        />
-                        <span className="text-gray-700 text-sm">{candidate.name} ({candidate.profile})</span>
-                      </label>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={newDrive.questions.length === 0 || newDrive.selectedCandidates.length === 0}
-                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  Create Drive
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateDrive(false);
-                    setNewDrive({ name: "", selectedCandidates: [], jobDescription: "", questions: [] });
-                  }}
-                  className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
+              {driveCreationMode === 'selection' ? renderDriveTypeSelection() : renderDriveForm()}
+            </div>
+          </motion.div>
         </div>
       )}
 
