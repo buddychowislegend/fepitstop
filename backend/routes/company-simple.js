@@ -4,6 +4,45 @@ const db = require('../config/db');
 const emailService = require('../services/emailService');
 const { generateQuestionsFromJD } = require('../utils/questionGenerator');
 
+// Basic CORS handling for company routes
+router.use((req, res, next) => {
+  console.log('[Company CORS] Incoming request', {
+    method: req.method,
+    url: req.originalUrl,
+    origin: req.headers.origin,
+    headers: req.headers,
+  });
+
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+
+  const defaultHeaders = [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'X-Company-ID',
+    'X-Company-Password',
+  ];
+
+  const requestedHeaders = req.headers['access-control-request-headers'];
+  if (requestedHeaders) {
+    console.log('[Company CORS] Allowing requested headers:', requestedHeaders);
+    res.header('Access-Control-Allow-Headers', requestedHeaders);
+  } else {
+    res.header('Access-Control-Allow-Headers', defaultHeaders.join(', '));
+  }
+
+  if (req.method === 'OPTIONS') {
+    console.log('[Company CORS] Responding to OPTIONS preflight');
+    return res.status(204).end();
+  }
+
+  next();
+});
+
 // Test endpoint to verify CORS
 router.get('/test', (req, res) => {
   res.json({ 
@@ -157,8 +196,6 @@ router.delete('/candidates/:id', companyAuth, async (req, res) => {
     res.status(500).json({ error: 'Failed to delete candidate' });
   }
 });
-
-const { generateQuestionsFromJD } = require('../utils/questionGenerator');
 
 // Generate questions from JD
 router.post('/drives/generate-questions', companyAuth, async (req, res) => {

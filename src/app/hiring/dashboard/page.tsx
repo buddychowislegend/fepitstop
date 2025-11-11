@@ -5,27 +5,27 @@ import Link from "next/link";
 import Image from "next/image";
 import AIConfigurationScreen from "@/components/AIConfigurationScreen";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Brain, 
-  Target, 
-  Star, 
-  Settings, 
-  CheckCircle, 
-  Play, 
-  ArrowLeft, 
-  ArrowRight, 
-  Camera, 
-  Mic, 
-  Volume2, 
-  Clock, 
-  Code, 
-  MessageCircle, 
-  Users, 
-  BarChart3, 
-  Calendar, 
-  Lightbulb, 
-  Trophy, 
-  Zap, 
+import {
+  Brain,
+  Target,
+  Star,
+  Settings,
+  CheckCircle,
+  Play,
+  ArrowLeft,
+  ArrowRight,
+  Camera,
+  Mic,
+  Volume2,
+  Clock,
+  Code,
+  MessageCircle,
+  Users,
+  BarChart3,
+  Calendar,
+  Lightbulb,
+  Trophy,
+  Zap,
   Bell,
   Award,
   BookOpen,
@@ -36,7 +36,8 @@ import {
   TrendingUp,
   Eye,
   UserCheck,
-  Plus
+  Plus,
+  X,
 } from "lucide-react";
 
 interface Candidate {
