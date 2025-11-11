@@ -88,7 +88,14 @@ export default function CompanyDashboard() {
   const [showAddCandidate, setShowAddCandidate] = useState(false);
   const [showCreateDrive, setShowCreateDrive] = useState(false);
   const [newCandidate, setNewCandidate] = useState({ name: "", email: "", profile: "" });
-  const [newDrive, setNewDrive] = useState({ name: "", selectedCandidates: [] as string[] });
+  const [newDrive, setNewDrive] = useState({ 
+    name: "", 
+    selectedCandidates: [] as string[],
+    jobDescription: "",
+    questions: [] as string[]
+  });
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
+  const [newQuestion, setNewQuestion] = useState("");
   const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const [companyDisplayName, setCompanyDisplayName] = useState<string>("Company");
   const router = useRouter();
@@ -306,8 +313,65 @@ export default function CompanyDashboard() {
     }
   };
 
+  const handleGenerateQuestions = async () => {
+    if (!newDrive.jobDescription.trim()) {
+      alert('Please enter a job description first');
+      return;
+    }
+
+    setIsGeneratingQuestions(true);
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/drives/generate-questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          jobDescription: newDrive.jobDescription
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNewDrive({ ...newDrive, questions: data.questions || [] });
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to generate questions'}`);
+      }
+    } catch (error) {
+      console.error('Error generating questions:', error);
+      alert('Failed to generate questions');
+    } finally {
+      setIsGeneratingQuestions(false);
+    }
+  };
+
+  const handleAddQuestion = () => {
+    if (newQuestion.trim()) {
+      setNewDrive({ ...newDrive, questions: [...newDrive.questions, newQuestion.trim()] });
+      setNewQuestion("");
+    }
+  };
+
+  const handleRemoveQuestion = (index: number) => {
+    setNewDrive({ 
+      ...newDrive, 
+      questions: newDrive.questions.filter((_, i) => i !== index) 
+    });
+  };
+
   const handleCreateDrive = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (newDrive.questions.length === 0) {
+      alert('Please add at least one interview question');
+      return;
+    }
+
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       const response = await fetch(`${backendUrl}/api/company/drives`, {
@@ -320,7 +384,9 @@ export default function CompanyDashboard() {
         credentials: 'include',
         body: JSON.stringify({
           name: newDrive.name,
-          candidateIds: newDrive.selectedCandidates
+          candidateIds: newDrive.selectedCandidates,
+          jobDescription: newDrive.jobDescription,
+          questions: newDrive.questions
         })
       });
       
@@ -336,7 +402,7 @@ export default function CompanyDashboard() {
           completedInterviews: 0
         };
         setInterviewDrives([...interviewDrives, drive]);
-        setNewDrive({ name: "", selectedCandidates: [] });
+        setNewDrive({ name: "", selectedCandidates: [], jobDescription: "", questions: [] });
         setShowCreateDrive(false);
       } else {
         const error = await response.json();
@@ -1193,14 +1259,23 @@ export default function CompanyDashboard() {
 
             {/* Recent Drives Section */}
             <div className="bg-[color:var(--surface)] rounded-xl border border-[color:var(--border)]">
-              <div className="flex items-center justify-between p-6 border-b border-[color:var(--border)]">
+              <div className="flex items-center justify-between gap-3 p-6 border-b border-[color:var(--border)] flex-wrap">
                 <h2 className="text-xl font-semibold text-[color:var(--foreground)]">Recent Drives</h2>
-                <button
-                  onClick={() => setActiveTab('screenings')}
-                  className="text-[color:var(--brand-start)] hover:text-[color:var(--brand-end)] text-sm font-medium"
-                >
-                  View All Drives
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowCreateDrive(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#5b8cff] to-[#22d3ee] text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    New Drive
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('screenings')}
+                    className="text-[color:var(--brand-start)] hover:text-[color:var(--brand-end)] text-sm font-medium"
+                  >
+                    View All Drives
+                  </button>
+                </div>
               </div>
               
               <div className="overflow-x-auto">
@@ -1530,12 +1605,12 @@ export default function CompanyDashboard() {
 
       {/* Create Drive Modal */}
       {showCreateDrive && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Create Screening Drive</h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-3xl my-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Create Interview Drive</h3>
             <form onSubmit={handleCreateDrive} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Drive Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Drive Name <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={newDrive.name}
@@ -1545,44 +1620,119 @@ export default function CompanyDashboard() {
                   required
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Select Candidates</label>
-                <div className="max-h-40 overflow-y-auto space-y-2">
-                  {candidates.map((candidate) => (
-                    <label key={candidate.id} className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        checked={newDrive.selectedCandidates.includes(candidate.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setNewDrive({
-                              ...newDrive,
-                              selectedCandidates: [...newDrive.selectedCandidates, candidate.id]
-                            });
-                          } else {
-                            setNewDrive({
-                              ...newDrive,
-                              selectedCandidates: newDrive.selectedCandidates.filter(id => id !== candidate.id)
-                            });
-                          }
-                        }}
-                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                      />
-                      <span className="text-gray-700 text-sm">{candidate.name} ({candidate.profile})</span>
-                    </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Description</label>
+                <textarea
+                  value={newDrive.jobDescription}
+                  onChange={(e) => setNewDrive({ ...newDrive, jobDescription: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Paste the job description here. AI will generate interview questions based on this."
+                  rows={6}
+                />
+                <button
+                  type="button"
+                  onClick={handleGenerateQuestions}
+                  disabled={isGeneratingQuestions || !newDrive.jobDescription.trim()}
+                  className="mt-2 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+                >
+                  {isGeneratingQuestions ? 'Generating...' : '🤖 Generate Questions from JD'}
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Interview Questions <span className="text-red-500">*</span> ({newDrive.questions.length})
+                </label>
+                <div className="space-y-2 mb-2">
+                  {newDrive.questions.map((question, index) => (
+                    <div key={index} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-500 text-sm mt-1">{index + 1}.</span>
+                      <span className="flex-1 text-gray-700 text-sm">{question}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveQuestion(index)}
+                        className="text-red-500 hover:text-red-700 text-sm"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   ))}
                 </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newQuestion}
+                    onChange={(e) => setNewQuestion(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddQuestion();
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                    placeholder="Add a custom question..."
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddQuestion}
+                    className="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm"
+                  >
+                    Add
+                  </button>
+                </div>
+                {newDrive.questions.length === 0 && (
+                  <p className="text-red-500 text-xs mt-1">At least one question is required</p>
+                )}
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Candidates <span className="text-red-500">*</span></label>
+                <div className="max-h-40 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-3">
+                  {candidates.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No candidates available. Add candidates first.</p>
+                  ) : (
+                    candidates.map((candidate) => (
+                      <label key={candidate.id} className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          checked={newDrive.selectedCandidates.includes(candidate.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setNewDrive({
+                                ...newDrive,
+                                selectedCandidates: [...newDrive.selectedCandidates, candidate.id]
+                              });
+                            } else {
+                              setNewDrive({
+                                ...newDrive,
+                                selectedCandidates: newDrive.selectedCandidates.filter(id => id !== candidate.id)
+                              });
+                            }
+                          }}
+                          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="text-gray-700 text-sm">{candidate.name} ({candidate.profile})</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"
+                  disabled={newDrive.questions.length === 0 || newDrive.selectedCandidates.length === 0}
+                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   Create Drive
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowCreateDrive(false)}
+                  onClick={() => {
+                    setShowCreateDrive(false);
+                    setNewDrive({ name: "", selectedCandidates: [], jobDescription: "", questions: [] });
+                  }}
                   className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
                 >
                   Cancel

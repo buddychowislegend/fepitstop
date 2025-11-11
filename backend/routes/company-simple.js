@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const emailService = require('../services/emailService');
+const { generateQuestionsFromJD } = require('../utils/questionGenerator');
 
 // Test endpoint to verify CORS
 router.get('/test', (req, res) => {
@@ -157,14 +158,45 @@ router.delete('/candidates/:id', companyAuth, async (req, res) => {
   }
 });
 
+const { generateQuestionsFromJD } = require('../utils/questionGenerator');
+
+// Generate questions from JD
+router.post('/drives/generate-questions', companyAuth, async (req, res) => {
+  try {
+    const { jobDescription } = req.body;
+    
+    if (!jobDescription || jobDescription.trim().length === 0) {
+      return res.status(400).json({ error: 'Job description is required' });
+    }
+
+    try {
+      const questions = await generateQuestionsFromJD(jobDescription, { count: 12 });
+      res.json({
+        success: true,
+        questions
+      });
+    } catch (error) {
+      console.error('Error generating questions with Llama/Groq:', error?.message || error);
+      res.status(500).json({ error: 'Failed to generate questions. Please try again.' });
+    }
+  } catch (error) {
+    console.error('Error in generate-questions:', error);
+    res.status(500).json({ error: 'Failed to process request' });
+  }
+});
+
 // Create interview drive
 router.post('/drives', companyAuth, async (req, res) => {
   try {
-    const { name, candidateIds } = req.body;
+    const { name, candidateIds, jobDescription, questions } = req.body;
     const companyId = req.companyId;
     
     if (!name || !candidateIds || candidateIds.length === 0) {
       return res.status(400).json({ error: 'Drive name and candidate selection are required' });
+    }
+    
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ error: 'At least one interview question is required' });
     }
     
     // Create interview drive
@@ -174,6 +206,8 @@ router.post('/drives', companyAuth, async (req, res) => {
       name: name,
       status: 'draft',
       candidateIds: candidateIds,
+      jobDescription: jobDescription || '',
+      questions: questions, // Array of question strings
       createdAt: new Date().toISOString()
     };
     
@@ -353,6 +387,9 @@ router.get('/interview/:token', async (req, res) => {
       return res.status(404).json({ error: 'Candidate or drive not found' });
     }
     
+    // Include drive questions if available
+    const driveQuestions = drive.questions || [];
+    
     res.json({
       candidate: {
         name: candidate.name,
@@ -360,6 +397,12 @@ router.get('/interview/:token', async (req, res) => {
         profile: candidate.profile,
         companyName: 'HireOG',
         driveName: drive.name
+      },
+      drive: {
+        id: drive.id,
+        name: drive.name,
+        questions: driveQuestions, // Include questions from drive
+        jobDescription: drive.jobDescription || ''
       }
     });
   } catch (error) {

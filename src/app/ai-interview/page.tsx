@@ -112,7 +112,13 @@ function AIInterviewContent() {
       goodToHaves: number;
       culturalFit: number;
     };
+    // Drive questions
+    driveQuestions?: string[];
   } | null>(null);
+  
+  // Track drive questions separately for easier access
+  const [driveQuestions, setDriveQuestions] = useState<string[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
   // Interview flow states
   const [currentStep, setCurrentStep] = useState<'setup' | 'interviewer-selection' | 'mic-check' | 'interview' | 'thank-you' | 'analysis'>('setup');
@@ -568,15 +574,17 @@ function AIInterviewContent() {
       const candidateEmail = searchParams.get('candidateEmail');
 
       if (token && company) {
-        // Fetch screening configuration from backend using token
+        // Fetch interview data from backend using token
         const fetchInterviewConfig = async () => {
           try {
             const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
-            const response = await fetch(`${backendUrl}/api/company/interview/config/${token}`);
             
-            if (response.ok) {
-              const data = await response.json();
-              const config = data.config;
+            // First try to get interview config (for screenings)
+            const configResponse = await fetch(`${backendUrl}/api/company/interview/config/${token}`);
+            
+            if (configResponse.ok) {
+              const configData = await configResponse.json();
+              const config = configData.config;
               
               // Set company parameters with actual screening configuration
               setCompanyParams({
@@ -602,21 +610,50 @@ function AIInterviewContent() {
               // Skip setup and go directly to interviewer selection for company interviews
               setCurrentStep('interviewer-selection');
             } else {
-              console.error('Failed to fetch interview configuration');
-              // Fallback to URL parameters if API fails
-        setCompanyParams({
-          token,
-          company,
-          profile: profile || 'frontend',
-          level: level || 'mid',
-          candidateName: candidateName || undefined,
-          candidateEmail: candidateEmail || undefined
-        });
+              // If config endpoint fails, try the interview token endpoint (for drives)
+              try {
+                const interviewResponse = await fetch(`${backendUrl}/api/company/interview/${token}`);
+                if (interviewResponse.ok) {
+                  const interviewData = await interviewResponse.json();
+                  const driveQuestions = interviewData.drive?.questions || [];
+                  
+                  setDriveQuestions(driveQuestions);
+                  setCompanyParams({
+                    token,
+                    company: interviewData.candidate?.companyName || company,
+                    profile: interviewData.candidate?.profile?.toLowerCase() || profile || 'frontend',
+                    level: level || 'mid',
+                    candidateName: interviewData.candidate?.name || candidateName || undefined,
+                    candidateEmail: interviewData.candidate?.email || candidateEmail || undefined,
+                    driveQuestions: driveQuestions
+                  });
+                  
+                  if (interviewData.candidate?.profile) {
+                    setProfile(mapProfileString(interviewData.candidate.profile));
+                  } else if (profile) {
+                    setProfile(profile as any);
+                  }
+                  setCurrentStep('interviewer-selection');
+                } else {
+                  throw new Error('Failed to fetch interview data');
+                }
+              } catch (fetchError) {
+                console.error('Failed to fetch interview configuration:', fetchError);
+                // Fallback to URL parameters if API fails
+                setCompanyParams({
+                  token,
+                  company,
+                  profile: profile || 'frontend',
+                  level: level || 'mid',
+                  candidateName: candidateName || undefined,
+                  candidateEmail: candidateEmail || undefined
+                });
 
-        if (profile) {
-          setProfile(profile as any);
-        }
-              setCurrentStep('interviewer-selection');
+                if (profile) {
+                  setProfile(profile as any);
+                }
+                setCurrentStep('interviewer-selection');
+              }
             }
           } catch (error) {
             console.error('Error fetching interview configuration:', error);
@@ -633,7 +670,7 @@ function AIInterviewContent() {
             if (profile) {
               setProfile(profile as any);
             }
-        setCurrentStep('interviewer-selection');
+            setCurrentStep('interviewer-selection');
           }
         };
 
@@ -780,42 +817,64 @@ function AIInterviewContent() {
     
     setLoading(true);
     try {
-      const response = await fetch('/api/ai-interview', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          action: 'start',
-          profile,
-          level,
-          focus: focusForRequest,
-          framework: frameworkForRequest,
-          jdText,
-          interviewer: selectedInterviewer
-        })
-      });
+      // Check if we have drive questions to use
+      const questionsToUse = driveQuestions.length > 0 ? driveQuestions : (companyParams?.driveQuestions || []);
+      
+      let firstQuestion = '';
+      let introduction = '';
+      
+      if (questionsToUse.length > 0) {
+        // Use drive questions
+        setCurrentQuestionIndex(0);
+        firstQuestion = questionsToUse[0];
+        const interviewerName = selectedInterviewer.name;
+        const interviewerRole = selectedInterviewer.role;
+        introduction = `Hello! I'm ${interviewerName}, ${interviewerRole}. Welcome to your technical interview! I'm really excited to learn about your skills and experience. Don't worry about being perfect - I'm here to help you showcase what you know and we'll work through the questions together. Take your time, think out loud, and remember that showing your thought process is just as important as the final answer. You've got this! Let's begin with our first question.`;
+      } else {
+        // Generate question using AI
+        const response = await fetch('/api/ai-interview', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            action: 'start',
+            profile,
+            level,
+            focus: focusForRequest,
+            framework: frameworkForRequest,
+            jdText,
+            interviewer: selectedInterviewer
+          })
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to start interview');
+        if (!response.ok) {
+          throw new Error('Failed to start interview');
+        }
+
+        const data = await response.json();
+        introduction = data.message;
+        firstQuestion = data.message;
       }
 
-      const data = await response.json();
+      const fullMessage = questionsToUse.length > 0 
+        ? `${introduction}\n\n${firstQuestion}`
+        : firstQuestion;
       
       const newSession: InterviewSession = {
-        id: data.sessionId,
+        id: Date.now().toString(),
         interviewer: selectedInterviewer,
         level,
         focus: focusForRequest,
         startTime: new Date(),
         messages: [{
           role: 'interviewer',
-          content: data.message,
+          content: fullMessage,
           timestamp: new Date()
         }],
         currentQuestion: 1,
-        totalQuestions: 7,
+        totalQuestions: questionsToUse.length > 0 ? questionsToUse.length : 7,
         status: 'active',
         timeRemaining: 20 * 60
       };
@@ -1138,62 +1197,81 @@ function AIInterviewContent() {
       
       setLoading(true);
       try {
-        const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
-        const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
-        const response = await fetch('/api/ai-interview', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            action: 'respond',
-            sessionId: session.id,
-            message: answerToSubmit,
-            previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
-            profile,
-            level,
-            currentQuestion: session.currentQuestion,
-            focus: focusForRequest,
-            framework: frameworkForRequest,
-            jdText
-          })
-        });
-
-        console.log('Response status:', response.status);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('AI response:', data);
+        // Check if we have drive questions to use
+        const questionsToUse = driveQuestions.length > 0 ? driveQuestions : (companyParams?.driveQuestions || []);
+        
+        let nextQuestion = '';
+        let shouldEndInterview = false;
+        
+        if (questionsToUse.length > 0) {
+          // Use drive questions in sequence
+          const nextIndex = currentQuestionIndex + 1;
           
-          const updatedSession = session ? {
-            ...session,
-            currentQuestion: session.currentQuestion + 1
-          } : null;
-          
-          setMessages(prev => [...prev, {
-            role: 'interviewer',
-            content: data.message,
-            timestamp: new Date()
-          }]);
-          
-          setSession(updatedSession);
-          
-          // Check if interview should end (7 questions reached)
-          if (data.shouldEnd || (updatedSession && updatedSession.currentQuestion > updatedSession.totalQuestions)) {
-            // Automatically end the interview
-            setTimeout(() => {
-              endInterview();
-            }, 2000);
+          if (nextIndex < questionsToUse.length) {
+            nextQuestion = questionsToUse[nextIndex];
+            setCurrentQuestionIndex(nextIndex);
           } else {
-          // Make AI read the next question with D-ID video
-          setTimeout(() => {
-              speakTextOrVideo(data.message, updatedSession || session);
-          }, 500);
+            // All questions answered
+            shouldEndInterview = true;
+            nextQuestion = "Thank you for answering all the questions! That concludes our interview. We'll review your responses and get back to you soon.";
           }
         } else {
-          const errorData = await response.text();
-          console.error('API error:', errorData);
+          // Generate next question using AI
+          const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
+          const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
+          const response = await fetch('/api/ai-interview', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              action: 'respond',
+              sessionId: session.id,
+              message: answerToSubmit,
+              previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
+              profile,
+              level,
+              currentQuestion: session.currentQuestion,
+              focus: focusForRequest,
+              framework: frameworkForRequest,
+              jdText
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to get next question');
+          }
+
+          const data = await response.json();
+          nextQuestion = data.message;
+          shouldEndInterview = data.shouldEnd || false;
+        }
+        
+        const updatedSession = session ? {
+          ...session,
+          currentQuestion: session.currentQuestion + 1
+        } : null;
+        
+        setMessages(prev => [...prev, {
+          role: 'interviewer',
+          content: nextQuestion,
+          timestamp: new Date()
+        }]);
+        
+        setSession(updatedSession);
+        
+        // Check if interview should end
+        if (shouldEndInterview || (updatedSession && updatedSession.currentQuestion >= updatedSession.totalQuestions)) {
+          // Automatically end the interview
+          setTimeout(() => {
+            endInterview();
+          }, 2000);
+        } else {
+          // Make AI read the next question with D-ID video
+          setTimeout(() => {
+            speakTextOrVideo(nextQuestion, updatedSession || session);
+          }, 500);
         }
       } catch (error) {
         console.error('Error sending response:', error);
@@ -1217,57 +1295,81 @@ function AIInterviewContent() {
       
       setLoading(true);
       try {
-        const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
-        const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
-        const response = await fetch('/api/ai-interview', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            action: 'respond',
-            sessionId: session.id,
-            message: 'I need to think about this question.',
-            previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
-            profile,
-            level,
-            currentQuestion: session.currentQuestion,
-            focus: focusForRequest,
-            framework: frameworkForRequest,
-            jdText
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('AI response:', data);
+        // Check if we have drive questions to use
+        const questionsToUse = driveQuestions.length > 0 ? driveQuestions : (companyParams?.driveQuestions || []);
+        
+        let nextQuestion = '';
+        let shouldEndInterview = false;
+        
+        if (questionsToUse.length > 0) {
+          // Use drive questions in sequence
+          const nextIndex = currentQuestionIndex + 1;
           
-          const updatedSession = session ? {
-            ...session,
-            currentQuestion: session.currentQuestion + 1
-          } : null;
-          
-          setMessages(prev => [...prev, {
-            role: 'interviewer',
-            content: data.message,
-            timestamp: new Date()
-          }]);
-          
-          setSession(updatedSession);
-          
-          // Check if interview should end (7 questions reached)
-          if (data.shouldEnd || (updatedSession && updatedSession.currentQuestion > updatedSession.totalQuestions)) {
-            // Automatically end the interview
-            setTimeout(() => {
-              endInterview();
-            }, 2000);
+          if (nextIndex < questionsToUse.length) {
+            nextQuestion = questionsToUse[nextIndex];
+            setCurrentQuestionIndex(nextIndex);
           } else {
+            // All questions answered
+            shouldEndInterview = true;
+            nextQuestion = "Thank you for answering all the questions! That concludes our interview. We'll review your responses and get back to you soon.";
+          }
+        } else {
+          // Generate next question using AI
+          const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
+          const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
+          const response = await fetch('/api/ai-interview', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              action: 'respond',
+              sessionId: session.id,
+              message: 'I need to think about this question.',
+              previousQuestion: messages.filter(m => m.role === 'interviewer').slice(-1)[0]?.content || '',
+              profile,
+              level,
+              currentQuestion: session.currentQuestion,
+              focus: focusForRequest,
+              framework: frameworkForRequest,
+              jdText
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to get next question');
+          }
+
+          const data = await response.json();
+          nextQuestion = data.message;
+          shouldEndInterview = data.shouldEnd || false;
+        }
+        
+        const updatedSession = session ? {
+          ...session,
+          currentQuestion: session.currentQuestion + 1
+        } : null;
+        
+        setMessages(prev => [...prev, {
+          role: 'interviewer',
+          content: nextQuestion,
+          timestamp: new Date()
+        }]);
+        
+        setSession(updatedSession);
+        
+        // Check if interview should end
+        if (shouldEndInterview || (updatedSession && updatedSession.currentQuestion >= updatedSession.totalQuestions)) {
+          // Automatically end the interview
+          setTimeout(() => {
+            endInterview();
+          }, 2000);
+        } else {
           // Make AI read the next question with D-ID video
           setTimeout(() => {
-              speakTextOrVideo(data.message, updatedSession || session);
+            speakTextOrVideo(nextQuestion, updatedSession || session);
           }, 500);
-          }
         }
       } catch (error) {
         console.error('Error sending response:', error);
