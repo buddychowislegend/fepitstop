@@ -61,6 +61,8 @@ interface InterviewDrive {
   completedDate?: string;
   totalCandidates: number;
   completedInterviews: number;
+  jobDescription?: string;
+  questions?: string[];
 }
 
 export default function CompanyDashboard() {
@@ -221,6 +223,11 @@ export default function CompanyDashboard() {
     try {
       const screeningName = `AI Generated: ${details.positionTitle}`;
       
+      if (!details.questions || details.questions.length === 0) {
+        alert('Please generate or add interview questions before creating the drive.');
+        return;
+      }
+      
       // Create screening in backend
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       const response = await fetch(`${backendUrl}/api/company/screenings`, {
@@ -255,7 +262,34 @@ export default function CompanyDashboard() {
           completedInterviews: 0
         };
         
-        setInterviewDrives([...interviewDrives, newScreening]);
+        setInterviewDrives(prev => [...prev, newScreening]);
+
+        // Create corresponding interview drive with generated questions
+        try {
+          const driveResponse = await fetch(`${backendUrl}/api/company/drives`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Company-ID': 'hireog',
+              'X-Company-Password': 'manasi22'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              name: screeningName,
+              candidateIds: [],
+              jobDescription: details.jobDescription || aiPrompt || '',
+              questions: details.questions
+            })
+          });
+
+          if (!driveResponse.ok) {
+            const driveError = await driveResponse.json().catch(() => ({}));
+            console.error('Failed to create AI drive:', driveError);
+          }
+        } catch (driveError) {
+          console.error('Error creating AI drive:', driveError);
+        }
+
         setShowAIConfig(false);
         setActiveTab('screenings');
         

@@ -51,6 +51,8 @@ interface ScreeningDetails {
     goodToHaves: number;
     culturalFit: number;
   };
+  jobDescription: string;
+  questions: string[];
 }
 
 interface AIConfigurationScreenProps {
@@ -70,7 +72,7 @@ const languages = [
   { code: 'de', name: 'German', flag: '🇩🇪' }
 ];
 
-export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive }: AIConfigurationScreenProps) {
+const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive }: AIConfigurationScreenProps) => {
   // Mouse tracking for background animations
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
@@ -96,10 +98,14 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
       mustHaves: 0,
       goodToHaves: 0,
       culturalFit: 0
-    }
+    },
+    jobDescription: '',
+    questions: []
   });
   const [isGenerating, setIsGenerating] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
+  const [newQuestion, setNewQuestion] = useState('');
 
   useEffect(() => {
     generateScreeningDetails();
@@ -162,7 +168,9 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
             mustHaves: 4,
             goodToHaves: 2,
             culturalFit: 2
-          }
+          },
+          jobDescription: aiPrompt || '',
+          questions: []
         });
       } else {
         // Fallback to default values
@@ -176,7 +184,9 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
             mustHaves: 4,
             goodToHaves: 2,
             culturalFit: 2
-          }
+          },
+          jobDescription: aiPrompt || '',
+          questions: []
         });
       }
     } catch (error) {
@@ -192,7 +202,9 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
           mustHaves: 4,
           goodToHaves: 2,
           culturalFit: 2
-        }
+        },
+        jobDescription: aiPrompt || '',
+        questions: []
       });
     } finally {
       setIsGenerating(false);
@@ -279,6 +291,10 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
   };
 
   const handleCreateDrive = async () => {
+    if (!screeningDetails.questions.length) {
+      alert('Please generate or add at least one interview question.');
+      return;
+    }
     setIsCreating(true);
     try {
       await onCreateDrive(screeningDetails);
@@ -311,6 +327,62 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
         [section]: []
       }));
     }
+  };
+
+  const handleGenerateQuestions = async () => {
+    if (!screeningDetails.jobDescription.trim()) {
+      alert('Please paste a job description first.');
+      return;
+    }
+
+    setIsGeneratingQuestions(true);
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/drives/generate-questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          jobDescription: screeningDetails.jobDescription
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate questions');
+      }
+
+      const data = await response.json();
+      setScreeningDetails(prev => ({
+        ...prev,
+        questions: data.questions || []
+      }));
+    } catch (error: any) {
+      console.error('Error generating questions:', error);
+      alert(error?.message || 'Failed to generate questions. Please try again.');
+    } finally {
+      setIsGeneratingQuestions(false);
+    }
+  };
+
+  const handleAddQuestion = () => {
+    if (!newQuestion.trim()) return;
+    setScreeningDetails(prev => ({
+      ...prev,
+      questions: [...prev.questions, newQuestion.trim()]
+    }));
+    setNewQuestion('');
+  };
+
+  const handleRemoveQuestion = (index: number) => {
+    setScreeningDetails(prev => ({
+      ...prev,
+      questions: prev.questions.filter((_, i) => i !== index)
+    }));
   };
 
   if (isGenerating) {
@@ -1176,6 +1248,167 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
           />
         </motion.div>
 
+        {/* JD & Question Generation */}
+        <motion.div
+          className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 p-8 mb-8 relative overflow-hidden"
+          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 2.4, type: "spring", stiffness: 200 }}
+        >
+          <motion.div 
+            className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 2.5 }}
+          >
+            <div className="flex items-center gap-4">
+              <motion.div 
+                className="w-12 h-12 bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] rounded-2xl flex items-center justify-center shadow-lg"
+                animate={{ 
+                  rotate: [0, 360],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+                  scale: { duration: 2, repeat: Infinity, type: "tween" }
+                }}
+                whileHover={{ scale: 1.2 }}
+              >
+                <Sparkles className="w-6 h-6 text-white" />
+              </motion.div>
+              <div>
+                <motion.h3 
+                  className="text-2xl font-bold text-white"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  AI Question Builder
+                </motion.h3>
+                <p className="text-white/70 text-sm max-w-md">
+                  Paste the job description to generate tailored interview questions. You can edit or add custom questions before launching the drive.
+                </p>
+              </div>
+            </div>
+            <motion.button
+              type="button"
+              onClick={handleGenerateQuestions}
+              disabled={isGeneratingQuestions || !screeningDetails.jobDescription.trim()}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] text-white font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              whileHover={{ scale: isGeneratingQuestions ? 1 : 1.05 }}
+              whileTap={{ scale: isGeneratingQuestions ? 1 : 0.95 }}
+            >
+              {isGeneratingQuestions ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Settings className="w-4 h-4" />
+                  </motion.div>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Generate Questions
+                </>
+              )}
+            </motion.button>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div
+              className="flex flex-col gap-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.7 }}
+            >
+              <label className="text-sm font-medium text-white/80 flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-[#5cd3ff]" />
+                Job Description
+              </label>
+              <textarea
+                value={screeningDetails.jobDescription}
+                onChange={(e) => setScreeningDetails(prev => ({ ...prev, jobDescription: e.target.value }))}
+                rows={10}
+                className="w-full px-5 py-4 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#5cd3ff] focus:ring-2 focus:ring-[#5cd3ff]/30 transition-all duration-300"
+                placeholder="Paste the job description or key responsibilities here..."
+              />
+              <p className="text-xs text-white/60">
+                Tip: include tech stack, experience level, and responsibilities to get more targeted questions.
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="flex flex-col gap-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.9 }}
+            >
+              <label className="text-sm font-medium text-white/80 flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-[#6f5af6]" />
+                Generated Questions ({screeningDetails.questions.length})
+              </label>
+              <div className="space-y-3 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
+                {screeningDetails.questions.length === 0 ? (
+                  <div className="text-white/50 text-sm bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
+                    {isGeneratingQuestions
+                      ? 'Generating questions...'
+                      : 'No questions yet. Paste the JD and click "Generate Questions" or add custom ones below.'}
+                  </div>
+                ) : (
+                  screeningDetails.questions.map((question, index) => (
+                    <motion.div
+                      key={`${question}-${index}`}
+                      className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-2xl p-4"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                    >
+                      <span className="text-white/60 text-sm mt-1">{index + 1}.</span>
+                      <span className="flex-1 text-white/90 text-sm leading-relaxed">{question}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveQuestion(index)}
+                        className="text-white/60 hover:text-red-400 transition-colors"
+                        title="Remove question"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newQuestion}
+                  onChange={(e) => setNewQuestion(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddQuestion();
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#6f5af6] focus:ring-2 focus:ring-[#6f5af6]/30 transition-all duration-300 text-sm"
+                  placeholder="Add a custom question..."
+                />
+                <button
+                  type="button"
+                  onClick={handleAddQuestion}
+                  className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-medium hover:bg-white/15 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+            </motion.div>
+          </div>
+
+          <motion.div 
+            className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-gradient-to-r from-white/20 to-white/30 opacity-30"
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          />
+        </motion.div>
+
         {/* Action Buttons */}
         <motion.div 
           className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6"
@@ -1209,7 +1442,7 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
 
           <motion.button
             onClick={handleCreateDrive}
-            disabled={isCreating}
+            disabled={isCreating || screeningDetails.questions.length === 0}
             className="group relative px-10 py-4 rounded-2xl bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white font-bold shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 overflow-hidden min-w-[200px]"
             whileHover={{ 
               scale: isCreating ? 1 : 1.05,
@@ -1296,4 +1529,6 @@ export default function AIConfigurationScreen({ aiPrompt, onBack, onCreateDrive 
       </motion.div>
     </div>
   );
-}
+};
+
+export default AIConfigurationScreen;
