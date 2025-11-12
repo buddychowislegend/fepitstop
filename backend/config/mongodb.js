@@ -669,9 +669,19 @@ class MongoDatabase {
 
   async addInterviewDrive(drive) {
     await this.ensureConnection();
-    const result = await this.db.collection('interviewDrives').insertOne(drive);
+    const driveId = drive?.id
+      ? drive.id
+      : (drive?.screeningId ? drive.screeningId : Date.now().toString());
+
+    const driveToInsert = {
+      ...drive,
+      id: driveId,
+      screeningId: drive?.screeningId ? drive.screeningId : driveId,
+    };
+
+    const result = await this.db.collection('interviewDrives').insertOne(driveToInsert);
     console.log('Interview drive added to MongoDB:', result.insertedId);
-    return { ...drive, _id: result.insertedId };
+    return { ...driveToInsert, _id: result.insertedId };
   }
 
   async getDrivesByCompany(companyId) {

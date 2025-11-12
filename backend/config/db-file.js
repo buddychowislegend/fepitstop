@@ -748,8 +748,14 @@ class Database {
         ? driveData.candidates
         : [];
 
+    const driveId = (typeof driveData.id === 'string' && driveData.id.trim().length > 0)
+      ? driveData.id.trim()
+      : (typeof driveData.screeningId === 'string' && driveData.screeningId.trim().length > 0)
+        ? driveData.screeningId.trim()
+        : Date.now().toString();
+
     const drive = {
-      id: Date.now().toString(),
+      id: driveId,
       companyId: driveData.companyId,
       name: driveData.name,
       status: driveData.status || 'draft',
@@ -757,7 +763,10 @@ class Database {
       questions: Array.isArray(driveData.questions) ? driveData.questions : [],
       jobDescription: driveData.jobDescription || '',
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      screeningId: (typeof driveData.screeningId === 'string' && driveData.screeningId.trim().length > 0)
+        ? driveData.screeningId.trim()
+        : driveId
     };
 
     // Backward compatibility for any legacy code still reading `candidates`

@@ -441,14 +441,65 @@ export default function CompanyDashboard() {
   const handleCreateDrive = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const isJDMode = driveCreationMode === 'jd';
+
+    if (!newDrive.name.trim()) {
+      alert('Please provide a drive name');
+      return;
+    }
+
     if (newDrive.questions.length === 0) {
       alert('Please add at least one interview question');
       return;
     }
 
+    if (!isJDMode && newDrive.selectedCandidates.length === 0) {
+      alert('Please select at least one candidate');
+      return;
+    }
+
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
-      const response = await fetch(`${backendUrl}/api/company/drives`, {
+
+      // Step 1: create screening so it appears in the drives list
+      const screeningPayload = {
+        name: newDrive.name.trim(),
+        positionTitle: newDrive.name.trim(),
+        language: 'en-us',
+        mustHaves: [] as string[],
+        goodToHaves: [] as string[],
+        culturalFit: [] as string[],
+        estimatedTime: {
+          mustHaves: 5,
+          goodToHaves: 3,
+          culturalFit: 2
+        },
+        status: 'active' as const
+      };
+
+      let screeningId: string | null = null;
+
+      const screeningResponse = await fetch(`${backendUrl}/api/company/screenings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': 'hireog',
+          'X-Company-Password': 'manasi22'
+        },
+        credentials: 'include',
+        body: JSON.stringify(screeningPayload)
+      });
+
+      if (!screeningResponse.ok) {
+        const screeningError = await screeningResponse.json().catch(() => ({}));
+        throw new Error(screeningError.error || 'Failed to create screening');
+      }
+
+      const screeningData = await screeningResponse.json();
+      screeningId = screeningData?.id || null;
+
+      // Step 2: create interview drive linked to that screening
+      const driveResponse = await fetch(`${backendUrl}/api/company/drives`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -457,29 +508,22 @@ export default function CompanyDashboard() {
         },
         credentials: 'include',
         body: JSON.stringify({
-          name: newDrive.name,
-          candidateIds: newDrive.selectedCandidates,
+          name: newDrive.name.trim(),
+          candidateIds: isJDMode ? [] : newDrive.selectedCandidates,
           jobDescription: newDrive.jobDescription,
           questions: newDrive.questions,
-          driveName : newDrive.name
+          screeningId: screeningId ?? undefined
         })
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        const drive: InterviewDrive = {
-          id: data.id,
-          name: newDrive.name,
-          status: "active",
-          candidates: newDrive.selectedCandidates,
-          createdDate: new Date().toISOString().split('T')[0],
-          totalCandidates: newDrive.selectedCandidates.length,
-          completedInterviews: 0
-        };
-        setInterviewDrives([...interviewDrives, drive]);
+      if (driveResponse.ok) {
+        await driveResponse.json().catch(() => ({}));
+
+        // Refresh drives/screenings so UI reflects the new entry
+        await loadScreenings();
         handleCloseCreateDrive();
       } else {
-        const error = await response.json();
+        const error = await driveResponse.json();
         alert(`Error: ${error.error}`);
       }
     } catch (error) {

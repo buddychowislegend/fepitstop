@@ -225,27 +225,36 @@ router.post('/drives/generate-questions', companyAuth, async (req, res) => {
 // Create interview drive
 router.post('/drives', companyAuth, async (req, res) => {
   try {
-    const { name, candidateIds, jobDescription, questions } = req.body;
+    const { name, candidateIds, jobDescription, questions, screeningId } = req.body;
     const companyId = req.companyId;
     
-    if (!name || !candidateIds || candidateIds.length === 0) {
-      return res.status(400).json({ error: 'Drive name and candidate selection are required' });
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ error: 'Drive name is required' });
     }
     
     if (!questions || !Array.isArray(questions) || questions.length === 0) {
       return res.status(400).json({ error: 'At least one interview question is required' });
     }
+
+    const normalizedCandidateIds = Array.isArray(candidateIds)
+      ? candidateIds.filter((id) => typeof id === 'string' && id.trim().length > 0)
+      : [];
+
+    const driveId = typeof screeningId === 'string' && screeningId.trim().length > 0
+      ? screeningId.trim()
+      : Date.now().toString();
     
     // Create interview drive
     const drive = {
-      id: Date.now().toString(),
+      id: driveId,
       companyId: companyId,
       name: name,
       status: 'draft',
-      candidateIds: candidateIds,
+      candidateIds: normalizedCandidateIds,
       jobDescription: jobDescription || '',
       questions: questions, // Array of question strings
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      screeningId: typeof screeningId === 'string' && screeningId.trim().length > 0 ? screeningId.trim() : driveId
     };
     
     // Add drive to MongoDB
