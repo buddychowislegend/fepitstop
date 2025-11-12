@@ -673,10 +673,22 @@ class MongoDatabase {
       ? drive.id
       : (drive?.screeningId ? drive.screeningId : Date.now().toString());
 
+    const normalizedProfile = (drive?.profile && typeof drive.profile === 'string')
+      ? drive.profile.trim().toLowerCase()
+      : 'frontend';
+    const levelValue = (drive?.level && typeof drive.level === 'string')
+      ? drive.level.trim().toLowerCase()
+      : '';
+    const normalizedLevel = (levelValue && ['junior', 'mid', 'senior'].includes(levelValue))
+      ? levelValue
+      : 'mid';
+
     const driveToInsert = {
       ...drive,
       id: driveId,
       screeningId: drive?.screeningId ? drive.screeningId : driveId,
+      profile: normalizedProfile,
+      level: normalizedLevel,
     };
 
     const result = await this.db.collection('interviewDrives').insertOne(driveToInsert);

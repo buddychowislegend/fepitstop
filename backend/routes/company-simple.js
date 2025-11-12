@@ -225,7 +225,7 @@ router.post('/drives/generate-questions', companyAuth, async (req, res) => {
 // Create interview drive
 router.post('/drives', companyAuth, async (req, res) => {
   try {
-    const { name, candidateIds, jobDescription, questions, screeningId } = req.body;
+    const { name, candidateIds, jobDescription, questions, screeningId, profile, level } = req.body;
     const companyId = req.companyId;
     
     if (!name || typeof name !== 'string' || !name.trim()) {
@@ -243,6 +243,12 @@ router.post('/drives', companyAuth, async (req, res) => {
     const driveId = typeof screeningId === 'string' && screeningId.trim().length > 0
       ? screeningId.trim()
       : Date.now().toString();
+    const normalizedProfile = typeof profile === 'string' && profile.trim().length > 0
+      ? profile.trim().toLowerCase()
+      : 'frontend';
+    const normalizedLevel = typeof level === 'string' && ['junior', 'mid', 'senior'].includes(level.trim().toLowerCase())
+      ? level.trim().toLowerCase()
+      : 'mid';
     
     // Create interview drive
     const drive = {
@@ -254,7 +260,9 @@ router.post('/drives', companyAuth, async (req, res) => {
       jobDescription: jobDescription || '',
       questions: questions, // Array of question strings
       createdAt: new Date().toISOString(),
-      screeningId: typeof screeningId === 'string' && screeningId.trim().length > 0 ? screeningId.trim() : driveId
+      screeningId: typeof screeningId === 'string' && screeningId.trim().length > 0 ? screeningId.trim() : driveId,
+      profile: normalizedProfile,
+      level: normalizedLevel,
     };
     
     // Add drive to MongoDB
@@ -262,7 +270,9 @@ router.post('/drives', companyAuth, async (req, res) => {
     
     res.json({
       id: drive.id,
-      message: 'Interview drive created successfully'
+      message: 'Interview drive created successfully',
+      profile: drive.profile,
+      level: drive.level
     });
   } catch (error) {
     console.error('Error creating interview drive:', error);
@@ -310,7 +320,8 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
       
       // Generate interview link with company parameters
       // Try to get screening configuration if this drive is associated with a screening
-      let profileFromPosition = candidate.profile || 'frontend'; // default to candidate profile
+      let profileFromPosition = drive.profile || candidate.profile || 'frontend'; // prefer drive profile
+      const driveLevel = drive.level || 'mid';
       
       try {
         // Check if this drive ID corresponds to a screening
@@ -321,7 +332,7 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
           if (positionLower.includes('backend')) {
             profileFromPosition = 'backend';
           } else if (positionLower.includes('full stack') || positionLower.includes('fullstack')) {
-            profileFromPosition = 'fullstack';
+            profileFromPosition = 'frontend';
           } else if (positionLower.includes('product')) {
             profileFromPosition = 'product';
           } else if (positionLower.includes('business') || positionLower.includes('sales')) {
@@ -342,7 +353,7 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
         token: token,
         company: 'HireOG',
         profile: profileFromPosition,
-        level: 'intermediate', // Default level, can be made configurable
+        level: driveLevel,
         candidateName: candidate.name,
         candidateEmail: candidate.email
       });
@@ -448,7 +459,9 @@ router.get('/interview/:token', async (req, res) => {
         id: drive.id,
         name: drive.name,
         questions: driveQuestions, // Include questions from drive
-        jobDescription: drive.jobDescription || ''
+        jobDescription: drive.jobDescription || '',
+        profile: drive.profile || 'frontend',
+        level: drive.level || 'mid'
       }
     });
   } catch (error) {
@@ -573,7 +586,11 @@ router.post('/screenings', companyAuth, async (req, res) => {
       culturalFit: culturalFit || [],
       estimatedTime: estimatedTime || { mustHaves: 4, goodToHaves: 2, culturalFit: 2 },
       status: status || 'draft',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      jobDescription: req.body.jobDescription || '',
+      profile: req.body.profile || 'frontend',
+      level: req.body.level || 'mid',
+      questions: req.body.questions || [],
     };
     
     // Add screening to MongoDB
@@ -619,7 +636,11 @@ router.get('/screenings', companyAuth, async (req, res) => {
           ...screening,
           totalCandidates,
           completedInterviews,
-          candidateIds: drive?.candidateIds || [] // Include candidate IDs for compatibility
+          candidateIds: drive?.candidateIds || [], // Include candidate IDs for compatibility
+          jobDescription: drive?.jobDescription || screening.jobDescription || '',
+          questions: drive?.questions || screening.questions || [],
+          profile: drive?.profile || screening.profile || 'frontend',
+          level: drive?.level || screening.level || 'mid',
         };
       } catch (error) {
         console.error(`Error getting stats for screening ${screening.id}:`, error);
@@ -628,7 +649,11 @@ router.get('/screenings', companyAuth, async (req, res) => {
           ...screening,
           totalCandidates: 0,
           completedInterviews: 0,
-          candidateIds: []
+          candidateIds: [],
+          jobDescription: screening.jobDescription || '',
+          questions: screening.questions || [],
+          profile: screening.profile || 'frontend',
+          level: screening.level || 'mid',
         };
       }
     }));
@@ -735,13 +760,35 @@ router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) =
     
     if (!drive) {
       // Create a new drive for this screening
+      let derivedProfile = screening.profile || 'frontend';
+      if (!screening.profile && screening.positionTitle) {
+        const positionLower = screening.positionTitle.toLowerCase();
+        if (positionLower.includes('backend')) {
+          derivedProfile = 'backend';
+        } else if (positionLower.includes('full stack') || positionLower.includes('fullstack')) {
+          derivedProfile = 'frontend';
+        } else if (positionLower.includes('product')) {
+          derivedProfile = 'product';
+        } else if (positionLower.includes('business') || positionLower.includes('sales')) {
+          derivedProfile = 'business';
+        } else if (positionLower.includes('qa') || positionLower.includes('test')) {
+          derivedProfile = 'qa';
+        } else if (positionLower.includes('hr') || positionLower.includes('human')) {
+          derivedProfile = 'hr';
+        }
+      }
+
       const driveData = {
         id: screeningId,
         companyId: companyId,
         name: screening.name,
         candidateIds: candidateIds,
         status: 'draft',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        profile: derivedProfile,
+        level: screening.level || 'mid',
+        jobDescription: screening.jobDescription || '',
+        questions: screening.questions || [],
       };
       
       await db.addInterviewDrive(driveData);
@@ -776,28 +823,31 @@ router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) =
       await db.addInterviewToken(tokenData);
       
       // Generate interview link with company parameters
-      // Use the screening's position title to determine the appropriate profile
-      let profileFromPosition = 'frontend'; // default
-      const positionLower = screening.positionTitle?.toLowerCase() || '';
-      if (positionLower.includes('backend')) {
-        profileFromPosition = 'backend';
-      } else if (positionLower.includes('full stack') || positionLower.includes('fullstack')) {
-        profileFromPosition = 'fullstack';
-      } else if (positionLower.includes('product')) {
-        profileFromPosition = 'product';
-      } else if (positionLower.includes('business') || positionLower.includes('sales')) {
-        profileFromPosition = 'business';
-      } else if (positionLower.includes('qa') || positionLower.includes('test')) {
-        profileFromPosition = 'qa';
-      } else if (positionLower.includes('hr') || positionLower.includes('human')) {
-        profileFromPosition = 'hr';
+      // Prefer drive profile, fallback to screening position
+      let profileFromPosition = drive.profile || screening.profile || 'frontend';
+      if (!drive.profile) {
+        const positionLower = screening.positionTitle?.toLowerCase() || '';
+        if (positionLower.includes('backend')) {
+          profileFromPosition = 'backend';
+        } else if (positionLower.includes('full stack') || positionLower.includes('fullstack')) {
+          profileFromPosition = 'frontend';
+        } else if (positionLower.includes('product')) {
+          profileFromPosition = 'product';
+        } else if (positionLower.includes('business') || positionLower.includes('sales')) {
+          profileFromPosition = 'business';
+        } else if (positionLower.includes('qa') || positionLower.includes('test')) {
+          profileFromPosition = 'qa';
+        } else if (positionLower.includes('hr') || positionLower.includes('human')) {
+          profileFromPosition = 'hr';
+        }
       }
+      const driveLevel = drive.level || screening.level || 'mid';
 
       const interviewParams = new URLSearchParams({
         token: token,
         company: 'HireOG',
         profile: profileFromPosition,
-        level: 'intermediate',
+        level: driveLevel,
         candidateName: candidate.name,
         candidateEmail: candidate.email
       });
@@ -953,6 +1003,9 @@ router.get('/interview/config/:token', async (req, res) => {
         goodToHaves: screening.goodToHaves,
         culturalFit: screening.culturalFit,
         estimatedTime: screening.estimatedTime,
+        jobDescription: screening.jobDescription || '',
+        questions: screening.questions || [],
+        experienceLevel: screening.level || 'mid',
         // Candidate information
         candidateName: candidate.name,
         candidateEmail: candidate.email,

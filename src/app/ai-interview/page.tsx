@@ -97,8 +97,8 @@ function AIInterviewContent() {
   const [companyParams, setCompanyParams] = useState<{
     token?: string;
     company?: string;
-    profile?: string;
-    level?: string;
+    profile?: ProfileOption;
+    level?: 'junior' | 'mid' | 'senior';
     candidateName?: string;
     candidateEmail?: string;
     // Screening configuration
@@ -114,6 +114,8 @@ function AIInterviewContent() {
     };
     // Drive questions
     driveQuestions?: string[];
+    driveProfile?: string;
+    driveLevel?: 'junior' | 'mid' | 'senior';
   } | null>(null);
   
   // Track drive questions separately for easier access
@@ -587,11 +589,13 @@ function AIInterviewContent() {
               const config = configData.config;
               
               // Set company parameters with actual screening configuration
+              setDriveQuestions(Array.isArray(config.questions) ? config.questions : []);
+              const normalizedConfigProfile = mapProfileString(config.candidateProfile || config.positionTitle);
               setCompanyParams({
                 token: config.token,
                 company: config.companyName,
-                profile: config.candidateProfile?.toLowerCase() || 'frontend',
-                level: 'mid', // Keep default level for now
+                profile: normalizedConfigProfile,
+                level: (config.experienceLevel || 'mid') as 'junior' | 'mid' | 'senior',
                 candidateName: config.candidateName,
                 candidateEmail: config.candidateEmail,
                 // Include screening configuration
@@ -600,8 +604,22 @@ function AIInterviewContent() {
                 mustHaves: config.mustHaves,
                 goodToHaves: config.goodToHaves,
                 culturalFit: config.culturalFit,
-                estimatedTime: config.estimatedTime
+                estimatedTime: config.estimatedTime,
+                driveQuestions: Array.isArray(config.questions) ? config.questions : [],
+                driveProfile: config.candidateProfile || normalizedConfigProfile,
+                driveLevel: config.experienceLevel || 'mid',
               });
+
+              const normalizedProfile = normalizedConfigProfile;
+              setProfile(normalizedProfile);
+              setFocus(PROFILE_FOCUS_MAP[normalizedProfile] || PROFILE_FOCUS_MAP['frontend']);
+              setFramework(PROFILE_FRAMEWORK_MAP[normalizedProfile] || PROFILE_FRAMEWORK_MAP['frontend']);
+              if (config.experienceLevel) {
+                const normalizedLevel = (config.experienceLevel || 'mid').toLowerCase();
+                if (normalizedLevel === 'junior' || normalizedLevel === 'mid' || normalizedLevel === 'senior') {
+                  setLevel(normalizedLevel as 'junior' | 'mid' | 'senior');
+                }
+              }
 
               // Auto-select profile based on screening configuration
               const mappedProfile = mapProfileString(config.candidateProfile || config.positionTitle);
@@ -616,22 +634,40 @@ function AIInterviewContent() {
                 if (interviewResponse.ok) {
                   const interviewData = await interviewResponse.json();
                   const driveQuestions = interviewData.drive?.questions || [];
+                  const driveProfile = interviewData.drive?.profile;
+                  const driveLevel = interviewData.drive?.level;
                   
                   setDriveQuestions(driveQuestions);
                   setCompanyParams({
                     token,
                     company: interviewData.candidate?.companyName || company,
-                    profile: interviewData.candidate?.profile?.toLowerCase() || profile || 'frontend',
-                    level: level || 'mid',
+                    profile: (driveProfile || interviewData.candidate?.profile || profile || 'frontend').toLowerCase(),
+                    level: (driveLevel || level || 'mid') as 'junior' | 'mid' | 'senior',
                     candidateName: interviewData.candidate?.name || candidateName || undefined,
                     candidateEmail: interviewData.candidate?.email || candidateEmail || undefined,
-                    driveQuestions: driveQuestions
+                    driveQuestions: driveQuestions,
+                    driveProfile: driveProfile,
+                    driveLevel: driveLevel,
                   });
                   
-                  if (interviewData.candidate?.profile) {
-                    setProfile(mapProfileString(interviewData.candidate.profile));
+                  if (driveProfile) {
+                    const normalizedProfile = mapProfileString(driveProfile);
+                    setProfile(normalizedProfile);
+                    setFocus(PROFILE_FOCUS_MAP[normalizedProfile] || PROFILE_FOCUS_MAP['frontend']);
+                    setFramework(PROFILE_FRAMEWORK_MAP[normalizedProfile] || PROFILE_FRAMEWORK_MAP['frontend']);
+                  } else if (interviewData.candidate?.profile) {
+                    const normalizedProfile = mapProfileString(interviewData.candidate.profile);
+                    setProfile(normalizedProfile);
+                    setFocus(PROFILE_FOCUS_MAP[normalizedProfile] || PROFILE_FOCUS_MAP['frontend']);
+                    setFramework(PROFILE_FRAMEWORK_MAP[normalizedProfile] || PROFILE_FRAMEWORK_MAP['frontend']);
                   } else if (profile) {
                     setProfile(profile as any);
+                  }
+                  
+                  if (driveLevel) {
+                    setLevel(driveLevel as 'junior' | 'mid' | 'senior');
+                  } else if (level) {
+                    setLevel(level as 'junior' | 'mid' | 'senior');
                   }
                   setCurrentStep('interviewer-selection');
                 } else {
@@ -640,17 +676,33 @@ function AIInterviewContent() {
               } catch (fetchError) {
                 console.error('Failed to fetch interview configuration:', fetchError);
                 // Fallback to URL parameters if API fails
+                const fallbackLevel = level ? level.toLowerCase() : undefined;
+                const normalizedFallbackLevel = fallbackLevel && (fallbackLevel === 'junior' || fallbackLevel === 'mid' || fallbackLevel === 'senior')
+                  ? (fallbackLevel as 'junior' | 'mid' | 'senior')
+                  : undefined;
                 setCompanyParams({
                   token,
                   company,
-                  profile: profile || 'frontend',
-                  level: level || 'mid',
+                  profile: (profile || 'frontend') as ProfileOption,
+                  level: normalizedFallbackLevel || 'mid',
                   candidateName: candidateName || undefined,
-                  candidateEmail: candidateEmail || undefined
+                  candidateEmail: candidateEmail || undefined,
+                  driveQuestions: [],
+                  driveProfile: profile || undefined,
+                  driveLevel: normalizedFallbackLevel,
                 });
 
+                if (normalizedFallbackLevel) {
+                  setLevel(normalizedFallbackLevel);
+                } else {
+                  setLevel('mid');
+                }
+
                 if (profile) {
-                  setProfile(profile as any);
+                  const normalizedFromQuery = mapProfileString(profile);
+                  setProfile(normalizedFromQuery);
+                  setFocus(PROFILE_FOCUS_MAP[normalizedFromQuery] || PROFILE_FOCUS_MAP['frontend']);
+                  setFramework(PROFILE_FRAMEWORK_MAP[normalizedFromQuery] || PROFILE_FRAMEWORK_MAP['frontend']);
                 }
                 setCurrentStep('interviewer-selection');
               }
@@ -658,17 +710,33 @@ function AIInterviewContent() {
           } catch (error) {
             console.error('Error fetching interview configuration:', error);
             // Fallback to URL parameters if API fails
+            const fallbackLevel = level ? level.toLowerCase() : undefined;
+            const normalizedFallbackLevel = fallbackLevel && (fallbackLevel === 'junior' || fallbackLevel === 'mid' || fallbackLevel === 'senior')
+              ? (fallbackLevel as 'junior' | 'mid' | 'senior')
+              : undefined;
             setCompanyParams({
               token,
               company,
-              profile: profile || 'frontend',
-              level: level || 'mid',
+              profile: (profile || 'frontend') as ProfileOption,
+              level: normalizedFallbackLevel || 'mid',
               candidateName: candidateName || undefined,
-              candidateEmail: candidateEmail || undefined
+              candidateEmail: candidateEmail || undefined,
+              driveQuestions: [],
+              driveProfile: profile || undefined,
+              driveLevel: normalizedFallbackLevel,
             });
 
+            if (normalizedFallbackLevel) {
+              setLevel(normalizedFallbackLevel);
+            } else {
+              setLevel('mid');
+            }
+
             if (profile) {
-              setProfile(profile as any);
+              const normalizedFromQuery = mapProfileString(profile);
+              setProfile(normalizedFromQuery);
+              setFocus(PROFILE_FOCUS_MAP[normalizedFromQuery] || PROFILE_FOCUS_MAP['frontend']);
+              setFramework(PROFILE_FRAMEWORK_MAP[normalizedFromQuery] || PROFILE_FRAMEWORK_MAP['frontend']);
             }
             setCurrentStep('interviewer-selection');
           }

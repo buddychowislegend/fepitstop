@@ -754,6 +754,14 @@ class Database {
         ? driveData.screeningId.trim()
         : Date.now().toString();
 
+    const normalizedProfile = (typeof driveData.profile === 'string' && driveData.profile.trim().length > 0)
+      ? driveData.profile.trim().toLowerCase()
+      : 'frontend';
+    const levelValue = (typeof driveData.level === 'string') ? driveData.level.trim().toLowerCase() : '';
+    const normalizedLevel = (levelValue && ['junior', 'mid', 'senior'].includes(levelValue))
+      ? levelValue
+      : 'mid';
+
     const drive = {
       id: driveId,
       companyId: driveData.companyId,
@@ -766,7 +774,9 @@ class Database {
       updatedAt: new Date().toISOString(),
       screeningId: (typeof driveData.screeningId === 'string' && driveData.screeningId.trim().length > 0)
         ? driveData.screeningId.trim()
-        : driveId
+        : driveId,
+      profile: normalizedProfile,
+      level: normalizedLevel,
     };
 
     // Backward compatibility for any legacy code still reading `candidates`
@@ -799,6 +809,8 @@ class Database {
             : [],
         questions: Array.isArray(drive.questions) ? drive.questions : [],
         jobDescription: drive.jobDescription || '',
+        profile: drive.profile || 'frontend',
+        level: drive.level || 'mid',
       }));
   }
 

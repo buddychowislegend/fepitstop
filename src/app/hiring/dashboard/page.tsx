@@ -63,6 +63,8 @@ interface InterviewDrive {
   completedInterviews: number;
   jobDescription?: string;
   questions?: string[];
+  profile?: ProfileOption;
+  level?: 'junior' | 'mid' | 'senior';
 }
 
 interface NewDriveFormState {
@@ -70,6 +72,8 @@ interface NewDriveFormState {
   selectedCandidates: string[];
   jobDescription: string;
   questions: string[];
+  profile: ProfileOption;
+  level: 'junior' | 'mid' | 'senior';
 }
 
 type DriveCreationMode = 'selection' | 'jd' | 'custom';
@@ -79,6 +83,8 @@ const createEmptyDriveForm = (): NewDriveFormState => ({
   selectedCandidates: [],
   jobDescription: "",
   questions: [],
+  profile: 'frontend',
+  level: 'mid',
 });
 
 export default function CompanyDashboard() {
@@ -114,6 +120,22 @@ export default function CompanyDashboard() {
   const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const [companyDisplayName, setCompanyDisplayName] = useState<string>("Company");
   const router = useRouter();
+
+  const profileOptions: Array<{ value: ProfileOption; label: string }> = [
+    { value: 'frontend', label: 'Frontend Engineering' },
+    { value: 'backend', label: 'Backend Engineering' },
+    { value: 'product', label: 'Product Management' },
+    { value: 'business', label: 'Business & Sales' },
+    { value: 'qa', label: 'Quality Assurance' },
+    { value: 'hr', label: 'Human Resources' },
+    { value: 'data', label: 'Data & Analytics' },
+  ];
+
+  const levelOptions: Array<{ value: 'junior' | 'mid' | 'senior'; label: string }> = [
+    { value: 'junior', label: 'Junior (0-2 yrs)' },
+    { value: 'mid', label: 'Mid (3-6 yrs)' },
+    { value: 'senior', label: 'Senior (7+ yrs)' },
+  ];
 
   const handleOpenCreateDrive = () => {
     setDriveCreationMode('selection');
@@ -228,9 +250,13 @@ export default function CompanyDashboard() {
           name: s.name,
           status: s.status,
           candidates: s.candidateIds || [],
-          createdDate: s.createdAt.split('T')[0],
+          createdDate: s.createdAt ? s.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
           totalCandidates: s.totalCandidates || 0,
-          completedInterviews: s.completedInterviews || 0
+          completedInterviews: s.completedInterviews || 0,
+          jobDescription: s.jobDescription || '',
+          questions: s.questions || [],
+          profile: ((s.profile || 'frontend') as string).toLowerCase() as ProfileOption,
+          level: ((s.level || 'mid') as string).toLowerCase() as 'junior' | 'mid' | 'senior',
         }));
         setInterviewDrives(screenings);
       }
@@ -250,6 +276,7 @@ export default function CompanyDashboard() {
   const handleCreateDriveFromAI = async (details: any) => {
     try {
       const screeningName = `AI Generated: ${details.positionTitle}`;
+      const derivedProfile = mapProfileString(details.positionTitle || details.jobDescription || '');
       
       if (!details.questions || details.questions.length === 0) {
         alert('Please generate or add interview questions before creating the drive.');
@@ -274,7 +301,10 @@ export default function CompanyDashboard() {
           goodToHaves: details.goodToHaves,
           culturalFit: details.culturalFit,
           estimatedTime: details.estimatedTime,
-          status: 'active'
+          status: 'active',
+          jobDescription: details.jobDescription || '',
+          profile: derivedProfile,
+          level: details.experienceLevel || 'mid',
         })
       });
       
@@ -287,7 +317,11 @@ export default function CompanyDashboard() {
           candidates: [],
           createdDate: new Date().toISOString().split('T')[0],
           totalCandidates: 0,
-          completedInterviews: 0
+          completedInterviews: 0,
+          profile: derivedProfile,
+          level: (details.experienceLevel || 'mid') as 'junior' | 'mid' | 'senior',
+          jobDescription: details.jobDescription || '',
+          questions: details.questions,
         };
         
         setInterviewDrives(prev => [...prev, newScreening]);
@@ -306,7 +340,10 @@ export default function CompanyDashboard() {
               name: screeningName,
               candidateIds: [],
               jobDescription: details.jobDescription || aiPrompt || '',
-              questions: details.questions
+              questions: details.questions,
+              profile: derivedProfile,
+              level: details.experienceLevel || 'mid',
+              screeningId: data.id
             })
           });
 
@@ -474,7 +511,11 @@ export default function CompanyDashboard() {
           goodToHaves: 3,
           culturalFit: 2
         },
-        status: 'active' as const
+        status: 'active' as const,
+        jobDescription: newDrive.jobDescription,
+        profile: newDrive.profile,
+        level: newDrive.level,
+        questions: newDrive.questions,
       };
 
       let screeningId: string | null = null;
@@ -512,7 +553,9 @@ export default function CompanyDashboard() {
           candidateIds: isJDMode ? [] : newDrive.selectedCandidates,
           jobDescription: newDrive.jobDescription,
           questions: newDrive.questions,
-          screeningId: screeningId ?? undefined
+          screeningId: screeningId ?? undefined,
+          profile: newDrive.profile,
+          level: newDrive.level,
         })
       });
       
@@ -521,6 +564,8 @@ export default function CompanyDashboard() {
 
         // Refresh drives/screenings so UI reflects the new entry
         await loadScreenings();
+        setNewDrive(createEmptyDriveForm());
+        setNewQuestion("");
         handleCloseCreateDrive();
       } else {
         const error = await driveResponse.json();
@@ -724,6 +769,41 @@ export default function CompanyDashboard() {
             placeholder="e.g., Frontend Screening - January 2026"
             required
           />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-white">
+              Target Profile <span className="text-red-400">*</span>
+            </label>
+            <select
+              value={newDrive.profile}
+              onChange={(e) => setNewDrive(prev => ({ ...prev, profile: e.target.value as ProfileOption }))}
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-[#5cd3ff] focus:outline-none focus:ring-2 focus:ring-[#5cd3ff]/40"
+            >
+              {profileOptions.map(option => (
+                <option key={option.value} value={option.value} className="text-black">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-white">
+              Experience Level <span className="text-red-400">*</span>
+            </label>
+            <select
+              value={newDrive.level}
+              onChange={(e) => setNewDrive(prev => ({ ...prev, level: e.target.value as 'junior' | 'mid' | 'senior' }))}
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-[#5cd3ff] focus:outline-none focus:ring-2 focus:ring-[#5cd3ff]/40"
+            >
+              {levelOptions.map(option => (
+                <option key={option.value} value={option.value} className="text-black">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {isJDMode ? (
