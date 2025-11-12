@@ -460,7 +460,8 @@ export default function CompanyDashboard() {
           name: newDrive.name,
           candidateIds: newDrive.selectedCandidates,
           jobDescription: newDrive.jobDescription,
-          questions: newDrive.questions
+          questions: newDrive.questions,
+          driveName : newDrive.name
         })
       });
       
