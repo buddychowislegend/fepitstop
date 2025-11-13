@@ -124,6 +124,7 @@ function CompanyDashboardContent() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [interviewDrives, setInterviewDrives] = useState<InterviewDrive[]>([]);
   const [showAddCandidate, setShowAddCandidate] = useState(false);
+  const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
   const [showCreateDrive, setShowCreateDrive] = useState(false);
   const [driveCreationMode, setDriveCreationMode] = useState<DriveCreationMode>('selection');
   const [newCandidate, setNewCandidate] = useState({ name: "", email: "", profile: "" });
@@ -430,6 +431,81 @@ function CompanyDashboardContent() {
     } catch (error) {
       console.error('Error adding candidate:', error);
       alert('Failed to add candidate');
+    }
+  };
+
+  const handleEditCandidate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCandidate) return;
+
+    try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/candidates/${editingCandidate.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: editingCandidate.name,
+          email: editingCandidate.email,
+          profile: editingCandidate.profile
+        })
+      });
+      
+      if (response.ok) {
+        setCandidates(prev => 
+          prev.map(c => 
+            c.id === editingCandidate.id 
+              ? { ...editingCandidate, lastActivity: new Date().toISOString().split('T')[0] }
+              : c
+          )
+        );
+        setEditingCandidate(null);
+        alert('Candidate updated successfully!');
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to update candidate'}`);
+      }
+    } catch (error) {
+      console.error('Error updating candidate:', error);
+      alert('Failed to update candidate');
+    }
+  };
+
+  const handleDeleteCandidate = async (candidateId: string) => {
+    if (!confirm('Are you sure you want to delete this candidate? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/candidates/${candidateId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
+        },
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        setCandidates(prev => prev.filter(c => c.id !== candidateId));
+        alert('Candidate deleted successfully!');
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to delete candidate'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting candidate:', error);
+      alert('Failed to delete candidate');
     }
   };
 
@@ -2023,9 +2099,18 @@ function CompanyDashboardContent() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-[color:var(--foreground)]/60">{candidate.lastActivity}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <button className="text-[color:var(--brand-start)] hover:text-[color:var(--brand-end)] mr-3">View</button>
-                            <button className="text-blue-400 hover:text-blue-300 mr-3">Edit</button>
-                            <button className="text-red-400 hover:text-red-300">Delete</button>
+                            <button 
+                              onClick={() => setEditingCandidate(candidate)}
+                              className="text-blue-400 hover:text-blue-300 mr-3 transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteCandidate(candidate.id)}
+                              className="text-red-400 hover:text-red-300 transition-colors"
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -2086,6 +2171,65 @@ function CompanyDashboardContent() {
                 <button
                   type="button"
                   onClick={() => setShowAddCandidate(false)}
+                  className="flex-1 bg-[color:var(--surface)] text-[color:var(--foreground)] py-2 px-4 rounded-lg hover:bg-white/10 transition-colors border border-[color:var(--border)]"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Candidate Modal */}
+      {editingCandidate && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 w-full max-w-md border border-[color:var(--border)]">
+            <h3 className="text-xl font-bold text-[color:var(--foreground)] mb-4">Edit Candidate</h3>
+            <form onSubmit={handleEditCandidate} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">Name</label>
+                <input
+                  type="text"
+                  value={editingCandidate.name}
+                  onChange={(e) => setEditingCandidate({ ...editingCandidate, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                  placeholder="Enter candidate name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">Email</label>
+                <input
+                  type="email"
+                  value={editingCandidate.email}
+                  onChange={(e) => setEditingCandidate({ ...editingCandidate, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                  placeholder="Enter email address"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">Profile</label>
+                <input
+                  type="text"
+                  value={editingCandidate.profile}
+                  onChange={(e) => setEditingCandidate({ ...editingCandidate, profile: e.target.value })}
+                  className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                  placeholder="e.g., Frontend Developer"
+                  required
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white py-2 px-4 rounded-lg hover:opacity-90 transition-colors"
+                >
+                  Update Candidate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingCandidate(null)}
                   className="flex-1 bg-[color:var(--surface)] text-[color:var(--foreground)] py-2 px-4 rounded-lg hover:bg-white/10 transition-colors border border-[color:var(--border)]"
                 >
                   Cancel
