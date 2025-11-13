@@ -1056,7 +1056,7 @@ useEffect(() => {
         console.log('⏰ Timeout triggered, calling speakTextOrVideo');
         console.log('📊 Session state in timeout:', session);
         console.log('📊 NewSession data:', newSession);
-        speakTextOrVideo(data.message, newSession);
+        speakTextOrVideo(fullMessage, newSession);
       }, 1000);
     } catch (error) {
       console.error('Error starting interview:', error);

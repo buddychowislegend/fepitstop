@@ -40,6 +40,19 @@ import {
   X,
 } from "lucide-react";
 
+type ProfileOption = 'frontend' | 'backend' | 'product' | 'business' | 'qa' | 'hr' | 'data';
+
+const mapProfileString = (value?: string | null): ProfileOption => {
+  const lower = (value || '').toLowerCase();
+  if (lower.includes('back')) return 'backend';
+  if (lower.includes('product')) return 'product';
+  if (lower.includes('hr') || lower.includes('human')) return 'hr';
+  if (lower.includes('business') || lower.includes('sales')) return 'business';
+  if (lower.includes('qa') || lower.includes('quality') || lower.includes('test')) return 'qa';
+  if (lower.includes('data') || lower.includes('analyt')) return 'data';
+  return 'frontend';
+};
+
 interface Candidate {
   id: string;
   name: string;
@@ -742,19 +755,7 @@ export default function CompanyDashboard() {
                 : 'Craft your own question set and send invites when you’re ready.'}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setDriveCreationMode('selection');
-              setNewDrive(createEmptyDriveForm());
-              setNewQuestion("");
-              setIsGeneratingQuestions(false);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </button>
+       
         </div>
 
         <div>
