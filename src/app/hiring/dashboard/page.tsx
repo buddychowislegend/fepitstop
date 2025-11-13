@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import AIConfigurationScreen from "@/components/AIConfigurationScreen";
@@ -100,7 +100,7 @@ const createEmptyDriveForm = (): NewDriveFormState => ({
   level: 'mid',
 });
 
-export default function CompanyDashboard() {
+function CompanyDashboardContent() {
   // Mouse tracking for background animations
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
@@ -133,6 +133,7 @@ export default function CompanyDashboard() {
   const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const [companyDisplayName, setCompanyDisplayName] = useState<string>("Company");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const profileOptions: Array<{ value: ProfileOption; label: string }> = [
     { value: 'frontend', label: 'Frontend Engineering' },
@@ -174,6 +175,12 @@ export default function CompanyDashboard() {
       return;
     }
 
+    // Check if tab is specified in URL query params
+    const tabParam = searchParams?.get('tab');
+    if (tabParam === 'screenings' || tabParam === 'candidates') {
+      setActiveTab(tabParam);
+    }
+
     // Derive company display name from username email between '@' and '.in'
     const userEmail = localStorage.getItem('hiring_user') || '';
     const match = userEmail.match(/@(.*?)\.in/i);
@@ -187,7 +194,7 @@ export default function CompanyDashboard() {
     // Load data from backend
     loadDashboardData();
     loadScreenings();
-  }, [router]);
+  }, [router, searchParams]);
 
   const loadDashboardData = async () => {
     try {
@@ -580,6 +587,13 @@ export default function CompanyDashboard() {
         setNewDrive(createEmptyDriveForm());
         setNewQuestion("");
         handleCloseCreateDrive();
+        
+        // Navigate to screenings tab to show the newly created drive
+        setActiveTab('screenings');
+        router.push('/hiring/dashboard?tab=screenings');
+        
+        // Show success message
+        alert(`Drive "${newDrive.name.trim()}" created successfully!`);
       } else {
         const error = await driveResponse.json();
         alert(`Error: ${error.error}`);
@@ -1165,7 +1179,10 @@ export default function CompanyDashboard() {
               ].map((item) => (
                 <motion.button
                   key={item.key}
-                  onClick={() => setActiveTab(item.key as any)}
+                  onClick={() => {
+                    setActiveTab(item.key as any);
+                    router.push(`/hiring/dashboard?tab=${item.key}`);
+                  }}
                   className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
                     activeTab === item.key
                       ? 'text-[#2ad17e]' 
@@ -1777,7 +1794,7 @@ export default function CompanyDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[color:var(--border)]">
-                    {interviewDrives.slice(0, 4).map((drive) => (
+                    {interviewDrives.slice(-4).map((drive) => (
                       <tr key={drive.id} className="hover:bg-white/5">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-[color:var(--foreground)] font-medium">{drive.name}</div>
@@ -1802,24 +1819,13 @@ export default function CompanyDashboard() {
                           {drive.createdDate}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <div className="flex items-center gap-2">
-                            <button className="p-1 hover:bg-white/10 rounded">
-                              <svg className="w-4 h-4 text-[color:var(--foreground)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                              </svg>
-                            </button>
-                            <button className="p-1 hover:bg-white/10 rounded">
-                              <svg className="w-4 h-4 text-[color:var(--foreground)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                            </button>
-                            <button className="p-1 hover:bg-white/10 rounded">
-                              <svg className="w-4 h-4 text-[color:var(--foreground)]/60" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                              </svg>
-                            </button>
-                          </div>
+                          <Link
+                            href={`/hiring/screening/${drive.id}`}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[color:var(--brand-start)] hover:text-[color:var(--brand-end)] hover:bg-white/10 rounded-lg transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View
+                          </Link>
                         </td>
                       </tr>
                     ))}
@@ -2156,5 +2162,19 @@ export default function CompanyDashboard() {
         />
       )}
     </div>
+  );
+}
+
+export default function CompanyDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] flex items-center justify-center">
+        <div className="text-white/60 text-sm uppercase tracking-[0.3em]">
+          Loading...
+        </div>
+      </div>
+    }>
+      <CompanyDashboardContent />
+    </Suspense>
   );
 }
