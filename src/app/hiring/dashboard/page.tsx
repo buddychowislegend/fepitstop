@@ -38,6 +38,7 @@ import {
   UserCheck,
   Plus,
   X,
+  Upload,
 } from "lucide-react";
 
 type ProfileOption = 'frontend' | 'backend' | 'product' | 'business' | 'qa' | 'hr' | 'data';
@@ -58,6 +59,7 @@ interface Candidate {
   name: string;
   email: string;
   profile: string;
+  phoneNumber?: string;
   status: 'applied' | 'screening' | 'interview' | 'offer' | 'rejected';
   score: number;
   addedDate: string;
@@ -125,7 +127,9 @@ function CompanyDashboardContent() {
   const [interviewDrives, setInterviewDrives] = useState<InterviewDrive[]>([]);
   const [showAddCandidate, setShowAddCandidate] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
+  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
   const [showCreateDrive, setShowCreateDrive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [driveCreationMode, setDriveCreationMode] = useState<DriveCreationMode>('selection');
   const [newCandidate, setNewCandidate] = useState({ name: "", email: "", profile: "" });
   const [newDrive, setNewDrive] = useState<NewDriveFormState>(() => createEmptyDriveForm());
@@ -225,6 +229,7 @@ function CompanyDashboardContent() {
           name: c.name,
           email: c.email,
           profile: c.profile,
+          phoneNumber: c.phoneNumber || c.phone || undefined,
           status: c.status || 'applied',
           score: c.score || Math.floor(Math.random() * 40) + 60,
           addedDate: c.createdAt.split('T')[0],
@@ -506,6 +511,165 @@ function CompanyDashboardContent() {
     } catch (error) {
       console.error('Error deleting candidate:', error);
       alert('Failed to delete candidate');
+    }
+  };
+
+  const parseCSV = (csvText: string): Array<{ name: string; email: string; profile: string; phoneNumber?: string }> => {
+    const lines = csvText.split('\n').filter(line => line.trim());
+    if (lines.length === 0) return [];
+
+    // Parse header to find column indices
+    const header = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, ''));
+    const nameIndex = header.findIndex(h => h.includes('name'));
+    const emailIndex = header.findIndex(h => h.includes('email'));
+    const profileIndex = header.findIndex(h => h.includes('profile'));
+    const phoneIndex = header.findIndex(h => h.includes('phone'));
+
+    if (nameIndex === -1 || emailIndex === -1 || profileIndex === -1) {
+      throw new Error('CSV must contain Name, Email, and Profile columns');
+    }
+
+    const candidates: Array<{ name: string; email: string; profile: string; phoneNumber?: string }> = [];
+
+    // Parse data rows
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      // Handle CSV with quoted fields
+      const values: string[] = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim()); // Add last value
+
+      if (values.length > Math.max(nameIndex, emailIndex, profileIndex, phoneIndex >= 0 ? phoneIndex : -1)) {
+        const name = values[nameIndex]?.replace(/"/g, '').trim() || '';
+        const email = values[emailIndex]?.replace(/"/g, '').trim() || '';
+        const profile = values[profileIndex]?.replace(/"/g, '').trim() || '';
+        const phoneNumber = phoneIndex >= 0 ? (values[phoneIndex]?.replace(/"/g, '').trim() || undefined) : undefined;
+
+        if (name && email && profile) {
+          candidates.push({ name, email, profile, phoneNumber });
+        }
+      }
+    }
+
+    return candidates;
+  };
+
+  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.endsWith('.csv')) {
+      alert('Please upload a CSV file');
+      return;
+    }
+
+    setIsUploadingCSV(true);
+
+    try {
+      const text = await file.text();
+      const candidatesData = parseCSV(text);
+
+      if (candidatesData.length === 0) {
+        alert('No valid candidates found in CSV file');
+        setIsUploadingCSV(false);
+        return;
+      }
+
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+
+      // Upload candidates one by one (or you could create a bulk endpoint)
+      const uploadPromises = candidatesData.map(async (candidateData) => {
+        try {
+          const response = await fetch(`${backendUrl}/api/company/candidates`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Company-ID': companyId,
+              'X-Company-Password': companyPassword
+            },
+            credentials: 'include',
+            body: JSON.stringify(candidateData)
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            return {
+              success: true,
+              candidate: {
+                id: data.id,
+                name: candidateData.name,
+                email: candidateData.email,
+                profile: candidateData.profile,
+                phoneNumber: candidateData.phoneNumber,
+                status: "applied" as const,
+                score: 0,
+                addedDate: new Date().toISOString().split('T')[0],
+                lastActivity: new Date().toISOString().split('T')[0]
+              }
+            };
+          } else {
+            const error = await response.json();
+            return {
+              success: false,
+              error: error.error || 'Failed to add candidate',
+              candidateData
+            };
+          }
+        } catch (error) {
+          return {
+            success: false,
+            error: 'Network error',
+            candidateData
+          };
+        }
+      });
+
+      const results = await Promise.all(uploadPromises);
+      const successful = results.filter(r => r.success);
+      const failed = results.filter(r => !r.success);
+
+      // Add successful candidates to the list
+      const newCandidates = successful.map(r => (r as any).candidate);
+      setCandidates(prev => [...prev, ...newCandidates]);
+
+      // Show results
+      if (failed.length === 0) {
+        alert(`Successfully uploaded ${successful.length} candidate(s)!`);
+      } else {
+        alert(
+          `Uploaded ${successful.length} candidate(s) successfully.\n` +
+          `Failed to upload ${failed.length} candidate(s).\n\n` +
+          `Failed candidates:\n${failed.map((f, i) => `${i + 1}. ${(f as any).candidateData.name || (f as any).candidateData.email}`).join('\n')}`
+        );
+      }
+
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error: any) {
+      console.error('Error processing CSV:', error);
+      alert(`Error processing CSV file: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsUploadingCSV(false);
     }
   };
 
@@ -2045,13 +2209,38 @@ function CompanyDashboardContent() {
               <div>
                 <h1 className="text-3xl font-bold text-[color:var(--foreground)] mb-2">Candidates</h1>
                 <p className="text-[color:var(--foreground)]/60">Manage your candidate database</p>
+                <p className="text-[color:var(--foreground)]/40 text-sm mt-1">
+                  CSV format: Name, Email, Profile, Phone Number (optional)
+                </p>
               </div>
-              <button
-                onClick={() => setShowAddCandidate(true)}
-                className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
-              >
-                Add Candidate
-              </button>
+              <div className="flex items-center gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleCSVUpload}
+                  className="hidden"
+                  id="csv-upload-input"
+                  disabled={isUploadingCSV}
+                />
+                <label
+                  htmlFor="csv-upload-input"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    isUploadingCSV
+                      ? 'bg-gray-500/50 text-white/50 cursor-not-allowed'
+                      : 'bg-white/10 text-white hover:bg-white/20 border border-white/20 cursor-pointer'
+                  }`}
+                >
+                  <Upload className="w-4 h-4" />
+                  {isUploadingCSV ? 'Uploading...' : 'Upload CSV'}
+                </label>
+                <button
+                  onClick={() => setShowAddCandidate(true)}
+                  className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
+                >
+                  Add Candidate
+                </button>
+              </div>
             </div>
 
             {/* Candidates Table */}
