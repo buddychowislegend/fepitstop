@@ -121,6 +121,8 @@ function AIInterviewContent() {
   // Track drive questions separately for easier access
   const [driveQuestions, setDriveQuestions] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+const [shouldAutoStart, setShouldAutoStart] = useState(false);
+const autoStartTriggeredRef = useRef(false);
   
   // Interview flow states
   const [currentStep, setCurrentStep] = useState<'setup' | 'interviewer-selection' | 'mic-check' | 'interview' | 'thank-you' | 'analysis'>('setup');
@@ -551,12 +553,74 @@ function AIInterviewContent() {
     return interviewerPools[profile as keyof typeof interviewerPools] || interviewerPools.frontend;
   };
 
+const selectDefaultInterviewer = (profile: ProfileOption, fallbackInterviewer?: Interviewer | null): Interviewer => {
+  const pool = getInterviewersByProfile(profile);
+  const chosen =
+    pool.find(i => i.gender === 'female') ||
+    pool[0] ||
+    fallbackInterviewer ||
+    {
+      id: 'default-female',
+      name: 'Sophia',
+      role: '',
+      company: '',
+      experience: '',
+      avatar: '/female-interviewer.jpg',
+      specialties: [],
+      gender: 'female' as const,
+    };
+
+  return {
+    ...chosen,
+    role: '',
+    company: '',
+    experience: '',
+    specialties: [],
+  };
+};
+
   const interviewers = getInterviewersByProfile(profile);
 
   // Reset selected interviewer when profile changes
-  useEffect(() => {
+useEffect(() => {
+  if (!companyParams) {
     setSelectedInterviewer(null);
-  }, [profile]);
+  }
+}, [profile, companyParams]);
+
+useEffect(() => {
+  if (companyParams) {
+    const normalizedProfile = mapProfileString(companyParams.driveProfile || companyParams.profile);
+    const defaultInterviewer = selectDefaultInterviewer(normalizedProfile, selectedInterviewer);
+    setSelectedInterviewer(defaultInterviewer);
+    autoStartTriggeredRef.current = false;
+    setShouldAutoStart(true);
+  }
+}, [companyParams]);
+
+useEffect(() => {
+  if (shouldAutoStart && selectedInterviewer && !autoStartTriggeredRef.current) {
+    autoStartTriggeredRef.current = true;
+    startInterview();
+  }
+}, [shouldAutoStart, selectedInterviewer]);
+
+  // Sync profile/level with company drive configuration when it arrives
+  useEffect(() => {
+    if (companyParams) {
+      const normalizedProfile = mapProfileString(companyParams.driveProfile || companyParams.profile);
+      if (normalizedProfile !== profile) {
+        setProfile(normalizedProfile);
+        setFocus(PROFILE_FOCUS_MAP[normalizedProfile] || PROFILE_FOCUS_MAP['frontend']);
+        setFramework(PROFILE_FRAMEWORK_MAP[normalizedProfile] || PROFILE_FRAMEWORK_MAP['frontend']);
+      }
+
+      const driveLevel = companyParams.driveLevel || companyParams.level;
+      if (driveLevel && (driveLevel === 'junior' || driveLevel === 'mid' || driveLevel === 'senior')) {
+        setLevel(driveLevel);
+      }
+    }
+  }, [companyParams, profile]);
 
   // Check authentication
   useEffect(() => {
@@ -625,8 +689,8 @@ function AIInterviewContent() {
               const mappedProfile = mapProfileString(config.candidateProfile || config.positionTitle);
               setProfile(mappedProfile);
 
-              // Skip setup and go directly to interviewer selection for company interviews
-              setCurrentStep('interviewer-selection');
+              // Skip interviewer selection for company interviews
+              setCurrentStep('setup');
             } else {
               // If config endpoint fails, try the interview token endpoint (for drives)
               try {
@@ -638,10 +702,11 @@ function AIInterviewContent() {
                   const driveLevel = interviewData.drive?.level;
                   
                   setDriveQuestions(driveQuestions);
+                  const normalizedDriveProfile = mapProfileString(driveProfile || interviewData.candidate?.profile || profile || 'frontend');
                   setCompanyParams({
                     token,
                     company: interviewData.candidate?.companyName || company,
-                    profile: (driveProfile || interviewData.candidate?.profile || profile || 'frontend').toLowerCase(),
+                    profile: normalizedDriveProfile,
                     level: (driveLevel || level || 'mid') as 'junior' | 'mid' | 'senior',
                     candidateName: interviewData.candidate?.name || candidateName || undefined,
                     candidateEmail: interviewData.candidate?.email || candidateEmail || undefined,
@@ -669,7 +734,7 @@ function AIInterviewContent() {
                   } else if (level) {
                     setLevel(level as 'junior' | 'mid' | 'senior');
                   }
-                  setCurrentStep('interviewer-selection');
+                  setCurrentStep('setup');
                 } else {
                   throw new Error('Failed to fetch interview data');
                 }
@@ -704,7 +769,7 @@ function AIInterviewContent() {
                   setFocus(PROFILE_FOCUS_MAP[normalizedFromQuery] || PROFILE_FOCUS_MAP['frontend']);
                   setFramework(PROFILE_FRAMEWORK_MAP[normalizedFromQuery] || PROFILE_FRAMEWORK_MAP['frontend']);
                 }
-                setCurrentStep('interviewer-selection');
+                setCurrentStep('setup');
               }
             }
           } catch (error) {
@@ -738,7 +803,7 @@ function AIInterviewContent() {
               setFocus(PROFILE_FOCUS_MAP[normalizedFromQuery] || PROFILE_FOCUS_MAP['frontend']);
               setFramework(PROFILE_FRAMEWORK_MAP[normalizedFromQuery] || PROFILE_FRAMEWORK_MAP['frontend']);
             }
-            setCurrentStep('interviewer-selection');
+            setCurrentStep('setup');
           }
         };
 
@@ -871,10 +936,16 @@ function AIInterviewContent() {
   };
 
   const startInterview = async () => {
-    if (!user || !token || !selectedInterviewer) return;
+    if (!selectedInterviewer) return;
     
     const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
     const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
+    const questionsToUse = driveQuestions.length > 0 ? driveQuestions : (companyParams?.driveQuestions || []);
+    const hasDriveQuestions = questionsToUse.length > 0;
+
+    if (!hasDriveQuestions && (!user || !token)) {
+      return;
+    }
     
     // Track interview start
     trackAIEvent('interview_started', {
@@ -885,19 +956,15 @@ function AIInterviewContent() {
     
     setLoading(true);
     try {
-      // Check if we have drive questions to use
-      const questionsToUse = driveQuestions.length > 0 ? driveQuestions : (companyParams?.driveQuestions || []);
-      
       let firstQuestion = '';
       let introduction = '';
       
-      if (questionsToUse.length > 0) {
+      if (hasDriveQuestions) {
         // Use drive questions
         setCurrentQuestionIndex(0);
         firstQuestion = questionsToUse[0];
         const interviewerName = selectedInterviewer.name;
-        const interviewerRole = selectedInterviewer.role;
-        introduction = `Hello! I'm ${interviewerName}, ${interviewerRole}. Welcome to your technical interview! I'm really excited to learn about your skills and experience. Don't worry about being perfect - I'm here to help you showcase what you know and we'll work through the questions together. Take your time, think out loud, and remember that showing your thought process is just as important as the final answer. You've got this! Let's begin with our first question.`;
+        introduction = `Hello! I'm ${interviewerName}. Welcome to your interview! I'm really excited to learn about your skills and experience. Don't worry about being perfect - I'm here to help you showcase what you know and we'll work through the questions together. Take your time, think out loud, and remember that showing your thought process is just as important as the final answer. You've got this! Let's begin with our first question.`;
       } else {
         // Generate question using AI
         const response = await fetch('/api/ai-interview', {
@@ -930,9 +997,17 @@ function AIInterviewContent() {
         ? `${introduction}\n\n${firstQuestion}`
         : firstQuestion;
       
+      const interviewerForSession: Interviewer = companyParams ? {
+        ...selectedInterviewer,
+        role: '',
+        company: '',
+        experience: '',
+        specialties: [],
+      } : selectedInterviewer;
+
       const newSession: InterviewSession = {
         id: Date.now().toString(),
-        interviewer: selectedInterviewer,
+        interviewer: interviewerForSession,
         level,
         focus: focusForRequest,
         startTime: new Date(),
@@ -948,6 +1023,7 @@ function AIInterviewContent() {
       };
 
       setSession(newSession);
+      setShouldAutoStart(false);
       lastInterviewerGenderRef.current = selectedInterviewer.gender;
       setMessages(newSession.messages);
       setCurrentStep('interview');
@@ -984,6 +1060,7 @@ function AIInterviewContent() {
       }, 1000);
     } catch (error) {
       console.error('Error starting interview:', error);
+      setShouldAutoStart(false);
     } finally {
       setLoading(false);
     }
@@ -2370,6 +2447,7 @@ function AIInterviewContent() {
             </motion.div>
 
             {/* Continue Button */}
+            {!companyParams && (
             <motion.div 
               className="text-center"
               initial={{ opacity: 0, y: 30 }}
@@ -2432,6 +2510,7 @@ function AIInterviewContent() {
                 ))}
               </motion.button>
             </motion.div>
+            )}
           </motion.div>
         </motion.div>
         </div>
@@ -2650,37 +2729,41 @@ function AIInterviewContent() {
                         {interviewer.name}
                       </motion.h3>
                       
-                      <motion.p 
-                        className="text-[#5cd3ff] text-sm mb-2 font-semibold"
-                        initial={{ opacity: 0.8 }}
-                        whileHover={{ opacity: 1 }}
-                      >
-                        {interviewer.role}
-                      </motion.p>
-                      
-                      <motion.p 
-                        className="text-white/60 text-xs mb-4"
-                        initial={{ opacity: 0.6 }}
-                        whileHover={{ opacity: 0.8 }}
-                      >
-                        {interviewer.company} • {interviewer.experience}
-                      </motion.p>
-                      
-                      {/* Specialties */}
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        {interviewer.specialties.map((specialty, specIndex) => (
-                          <motion.span 
-                            key={specialty} 
-                            className="bg-gradient-to-r from-white/10 to-white/5 text-white/80 text-xs px-3 py-1 rounded-full border border-white/20"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.7 + index * 0.1 + specIndex * 0.05 }}
-                            whileHover={{ scale: 1.05, backgroundColor: 'rgba(42, 209, 126, 0.2)' }}
+                      {!companyParams && (
+                        <>
+                          <motion.p 
+                            className="text-[#5cd3ff] text-sm mb-2 font-semibold"
+                            initial={{ opacity: 0.8 }}
+                            whileHover={{ opacity: 1 }}
                           >
-                        {specialty}
-                          </motion.span>
-                    ))}
-                  </div>
+                            {interviewer.role}
+                          </motion.p>
+                          
+                          <motion.p 
+                            className="text-white/60 text-xs mb-4"
+                            initial={{ opacity: 0.6 }}
+                            whileHover={{ opacity: 0.8 }}
+                          >
+                            {interviewer.company} • {interviewer.experience}
+                          </motion.p>
+                          
+                          {/* Specialties */}
+                          <div className="flex flex-wrap gap-2 justify-center">
+                            {interviewer.specialties.map((specialty, specIndex) => (
+                              <motion.span 
+                                key={specialty} 
+                                className="bg-gradient-to-r from-white/10 to-white/5 text-white/80 text-xs px-3 py-1 rounded-full border border-white/20"
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.7 + index * 0.1 + specIndex * 0.05 }}
+                                whileHover={{ scale: 1.05, backgroundColor: 'rgba(42, 209, 126, 0.2)' }}
+                              >
+                                {specialty}
+                              </motion.span>
+                            ))}
+                          </div>
+                        </>
+                      )}
                 </div>
                     
                     {/* Animated Border */}
@@ -3237,20 +3320,22 @@ function AIInterviewContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.8 }}
             >
-              <motion.button
-                onClick={() => setCurrentStep('interviewer-selection')}
-                className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-white/10 to-white/5 text-white font-semibold rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300"
-                whileHover={{ scale: 1.05, x: -5 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <motion.span
-                  animate={{ x: [0, -3, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+              {!companyParams && (
+                <motion.button
+                  onClick={() => setCurrentStep('interviewer-selection')}
+                  className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-white/10 to-white/5 text-white font-semibold rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300"
+                  whileHover={{ scale: 1.05, x: -5 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  ←
-                </motion.span>
-                <span>Back</span>
-              </motion.button>
+                  <motion.span
+                    animate={{ x: [0, -3, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, type: "tween" }}
+                  >
+                    ←
+                  </motion.span>
+                  <span>Back</span>
+                </motion.button>
+              )}
               
               <motion.button
                 onClick={startInterview}
@@ -3491,13 +3576,17 @@ function AIInterviewContent() {
               >
                 {session.interviewer.name}
               </motion.h1>
-              <motion.p 
-                className="text-[#5cd3ff] text-sm font-medium"
-                initial={{ opacity: 0.7 }}
-                whileHover={{ opacity: 1 }}
-              >
-                {session.interviewer.role} • {session.interviewer.company}
-              </motion.p>
+              {!companyParams && (session.interviewer.role || session.interviewer.company) && (
+                <motion.p 
+                  className="text-[#5cd3ff] text-sm font-medium"
+                  initial={{ opacity: 0.7 }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  {session.interviewer.role}
+                  {session.interviewer.role && session.interviewer.company ? ' • ' : ''}
+                  {session.interviewer.company}
+                </motion.p>
+              )}
             </div>
           </motion.div>
           
