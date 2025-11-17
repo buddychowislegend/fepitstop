@@ -155,16 +155,19 @@ router.post('/candidates', companyAuth, async (req, res) => {
 router.put('/candidates/:id', companyAuth, async (req, res) => {
   try {
     const candidateId = req.params.id;
-    const { name, email, profile, status } = req.body;
+    const { name, email, profile, status, hiringStatus } = req.body;
     const companyId = req.companyId;
     
+    // Build update object with only provided fields
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+    if (profile !== undefined) updateData.profile = profile;
+    if (status !== undefined) updateData.status = status;
+    if (hiringStatus !== undefined) updateData.hiringStatus = hiringStatus;
+    
     // Update candidate in MongoDB
-    const result = await db.updateCandidate(candidateId, {
-      name: name,
-      email: email,
-      profile: profile,
-      status: status
-    });
+    const result = await db.updateCandidate(candidateId, updateData);
     
     if (!result) {
       return res.status(404).json({ error: 'Candidate not found' });
@@ -924,6 +927,7 @@ router.get('/screenings/:id/details', companyAuth, async (req, res) => {
         name: candidate.name,
         email: candidate.email,
         status: response ? 'completed' : 'invited',
+        hiringStatus: candidate.hiringStatus || 'pending',
         score: response ? (response.score || 0) : null,
         technicalScore: response ? response.technicalScore : null,
         communicationScore: response ? response.communicationScore : null,

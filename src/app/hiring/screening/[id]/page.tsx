@@ -10,6 +10,7 @@ interface Candidate {
   name: string;
   email: string;
   status: 'invited' | 'in-progress' | 'completed' | 'not-started';
+  hiringStatus?: 'shortlisted' | 'on-hold' | 'rejected' | 'hired' | 'pending';
   score?: number;
   technicalScore?: number;
   communicationScore?: number;
@@ -72,6 +73,12 @@ export default function ScreeningDetailPage() {
   const [isInviting, setIsInviting] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState("");
+  const [isSavingName, setIsSavingName] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [scoreFilter, setScoreFilter] = useState<{ min: number | null; max: number | null }>({ min: null, max: null });
 
   useEffect(() => {
     loadScreeningDetails();
@@ -117,6 +124,7 @@ export default function ScreeningDetailPage() {
           name: candidate.name,
           email: candidate.email,
           status: candidate.status,
+          hiringStatus: candidate.hiringStatus || 'pending',
           score: candidate.score,
           completedDate: candidate.completedDate ? new Date(candidate.completedDate).toLocaleDateString() : undefined,
           invitedDate: new Date(candidate.invitedDate).toLocaleDateString(),
@@ -208,6 +216,94 @@ export default function ScreeningDetailPage() {
     setShowResultsModal(true);
   };
 
+  const handleEditName = () => {
+    if (screening) {
+      setEditedName(screening.name);
+      setIsEditingName(true);
+    }
+  };
+
+  const handleSaveName = async () => {
+    if (!screening || !editedName.trim()) return;
+    
+    setIsSavingName(true);
+    try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      
+      const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
+        },
+        credentials: 'include',
+        body: JSON.stringify({ name: editedName.trim() })
+      });
+
+      if (response.ok) {
+        setScreening(prev => prev ? { ...prev, name: editedName.trim() } : null);
+        setIsEditingName(false);
+        alert('Screening name updated successfully!');
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to update name'}`);
+      }
+    } catch (error) {
+      console.error('Error updating name:', error);
+      alert('Failed to update screening name');
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
+  const handleCancelEditName = () => {
+    setIsEditingName(false);
+    setEditedName("");
+  };
+
+  const handleUpdateHiringStatus = async (candidateId: string, newStatus: 'shortlisted' | 'on-hold' | 'rejected' | 'hired' | 'pending') => {
+    try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      
+      const response = await fetch(`${backendUrl}/api/company/candidates/${candidateId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
+        },
+        credentials: 'include',
+        body: JSON.stringify({ hiringStatus: newStatus })
+      });
+
+      if (response.ok) {
+        // Update local state
+        setCandidates(prev => 
+          prev.map(c => 
+            c.id === candidateId 
+              ? { ...c, hiringStatus: newStatus }
+              : c
+          )
+        );
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to update hiring status'}`);
+        // Reload to get correct state
+        loadScreeningDetails();
+      }
+    } catch (error) {
+      console.error('Error updating hiring status:', error);
+      alert('Failed to update hiring status');
+      // Reload to get correct state
+      loadScreeningDetails();
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-500/20 text-green-400';
@@ -218,10 +314,43 @@ export default function ScreeningDetailPage() {
     }
   };
 
-  const filteredCandidates = candidates.filter(candidate =>
-    candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    candidate.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const getHiringStatusColor = (status: string) => {
+    switch (status) {
+      case 'shortlisted': return 'bg-blue-500/20 text-blue-400';
+      case 'on-hold': return 'bg-yellow-500/20 text-yellow-400';
+      case 'rejected': return 'bg-red-500/20 text-red-400';
+      case 'hired': return 'bg-green-500/20 text-green-400';
+      case 'pending': return 'bg-gray-500/20 text-gray-400';
+      default: return 'bg-gray-500/20 text-gray-400';
+    }
+  };
+
+  const getHiringStatusLabel = (status: string) => {
+    switch (status) {
+      case 'shortlisted': return 'Shortlisted for next round';
+      case 'on-hold': return 'On Hold';
+      case 'rejected': return 'Rejected';
+      case 'hired': return 'Hired';
+      case 'pending': return 'Pending';
+      default: return 'Pending';
+    }
+  };
+
+  const filteredCandidates = candidates.filter(candidate => {
+    // Search filter
+    const matchesSearch = candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      candidate.email.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Status filter
+    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(candidate.status);
+    
+    // Score filter
+    const candidateScore = candidate.score || 0;
+    const matchesScore = (!scoreFilter.min || candidateScore >= scoreFilter.min) &&
+      (!scoreFilter.max || candidateScore <= scoreFilter.max);
+    
+    return matchesSearch && matchesStatus && matchesScore;
+  });
 
   const sortedCandidates = [...filteredCandidates].sort((a, b) => {
     switch (sortBy) {
@@ -344,17 +473,63 @@ export default function ScreeningDetailPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <div>
-                <h1 className="text-2xl font-bold text-white">{screening?.name}</h1>
+              <div className="flex-1 min-w-0">
+                {isEditingName ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSaveName();
+                        } else if (e.key === 'Escape') {
+                          handleCancelEditName();
+                        }
+                      }}
+                      className="text-2xl font-bold text-white bg-white/20 border border-white/30 rounded px-2 py-1 flex-1 min-w-0 focus:outline-none focus:border-white/50"
+                      autoFocus
+                      disabled={isSavingName}
+                    />
+                    <button
+                      onClick={handleSaveName}
+                      disabled={isSavingName || !editedName.trim()}
+                      className="text-white hover:text-white/80 disabled:opacity-50"
+                      title="Save"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleCancelEditName}
+                      disabled={isSavingName}
+                      className="text-white hover:text-white/80 disabled:opacity-50"
+                      title="Cancel"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 group">
+                    <h1 className="text-2xl font-bold text-white truncate">{screening?.name || 'Loading...'}</h1>
+                    <button
+                      onClick={handleEditName}
+                      className="text-white/60 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                      title="Edit name"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
                 <div className="flex items-center gap-3 mt-1">
-                  <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full">
+                  <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full whitespace-nowrap">
                     AI Assisted
                   </span>
-                  <button className="text-white hover:text-white/80">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>
@@ -365,15 +540,15 @@ export default function ScreeningDetailPage() {
             </button>
           </div>
           
-          <div className="flex items-center gap-6 mt-4">
+          <div className="flex items-center gap-6 mt-4 flex-wrap">
             <div className="flex items-center gap-2 text-white/80">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span className="text-sm">Created: {screening?.createdDate}</span>
+              <span className="text-sm whitespace-nowrap">Created: {screening?.createdDate || 'N/A'}</span>
             </div>
-            <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full">
-              {screening?.status}
+            <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full whitespace-nowrap capitalize">
+              {screening?.status || 'Unknown'}
             </span>
           </div>
         </div>
@@ -440,48 +615,25 @@ export default function ScreeningDetailPage() {
               </div>
 
               {/* Sort and Filter */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
+        
                 <button
-                  onClick={() => setSortBy('top-performer')}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                    sortBy === 'top-performer'
-                      ? 'bg-[color:var(--brand-start)]/20 text-[color:var(--brand-start)]'
-                      : 'bg-[color:var(--surface)] text-[color:var(--foreground)]/70 hover:bg-white/10'
+                  onClick={() => setShowFilterModal(true)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap border ${
+                    statusFilter.length > 0 || scoreFilter.min !== null || scoreFilter.max !== null
+                      ? 'bg-[color:var(--brand-start)]/20 text-[color:var(--brand-start)] border-[color:var(--brand-start)]/30'
+                      : 'bg-[color:var(--surface)] text-[color:var(--foreground)]/70 hover:bg-white/10 border-[color:var(--border)]'
                   }`}
                 >
-                  <span className="mr-1">#</span> Top Performer ↑
-                </button>
-                <button
-                  onClick={() => setSortBy('name')}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                    sortBy === 'name'
-                      ? 'bg-[color:var(--brand-start)]/20 text-[color:var(--brand-start)]'
-                      : 'bg-[color:var(--surface)] text-[color:var(--foreground)]/70 hover:bg-white/10'
-                  }`}
-                >
-                  <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Name
-                </button>
-                <button
-                  onClick={() => setSortBy('date')}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                    sortBy === 'date'
-                      ? 'bg-[color:var(--brand-start)]/20 text-[color:var(--brand-start)]'
-                      : 'bg-[color:var(--surface)] text-[color:var(--foreground)]/70 hover:bg-white/10'
-                  }`}
-                >
-                  <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Date
-                </button>
-                <button className="px-3 py-1 rounded-lg text-sm font-medium bg-[color:var(--surface)] text-[color:var(--foreground)]/70 hover:bg-white/10 transition-colors">
                   <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z" />
                   </svg>
                   Filter
+                  {(statusFilter.length > 0 || scoreFilter.min !== null || scoreFilter.max !== null) && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-[color:var(--brand-start)]/30 rounded-full text-xs">
+                      {statusFilter.length + (scoreFilter.min !== null ? 1 : 0) + (scoreFilter.max !== null ? 1 : 0)}
+                    </span>
+                  )}
                 </button>
               </div>
 
@@ -521,6 +673,7 @@ export default function ScreeningDetailPage() {
                           <th className="px-6 py-3 text-left text-xs font-medium text-[color:var(--foreground)]/60 uppercase tracking-wider">Status</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-[color:var(--foreground)]/60 uppercase tracking-wider">Score</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-[color:var(--foreground)]/60 uppercase tracking-wider">Progress</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-[color:var(--foreground)]/60 uppercase tracking-wider">Hiring Status</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-[color:var(--foreground)]/60 uppercase tracking-wider">Actions</th>
                         </tr>
                       </thead>
@@ -557,6 +710,19 @@ export default function ScreeningDetailPage() {
                                   style={{ width: `${candidate.progress}%` }}
                                 ></div>
                               </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <select
+                                value={candidate.hiringStatus || 'pending'}
+                                onChange={(e) => handleUpdateHiringStatus(candidate.id, e.target.value as 'shortlisted' | 'on-hold' | 'rejected' | 'hired' | 'pending')}
+                                className="px-3 py-1.5 rounded-lg text-sm font-medium border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-[color:var(--brand-start)] transition-colors min-w-[180px]"
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="shortlisted">Shortlisted for next round</option>
+                                <option value="on-hold">On Hold</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="hired">Hired</option>
+                              </select>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               <button 
@@ -659,6 +825,89 @@ export default function ScreeningDetailPage() {
                   className="flex-1 bg-[color:var(--surface)] text-[color:var(--foreground)] py-2 px-4 rounded-lg hover:bg-white/10 transition-colors border border-[color:var(--border)]"
                 >
                   Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter Modal */}
+      {showFilterModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-[color:var(--surface)] rounded-2xl p-6 w-full max-w-md border border-[color:var(--border)]">
+            <h3 className="text-xl font-bold text-[color:var(--foreground)] mb-4">Filter Candidates</h3>
+            <div className="space-y-6">
+              {/* Status Filter */}
+              <div>
+                <label className="block text-sm font-medium text-[color:var(--foreground)] mb-3">Status</label>
+                <div className="space-y-2">
+                  {['completed', 'in-progress', 'invited', 'not-started'].map((status) => (
+                    <label key={status} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={statusFilter.includes(status)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setStatusFilter([...statusFilter, status]);
+                          } else {
+                            setStatusFilter(statusFilter.filter(s => s !== status));
+                          }
+                        }}
+                        className="rounded border-[color:var(--border)] text-[color:var(--brand-start)] focus:ring-[color:var(--brand-start)]"
+                      />
+                      <span className="text-[color:var(--foreground)] capitalize">{status.replace('-', ' ')}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Score Filter */}
+              <div>
+                <label className="block text-sm font-medium text-[color:var(--foreground)] mb-3">Score Range</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-[color:var(--foreground)]/60 mb-1">Min Score</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={scoreFilter.min || ''}
+                      onChange={(e) => setScoreFilter({ ...scoreFilter, min: e.target.value ? parseInt(e.target.value) : null })}
+                      placeholder="0"
+                      className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[color:var(--foreground)]/60 mb-1">Max Score</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={scoreFilter.max || ''}
+                      onChange={(e) => setScoreFilter({ ...scoreFilter, max: e.target.value ? parseInt(e.target.value) : null })}
+                      placeholder="100"
+                      className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setStatusFilter([]);
+                    setScoreFilter({ min: null, max: null });
+                  }}
+                  className="flex-1 bg-[color:var(--surface)] text-[color:var(--foreground)] py-2 px-4 rounded-lg hover:bg-white/10 transition-colors border border-[color:var(--border)]"
+                >
+                  Clear All
+                </button>
+                <button
+                  onClick={() => setShowFilterModal(false)}
+                  className="flex-1 bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white py-2 px-4 rounded-lg hover:opacity-90 transition-colors"
+                >
+                  Apply Filters
                 </button>
               </div>
             </div>

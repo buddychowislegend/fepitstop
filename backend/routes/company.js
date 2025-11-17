@@ -92,7 +92,7 @@ router.post('/candidates', companyAuth, async (req, res) => {
 router.put('/candidates/:id', companyAuth, async (req, res) => {
   try {
     const candidateId = req.params.id;
-    const { name, email, profile, status } = req.body;
+    const { name, email, profile, status, hiringStatus } = req.body;
     const companyId = req.companyId;
     
     // Verify candidate belongs to this company
@@ -105,10 +105,41 @@ router.put('/candidates/:id', companyAuth, async (req, res) => {
       return res.status(404).json({ error: 'Candidate not found' });
     }
     
+    // Build update query dynamically based on provided fields
+    const updates = [];
+    const values = [];
+    
+    if (name !== undefined) {
+      updates.push('name = ?');
+      values.push(name);
+    }
+    if (email !== undefined) {
+      updates.push('email = ?');
+      values.push(email);
+    }
+    if (profile !== undefined) {
+      updates.push('profile = ?');
+      values.push(profile);
+    }
+    if (status !== undefined) {
+      updates.push('status = ?');
+      values.push(status);
+    }
+    if (hiringStatus !== undefined) {
+      updates.push('hiringStatus = ?');
+      values.push(hiringStatus);
+    }
+    
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+    
+    values.push(candidateId, companyId);
+    
     // Update candidate
     await db.query(
-      'UPDATE candidates SET name = ?, email = ?, profile = ?, status = ? WHERE id = ? AND company_id = ?',
-      [name, email, profile, status, candidateId, companyId]
+      `UPDATE candidates SET ${updates.join(', ')} WHERE id = ? AND company_id = ?`,
+      values
     );
     
     res.json({ message: 'Candidate updated successfully' });
