@@ -337,6 +337,7 @@ function CompanyDashboardContent() {
           profile: derivedProfile,
           level: details.experienceLevel || 'mid',
           interviewDuration: details.interviewDuration || 15,
+          questions: details.questions || [], // Include questions in screening
         })
       });
       

@@ -1015,6 +1015,7 @@ router.get('/interview/config/:token', async (req, res) => {
         questions: screening.questions || [],
         experienceLevel: screening.level || 'mid',
         interviewDuration: screening.interviewDuration || 15, // Include interview duration (default 15 minutes)
+        profile: screening.profile || 'frontend', // Include screening profile
         // Candidate information
         candidateName: candidate.name,
         candidateEmail: candidate.email,

@@ -662,7 +662,8 @@ useEffect(() => {
               
               // Set company parameters with actual screening configuration
               setDriveQuestions(Array.isArray(config.questions) ? config.questions : []);
-              const normalizedConfigProfile = mapProfileString(config.candidateProfile || config.positionTitle);
+              // Use screening profile if available, otherwise derive from position title or candidate profile
+              const normalizedConfigProfile = config.profile || mapProfileString(config.positionTitle || config.candidateProfile);
               setCompanyParams({
                 token: config.token,
                 company: config.companyName,
@@ -678,7 +679,7 @@ useEffect(() => {
                 culturalFit: config.culturalFit,
                 estimatedTime: config.estimatedTime,
                 driveQuestions: Array.isArray(config.questions) ? config.questions : [],
-                driveProfile: config.candidateProfile || normalizedConfigProfile,
+                driveProfile: config.profile || normalizedConfigProfile, // Use screening profile
                 driveLevel: config.experienceLevel || 'mid',
                 interviewDuration: config.interviewDuration || 15, // Use configured duration or default to 15 minutes
               });
@@ -699,8 +700,11 @@ useEffect(() => {
               }
 
               // Auto-select profile based on screening configuration
-              const mappedProfile = mapProfileString(config.candidateProfile || config.positionTitle);
-              setProfile(mappedProfile);
+              // Use the profile from screening config if available, otherwise derive from position title
+              const screeningProfile = config.profile || mapProfileString(config.positionTitle);
+              setProfile(screeningProfile);
+              setFocus(PROFILE_FOCUS_MAP[screeningProfile] || PROFILE_FOCUS_MAP['frontend']);
+              setFramework(PROFILE_FRAMEWORK_MAP[screeningProfile] || PROFILE_FRAMEWORK_MAP['frontend']);
 
               // Skip interviewer selection for company interviews
               setCurrentStep('setup');
