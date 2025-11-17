@@ -1907,11 +1907,9 @@ function CompanyDashboardContent() {
                       <motion.div 
                         className={`p-4 bg-gradient-to-r ${metric.color} rounded-2xl relative`}
                         animate={{ 
-                          rotate: [0, 360],
                           scale: [1, 1.1, 1]
                         }}
                         transition={{ 
-                          rotate: { duration: 20, repeat: Infinity, ease: "linear" },
                           scale: { duration: 2, repeat: Infinity, type: "tween" }
                         }}
                         whileHover={{ scale: 1.2 }}
@@ -2184,17 +2182,12 @@ function CompanyDashboardContent() {
                     )}
                     
                   {drive.status === 'active' && (
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/hiring/screening/${drive.id}`}
-                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm text-center"
-                      >
-                        View Details
-                      </Link>
-                      <button className="flex-1 bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white py-2 px-4 rounded-lg hover:opacity-90 transition-colors text-sm">
-                        Analytics
-                      </button>
-                    </div>
+                    <Link
+                      href={`/hiring/screening/${drive.id}`}
+                      className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm text-center block"
+                    >
+                      View Details
+                    </Link>
                   )}
                   </div>
                 ))}
