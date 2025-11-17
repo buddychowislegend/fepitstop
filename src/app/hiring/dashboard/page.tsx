@@ -91,7 +91,7 @@ interface NewDriveFormState {
   level: 'junior' | 'mid' | 'senior';
 }
 
-type DriveCreationMode = 'selection' | 'jd' | 'custom';
+type DriveCreationMode = 'selection' | 'ai' | 'jd' | 'custom';
 
 const createEmptyDriveForm = (): NewDriveFormState => ({
   name: "",
@@ -295,6 +295,7 @@ function CompanyDashboardContent() {
     if (!aiInput.trim()) return;
     
     setAiPrompt(aiInput);
+    setShowCreateDrive(false);
     setShowAIConfig(true);
     setAiInput("");
   };
@@ -854,11 +855,44 @@ function CompanyDashboardContent() {
       >
         <h3 className="text-3xl font-bold text-white">Create Interview Drive</h3>
         <p className="text-white/60 max-w-2xl">
-          Choose how you want to build this drive&apos;s interview experience. Pick an AI-powered JD flow or craft a custom question set from scratch.
+          Choose how you want to build this drive&apos;s interview experience. Use AI Assistant for natural language input, JD-based flow for structured questions, or craft a custom question set from scratch.
         </p>
       </motion.div>
 
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-3">
+        <motion.button
+          type="button"
+          onClick={() => {
+            setAiInput("");
+            setDriveCreationMode('ai');
+          }}
+          className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-white/2 to-white/5 p-6 text-left transition-all duration-300"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, delay: 0.05 }}
+          whileHover={{ scale: 1.03, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#2ad17e]/20 via-[#5cd3ff]/10 to-[#ffb21e]/20 blur-lg" />
+          </div>
+          <div className="relative flex h-full flex-col gap-4">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#2ad17e]/30 via-[#5cd3ff]/30 to-[#ffb21e]/30 text-[#2ad17e]">
+              <Brain className="w-6 h-6" />
+            </div>
+            <div className="space-y-1.5">
+              <h4 className="text-lg font-semibold text-white">AI Recruit Assistant</h4>
+              <p className="text-sm text-white/60 leading-relaxed">
+                Describe your role and requirements in natural language. AI will create a complete screening assessment with questions and configuration.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-[#2ad17e] transition-colors group-hover:text-white">
+              Use AI Assistant
+              <ArrowRight className="w-4 h-4" />
+            </span>
+          </div>
+        </motion.button>
+
         <motion.button
           type="button"
           onClick={() => {
@@ -869,7 +903,7 @@ function CompanyDashboardContent() {
           className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-white/2 to-white/5 p-6 text-left transition-all duration-300"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28, delay: 0.05 }}
+          transition={{ duration: 0.28, delay: 0.1 }}
           whileHover={{ scale: 1.03, y: -4 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -932,6 +966,81 @@ function CompanyDashboardContent() {
 
   const renderDriveForm = () => {
     const isJDMode = driveCreationMode === 'jd';
+    const isAIMode = driveCreationMode === 'ai';
+
+    // AI Assistant Mode
+    if (isAIMode) {
+      return (
+        <motion.div
+          className="space-y-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-2">
+              <h3 className="text-3xl font-bold text-white">AI Recruit Assistant</h3>
+              <p className="text-sm text-white/60 max-w-2xl">
+                Describe your role and requirements in natural language. AI will create a complete screening assessment with questions and configuration.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-white/15 to-white/5 rounded-2xl border-2 border-white/20 p-6 backdrop-blur-xl">
+            <motion.textarea
+              value={aiInput}
+              onChange={(e) => setAiInput(e.target.value)}
+              placeholder="I want to create a Backend Developer screening for a mid-level position..."
+              className="w-full h-32 resize-none border-none outline-none text-white placeholder-white/60 bg-transparent text-lg"
+            />
+            <div className="flex items-center justify-between mt-4">
+              <motion.div className="text-sm text-white/60 flex items-center gap-2">
+                <Lightbulb className="w-4 h-4" />
+                Describe the role, skills, and experience level you're looking for
+              </motion.div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleCloseCreateDrive}
+                  className="px-4 py-2 rounded-lg border border-white/10 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <motion.button
+                  type="button"
+                  onClick={handleAiScreeningCreation}
+                  disabled={!aiInput.trim() || isGenerating}
+                  className="group relative bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white px-6 py-3 rounded-xl font-bold shadow-xl overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                  whileHover={{ 
+                    scale: (!aiInput.trim() || isGenerating) ? 1 : 1.05,
+                    boxShadow: (!aiInput.trim() || isGenerating) ? undefined : "0 20px 40px rgba(42, 209, 126, 0.4)"
+                  }}
+                  whileTap={{ scale: (!aiInput.trim() || isGenerating) ? 1 : 0.95 }}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {isGenerating ? (
+                      <>
+                        <motion.div
+                          className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-5 h-5" />
+                        Create Drive
+                      </>
+                    )}
+                  </span>
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      );
+    }
 
     const questionSection = (
       <div className="space-y-3">
@@ -1610,198 +1719,6 @@ function CompanyDashboardContent() {
                 >
                   Here's your recruitment snapshot for today.
                 </motion.p>
-              </motion.div>
-
-              {/* AI Screening Creator */}
-              <motion.div 
-                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 p-10 relative overflow-hidden"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                whileHover={{ scale: 1.02 }}
-              >
-                {/* Background Pattern */}
-                <motion.div
-                  className="absolute inset-0 opacity-10"
-                  style={{
-                    backgroundImage: `radial-gradient(circle at 20% 50%, rgba(42, 209, 126, 0.3) 0%, transparent 50%),
-                                      radial-gradient(circle at 80% 20%, rgba(92, 211, 255, 0.3) 0%, transparent 50%),
-                                      radial-gradient(circle at 40% 80%, rgba(255, 178, 30, 0.3) 0%, transparent 50%)`
-                  }}
-                />
-                
-                {/* Floating AI Icons */}
-                {[Brain, Lightbulb, Target].map((Icon, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute text-white/10"
-                    style={{
-                      left: `${20 + i * 40}%`,
-                      top: `${10 + i * 20}%`,
-                    }}
-                    animate={{
-                      y: [-10, 10, -10],
-                      rotate: [0, 180, 360],
-                      opacity: [0.1, 0.3, 0.1],
-                    }}
-                    transition={{
-                      duration: 5 + i,
-                      repeat: Infinity,
-                      delay: i * 0.5,
-                      type: "tween"
-                    }}
-                  >
-                    <Icon className="w-16 h-16" />
-                  </motion.div>
-                ))}
-
-                <motion.div 
-                  className="relative text-center mb-8"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <motion.div
-                    className="inline-flex items-center gap-3 mb-4"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <motion.div
-                      className="w-12 h-12 bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] rounded-2xl flex items-center justify-center"
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Brain className="w-6 h-6 text-white" />
-                    </motion.div>
-                    <h2 className="text-3xl font-bold">
-                      <span className="bg-gradient-to-r from-[#2ad17e] to-[#5cd3ff] bg-clip-text text-transparent">AI Recruit</span>
-                      <span className="text-white"> Assistant</span>
-                    </h2>
-                  </motion.div>
-                  <motion.p 
-                    className="text-white/80 text-lg"
-                    animate={{ opacity: [0.8, 1, 0.8] }}
-                    transition={{ duration: 3, repeat: Infinity, type: "tween" }}
-                  >
-                    Create AI-powered screening assessments in seconds
-                  </motion.p>
-                </motion.div>
-
-                {/* AI Input Field */}
-                <motion.div 
-                  className="max-w-3xl mx-auto"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  <motion.div 
-                    className="bg-gradient-to-br from-white/15 to-white/5 rounded-2xl border-2 border-white/20 p-6 backdrop-blur-xl"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <motion.textarea
-                      value={aiInput}
-                      onChange={(e) => setAiInput(e.target.value)}
-                      placeholder="I want to create a Backend Developer screening for a mid-level position..."
-                      className="w-full h-24 resize-none border-none outline-none text-white placeholder-white/60 bg-transparent text-lg"
-                      whileFocus={{ scale: 1.01 }}
-                    />
-                    <div className="flex items-center justify-between mt-4">
-                      <motion.div 
-                        className="text-sm text-white/60 flex items-center gap-2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.0 }}
-                      >
-                        <Lightbulb className="w-4 h-4" />
-                        Describe the role, skills, and experience level you're looking for
-                      </motion.div>
-                      <motion.button
-                        onClick={handleAiScreeningCreation}
-                        disabled={!aiInput.trim() || isGenerating}
-                        className="group relative bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white px-6 py-3 rounded-xl font-bold shadow-xl overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
-                        whileHover={{ 
-                          scale: (!aiInput.trim() || isGenerating) ? 1 : 1.05,
-                          boxShadow: (!aiInput.trim() || isGenerating) ? undefined : "0 20px 40px rgba(42, 209, 126, 0.4)"
-                        }}
-                        whileTap={{ scale: (!aiInput.trim() || isGenerating) ? 1 : 0.95 }}
-                        transition={{ type: "spring", stiffness: 200 }}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                      >
-                        <span className="relative z-10 flex items-center gap-2">
-                          {isGenerating ? (
-                            <>
-                              <motion.div
-                                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                              />
-                              Generating...
-                            </>
-                          ) : (
-                            <>
-                              <Zap className="w-5 h-5" />
-                              Create Drive
-                            </>
-                          )}
-                        </span>
-                        
-                        {/* Animated Background */}
-                        {!isGenerating && aiInput.trim() && (
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-[#20c997] to-[#2ad17e]"
-                            initial={{ x: "-100%" }}
-                            whileHover={{ x: "0%" }}
-                            transition={{ duration: 0.3 }}
-                          />
-                        )}
-                        
-                        {/* Success Particles */}
-                        {!isGenerating && aiInput.trim() && (
-                          <motion.div
-                            className="absolute inset-0"
-                            initial={{ opacity: 0 }}
-                            whileHover={{ opacity: 1 }}
-                          >
-                            {[...Array(4)].map((_, i) => (
-                              <motion.div
-                                key={i}
-                                className="absolute w-1 h-1 bg-white rounded-full"
-                                style={{
-                                  left: `${15 + i * 25}%`,
-                                  top: `${25 + i * 15}%`,
-                                }}
-                                animate={{
-                                  scale: [0, 1, 0],
-                                  opacity: [0, 1, 0],
-                                }}
-                                transition={{
-                                  duration: 1.5,
-                                  repeat: Infinity,
-                                  delay: i * 0.2,
-                                  type: "tween"
-                                }}
-                              />
-                            ))}
-                          </motion.div>
-                        )}
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                </motion.div>
-
-                {/* Corner Decorations */}
-                <motion.div 
-                  className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-white/20 to-white/30 opacity-50"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                />
-                <motion.div 
-                  className="absolute bottom-4 left-4 w-4 h-4 rounded-full bg-gradient-to-r from-[#2ad17e]/30 to-[#5cd3ff]/30"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 3, repeat: Infinity, type: "tween" }}
-                />
               </motion.div>
 
               {/* Metrics Cards */}
