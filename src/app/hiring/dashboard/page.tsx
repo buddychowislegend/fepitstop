@@ -149,6 +149,7 @@ function CompanyDashboardContent() {
   const [companyDisplayName, setCompanyDisplayName] = useState<string>("Company");
   const [isLoading, setIsLoading] = useState(false); // Global loading state
   const [reportsData, setReportsData] = useState<any>(null);
+  const [companyCredits, setCompanyCredits] = useState<number>(1000); // Company credits
   // Search and filter states for candidates
   const [candidateSearchQuery, setCandidateSearchQuery] = useState("");
   const [candidateStatusFilter, setCandidateStatusFilter] = useState<string>("all");
@@ -266,6 +267,10 @@ function CompanyDashboardContent() {
           addedDate: c.createdAt.split('T')[0],
           lastActivity: new Date().toISOString().split('T')[0]
         })));
+        // Update credits from dashboard response
+        if (data.credits !== undefined) {
+          setCompanyCredits(data.credits);
+        }
       } else {
         // Fallback to sample data
         setCandidates([
@@ -1494,7 +1499,17 @@ function CompanyDashboardContent() {
   };
 
   const handleSendInviteLinks = async (screeningId: string) => {
-    if (!confirm('Are you sure you want to send interview links to all candidates? This will activate the screening.')) {
+    // Get the drive to check candidate count
+    const drive = interviewDrives.find(d => d.id === screeningId);
+    const candidateCount = drive?.totalCandidates || 0;
+    const requiredCredits = candidateCount * 6;
+    
+    if (companyCredits < requiredCredits) {
+      alert(`Insufficient credits!\n\nYou need ${requiredCredits} credits to send invites to ${candidateCount} candidates, but you only have ${companyCredits} credits.\n\nPlease purchase more credits to continue.`);
+      return;
+    }
+    
+    if (!confirm(`Send interview links to ${candidateCount} candidates?\n\nThis will deduct ${requiredCredits} credits (6 credits per candidate).\n\nRemaining credits: ${companyCredits - requiredCredits}`)) {
       return;
     }
 
@@ -1516,6 +1531,11 @@ function CompanyDashboardContent() {
       if (response.ok) {
         const data = await response.json();
         
+        // Update credits
+        if (data.remainingCredits !== undefined) {
+          setCompanyCredits(data.remainingCredits);
+        }
+        
         // Update screening status to active in local state
         setInterviewDrives(prev => 
           prev.map(drive => 
@@ -1528,11 +1548,21 @@ function CompanyDashboardContent() {
         // Show success message with details
         const totalLinks = data.links?.length || 0;
         const successfulEmails = data.emailResults?.filter((r: any) => r.emailSent).length || 0;
+        const creditsUsed = data.creditsDeducted || requiredCredits;
         
-        alert(`Interview links sent successfully!\n\nTotal candidates: ${totalLinks}\nEmails sent: ${successfulEmails}\n\nThe screening is now active.`);
+        alert(`Interview links sent successfully!\n\nTotal candidates: ${totalLinks}\nEmails sent: ${successfulEmails}\nCredits used: ${creditsUsed}\nRemaining credits: ${data.remainingCredits || companyCredits - creditsUsed}\n\nThe screening is now active.`);
+        
+        // Refresh dashboard data to get updated credits
+        loadDashboardData();
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send interview links');
+        if (errorData.error === 'Insufficient credits') {
+          alert(errorData.message || 'Insufficient credits to send interview invites.');
+          // Refresh credits
+          loadDashboardData();
+        } else {
+          throw new Error(errorData.error || 'Failed to send interview links');
+        }
       }
     } catch (error) {
       console.error('Error sending interview links:', error);
@@ -1778,6 +1808,35 @@ function CompanyDashboardContent() {
             {/* Notifications */}
      
             
+            {/* Credits Display */}
+            <motion.div
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-[#ffb21e]/20 to-[#ff9500]/20 border border-[#ffb21e]/30 rounded-xl"
+              variants={{
+                hidden: { opacity: 0, x: 20 },
+                visible: { opacity: 1, x: 0 }
+              }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <motion.div
+                className="w-8 h-8 bg-gradient-to-br from-[#ffb21e] to-[#ff9500] rounded-lg flex items-center justify-center"
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatDelay: 3
+                }}
+              >
+                <Star className="w-4 h-4 text-white fill-white" />
+              </motion.div>
+              <div className="flex flex-col">
+                <span className="text-[#ffb21e] font-bold text-lg leading-none">{companyCredits}</span>
+                <span className="text-white/60 text-xs">Credits</span>
+              </div>
+            </motion.div>
+
             {/* User Profile */}
             <motion.div 
               className="flex items-center gap-3 pl-4 border-l border-white/20"
@@ -2181,11 +2240,19 @@ function CompanyDashboardContent() {
                     </p>
                     
                     {drive.status === 'draft' && (
-                      <button 
+                      <button
                         onClick={() => handleSendInviteLinks(drive.id)}
-                        className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
+                        disabled={companyCredits < (drive.totalCandidates * 6)}
+                        className={`w-full py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                          companyCredits < (drive.totalCandidates * 6)
+                            ? 'bg-gray-500/50 text-white/50 cursor-not-allowed'
+                            : 'bg-green-500 text-white hover:bg-green-600'
+                        }`}
                       >
-                        Send Links to Candidates
+                        <span>Send Links to Candidates</span>
+                        <span className="text-xs opacity-75">
+                          ({drive.totalCandidates * 6} credits)
+                        </span>
                       </button>
                     )}
                     

@@ -25,7 +25,8 @@ let inMemoryDB = {
   interviewDrives: [],
   interviewTokens: [],
   interviewResponses: [],
-  screenings: []
+  screenings: [],
+  companies: [] // Store company data including credits
 };
 
 try {
@@ -49,7 +50,8 @@ try {
       interviewDrives: [],
       interviewTokens: [],
       interviewResponses: [],
-      screenings: []
+      screenings: [],
+      companies: []
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
     console.log(`✅ Database initialized at: ${DB_FILE}`);
@@ -990,6 +992,61 @@ class Database {
       return true;
     }
     return false;
+  }
+
+  // Company credits methods
+  async getCompany(companyId) {
+    const db = this.read();
+    if (!db.companies) {
+      db.companies = [];
+    }
+    let company = db.companies.find(c => c.id === companyId);
+    
+    // If company doesn't exist, create it with 1000 credits
+    if (!company) {
+      company = {
+        id: companyId,
+        credits: 1000,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      db.companies.push(company);
+      this.write(db);
+    }
+    
+    return company;
+  }
+
+  async updateCompanyCredits(companyId, credits) {
+    const db = this.read();
+    if (!db.companies) {
+      db.companies = [];
+    }
+    
+    let company = db.companies.find(c => c.id === companyId);
+    
+    if (!company) {
+      // Create company if it doesn't exist
+      company = {
+        id: companyId,
+        credits: 1000,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      db.companies.push(company);
+    }
+    
+    company.credits = Math.max(0, credits); // Ensure credits don't go negative
+    company.updatedAt = new Date().toISOString();
+    
+    this.write(db);
+    return company;
+  }
+
+  async deductCompanyCredits(companyId, amount) {
+    const company = await this.getCompany(companyId);
+    const newCredits = Math.max(0, company.credits - amount);
+    return await this.updateCompanyCredits(companyId, newCredits);
   }
 }
 

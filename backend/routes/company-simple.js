@@ -92,6 +92,9 @@ router.get('/dashboard', companyAuth, async (req, res) => {
     // Get candidates for this company from MongoDB
     const candidates = await db.getCandidatesByCompany(companyId);
     
+    // Get company credits
+    const company = await db.getCompany(companyId);
+    
     console.log('Returning candidates:', candidates.length);
     
     res.set({
@@ -100,6 +103,7 @@ router.get('/dashboard', companyAuth, async (req, res) => {
       'Expires': '0'
     }).json({
       candidates: candidates,
+      credits: company.credits || 1000,
       message: 'Dashboard data retrieved successfully'
     });
   } catch (error) {
@@ -303,6 +307,19 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
     const candidateIds = drive.candidates || drive.candidateIds || [];
     const candidates = allCandidates.filter(c => candidateIds.includes(c.id));
     
+    // Check if company has enough credits (6 credits per interview invite)
+    const requiredCredits = candidates.length * 6;
+    const company = await db.getCompany(companyId);
+    
+    if (company.credits < requiredCredits) {
+      return res.status(400).json({ 
+        error: 'Insufficient credits',
+        message: `You need ${requiredCredits} credits to send invites to ${candidates.length} candidates, but you only have ${company.credits} credits.`,
+        required: requiredCredits,
+        available: company.credits
+      });
+    }
+    
     // Generate interview tokens and links
     const interviewLinks = [];
     
@@ -390,9 +407,15 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
     // Update drive status to active in MongoDB
     await db.updateInterviewDrive(driveId, { status: 'active' });
     
+    // Deduct credits (6 credits per interview invite)
+    const creditsDeducted = candidates.length * 6;
+    const updatedCompany = await db.deductCompanyCredits(companyId, creditsDeducted);
+    
     res.json({
       message: 'Interview links generated successfully',
-      links: interviewLinks
+      links: interviewLinks,
+      creditsDeducted: creditsDeducted,
+      remainingCredits: updatedCompany.credits
     });
   } catch (error) {
     console.error('Error sending interview links:', error);
@@ -809,6 +832,19 @@ router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) =
       });
     }
     
+    // Check if company has enough credits (6 credits per interview invite)
+    const requiredCredits = addedCandidates.length * 6;
+    const company = await db.getCompany(companyId);
+    
+    if (company.credits < requiredCredits) {
+      return res.status(400).json({ 
+        error: 'Insufficient credits',
+        message: `You need ${requiredCredits} credits to send invites to ${addedCandidates.length} candidates, but you only have ${company.credits} credits.`,
+        required: requiredCredits,
+        available: company.credits
+      });
+    }
+    
     // Generate interview links and send emails
     const interviewLinks = [];
     const emailResults = [];
@@ -891,11 +927,17 @@ router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) =
     // Update screening status to active
     await db.updateScreening(screeningId, companyId, { status: 'active' });
     
+    // Deduct credits (6 credits per interview invite)
+    const creditsDeducted = addedCandidates.length * 6;
+    const updatedCompany = await db.deductCompanyCredits(companyId, creditsDeducted);
+    
     res.json({
       message: 'Candidates added and interview links sent successfully',
       addedCandidates: addedCandidates,
       links: interviewLinks,
-      emailResults: emailResults
+      emailResults: emailResults,
+      creditsDeducted: creditsDeducted,
+      remainingCredits: updatedCompany.credits
     });
   } catch (error) {
     console.error('Error adding candidates to screening:', error);
@@ -1031,6 +1073,21 @@ router.get('/interview/config/:token', async (req, res) => {
   } catch (error) {
     console.error('Error getting interview configuration:', error);
     res.status(500).json({ error: 'Failed to get interview configuration' });
+  }
+});
+
+// Get company credits
+router.get('/credits', companyAuth, async (req, res) => {
+  try {
+    const companyId = req.companyId;
+    const company = await db.getCompany(companyId);
+    res.json({
+      credits: company.credits || 1000,
+      companyId: companyId
+    });
+  } catch (error) {
+    console.error('Error fetching company credits:', error);
+    res.status(500).json({ error: 'Failed to fetch company credits' });
   }
 });
 

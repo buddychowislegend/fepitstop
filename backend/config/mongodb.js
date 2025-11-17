@@ -866,6 +866,66 @@ class MongoDatabase {
   get filePath() {
     return `MongoDB Atlas: ${process.env.MONGODB_URI?.split('@')[1]?.split('?')[0] || 'connected'}`;
   }
+
+  // Company credits methods
+  async getCompany(companyId) {
+    try {
+      await this.ensureConnection();
+      let company = await this.db.collection('companies').findOne({ id: companyId });
+      
+      // If company doesn't exist, create it with 1000 credits
+      if (!company) {
+        company = {
+          id: companyId,
+          credits: 1000,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        await this.db.collection('companies').insertOne(company);
+      }
+      
+      return company;
+    } catch (error) {
+      console.error('Error getting company:', error);
+      // Fallback: return default company
+      return {
+        id: companyId,
+        credits: 1000,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    }
+  }
+
+  async updateCompanyCredits(companyId, credits) {
+    try {
+      await this.ensureConnection();
+      const company = await this.getCompany(companyId);
+      
+      const updatedCompany = {
+        ...company,
+        credits: Math.max(0, credits), // Ensure credits don't go negative
+        updatedAt: new Date().toISOString()
+      };
+      
+      await this.db.collection('companies').updateOne(
+        { id: companyId },
+        { $set: updatedCompany },
+        { upsert: true }
+      );
+      
+      return updatedCompany;
+    } catch (error) {
+      console.error('Error updating company credits:', error);
+      throw error;
+    }
+  }
+
+  async deductCompanyCredits(companyId, amount) {
+    const company = await this.getCompany(companyId);
+    const newCredits = Math.max(0, company.credits - amount);
+    return await this.updateCompanyCredits(companyId, newCredits);
+  }
 }
 
 module.exports = MongoDatabase;
