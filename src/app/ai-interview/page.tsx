@@ -117,6 +117,7 @@ function AIInterviewContent() {
     driveProfile?: string;
     driveLevel?: 'junior' | 'mid' | 'senior';
     interviewDuration?: number; // Interview duration in minutes
+    jobDescription?: string; // Job description for AI question generation
   } | null>(null);
   
   // Track drive questions separately for easier access
@@ -682,11 +683,17 @@ useEffect(() => {
                 driveProfile: config.profile || normalizedConfigProfile, // Use screening profile
                 driveLevel: config.experienceLevel || 'mid',
                 interviewDuration: config.interviewDuration || 15, // Use configured duration or default to 15 minutes
+                jobDescription: config.jobDescription || '', // Include job description for AI question generation
               });
               
               // Update timer with configured duration
               const duration = config.interviewDuration || 15;
               setTimeRemaining(duration * 60);
+              
+              // Set job description for AI question generation if no drive questions
+              if (config.jobDescription) {
+                setJdText(config.jobDescription);
+              }
 
               const normalizedProfile = normalizedConfigProfile;
               setProfile(normalizedProfile);
@@ -731,11 +738,17 @@ useEffect(() => {
                     driveProfile: driveProfile,
                     driveLevel: driveLevel,
                     interviewDuration: interviewData.drive?.interviewDuration || 15, // Use configured duration or default to 15 minutes
+                    jobDescription: interviewData.drive?.jobDescription || '', // Include job description for AI question generation
                   });
                   
                   // Update timer with configured duration
                   const duration = interviewData.drive?.interviewDuration || 15;
                   setTimeRemaining(duration * 60);
+                  
+                  // Set job description for AI question generation if no drive questions
+                  if (interviewData.drive?.jobDescription) {
+                    setJdText(interviewData.drive.jobDescription);
+                  }
                   
                   if (driveProfile) {
                     const normalizedProfile = mapProfileString(driveProfile);
@@ -965,7 +978,11 @@ useEffect(() => {
     const questionsToUse = driveQuestions.length > 0 ? driveQuestions : (companyParams?.driveQuestions || []);
     const hasDriveQuestions = questionsToUse.length > 0;
 
-    if (!hasDriveQuestions && (!user || !token)) {
+    // Allow interview to proceed if:
+    // 1. We have drive questions, OR
+    // 2. User is authenticated (has user and token), OR
+    // 3. It's a company interview (has companyParams)
+    if (!hasDriveQuestions && (!user || !token) && !companyParams) {
       return;
     }
     
@@ -989,35 +1006,55 @@ useEffect(() => {
         introduction = `Hello! I'm ${interviewerName}. Welcome to your interview! I'm really excited to learn about your skills and experience. Don't worry about being perfect - I'm here to help you showcase what you know and we'll work through the questions together. Take your time, think out loud, and remember that showing your thought process is just as important as the final answer. You've got this! Let's begin with our first question.`;
       } else {
         // Generate question using AI
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        // Only add Authorization header if token is available
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const response = await fetch('/api/ai-interview', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
+          headers,
           body: JSON.stringify({
             action: 'start',
             profile,
             level,
             focus: focusForRequest,
             framework: frameworkForRequest,
-            jdText,
+            jdText: jdText || companyParams?.jobDescription || '', // Use job description from company params if available
             interviewer: selectedInterviewer
           })
         });
 
         if (!response.ok) {
-          throw new Error('Failed to start interview');
+          const errorText = await response.text();
+          console.error('Failed to start interview:', response.status, errorText);
+          throw new Error(`Failed to start interview: ${response.status}`);
         }
 
         const data = await response.json();
-        introduction = data.message;
-        firstQuestion = data.message;
+        // The API returns the full message with introduction and question combined
+        // For normal AI interview flow, use the full message as-is
+        const fullResponse = data.message || '';
+        
+        if (!fullResponse || fullResponse.trim() === '') {
+          throw new Error('Empty response from AI service');
+        }
+        
+        // Store the full response - it already contains introduction + question
+        // The API format is: "Introduction\n\nQuestion"
+        introduction = '';
+        firstQuestion = fullResponse; // The full message from API includes intro + question
       }
 
+      // Construct the full message to display
+      // If we have drive questions, combine intro + question
+      // If AI-generated, the firstQuestion already contains the full message (intro + question)
       const fullMessage = questionsToUse.length > 0 
         ? `${introduction}\n\n${firstQuestion}`
-        : firstQuestion;
+        : firstQuestion; // firstQuestion already contains intro + question from AI
       
       const interviewerForSession: Interviewer = companyParams ? {
         ...selectedInterviewer,
@@ -1388,12 +1425,17 @@ useEffect(() => {
           // Generate next question using AI
           const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
           const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
+          const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+          };
+          // Only add Authorization header if token is available
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+          
           const response = await fetch('/api/ai-interview', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
+            headers,
             body: JSON.stringify({
               action: 'respond',
               sessionId: session.id,
@@ -1404,7 +1446,7 @@ useEffect(() => {
               currentQuestion: session.currentQuestion,
               focus: focusForRequest,
               framework: frameworkForRequest,
-              jdText
+              jdText: jdText || companyParams?.jobDescription || '' // Use job description from company params if available
             })
           });
 
@@ -1486,12 +1528,17 @@ useEffect(() => {
           // Generate next question using AI
           const focusForRequest = profile === 'frontend' ? focus : (PROFILE_FOCUS_MAP[profile] || profile);
           const frameworkForRequest = profile === 'frontend' ? framework : (PROFILE_FRAMEWORK_MAP[profile] || profile);
+          const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+          };
+          // Only add Authorization header if token is available
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+          
           const response = await fetch('/api/ai-interview', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
+            headers,
             body: JSON.stringify({
               action: 'respond',
               sessionId: session.id,
@@ -1502,7 +1549,7 @@ useEffect(() => {
               currentQuestion: session.currentQuestion,
               focus: focusForRequest,
               framework: frameworkForRequest,
-              jdText
+              jdText: jdText || companyParams?.jobDescription || '' // Use job description from company params if available
             })
           });
 

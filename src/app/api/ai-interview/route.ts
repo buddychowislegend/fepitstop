@@ -116,10 +116,50 @@ async function callAIWithRetry(prompt: string): Promise<string> {
 }
 
 async function callGeminiWithRetry(prompt: string): Promise<string> {
-  // For now, return a fallback response since Gemini integration is complex
-  // In production, you would implement the full Gemini API call here
-  console.log('[Gemini] Fallback response generated');
-  return `I understand you're interested in ${prompt.split(' ').slice(0, 5).join(' ')}. Let me ask you a follow-up question to better understand your approach.`;
+  // Try to use Gemini API if available
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  
+  if (geminiApiKey) {
+    try {
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(geminiApiKey);
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      
+      if (text && text.trim()) {
+        return text.trim();
+      }
+    } catch (error: any) {
+      console.error('[Gemini] API call failed:', error?.message || error);
+    }
+  }
+  
+  // Fallback: Generate a proper question based on the prompt
+  // Extract profile and level from prompt if possible
+  const promptLower = prompt.toLowerCase();
+  let profileType = 'technical';
+  let level = 'mid';
+  
+  if (promptLower.includes('product')) profileType = 'product management';
+  else if (promptLower.includes('backend')) profileType = 'backend development';
+  else if (promptLower.includes('frontend')) profileType = 'frontend development';
+  
+  if (promptLower.includes('junior')) level = 'junior';
+  else if (promptLower.includes('senior')) level = 'senior';
+  
+  // Generate a proper question instead of the broken fallback
+  const questions = [
+    `Can you walk me through your approach to solving a typical ${profileType} problem at the ${level} level?`,
+    `Describe a challenging ${profileType} scenario you've encountered and how you handled it.`,
+    `What are the key considerations when working on ${profileType} projects?`,
+    `How do you approach problem-solving in ${profileType}? Can you give me an example?`,
+    `What's your experience with ${profileType}? Walk me through a project you're proud of.`
+  ];
+  
+  return questions[Math.floor(Math.random() * questions.length)];
 }
 
 function buildContextPrefix(framework?: string, jdText?: string, profile?: string) {
