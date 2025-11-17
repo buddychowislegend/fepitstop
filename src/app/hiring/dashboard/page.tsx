@@ -39,6 +39,13 @@ import {
   Plus,
   X,
   Upload,
+  Download,
+  FileText,
+  PieChart,
+  LineChart,
+  Search,
+  Filter,
+  ChevronDown,
 } from "lucide-react";
 
 type ProfileOption = 'frontend' | 'backend' | 'product' | 'business' | 'qa' | 'hr' | 'data';
@@ -120,7 +127,7 @@ function CompanyDashboardContent() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'screenings' | 'candidates'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'screenings' | 'candidates' | 'reports'>('dashboard');
   const [aiInput, setAiInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAIConfig, setShowAIConfig] = useState(false);
@@ -141,6 +148,13 @@ function CompanyDashboardContent() {
   const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const [companyDisplayName, setCompanyDisplayName] = useState<string>("Company");
   const [isLoading, setIsLoading] = useState(false); // Global loading state
+  const [reportsData, setReportsData] = useState<any>(null);
+  // Search and filter states for candidates
+  const [candidateSearchQuery, setCandidateSearchQuery] = useState("");
+  const [candidateStatusFilter, setCandidateStatusFilter] = useState<string>("all");
+  const [candidateProfileFilter, setCandidateProfileFilter] = useState<string>("all");
+  const [candidateScoreFilter, setCandidateScoreFilter] = useState<string>("all");
+  const [showFilters, setShowFilters] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -186,7 +200,7 @@ function CompanyDashboardContent() {
 
     // Check if tab is specified in URL query params
     const tabParam = searchParams?.get('tab');
-    if (tabParam === 'screenings' || tabParam === 'candidates') {
+    if (tabParam === 'screenings' || tabParam === 'candidates' || tabParam === 'reports') {
       setActiveTab(tabParam);
     }
 
@@ -203,7 +217,19 @@ function CompanyDashboardContent() {
     // Load data from backend
     loadDashboardData();
     loadScreenings();
+    
+    // Load reports if on reports tab
+    if (tabParam === 'reports') {
+      loadReports();
+    }
   }, [router, searchParams]);
+  
+  // Load reports when switching to reports tab
+  useEffect(() => {
+    if (activeTab === 'reports' && !reportsData) {
+      loadReports();
+    }
+  }, [activeTab]);
 
   const loadDashboardData = async () => {
     setIsLoading(true);
@@ -296,6 +322,42 @@ function CompanyDashboardContent() {
       }
     } catch (error) {
       console.error('Error loading screenings:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadReports = async () => {
+    setIsLoading(true);
+    try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const cacheBuster = `?_t=${Date.now()}`;
+      const response = await fetch(`${backendUrl}/api/company/reports${cacheBuster}`, {
+        method: 'GET',
+        headers: {
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword,
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
+        credentials: 'include',
+        cache: 'no-store'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setReportsData(data);
+      } else {
+        console.error('Failed to load reports');
+        setReportsData(null);
+      }
+    } catch (error) {
+      console.error('Error loading reports:', error);
+      setReportsData(null);
     } finally {
       setIsLoading(false);
     }
@@ -1475,6 +1537,8 @@ function CompanyDashboardContent() {
     } catch (error) {
       console.error('Error sending interview links:', error);
       alert('Failed to send interview links. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1664,19 +1728,6 @@ function CompanyDashboardContent() {
                   )}
                 </motion.button>
               ))}
-              
-              <motion.button 
-                className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-all duration-300 flex items-center gap-2"
-                variants={{
-                  hidden: { opacity: 0, y: -20 },
-                  visible: { opacity: 1, y: 0 }
-                }}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Activity className="w-4 h-4" />
-                Reports
-              </motion.button>
             </motion.nav>
           </div>
           
@@ -2064,41 +2115,7 @@ function CompanyDashboardContent() {
             </div>
 
             {/* Candidate Pipeline Overview */}
-            <div className="bg-[color:var(--surface)] rounded-xl border border-[color:var(--border)]">
-              <div className="p-6 border-b border-[color:var(--border)]">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-[color:var(--foreground)]">Candidate Pipeline Overview</h2>
-                  <button className="p-2 hover:bg-white/10 rounded">
-                    <svg className="w-5 h-5 text-[color:var(--foreground)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                {/* Simple chart representation */}
-                <div className="flex items-end gap-2 h-32">
-                  {[
-                    { label: 'Applied', value: candidates.filter(c => c.status === 'applied').length, color: 'bg-blue-500' },
-                    { label: 'Screening', value: candidates.filter(c => c.status === 'screening').length, color: 'bg-yellow-500' },
-                    { label: 'Interview', value: candidates.filter(c => c.status === 'interview').length, color: 'bg-purple-500' },
-                    { label: 'Offer', value: candidates.filter(c => c.status === 'offer').length, color: 'bg-green-500' },
-                  ].map((item, index) => (
-                    <div key={index} className="flex-1 flex flex-col items-center">
-                      <div 
-                        className={`w-full ${item.color} rounded-t transition-all duration-300`}
-                        style={{ height: `${Math.max((item.value - 1 / Math.max(...candidates.map(c => 1)) * 80), 8)}px` }}
-                      ></div>
-                      <div className="mt-2 text-center">
-                        <div className="text-sm font-medium text-[color:var(--foreground)]">{item.value}</div>
-                        <div className="text-xs text-[color:var(--foreground)]/60">{item.label}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          
             </motion.div>
           )}
         </AnimatePresence>
@@ -2186,49 +2203,193 @@ function CompanyDashboardContent() {
             </div>
           )}
 
-        {activeTab === 'candidates' && (
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-[color:var(--foreground)] mb-2">Candidates</h1>
-                <p className="text-[color:var(--foreground)]/60">Manage your candidate database</p>
-                <p className="text-[color:var(--foreground)]/40 text-sm mt-1">
-                  CSV format: Name, Email, Profile, Phone Number (optional)
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv"
-                  onChange={handleCSVUpload}
-                  className="hidden"
-                  id="csv-upload-input"
-                  disabled={isUploadingCSV}
-                />
-                <label
-                  htmlFor="csv-upload-input"
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    isUploadingCSV
-                      ? 'bg-gray-500/50 text-white/50 cursor-not-allowed'
-                      : 'bg-white/10 text-white hover:bg-white/20 border border-white/20 cursor-pointer'
-                  }`}
-                >
-                  <Upload className="w-4 h-4" />
-                  {isUploadingCSV ? 'Uploading...' : 'Upload CSV'}
-                </label>
-                <button
-                  onClick={() => setShowAddCandidate(true)}
-                  className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
-                >
-                  Add Candidate
-                </button>
-              </div>
-            </div>
+        {activeTab === 'candidates' && (() => {
+          // Filter candidates based on search and filters
+          const filteredCandidates = candidates.filter((candidate) => {
+            // Search filter
+            const matchesSearch = candidateSearchQuery === "" || 
+              candidate.name.toLowerCase().includes(candidateSearchQuery.toLowerCase()) ||
+              candidate.email.toLowerCase().includes(candidateSearchQuery.toLowerCase()) ||
+              candidate.profile.toLowerCase().includes(candidateSearchQuery.toLowerCase());
+            
+            // Status filter
+            const matchesStatus = candidateStatusFilter === "all" || candidate.status === candidateStatusFilter;
+            
+            // Profile filter
+            const matchesProfile = candidateProfileFilter === "all" || 
+              candidate.profile.toLowerCase().includes(candidateProfileFilter.toLowerCase());
+            
+            // Score filter
+            let matchesScore = true;
+            if (candidateScoreFilter !== "all") {
+              if (candidateScoreFilter === "scored" && candidate.score === 0) {
+                matchesScore = false;
+              } else if (candidateScoreFilter === "high" && candidate.score < 80) {
+                matchesScore = false;
+              } else if (candidateScoreFilter === "medium" && (candidate.score < 60 || candidate.score >= 80)) {
+                matchesScore = false;
+              } else if (candidateScoreFilter === "low" && candidate.score >= 60) {
+                matchesScore = false;
+              }
+            }
+            
+            return matchesSearch && matchesStatus && matchesProfile && matchesScore;
+          });
 
-            {/* Candidates Table */}
-            <div className="bg-[color:var(--surface)] rounded-xl shadow-lg border border-[color:var(--border)] overflow-hidden">
+          return (
+            <div className="space-y-8">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-[color:var(--foreground)] mb-2">Candidates</h1>
+                  <p className="text-[color:var(--foreground)]/60">Manage your candidate database</p>
+                  <p className="text-[color:var(--foreground)]/40 text-sm mt-1">
+                    CSV format: Name, Email, Profile, Phone Number (optional)
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv"
+                    onChange={handleCSVUpload}
+                    className="hidden"
+                    id="csv-upload-input"
+                    disabled={isUploadingCSV}
+                  />
+                  <label
+                    htmlFor="csv-upload-input"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                      isUploadingCSV
+                        ? 'bg-gray-500/50 text-white/50 cursor-not-allowed'
+                        : 'bg-white/10 text-white hover:bg-white/20 border border-white/20 cursor-pointer'
+                    }`}
+                  >
+                    <Upload className="w-4 h-4" />
+                    {isUploadingCSV ? 'Uploading...' : 'Upload CSV'}
+                  </label>
+                  <button
+                    onClick={() => setShowAddCandidate(true)}
+                    className="bg-gradient-to-r from-[color:var(--brand-start)] to-[color:var(--brand-end)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
+                  >
+                    Add Candidate
+                  </button>
+                </div>
+              </div>
+
+              {/* Search and Filter Bar */}
+              <div className="bg-[color:var(--surface)] rounded-xl shadow-lg border border-[color:var(--border)] p-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  {/* Search Input */}
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[color:var(--foreground)]/40" />
+                    <input
+                      type="text"
+                      placeholder="Search by name, email, or profile..."
+                      value={candidateSearchQuery}
+                      onChange={(e) => setCandidateSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Filter Toggle Button */}
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                      showFilters
+                        ? 'bg-[color:var(--brand-start)]/20 border-[color:var(--brand-start)] text-[color:var(--brand-start)]'
+                        : 'bg-[color:var(--surface)] border-[color:var(--border)] text-[color:var(--foreground)] hover:bg-white/5'
+                    }`}
+                  >
+                    <Filter className="w-4 h-4" />
+                    Filters
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Filter Options */}
+                {showFilters && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-4 pt-4 border-t border-[color:var(--border)] grid grid-cols-1 md:grid-cols-3 gap-4"
+                  >
+                    {/* Status Filter */}
+                    <div>
+                      <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">Status</label>
+                      <select
+                        value={candidateStatusFilter}
+                        onChange={(e) => setCandidateStatusFilter(e.target.value)}
+                        className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                      >
+                        <option value="all">All Statuses</option>
+                        <option value="applied">Applied</option>
+                        <option value="screening">Screening</option>
+                        <option value="interview">Interview</option>
+                        <option value="offer">Offer</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </div>
+
+                    {/* Profile Filter */}
+                    <div>
+                      <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">Profile</label>
+                      <select
+                        value={candidateProfileFilter}
+                        onChange={(e) => setCandidateProfileFilter(e.target.value)}
+                        className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                      >
+                        <option value="all">All Profiles</option>
+                        <option value="frontend">Frontend</option>
+                        <option value="backend">Backend</option>
+                        <option value="product">Product</option>
+                        <option value="business">Business</option>
+                        <option value="qa">QA</option>
+                        <option value="hr">HR</option>
+                        <option value="data">Data</option>
+                      </select>
+                    </div>
+
+                    {/* Score Filter */}
+                    <div>
+                      <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">Score</label>
+                      <select
+                        value={candidateScoreFilter}
+                        onChange={(e) => setCandidateScoreFilter(e.target.value)}
+                        className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                      >
+                        <option value="all">All Scores</option>
+                        <option value="scored">Has Score</option>
+                        <option value="high">High (80+)</option>
+                        <option value="medium">Medium (60-79)</option>
+                        <option value="low">Low (&lt;60)</option>
+                      </select>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Results Count */}
+                <div className="mt-4 pt-4 border-t border-[color:var(--border)] text-sm text-[color:var(--foreground)]/60">
+                  Showing {filteredCandidates.length} of {candidates.length} candidates
+                  {(candidateSearchQuery || candidateStatusFilter !== "all" || candidateProfileFilter !== "all" || candidateScoreFilter !== "all") && (
+                    <button
+                      onClick={() => {
+                        setCandidateSearchQuery("");
+                        setCandidateStatusFilter("all");
+                        setCandidateProfileFilter("all");
+                        setCandidateScoreFilter("all");
+                      }}
+                      className="ml-2 text-[color:var(--brand-start)] hover:underline"
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Candidates Table */}
+              <div className="bg-[color:var(--surface)] rounded-xl shadow-lg border border-[color:var(--border)] overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-[color:var(--surface)]/50">
@@ -2242,57 +2403,70 @@ function CompanyDashboardContent() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[color:var(--border)]">
-                      {candidates.map((candidate) => (
-                        <tr key={candidate.id} className="hover:bg-white/5">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gradient-to-br from-[color:var(--brand-start)] to-[color:var(--brand-end)] rounded-full flex items-center justify-center text-white font-semibold">
-                                {candidate.name.charAt(0)}
-                              </div>
-                              <div>
-                                <div className="text-[color:var(--foreground)] font-medium">{candidate.name}</div>
-                                <div className="text-[color:var(--foreground)]/60 text-sm">{candidate.email}</div>
-                              </div>
+                      {filteredCandidates.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-12 text-center text-[color:var(--foreground)]/60">
+                            <div className="flex flex-col items-center gap-2">
+                              <Search className="w-12 h-12 text-[color:var(--foreground)]/30" />
+                              <p className="text-lg font-medium">No candidates found</p>
+                              <p className="text-sm">Try adjusting your search or filters</p>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-[color:var(--foreground)]">{candidate.profile}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(candidate.status)}`}>
-                              {candidate.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {candidate.score > 0 ? (
-                              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                                {candidate.score}/100
-                              </span>
-                            ) : (
-                              <span className="text-[color:var(--foreground)]/40 text-sm">Not scored</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-[color:var(--foreground)]/60">{candidate.lastActivity}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <button 
-                              onClick={() => setEditingCandidate(candidate)}
-                              className="text-blue-400 hover:text-blue-300 mr-3 transition-colors"
-                            >
-                              Edit
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteCandidate(candidate.id)}
-                              className="text-red-400 hover:text-red-300 transition-colors"
-                            >
-                              Delete
-                            </button>
-                          </td>
                         </tr>
-                      ))}
+                      ) : (
+                        filteredCandidates.map((candidate) => (
+                          <tr key={candidate.id} className="hover:bg-white/5">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-[color:var(--brand-start)] to-[color:var(--brand-end)] rounded-full flex items-center justify-center text-white font-semibold">
+                                  {candidate.name.charAt(0)}
+                                </div>
+                                <div>
+                                  <div className="text-[color:var(--foreground)] font-medium">{candidate.name}</div>
+                                  <div className="text-[color:var(--foreground)]/60 text-sm">{candidate.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-[color:var(--foreground)]">{candidate.profile}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(candidate.status)}`}>
+                                {candidate.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {candidate.score > 0 ? (
+                                <span className="text-sm font-medium text-[color:var(--foreground)]">
+                                  {candidate.score}/100
+                                </span>
+                              ) : (
+                                <span className="text-[color:var(--foreground)]/40 text-sm">Not scored</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-[color:var(--foreground)]/60">{candidate.lastActivity}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button 
+                                onClick={() => setEditingCandidate(candidate)}
+                                className="text-blue-400 hover:text-blue-300 mr-3 transition-colors"
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteCandidate(candidate.id)}
+                                className="text-red-400 hover:text-red-300 transition-colors"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
               </div>
             </div>
-          )}
+          );
+        })()}
       </main>
 
       {/* Add Candidate Modal */}
@@ -2469,6 +2643,349 @@ function CompanyDashboardContent() {
             Delete
           </button>
         </div>
+      )}
+
+      {/* Reports Tab */}
+      {activeTab === 'reports' && (
+        <motion.div
+          className="space-y-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Analytics & Reports</h1>
+              <p className="text-white/60">Comprehensive insights into your hiring process</p>
+            </div>
+            <motion.button
+              onClick={() => {
+                if (!reportsData) return;
+                const dataStr = JSON.stringify(reportsData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `hiring-reports-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Download className="w-4 h-4" />
+              Export Report
+            </motion.button>
+          </div>
+
+          {!reportsData ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <Activity className="w-16 h-16 text-white/40 mx-auto mb-4" />
+                <p className="text-white/60">Loading reports...</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Overview Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { label: 'Total Candidates', value: reportsData.overview?.totalCandidates || 0, icon: Users, color: 'from-blue-500 to-cyan-500' },
+                  { label: 'Total Interviews', value: reportsData.overview?.totalInterviews || 0, icon: MessageCircle, color: 'from-purple-500 to-pink-500' },
+                  { label: 'Completion Rate', value: `${(reportsData.overview?.completionRate || 0).toFixed(1)}%`, icon: CheckCircle, color: 'from-green-500 to-emerald-500' },
+                  { label: 'Avg Score', value: (reportsData.overview?.avgScore || 0).toFixed(1), icon: Star, color: 'from-yellow-500 to-orange-500' },
+                ].map((card, idx) => (
+                  <motion.div
+                    key={card.label}
+                    className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border-2 border-white/20 p-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    whileHover={{ scale: 1.02, y: -4 }}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center`}>
+                        <card.icon className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <div className="text-3xl font-bold text-white mb-1">{card.value}</div>
+                    <div className="text-sm text-white/60">{card.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Score Breakdown */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Score Distribution */}
+                <motion.div
+                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border-2 border-white/20 p-6"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <PieChart className="w-5 h-5" />
+                    Score Distribution
+                  </h3>
+                  <div className="space-y-4">
+                    {[
+                      { label: 'Excellent (8-10)', value: reportsData.scoreDistribution?.excellent || 0, color: 'from-green-500 to-emerald-500' },
+                      { label: 'Good (6-8)', value: reportsData.scoreDistribution?.good || 0, color: 'from-blue-500 to-cyan-500' },
+                      { label: 'Average (4-6)', value: reportsData.scoreDistribution?.average || 0, color: 'from-yellow-500 to-orange-500' },
+                      { label: 'Poor (<4)', value: reportsData.scoreDistribution?.poor || 0, color: 'from-red-500 to-pink-500' },
+                    ].map((item) => {
+                      const distribution = reportsData.scoreDistribution || {};
+                      const total = (distribution.excellent || 0) + (distribution.good || 0) + (distribution.average || 0) + (distribution.poor || 0);
+                      const percentage = total > 0 ? (item.value / total) * 100 : 0;
+                      return (
+                        <div key={item.label} className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white/80">{item.label}</span>
+                            <span className="text-white font-semibold">{item.value} ({percentage.toFixed(1)}%)</span>
+                          </div>
+                          <div className="h-3 bg-white/10 rounded-full overflow-hidden">
+                            <motion.div
+                              className={`h-full bg-gradient-to-r ${item.color} rounded-full`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${percentage}%` }}
+                              transition={{ duration: 0.8, delay: 0.5 }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+
+                {/* Profile Breakdown */}
+                <motion.div
+                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border-2 border-white/20 p-6"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Profile Breakdown
+                  </h3>
+                  <div className="space-y-4 max-h-80 overflow-y-auto">
+                    {(reportsData.profileBreakdown || []).map((profile: any, idx: number) => (
+                      <div key={profile.profile} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-white/80 font-medium capitalize">{profile.profile}</span>
+                          <span className="text-white/60 text-sm">{profile.count} interviews</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div className="bg-white/5 rounded-lg p-2">
+                            <div className="text-white/60">Avg Score</div>
+                            <div className="text-white font-semibold">{(profile.avgScore || 0).toFixed(1)}</div>
+                          </div>
+                          <div className="bg-white/5 rounded-lg p-2">
+                            <div className="text-white/60">Technical</div>
+                            <div className="text-white font-semibold">{(profile.avgTechnical || 0).toFixed(1)}</div>
+                          </div>
+                          <div className="bg-white/5 rounded-lg p-2">
+                            <div className="text-white/60">Communication</div>
+                            <div className="text-white font-semibold">{(profile.avgCommunication || 0).toFixed(1)}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(!reportsData.profileBreakdown || reportsData.profileBreakdown.length === 0) && (
+                      <div className="text-white/60 text-center py-8">No profile data available</div>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Top Performers */}
+              <motion.div
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border-2 border-white/20 p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Trophy className="w-5 h-5" />
+                  Top Performers
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left py-3 px-4 text-white/80 font-semibold">Rank</th>
+                        <th className="text-left py-3 px-4 text-white/80 font-semibold">Candidate</th>
+                        <th className="text-left py-3 px-4 text-white/80 font-semibold">Email</th>
+                        <th className="text-center py-3 px-4 text-white/80 font-semibold">Overall</th>
+                        <th className="text-center py-3 px-4 text-white/80 font-semibold">Technical</th>
+                        <th className="text-center py-3 px-4 text-white/80 font-semibold">Communication</th>
+                        <th className="text-left py-3 px-4 text-white/80 font-semibold">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(reportsData.topPerformers || []).map((performer: any, idx: number) => (
+                        <motion.tr
+                          key={performer.candidateId}
+                          className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.7 + idx * 0.05 }}
+                        >
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              {idx === 0 && <Trophy className="w-4 h-4 text-yellow-500" />}
+                              {idx === 1 && <Trophy className="w-4 h-4 text-gray-400" />}
+                              {idx === 2 && <Trophy className="w-4 h-4 text-orange-600" />}
+                              <span className="text-white font-semibold">#{idx + 1}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-white">{performer.candidateName}</td>
+                          <td className="py-3 px-4 text-white/60 text-sm">{performer.candidateEmail}</td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-white font-bold">
+                              {(performer.score || 0).toFixed(1)}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center text-white">{performer.technicalScore ? performer.technicalScore.toFixed(1) : 'N/A'}</td>
+                          <td className="py-3 px-4 text-center text-white">{performer.communicationScore ? performer.communicationScore.toFixed(1) : 'N/A'}</td>
+                          <td className="py-3 px-4 text-white/60 text-sm">
+                            {performer.completedAt ? new Date(performer.completedAt).toLocaleDateString() : 'N/A'}
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {(!reportsData.topPerformers || reportsData.topPerformers.length === 0) && (
+                    <div className="text-white/60 text-center py-8">No performance data available</div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Screening Performance */}
+              <motion.div
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border-2 border-white/20 p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5" />
+                  Screening Performance
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left py-3 px-4 text-white/80 font-semibold">Screening</th>
+                        <th className="text-center py-3 px-4 text-white/80 font-semibold">Candidates</th>
+                        <th className="text-center py-3 px-4 text-white/80 font-semibold">Completed</th>
+                        <th className="text-center py-3 px-4 text-white/80 font-semibold">Completion Rate</th>
+                        <th className="text-center py-3 px-4 text-white/80 font-semibold">Avg Score</th>
+                        <th className="text-center py-3 px-4 text-white/80 font-semibold">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(reportsData.screeningPerformance || []).map((screening: any, idx: number) => (
+                        <motion.tr
+                          key={screening.id}
+                          className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.9 + idx * 0.05 }}
+                        >
+                          <td className="py-3 px-4 text-white font-medium">{screening.name}</td>
+                          <td className="py-3 px-4 text-center text-white">{screening.totalCandidates}</td>
+                          <td className="py-3 px-4 text-center text-white">{screening.completedInterviews}</td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-white/10 text-white text-sm">
+                              {(screening.completionRate || 0).toFixed(1)}%
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center text-white font-semibold">{(screening.avgScore || 0).toFixed(1)}</td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm ${
+                              screening.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                              screening.status === 'completed' ? 'bg-blue-500/20 text-blue-400' :
+                              'bg-gray-500/20 text-gray-400'
+                            }`}>
+                              {screening.status}
+                            </span>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {(!reportsData.screeningPerformance || reportsData.screeningPerformance.length === 0) && (
+                    <div className="text-white/60 text-center py-8">No screening data available</div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Hiring Status Breakdown */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <motion.div
+                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border-2 border-white/20 p-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.0 }}
+                >
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <UserCheck className="w-5 h-5" />
+                    Hiring Status
+                  </h3>
+                  <div className="space-y-3">
+                    {Object.entries(reportsData.hiringStatusBreakdown || {}).map(([status, count]: [string, any]) => (
+                      <div key={status} className="flex items-center justify-between">
+                        <span className="text-white/80 capitalize">{status.replace('-', ' ')}</span>
+                        <span className="text-white font-semibold">{count}</span>
+                      </div>
+                    ))}
+                    {Object.keys(reportsData.hiringStatusBreakdown || {}).length === 0 && (
+                      <div className="text-white/60 text-center py-8">No hiring status data</div>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Daily Trends */}
+                <motion.div
+                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border-2 border-white/20 p-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.1 }}
+                >
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <LineChart className="w-5 h-5" />
+                    Interview Trends (Last 30 Days)
+                  </h3>
+                  <div className="h-64 flex items-end justify-between gap-1">
+                    {Object.entries(reportsData.dailyTrends || {}).slice(-14).map(([date, count]: [string, any]) => {
+                      const maxCount = Math.max(...Object.values(reportsData.dailyTrends || {}).map((c: any) => c), 1);
+                      const height = (count / maxCount) * 100;
+                      return (
+                        <div key={date} className="flex-1 flex flex-col items-center gap-2">
+                          <motion.div
+                            className="w-full bg-gradient-to-t from-[#2ad17e] to-[#20c997] rounded-t-lg"
+                            initial={{ height: 0 }}
+                            animate={{ height: `${height}%` }}
+                            transition={{ duration: 0.5, delay: 1.2 }}
+                          />
+                          <span className="text-white/60 text-xs transform -rotate-45 origin-top-left whitespace-nowrap">
+                            {new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {Object.keys(reportsData.dailyTrends || {}).length === 0 && (
+                    <div className="text-white/60 text-center py-8">No trend data available</div>
+                  )}
+                </motion.div>
+              </div>
+            </>
+          )}
+        </motion.div>
       )}
 
       {/* Overlay to close context menu */}

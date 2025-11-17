@@ -1034,4 +1034,202 @@ router.get('/interview/config/:token', async (req, res) => {
   }
 });
 
+// Get comprehensive reports data
+router.get('/reports', companyAuth, async (req, res) => {
+  try {
+    const companyId = req.companyId;
+    
+    // Get all data for the company
+    const candidates = await db.getCandidatesByCompany(companyId);
+    const screenings = await db.getScreeningsByCompany(companyId);
+    const drives = await db.getDrivesByCompany(companyId);
+    
+    // Get all interview responses for this company
+    // We'll need to get responses by iterating through drives
+    const allResponses = [];
+    for (const drive of drives) {
+      try {
+        const responses = await db.getInterviewResponsesByDrive(drive.id);
+        if (responses && Array.isArray(responses)) {
+          allResponses.push(...responses);
+        }
+      } catch (error) {
+        console.error(`Error fetching responses for drive ${drive.id}:`, error);
+      }
+    }
+    
+    // Calculate overall metrics
+    const totalCandidates = candidates.length;
+    const totalScreenings = screenings.length;
+    const totalDrives = drives.length;
+    const totalInterviews = allResponses.length;
+    
+    // Calculate completion rate
+    const totalInvited = candidates.length;
+    const completionRate = totalInvited > 0 ? (totalInterviews / totalInvited) * 100 : 0;
+    
+    // Calculate average scores
+    const scoresWithValues = allResponses.filter(r => r.score && typeof r.score === 'number');
+    const avgScore = scoresWithValues.length > 0
+      ? scoresWithValues.reduce((sum, r) => sum + r.score, 0) / scoresWithValues.length
+      : 0;
+    
+    const technicalScores = allResponses.filter(r => r.technicalScore && typeof r.technicalScore === 'number');
+    const avgTechnicalScore = technicalScores.length > 0
+      ? technicalScores.reduce((sum, r) => sum + r.technicalScore, 0) / technicalScores.length
+      : 0;
+    
+    const communicationScores = allResponses.filter(r => r.communicationScore && typeof r.communicationScore === 'number');
+    const avgCommunicationScore = communicationScores.length > 0
+      ? communicationScores.reduce((sum, r) => sum + r.communicationScore, 0) / communicationScores.length
+      : 0;
+    
+    // Profile-wise breakdown
+    const profileBreakdown = {};
+    allResponses.forEach(response => {
+      const profile = response.profile || 'unknown';
+      if (!profileBreakdown[profile]) {
+        profileBreakdown[profile] = {
+          count: 0,
+          totalScore: 0,
+          totalTechnical: 0,
+          totalCommunication: 0
+        };
+      }
+      profileBreakdown[profile].count++;
+      if (response.score) profileBreakdown[profile].totalScore += response.score;
+      if (response.technicalScore) profileBreakdown[profile].totalTechnical += response.technicalScore;
+      if (response.communicationScore) profileBreakdown[profile].totalCommunication += response.communicationScore;
+    });
+    
+    const profileStats = Object.entries(profileBreakdown).map(([profile, data]) => ({
+      profile,
+      count: data.count,
+      avgScore: data.count > 0 ? data.totalScore / data.count : 0,
+      avgTechnical: data.count > 0 ? data.totalTechnical / data.count : 0,
+      avgCommunication: data.count > 0 ? data.totalCommunication / data.count : 0
+    }));
+    
+    // Level-wise breakdown
+    const levelBreakdown = {};
+    allResponses.forEach(response => {
+      const level = response.level || 'mid';
+      if (!levelBreakdown[level]) {
+        levelBreakdown[level] = { count: 0, totalScore: 0 };
+      }
+      levelBreakdown[level].count++;
+      if (response.score) levelBreakdown[level].totalScore += response.score;
+    });
+    
+    const levelStats = Object.entries(levelBreakdown).map(([level, data]) => ({
+      level,
+      count: data.count,
+      avgScore: data.count > 0 ? data.totalScore / data.count : 0
+    }));
+    
+    // Hiring status breakdown
+    const hiringStatusBreakdown = {};
+    candidates.forEach(candidate => {
+      const status = candidate.hiringStatus || 'pending';
+      hiringStatusBreakdown[status] = (hiringStatusBreakdown[status] || 0) + 1;
+    });
+    
+    // Score distribution (0-10 scale)
+    const scoreDistribution = {
+      excellent: scoresWithValues.filter(r => r.score >= 8).length,
+      good: scoresWithValues.filter(r => r.score >= 6 && r.score < 8).length,
+      average: scoresWithValues.filter(r => r.score >= 4 && r.score < 6).length,
+      poor: scoresWithValues.filter(r => r.score < 4).length
+    };
+    
+    // Top performers
+    const topPerformers = allResponses
+      .filter(r => r.score && typeof r.score === 'number')
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10)
+      .map(response => {
+        const candidate = candidates.find(c => c.id === response.candidateId);
+        return {
+          candidateId: response.candidateId,
+          candidateName: response.candidateName || candidate?.name || 'Unknown',
+          candidateEmail: response.candidateEmail || candidate?.email || '',
+          score: response.score,
+          technicalScore: response.technicalScore,
+          communicationScore: response.communicationScore,
+          completedAt: response.completedAt,
+          driveId: response.driveId
+        };
+      });
+    
+    // Time-based trends (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentResponses = allResponses.filter(r => {
+      if (!r.completedAt) return false;
+      const completedDate = new Date(r.completedAt);
+      return completedDate >= thirtyDaysAgo;
+    });
+    
+    // Daily interview count for last 30 days
+    const dailyTrends = {};
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      dailyTrends[dateStr] = recentResponses.filter(r => {
+        if (!r.completedAt) return false;
+        return r.completedAt.split('T')[0] === dateStr;
+      }).length;
+    }
+    
+    // Screening performance
+    const screeningPerformance = screenings.map(screening => {
+      const screeningResponses = allResponses.filter(r => r.driveId === screening.id);
+      const screeningCandidates = candidates.filter(c => 
+        screening.candidateIds && screening.candidateIds.includes(c.id)
+      );
+      
+      return {
+        id: screening.id,
+        name: screening.name,
+        totalCandidates: screeningCandidates.length,
+        completedInterviews: screeningResponses.length,
+        completionRate: screeningCandidates.length > 0 
+          ? (screeningResponses.length / screeningCandidates.length) * 100 
+          : 0,
+        avgScore: screeningResponses.length > 0
+          ? screeningResponses
+              .filter(r => r.score)
+              .reduce((sum, r) => sum + r.score, 0) / screeningResponses.filter(r => r.score).length
+          : 0,
+        status: screening.status
+      };
+    });
+    
+    res.json({
+      overview: {
+        totalCandidates,
+        totalScreenings,
+        totalDrives,
+        totalInterviews,
+        completionRate: Math.round(completionRate * 100) / 100,
+        avgScore: Math.round(avgScore * 100) / 100,
+        avgTechnicalScore: Math.round(avgTechnicalScore * 100) / 100,
+        avgCommunicationScore: Math.round(avgCommunicationScore * 100) / 100
+      },
+      profileBreakdown: profileStats,
+      levelBreakdown: levelStats,
+      hiringStatusBreakdown,
+      scoreDistribution,
+      topPerformers,
+      dailyTrends,
+      screeningPerformance
+    });
+  } catch (error) {
+    console.error('Error generating reports:', error);
+    res.status(500).json({ error: 'Failed to generate reports' });
+  }
+});
+
 module.exports = router;
