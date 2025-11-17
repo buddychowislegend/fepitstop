@@ -59,6 +59,7 @@ interface AIConfigurationScreenProps {
   aiPrompt: string;
   onBack: () => void;
   onCreateDrive: (details: ScreeningDetails) => void;
+  hideJDGeneration?: boolean;
 }
 
 const languages = [
@@ -72,7 +73,7 @@ const languages = [
   { code: 'de', name: 'German', flag: '🇩🇪' }
 ];
 
-const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive }: AIConfigurationScreenProps) => {
+const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGeneration = false }: AIConfigurationScreenProps) => {
   // Mouse tracking for background animations
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
@@ -110,6 +111,43 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive }: AIConfigurat
   useEffect(() => {
     generateScreeningDetails();
   }, [aiPrompt]);
+
+  // Auto-generate questions when hideJDGeneration is true (AI Assistant mode)
+  useEffect(() => {
+    if (hideJDGeneration && screeningDetails.jobDescription.trim() && screeningDetails.questions.length === 0 && !isGeneratingQuestions && !isGenerating) {
+      const generateQuestionsAuto = async () => {
+        setIsGeneratingQuestions(true);
+        try {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+          const response = await fetch(`${backendUrl}/api/company/drives/generate-questions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Company-ID': 'hireog',
+              'X-Company-Password': 'manasi22'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              jobDescription: screeningDetails.jobDescription
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setScreeningDetails(prev => ({
+              ...prev,
+              questions: data.questions || []
+            }));
+          }
+        } catch (error) {
+          console.error('Error auto-generating questions:', error);
+        } finally {
+          setIsGeneratingQuestions(false);
+        }
+      };
+      generateQuestionsAuto();
+    }
+  }, [hideJDGeneration, screeningDetails.jobDescription, screeningDetails.questions.length, isGeneratingQuestions, isGenerating]);
 
   const generateScreeningDetails = async () => {
     try {
@@ -291,7 +329,7 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive }: AIConfigurat
   };
 
   const handleCreateDrive = async () => {
-    if (!screeningDetails.questions.length) {
+    if (!hideJDGeneration && !screeningDetails.questions.length) {
       alert('Please generate or add at least one interview question.');
       return;
     }
@@ -1249,6 +1287,7 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive }: AIConfigurat
         </motion.div>
 
         {/* JD & Question Generation */}
+        {!hideJDGeneration && (
         <motion.div
           className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 p-8 mb-8 relative overflow-hidden"
           initial={{ opacity: 0, y: 40, scale: 0.95 }}
@@ -1408,6 +1447,7 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive }: AIConfigurat
             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
           />
         </motion.div>
+        )}
 
         {/* Action Buttons */}
         <motion.div 
@@ -1442,7 +1482,7 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive }: AIConfigurat
 
           <motion.button
             onClick={handleCreateDrive}
-            disabled={isCreating || screeningDetails.questions.length === 0}
+            disabled={isCreating || (!hideJDGeneration && screeningDetails.questions.length === 0) || isGeneratingQuestions}
             className="group relative px-10 py-4 rounded-2xl bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white font-bold shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 overflow-hidden min-w-[200px]"
             whileHover={{ 
               scale: isCreating ? 1 : 1.05,

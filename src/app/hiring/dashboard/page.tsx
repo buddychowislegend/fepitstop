@@ -123,6 +123,7 @@ function CompanyDashboardContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAIConfig, setShowAIConfig] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
+  const [isFromAIAssistant, setIsFromAIAssistant] = useState(false);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [interviewDrives, setInterviewDrives] = useState<InterviewDrive[]>([]);
   const [showAddCandidate, setShowAddCandidate] = useState(false);
@@ -296,6 +297,7 @@ function CompanyDashboardContent() {
     
     setAiPrompt(aiInput);
     setShowCreateDrive(false);
+    setIsFromAIAssistant(true);
     setShowAIConfig(true);
     setAiInput("");
   };
@@ -383,6 +385,7 @@ function CompanyDashboardContent() {
         }
 
         setShowAIConfig(false);
+        setIsFromAIAssistant(false);
         setActiveTab('screenings');
         
         // Reload screenings to get the latest data
@@ -1415,8 +1418,12 @@ function CompanyDashboardContent() {
     return (
       <AIConfigurationScreen
         aiPrompt={aiPrompt}
-        onBack={() => setShowAIConfig(false)}
+        onBack={() => {
+          setShowAIConfig(false);
+          setIsFromAIAssistant(false);
+        }}
         onCreateDrive={handleCreateDriveFromAI}
+        hideJDGeneration={isFromAIAssistant}
       />
     );
   }
