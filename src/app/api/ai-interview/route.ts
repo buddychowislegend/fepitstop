@@ -890,23 +890,78 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ response: cleanResponse });
       } catch (error) {
         console.error('Error generating screening details:', error);
-        // Return a fallback response
-        const fallbackResponse = {
-          positionTitle: "Product Manager",
-          mustHaves: [
+        
+        // Extract position from prompt for smarter fallback
+        const lowerPrompt = prompt.toLowerCase();
+        let positionTitle = "Software Engineer";
+        let mustHaves: string[] = [];
+        let goodToHaves: string[] = [];
+        
+        if (lowerPrompt.includes('backend') || lowerPrompt.includes('back-end') || lowerPrompt.includes('back end')) {
+          positionTitle = lowerPrompt.includes('senior') ? 'Senior Backend Developer' : 'Backend Developer';
+          mustHaves = [
+            "5+ years backend development experience",
+            "Proficient in Python, Java, or Node.js",
+            "RESTful API development expertise",
+            "Database design and optimization",
+            "Version control with Git"
+          ];
+          goodToHaves = [
+            "Experience with microservices architecture",
+            "Knowledge of cloud platforms (AWS, GCP, Azure)",
+            "Understanding of containerization (Docker, Kubernetes)",
+            "Experience with message queues and event-driven architecture"
+          ];
+        } else if (lowerPrompt.includes('frontend') || lowerPrompt.includes('front-end') || lowerPrompt.includes('front end')) {
+          positionTitle = lowerPrompt.includes('senior') ? 'Senior Frontend Developer' : 'Frontend Developer';
+          mustHaves = [
+            "5+ years frontend development experience",
+            "Proficient in React, Vue.js, or Angular",
+            "JavaScript ES6+ expertise",
+            "CSS/SCSS and responsive design",
+            "Version control with Git"
+          ];
+          goodToHaves = [
+            "Experience with TypeScript",
+            "Knowledge of state management (Redux, MobX)",
+            "Understanding of build tools (Webpack, Vite)",
+            "Experience with testing frameworks (Jest, Cypress)"
+          ];
+        } else if (lowerPrompt.includes('product manager') || lowerPrompt.includes('product management')) {
+          positionTitle = "Product Manager";
+          mustHaves = [
             "5+ years product management experience",
             "Strong analytical and data-driven decision making",
             "Experience with agile development methodologies",
             "Excellent stakeholder management skills",
             "Technical background or strong technical understanding"
-          ],
-          goodToHaves: [
+          ];
+          goodToHaves = [
             "Experience with user research and UX design",
             "Knowledge of analytics tools (Google Analytics, Mixpanel)",
             "Experience with A/B testing and experimentation",
             "Previous startup or high-growth company experience",
             "MBA or relevant advanced degree"
-          ],
+          ];
+        } else {
+          // Default fallback
+          mustHaves = [
+            "Relevant experience in the field",
+            "Strong problem-solving skills",
+            "Excellent communication abilities",
+            "Team collaboration experience"
+          ];
+          goodToHaves = [
+            "Industry-specific certifications",
+            "Advanced degree in related field",
+            "Experience with modern tools and technologies"
+          ];
+        }
+        
+        const fallbackResponse = {
+          positionTitle: positionTitle,
+          mustHaves: mustHaves,
+          goodToHaves: goodToHaves,
           culturalFit: [
             "Strong communication and presentation skills",
             "Collaborative team player with leadership qualities",

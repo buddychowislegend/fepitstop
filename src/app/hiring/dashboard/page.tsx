@@ -89,6 +89,7 @@ interface NewDriveFormState {
   questions: string[];
   profile: ProfileOption;
   level: 'junior' | 'mid' | 'senior';
+  interviewDuration: number; // Duration in minutes (5, 10, 15, or 20)
 }
 
 type DriveCreationMode = 'selection' | 'ai' | 'jd' | 'custom';
@@ -100,6 +101,7 @@ const createEmptyDriveForm = (): NewDriveFormState => ({
   questions: [],
   profile: 'frontend',
   level: 'mid',
+  interviewDuration: 15, // Default to 15 minutes
 });
 
 function CompanyDashboardContent() {
@@ -334,6 +336,7 @@ function CompanyDashboardContent() {
           jobDescription: details.jobDescription || '',
           profile: derivedProfile,
           level: details.experienceLevel || 'mid',
+          interviewDuration: details.interviewDuration || 15,
         })
       });
       
@@ -372,7 +375,8 @@ function CompanyDashboardContent() {
               questions: details.questions,
               profile: derivedProfile,
               level: details.experienceLevel || 'mid',
-              screeningId: data.id
+              screeningId: data.id,
+              interviewDuration: details.interviewDuration || 15
             })
           });
 
@@ -780,6 +784,7 @@ function CompanyDashboardContent() {
         profile: newDrive.profile,
         level: newDrive.level,
         questions: newDrive.questions,
+        interviewDuration: newDrive.interviewDuration || 15,
       };
 
       let screeningId: string | null = null;
@@ -820,6 +825,7 @@ function CompanyDashboardContent() {
           screeningId: screeningId ?? undefined,
           profile: newDrive.profile,
           level: newDrive.level,
+          interviewDuration: newDrive.interviewDuration || 15,
         })
       });
       
@@ -1171,6 +1177,33 @@ function CompanyDashboardContent() {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Interview Duration */}
+        <div>
+          <label className="mb-3 block text-sm font-semibold text-white">
+            Interview Duration <span className="text-red-400">*</span>
+          </label>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[5, 10, 15, 20].map((duration) => (
+              <button
+                key={duration}
+                type="button"
+                onClick={() => setNewDrive(prev => ({ ...prev, interviewDuration: duration }))}
+                className={`flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${
+                  newDrive.interviewDuration === duration
+                    ? 'border-[#ffb21e] bg-gradient-to-r from-[#ffb21e] to-[#ff9500] text-white shadow-lg shadow-[#ffb21e]/20'
+                    : 'border-white/10 bg-white/5 text-white hover:border-white/30 hover:bg-white/10'
+                }`}
+              >
+                <Clock className="w-4 h-4" />
+                {duration} mins
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-white/60">
+            Maximum interview duration. The interview will be automatically submitted when the time limit is reached.
+          </p>
         </div>
 
         {isJDMode ? (

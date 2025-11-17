@@ -228,7 +228,7 @@ router.post('/drives/generate-questions', companyAuth, async (req, res) => {
 // Create interview drive
 router.post('/drives', companyAuth, async (req, res) => {
   try {
-    const { name, candidateIds, jobDescription, questions, screeningId, profile, level } = req.body;
+    const { name, candidateIds, jobDescription, questions, screeningId, profile, level, interviewDuration } = req.body;
     const companyId = req.companyId;
     
     if (!name || typeof name !== 'string' || !name.trim()) {
@@ -266,6 +266,7 @@ router.post('/drives', companyAuth, async (req, res) => {
       screeningId: typeof screeningId === 'string' && screeningId.trim().length > 0 ? screeningId.trim() : driveId,
       profile: normalizedProfile,
       level: normalizedLevel,
+      interviewDuration: typeof interviewDuration === 'number' && interviewDuration > 0 ? interviewDuration : 15, // Store interview duration (default 15 minutes)
     };
     
     // Add drive to MongoDB
@@ -464,7 +465,8 @@ router.get('/interview/:token', async (req, res) => {
         questions: driveQuestions, // Include questions from drive
         jobDescription: drive.jobDescription || '',
         profile: drive.profile || 'frontend',
-        level: drive.level || 'mid'
+        level: drive.level || 'mid',
+        interviewDuration: drive.interviewDuration || 15 // Include interview duration (default 15 minutes)
       }
     });
   } catch (error) {
@@ -569,7 +571,8 @@ router.post('/screenings', companyAuth, async (req, res) => {
       goodToHaves, 
       culturalFit, 
       estimatedTime, 
-      status 
+      status,
+      interviewDuration
     } = req.body;
     const companyId = req.companyId;
     
@@ -594,6 +597,7 @@ router.post('/screenings', companyAuth, async (req, res) => {
       profile: req.body.profile || 'frontend',
       level: req.body.level || 'mid',
       questions: req.body.questions || [],
+      interviewDuration: typeof interviewDuration === 'number' && interviewDuration > 0 ? interviewDuration : 15, // Store interview duration (default 15 minutes)
     };
     
     // Add screening to MongoDB
@@ -1010,6 +1014,7 @@ router.get('/interview/config/:token', async (req, res) => {
         jobDescription: screening.jobDescription || '',
         questions: screening.questions || [],
         experienceLevel: screening.level || 'mid',
+        interviewDuration: screening.interviewDuration || 15, // Include interview duration (default 15 minutes)
         // Candidate information
         candidateName: candidate.name,
         candidateEmail: candidate.email,

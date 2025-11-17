@@ -116,6 +116,7 @@ function AIInterviewContent() {
     driveQuestions?: string[];
     driveProfile?: string;
     driveLevel?: 'junior' | 'mid' | 'senior';
+    interviewDuration?: number; // Interview duration in minutes
   } | null>(null);
   
   // Track drive questions separately for easier access
@@ -198,9 +199,16 @@ const autoStartTriggeredRef = useRef(false);
   const [micTestPassed, setMicTestPassed] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   
-  // Timer
-  const [timeRemaining, setTimeRemaining] = useState(20 * 60); // 20 minutes
+  // Timer - use configured duration or default to 20 minutes
+  const [timeRemaining, setTimeRemaining] = useState(20 * 60); // Default to 20 minutes initially
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Update timer when companyParams is set with interviewDuration
+  useEffect(() => {
+    if (companyParams?.interviewDuration) {
+      setTimeRemaining(companyParams.interviewDuration * 60);
+    }
+  }, [companyParams?.interviewDuration]);
   
   // Anti-cheat monitoring
   const [cheatingIncidents, setCheatingIncidents] = useState<CheatingIncident[]>([]);
@@ -672,7 +680,12 @@ useEffect(() => {
                 driveQuestions: Array.isArray(config.questions) ? config.questions : [],
                 driveProfile: config.candidateProfile || normalizedConfigProfile,
                 driveLevel: config.experienceLevel || 'mid',
+                interviewDuration: config.interviewDuration || 15, // Use configured duration or default to 15 minutes
               });
+              
+              // Update timer with configured duration
+              const duration = config.interviewDuration || 15;
+              setTimeRemaining(duration * 60);
 
               const normalizedProfile = normalizedConfigProfile;
               setProfile(normalizedProfile);
@@ -713,7 +726,12 @@ useEffect(() => {
                     driveQuestions: driveQuestions,
                     driveProfile: driveProfile,
                     driveLevel: driveLevel,
+                    interviewDuration: interviewData.drive?.interviewDuration || 15, // Use configured duration or default to 15 minutes
                   });
+                  
+                  // Update timer with configured duration
+                  const duration = interviewData.drive?.interviewDuration || 15;
+                  setTimeRemaining(duration * 60);
                   
                   if (driveProfile) {
                     const normalizedProfile = mapProfileString(driveProfile);
@@ -1019,7 +1037,7 @@ useEffect(() => {
         currentQuestion: 1,
         totalQuestions: questionsToUse.length > 0 ? questionsToUse.length : 7,
         status: 'active',
-        timeRemaining: 20 * 60
+        timeRemaining: companyParams?.interviewDuration ? companyParams.interviewDuration * 60 : 20 * 60
       };
 
       setSession(newSession);
@@ -1027,7 +1045,9 @@ useEffect(() => {
       lastInterviewerGenderRef.current = selectedInterviewer.gender;
       setMessages(newSession.messages);
       setCurrentStep('interview');
-      setTimeRemaining(20 * 60);
+      // Use configured duration or default to 20 minutes
+      const duration = companyParams?.interviewDuration || 20;
+      setTimeRemaining(duration * 60);
       
       // Start camera for the interview
       try {

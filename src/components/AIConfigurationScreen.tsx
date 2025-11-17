@@ -53,6 +53,7 @@ interface ScreeningDetails {
   };
   jobDescription: string;
   questions: string[];
+  interviewDuration: number; // Duration in minutes (5, 10, 15, or 20)
 }
 
 interface AIConfigurationScreenProps {
@@ -101,7 +102,8 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
       culturalFit: 0
     },
     jobDescription: '',
-    questions: []
+    questions: [],
+    interviewDuration: 15 // Default to 15 minutes
   });
   const [isGenerating, setIsGenerating] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -186,18 +188,45 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
       if (response.ok) {
         const data = await response.json();
         
-        let generatedDetails;
+        let generatedDetails: any = {};
         try {
-          // Parse the response as JSON
-          generatedDetails = JSON.parse(data.response || '{}');
+          // Handle different response formats
+          if (typeof data.response === 'string') {
+            // If response is a JSON string, parse it
+            generatedDetails = JSON.parse(data.response);
+          } else if (typeof data.response === 'object' && data.response !== null) {
+            // If response is already an object, use it directly
+            generatedDetails = data.response;
+          } else if (typeof data === 'object' && data.positionTitle) {
+            // If the data itself has positionTitle, use it
+            generatedDetails = data;
+          }
+          
+          console.log('Parsed AI response:', generatedDetails);
         } catch (parseError) {
-          console.error('Failed to parse API response as JSON:', parseError);
-          // If parsing fails, try to use the response directly
-          generatedDetails = data.response || {};
+          console.error('Failed to parse API response as JSON:', parseError, 'Raw response:', data);
+          // If parsing fails, try to extract JSON from the response string
+          if (typeof data.response === 'string') {
+            try {
+              const jsonMatch = data.response.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                generatedDetails = JSON.parse(jsonMatch[0]);
+              }
+            } catch (e) {
+              console.error('Failed to extract JSON from response:', e);
+            }
+          }
+        }
+        
+        // Extract position title with better fallback logic
+        let positionTitle = generatedDetails.positionTitle;
+        if (!positionTitle || positionTitle.trim() === '') {
+          positionTitle = extractPositionFromPrompt();
+          console.log('Using fallback position title:', positionTitle, 'from prompt:', aiPrompt);
         }
         
         setScreeningDetails({
-          positionTitle: generatedDetails.positionTitle || extractPositionFromPrompt(),
+          positionTitle: positionTitle,
           language: 'en-us',
           mustHaves: generatedDetails.mustHaves || getDefaultMustHaves(),
           goodToHaves: generatedDetails.goodToHaves || getDefaultGoodToHaves(),
@@ -208,7 +237,8 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
             culturalFit: 2
           },
           jobDescription: aiPrompt || '',
-          questions: []
+          questions: [],
+          interviewDuration: 15
         });
       } else {
         // Fallback to default values
@@ -224,7 +254,8 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
             culturalFit: 2
           },
           jobDescription: aiPrompt || '',
-          questions: []
+          questions: [],
+          interviewDuration: 15
         });
       }
     } catch (error) {
@@ -242,7 +273,8 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
           culturalFit: 2
         },
         jobDescription: aiPrompt || '',
-        questions: []
+        questions: [],
+        interviewDuration: 15
       });
     } finally {
       setIsGenerating(false);
@@ -251,12 +283,55 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
 
   const extractPositionFromPrompt = () => {
     const lowerPrompt = aiPrompt.toLowerCase();
-    if (lowerPrompt.includes('backend')) return 'Backend Developer';
-    if (lowerPrompt.includes('frontend')) return 'Frontend Developer';
-    if (lowerPrompt.includes('full stack')) return 'Full Stack Developer';
-    if (lowerPrompt.includes('devops')) return 'DevOps Engineer';
-    if (lowerPrompt.includes('mobile')) return 'Mobile Developer';
-    if (lowerPrompt.includes('product')) return 'Product Manager';
+    
+    // Check for backend variations (backend, back-end, back end)
+    if (lowerPrompt.includes('backend') || lowerPrompt.includes('back-end') || lowerPrompt.includes('back end')) {
+      // Check for senior/junior level
+      if (lowerPrompt.includes('senior')) return 'Senior Backend Developer';
+      if (lowerPrompt.includes('junior')) return 'Junior Backend Developer';
+      return 'Backend Developer';
+    }
+    
+    // Check for frontend variations
+    if (lowerPrompt.includes('frontend') || lowerPrompt.includes('front-end') || lowerPrompt.includes('front end')) {
+      if (lowerPrompt.includes('senior')) return 'Senior Frontend Developer';
+      if (lowerPrompt.includes('junior')) return 'Junior Frontend Developer';
+      return 'Frontend Developer';
+    }
+    
+    // Check for full stack
+    if (lowerPrompt.includes('full stack') || lowerPrompt.includes('fullstack') || lowerPrompt.includes('full-stack')) {
+      if (lowerPrompt.includes('senior')) return 'Senior Full Stack Developer';
+      if (lowerPrompt.includes('junior')) return 'Junior Full Stack Developer';
+      return 'Full Stack Developer';
+    }
+    
+    // Check for devops
+    if (lowerPrompt.includes('devops') || lowerPrompt.includes('dev-ops') || lowerPrompt.includes('dev ops')) {
+      return 'DevOps Engineer';
+    }
+    
+    // Check for mobile
+    if (lowerPrompt.includes('mobile')) {
+      return 'Mobile Developer';
+    }
+    
+    // Check for product (but only if not already matched above)
+    if (lowerPrompt.includes('product manager') || lowerPrompt.includes('product management')) {
+      return 'Product Manager';
+    }
+    
+    // Check for other roles
+    if (lowerPrompt.includes('data engineer') || lowerPrompt.includes('data scientist')) {
+      return 'Data Engineer';
+    }
+    if (lowerPrompt.includes('qa') || lowerPrompt.includes('quality assurance') || lowerPrompt.includes('test engineer')) {
+      return 'QA Engineer';
+    }
+    if (lowerPrompt.includes('hr') || lowerPrompt.includes('human resources')) {
+      return 'HR Manager';
+    }
+    
     return 'Software Engineer';
   };
 
@@ -843,6 +918,113 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
               </motion.button>
             ))}
           </motion.div>
+        </motion.div>
+
+        {/* Interview Duration */}
+        <motion.div 
+          className="mb-10"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0 }}
+        >
+          <motion.label 
+            className="flex items-center gap-2 text-sm font-semibold text-white mb-4"
+            whileHover={{ scale: 1.02 }}
+          >
+            <Clock className="w-4 h-4 text-[#ffb21e]" />
+            Interview Duration
+          </motion.label>
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1,
+                  delayChildren: 1.2
+                }
+              }
+            }}
+          >
+            {[5, 10, 15, 20].map((duration) => (
+              <motion.button
+                key={duration}
+                onClick={() => setScreeningDetails(prev => ({ ...prev, interviewDuration: duration }))}
+                className={`group relative flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border-2 transition-all duration-300 ${
+                  screeningDetails.interviewDuration === duration
+                    ? 'bg-gradient-to-r from-[#ffb21e] to-[#ff9500] border-[#ffb21e] text-white shadow-xl shadow-[#ffb21e]/20'
+                    : 'bg-gradient-to-br from-white/10 to-white/5 border-white/20 text-white hover:border-white/40 hover:from-white/15'
+                }`}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.8, y: 20 },
+                  visible: { opacity: 1, scale: 1, y: 0 }
+                }}
+                whileHover={{ 
+                  y: -2, 
+                  scale: 1.05,
+                  boxShadow: screeningDetails.interviewDuration === duration 
+                    ? "0 20px 40px rgba(255, 178, 30, 0.3)"
+                    : "0 10px 25px rgba(255,255,255,0.1)"
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Clock className={`w-4 h-4 ${screeningDetails.interviewDuration === duration ? 'text-white' : 'text-[#ffb21e]'}`} />
+                <span className="text-sm font-medium">{duration} mins</span>
+                
+                {/* Selection Indicator */}
+                <AnimatePresence>
+                  {screeningDetails.interviewDuration === duration && (
+                    <motion.div
+                      className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <CheckCircle className="w-4 h-4 text-[#ffb21e]" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Hover Particles */}
+                <motion.div
+                  className="absolute inset-0 pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  {[...Array(2)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-1 h-1 bg-white rounded-full"
+                      style={{
+                        left: `${30 + i * 40}%`,
+                        top: `${40 + i * 20}%`,
+                      }}
+                      animate={{
+                        scale: [0, 1, 0],
+                        opacity: [0, 1, 0],
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        delay: i * 0.3,
+                        type: "tween"
+                      }}
+                    />
+                  ))}
+                </motion.div>
+              </motion.button>
+            ))}
+          </motion.div>
+          <motion.p 
+            className="text-xs text-white/60 mt-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.3 }}
+          >
+            Maximum interview duration. The interview will be automatically submitted when the time limit is reached.
+          </motion.p>
         </motion.div>
 
         {/* Must Haves */}
