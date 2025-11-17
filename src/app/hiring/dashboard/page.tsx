@@ -140,6 +140,7 @@ function CompanyDashboardContent() {
   const [newQuestion, setNewQuestion] = useState("");
   const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const [companyDisplayName, setCompanyDisplayName] = useState<string>("Company");
+  const [isLoading, setIsLoading] = useState(false); // Global loading state
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -205,6 +206,7 @@ function CompanyDashboardContent() {
   }, [router, searchParams]);
 
   const loadDashboardData = async () => {
+    setIsLoading(true);
     try {
       const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
       const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
@@ -248,10 +250,13 @@ function CompanyDashboardContent() {
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const loadScreenings = async () => {
+    setIsLoading(true);
     try {
       const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
       const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
@@ -291,6 +296,8 @@ function CompanyDashboardContent() {
       }
     } catch (error) {
       console.error('Error loading screenings:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -305,12 +312,14 @@ function CompanyDashboardContent() {
   };
 
   const handleCreateDriveFromAI = async (details: any) => {
+    setIsLoading(true);
     try {
       const screeningName = `AI Generated: ${details.positionTitle}`;
       const derivedProfile = mapProfileString(details.positionTitle || details.jobDescription || '');
       
       if (!details.questions || details.questions.length === 0) {
         alert('Please generate or add interview questions before creating the drive.');
+        setIsLoading(false);
         return;
       }
       
@@ -404,11 +413,14 @@ function CompanyDashboardContent() {
     } catch (error) {
       console.error('Error creating AI screening:', error);
       alert('Failed to create AI screening. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleAddCandidate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       const response = await fetch(`${backendUrl}/api/company/candidates`, {
@@ -438,6 +450,7 @@ function CompanyDashboardContent() {
         setCandidates([...candidates, candidate]);
         setNewCandidate({ name: "", email: "", profile: "" });
         setShowAddCandidate(false);
+        loadDashboardData(); // Refresh data
       } else {
         const error = await response.json();
         alert(`Error: ${error.error}`);
@@ -445,6 +458,8 @@ function CompanyDashboardContent() {
     } catch (error) {
       console.error('Error adding candidate:', error);
       alert('Failed to add candidate');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -452,6 +467,7 @@ function CompanyDashboardContent() {
     e.preventDefault();
     if (!editingCandidate) return;
 
+    setIsLoading(true);
     try {
       const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
       const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
@@ -481,6 +497,7 @@ function CompanyDashboardContent() {
         );
         setEditingCandidate(null);
         alert('Candidate updated successfully!');
+        loadDashboardData(); // Refresh data
       } else {
         const error = await response.json();
         alert(`Error: ${error.error || 'Failed to update candidate'}`);
@@ -488,6 +505,8 @@ function CompanyDashboardContent() {
     } catch (error) {
       console.error('Error updating candidate:', error);
       alert('Failed to update candidate');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -496,6 +515,7 @@ function CompanyDashboardContent() {
       return;
     }
 
+    setIsLoading(true);
     try {
       const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
       const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
@@ -513,6 +533,7 @@ function CompanyDashboardContent() {
       if (response.ok) {
         setCandidates(prev => prev.filter(c => c.id !== candidateId));
         alert('Candidate deleted successfully!');
+        loadDashboardData(); // Refresh data
       } else {
         const error = await response.json();
         alert(`Error: ${error.error || 'Failed to delete candidate'}`);
@@ -520,6 +541,8 @@ function CompanyDashboardContent() {
     } catch (error) {
       console.error('Error deleting candidate:', error);
       alert('Failed to delete candidate');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -764,6 +787,7 @@ function CompanyDashboardContent() {
       return;
     }
 
+    setIsLoading(true);
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
 
@@ -852,6 +876,8 @@ function CompanyDashboardContent() {
     } catch (error) {
       console.error('Error creating drive:', error);
       alert('Failed to create interview drive');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1375,6 +1401,7 @@ function CompanyDashboardContent() {
       return;
     }
 
+    setIsLoading(true);
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}`, {
@@ -1392,12 +1419,15 @@ function CompanyDashboardContent() {
         setInterviewDrives(prev => prev.filter(drive => drive.id !== screeningId));
         closeContextMenu();
         alert('Screening deleted successfully!');
+        loadScreenings(); // Refresh data
       } else {
         throw new Error('Failed to delete screening');
       }
     } catch (error) {
       console.error('Error deleting screening:', error);
       alert('Failed to delete screening. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1406,6 +1436,7 @@ function CompanyDashboardContent() {
       return;
     }
 
+    setIsLoading(true);
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       const response = await fetch(`${backendUrl}/api/company/drives/${screeningId}/send-links`, {
@@ -1464,6 +1495,38 @@ function CompanyDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b1020] via-[#0f1427] to-[#1a0b2e] relative overflow-hidden">
+      {/* Loading Overlay */}
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border-2 border-white/20 p-8 flex flex-col items-center gap-4"
+            >
+              <motion.div
+                className="w-16 h-16 border-4 border-[#2ad17e]/30 border-t-[#2ad17e] rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-white/80 text-sm font-medium uppercase tracking-wider"
+              >
+                Loading...
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
         <motion.div 

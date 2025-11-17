@@ -695,23 +695,19 @@ useEffect(() => {
                 setJdText(config.jobDescription);
               }
 
-              const normalizedProfile = normalizedConfigProfile;
-              setProfile(normalizedProfile);
-              setFocus(PROFILE_FOCUS_MAP[normalizedProfile] || PROFILE_FOCUS_MAP['frontend']);
-              setFramework(PROFILE_FRAMEWORK_MAP[normalizedProfile] || PROFILE_FRAMEWORK_MAP['frontend']);
+              // Auto-select profile based on screening configuration
+              // Use the profile from screening config if available, otherwise derive from position title
+              const screeningProfile: ProfileOption = (config.profile || mapProfileString(config.positionTitle)) as ProfileOption;
+              setProfile(screeningProfile);
+              setFocus(PROFILE_FOCUS_MAP[screeningProfile] || PROFILE_FOCUS_MAP['frontend']);
+              setFramework(PROFILE_FRAMEWORK_MAP[screeningProfile] || PROFILE_FRAMEWORK_MAP['frontend']);
+              
               if (config.experienceLevel) {
                 const normalizedLevel = (config.experienceLevel || 'mid').toLowerCase();
                 if (normalizedLevel === 'junior' || normalizedLevel === 'mid' || normalizedLevel === 'senior') {
                   setLevel(normalizedLevel as 'junior' | 'mid' | 'senior');
                 }
               }
-
-              // Auto-select profile based on screening configuration
-              // Use the profile from screening config if available, otherwise derive from position title
-              const screeningProfile = config.profile || mapProfileString(config.positionTitle);
-              setProfile(screeningProfile);
-              setFocus(PROFILE_FOCUS_MAP[screeningProfile] || PROFILE_FOCUS_MAP['frontend']);
-              setFramework(PROFILE_FRAMEWORK_MAP[screeningProfile] || PROFILE_FRAMEWORK_MAP['frontend']);
 
               // Skip interviewer selection for company interviews
               setCurrentStep('setup');
@@ -1172,7 +1168,33 @@ useEffect(() => {
 
       // Handle company interviews differently
       if (companyParams) {
-        // Submit to backend company interview API
+        // First, calculate the score and analysis using AI
+        let analysisData: any = null;
+        try {
+          const analysisResponse = await fetch('/api/ai-interview', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({
+              action: 'end',
+              profile: companyParams.profile || profile,
+              ...((companyParams.profile || profile) === 'frontend' ? { framework } : {}),
+              jdText: jdText || companyParams?.jobDescription || '',
+              qaPairs: qaPairs.map(({ question, answer }) => ({ question, answer })) // Remove hasVideo for API
+            })
+          });
+
+          if (analysisResponse.ok) {
+            analysisData = await analysisResponse.json();
+          }
+        } catch (error) {
+          console.error('Error calculating interview analysis:', error);
+          // Continue with submission even if analysis fails
+        }
+
+        // Submit to backend company interview API with calculated scores
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
         const response = await fetch(`${backendUrl}/api/company/interview/${companyParams.token}/submit`, {
           method: 'POST',
@@ -1185,12 +1207,17 @@ useEffect(() => {
           body: JSON.stringify({
             candidateName: companyParams.candidateName,
             candidateEmail: companyParams.candidateEmail,
-            profile: companyParams.profile,
-            level: companyParams.level,
+            profile: companyParams.profile || profile,
+            level: companyParams.level || level,
             company: companyParams.company,
             qaPairs,
-            score: 0, // Will be calculated by backend
-            feedback: '',
+            score: analysisData?.score || 0,
+            overallScore: analysisData?.score || 0,
+            technicalScore: analysisData?.technicalScore || null,
+            communicationScore: analysisData?.communicationScore || null,
+            feedback: typeof analysisData?.feedback === 'string' ? analysisData.feedback : (analysisData?.feedback?.summary || ''),
+            detailedFeedback: analysisData?.feedback || null,
+            questionAnalysis: Array.isArray(analysisData?.questionAnalysis) ? analysisData.questionAnalysis : null,
             completedAt: new Date().toISOString()
           })
         });
