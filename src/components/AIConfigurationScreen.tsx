@@ -120,13 +120,15 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
       const generateQuestionsAuto = async () => {
         setIsGeneratingQuestions(true);
         try {
+          const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+          const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
           const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
           const response = await fetch(`${backendUrl}/api/company/drives/generate-questions`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-Company-ID': 'hireog',
-              'X-Company-Password': 'manasi22'
+              'X-Company-ID': companyId,
+              'X-Company-Password': companyPassword
             },
             credentials: 'include',
             body: JSON.stringify({
@@ -450,13 +452,15 @@ const AIConfigurationScreen = ({ aiPrompt, onBack, onCreateDrive, hideJDGenerati
 
     setIsGeneratingQuestions(true);
     try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       const response = await fetch(`${backendUrl}/api/company/drives/generate-questions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
         },
         credentials: 'include',
         body: JSON.stringify({

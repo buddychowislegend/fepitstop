@@ -67,19 +67,89 @@ router.get('/test', (req, res) => {
 });
 
 // Company authentication middleware
-const companyAuth = (req, res, next) => {
+const companyAuth = async (req, res, next) => {
   const companyId = req.header('X-Company-ID');
   const companyPassword = req.header('X-Company-Password');
   
-  // Simple authentication for demo
+  if (!companyId || !companyPassword) {
+    return res.status(401).json({ error: 'Company ID and password are required' });
+  }
+  
+  const db = require('../config/db');
+  
+  // Check hardcoded credentials first (for backward compatibility)
   if ((companyId === 'hireog' && companyPassword === 'manasi22') ||
       (companyId === 'xtremesolution' && companyPassword === 'Xtreme@2025!')) {
     req.companyId = companyId;
-    next();
-  } else {
-    res.status(401).json({ error: 'Invalid company credentials' });
+    return next();
   }
+  
+  // Check database credentials
+  try {
+    const isValid = await db.verifyCompanyCredentials(companyId, companyPassword);
+    if (isValid) {
+      req.companyId = companyId;
+      return next();
+    }
+  } catch (error) {
+    console.error('Error verifying company credentials:', error);
+  }
+  
+  res.status(401).json({ error: 'Invalid company credentials' });
 };
+
+// Verify company login credentials (for hiring signin page)
+router.post('/verify-login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+    
+    const db = require('../config/db');
+    
+    // Check hardcoded users first (for backward compatibility)
+    const hardcodedUsers = [
+      { username: "admin@hireog.com", password: "hireog123", companyId: "hireog", companyPassword: "manasi22" },
+      { username: "hr@xtremesolution.in", password: "Xtreme@2025!", companyId: "xtremesolution", companyPassword: "Xtreme@2025!" },
+    ];
+    
+    const hardcodedMatch = hardcodedUsers.find(u => u.username === username && u.password === password);
+    if (hardcodedMatch) {
+      return res.json({
+        valid: true,
+        companyId: hardcodedMatch.companyId,
+        companyPassword: hardcodedMatch.companyPassword,
+        username: hardcodedMatch.username
+      });
+    }
+    
+    // Check database credentials
+    // Try to find company by email/username
+    const allCompanies = await db.getAllCompanies();
+    for (const company of allCompanies) {
+      const credentials = await db.getCompanyCredentials(company.id);
+      if (credentials) {
+        // Check if username matches company email or a generated username
+        const companyUsername = company.email || `${company.id}@company.com`;
+        if (companyUsername === username && credentials.password === password) {
+          return res.json({
+            valid: true,
+            companyId: company.id,
+            companyPassword: credentials.password,
+            username: companyUsername
+          });
+        }
+      }
+    }
+    
+    res.status(401).json({ valid: false, error: 'Invalid credentials' });
+  } catch (error) {
+    console.error('Error verifying login:', error);
+    res.status(500).json({ error: 'Failed to verify credentials' });
+  }
+});
 
 // Get company dashboard data
 router.get('/dashboard', companyAuth, async (req, res) => {
@@ -546,9 +616,10 @@ router.post('/interview/:token/submit', async (req, res) => {
       level,
       company,
       qaPairs,
-      score: score || overallScore || 0,
-      technicalScore: technicalScore || null,
-      communicationScore: communicationScore || null,
+      score: overallScore !== undefined ? overallScore : (score !== undefined ? score : 0),
+      overallScore: overallScore !== undefined ? overallScore : (score !== undefined ? score : 0),
+      technicalScore: technicalScore !== undefined && technicalScore !== null ? technicalScore : null,
+      communicationScore: communicationScore !== undefined && communicationScore !== null ? communicationScore : null,
       feedback: feedback || (typeof detailedFeedback === 'string' ? detailedFeedback : ''),
       detailedFeedback: detailedFeedback || null,
       questionAnalysis: questionAnalysis || null,
@@ -974,9 +1045,9 @@ router.get('/screenings/:id/details', companyAuth, async (req, res) => {
         email: candidate.email,
         status: response ? 'completed' : 'invited',
         hiringStatus: candidate.hiringStatus || 'pending',
-        score: response ? (response.score || 0) : null,
-        technicalScore: response ? response.technicalScore : null,
-        communicationScore: response ? response.communicationScore : null,
+        score: response ? (response.overallScore || response.score || 0) : null,
+        technicalScore: response ? (response.technicalScore !== undefined && response.technicalScore !== null ? response.technicalScore : null) : null,
+        communicationScore: response ? (response.communicationScore !== undefined && response.communicationScore !== null ? response.communicationScore : null) : null,
         completedDate: response ? response.completedAt : null,
         invitedDate: candidate.createdAt,
         progress: response ? 100 : 0,
@@ -1286,6 +1357,314 @@ router.get('/reports', companyAuth, async (req, res) => {
   } catch (error) {
     console.error('Error generating reports:', error);
     res.status(500).json({ error: 'Failed to generate reports' });
+  }
+});
+
+// Admin routes for company management
+const adminAuth = (req, res, next) => {
+  // Try multiple ways to get the admin key header
+  // Express req.header() is case-insensitive, but req.headers keys are lowercase
+  let adminKey = req.header('X-Admin-Key') || 
+                 req.header('x-admin-key') ||
+                 req.get('X-Admin-Key') ||
+                 req.get('x-admin-key');
+  
+  // Also check req.headers directly (keys are lowercase in Express)
+  if (!adminKey) {
+    // Check all possible header name variations
+    const headerKeys = Object.keys(req.headers);
+    for (const key of headerKeys) {
+      if (key.toLowerCase() === 'x-admin-key') {
+        adminKey = req.headers[key];
+        break;
+      }
+    }
+  }
+  
+  // Accept both the environment variable key and the default key
+  const envKey = process.env.ADMIN_KEY;
+  const defaultKey = 'admin_key_hireog_secure_2025';
+  const expectedKeys = envKey ? [envKey, defaultKey] : [defaultKey];
+  
+  // Debug logging
+  console.log('Admin auth check:', {
+    method: req.method,
+    path: req.path,
+    adminKeyReceived: adminKey ? adminKey.substring(0, 15) + '...' : 'NOT PROVIDED',
+    receivedLength: adminKey ? adminKey.length : 0,
+    expectedKeysCount: expectedKeys.length,
+    usingEnvKey: !!envKey,
+    match: adminKey && expectedKeys.includes(adminKey),
+    adminHeaders: Object.keys(req.headers).filter(h => h.toLowerCase().includes('admin')),
+  });
+  
+  if (!adminKey) {
+    return res.status(403).json({ 
+      error: 'Unauthorized',
+      message: 'X-Admin-Key header is required',
+      hint: 'Provide X-Admin-Key header with valid admin key',
+      receivedHeaders: Object.keys(req.headers).filter(h => h.toLowerCase().includes('admin'))
+    });
+  }
+  
+  // Check if the provided key matches any of the expected keys
+  if (!expectedKeys.includes(adminKey)) {
+    return res.status(403).json({ 
+      error: 'Unauthorized',
+      message: 'Invalid admin key',
+      hint: 'The provided admin key does not match the expected key',
+      receivedLength: adminKey.length,
+      receivedPrefix: adminKey.substring(0, 15) + '...',
+      expectedLengths: expectedKeys.map(k => k.length),
+      usingEnvKey: !!envKey
+    });
+  }
+  
+  next();
+};
+
+// Test endpoint to debug headers (remove in production)
+router.get('/admin/test-headers', (req, res) => {
+  res.json({
+    headers: {
+      'x-admin-key': req.headers['x-admin-key'],
+      'X-Admin-Key': req.headers['x-admin-key'],
+      'all-admin-headers': Object.keys(req.headers).filter(h => h.toLowerCase().includes('admin')),
+      'all-headers': Object.keys(req.headers),
+      'req.header(X-Admin-Key)': req.header('X-Admin-Key'),
+      'req.header(x-admin-key)': req.header('x-admin-key'),
+      'req.get(X-Admin-Key)': req.get('X-Admin-Key'),
+    }
+  });
+});
+
+// Get all companies with statistics
+router.get('/admin/companies', adminAuth, async (req, res) => {
+  try {
+    const db = require('../config/db');
+    
+    // Get all companies from the database
+    let allCompanies = [];
+    try {
+      allCompanies = await db.getAllCompanies();
+    } catch (error) {
+      console.log('getAllCompanies not available, using fallback');
+    }
+    
+    // If no companies found, use known companies as fallback
+    const companyIds = allCompanies.length > 0 
+      ? allCompanies.map(c => c.id)
+      : ['hireog', 'xtremesolution'];
+    
+    const companiesWithStats = await Promise.all(companyIds.map(async (companyId) => {
+      try {
+        const company = await db.getCompany(companyId);
+        const candidates = await db.getCandidatesByCompany(companyId);
+        const drives = await db.getDrivesByCompany(companyId);
+        const screenings = await db.getScreeningsByCompany(companyId);
+        
+        // Get interview responses to count completed interviews
+        let completedInterviews = 0;
+        for (const drive of drives) {
+          try {
+            const responses = await db.getInterviewResponsesByDrive(drive.id);
+            if (responses && Array.isArray(responses)) {
+              completedInterviews += responses.length;
+            }
+          } catch (error) {
+            // Skip if error
+          }
+        }
+        
+        // Count shortlisted candidates (hiringStatus === 'shortlisted' or status === 'offer')
+        const shortlisted = candidates.filter(c => 
+          c.hiringStatus === 'shortlisted' || 
+          c.hiringStatus === 'hired' || 
+          c.status === 'offer'
+        ).length;
+        
+        return {
+          id: companyId,
+          credits: company.credits || 1000,
+          name: company.name || '',
+          email: company.email || '',
+          totalCandidates: candidates.length,
+          totalDrives: drives.length,
+          totalScreenings: screenings.length,
+          candidatesInvited: candidates.length,
+          candidatesShortlisted: shortlisted,
+          completedInterviews: completedInterviews,
+          createdAt: company.createdAt || new Date().toISOString(),
+          updatedAt: company.updatedAt || new Date().toISOString()
+        };
+      } catch (error) {
+        console.error(`Error getting stats for company ${companyId}:`, error);
+        return {
+          id: companyId,
+          credits: 1000,
+          totalCandidates: 0,
+          totalDrives: 0,
+          totalScreenings: 0,
+          candidatesInvited: 0,
+          candidatesShortlisted: 0,
+          completedInterviews: 0
+        };
+      }
+    }));
+    
+    res.json({
+      companies: companiesWithStats
+    });
+  } catch (error) {
+    console.error('Error fetching companies:', error);
+    res.status(500).json({ error: 'Failed to fetch companies' });
+  }
+});
+
+// Create a new company
+router.post('/admin/companies', adminAuth, async (req, res) => {
+  try {
+    const { companyId, companyPassword, name, email, initialCredits } = req.body;
+    
+    if (!companyId || !companyPassword) {
+      return res.status(400).json({ error: 'Company ID and password are required' });
+    }
+    
+    const db = require('../config/db');
+    
+    // Check if company already exists (by checking if it has been initialized)
+    try {
+      const existingCompany = await db.getCompany(companyId);
+      // If company exists and was created before (has createdAt), it's an existing company
+      if (existingCompany && existingCompany.createdAt && existingCompany.id === companyId) {
+        // Check if this is a new company or existing one
+        // For now, we'll allow updating credits if company exists
+        // In production, you might want stricter checks
+      }
+    } catch (error) {
+      // Company doesn't exist yet, which is fine
+    }
+    
+    // Create company with initial credits
+    const credits = typeof initialCredits === 'number' && initialCredits > 0 ? initialCredits : 1000;
+    const company = await db.updateCompanyCredits(companyId, credits, name, email);
+    
+    // Store company credentials
+    await db.setCompanyCredentials(companyId, companyPassword);
+    
+    // Generate a default username/email for login
+    const defaultUsername = email || `${companyId}@company.com`;
+    
+    res.json({
+      message: 'Company created successfully',
+      company: {
+        id: companyId,
+        credits: company.credits,
+        createdAt: company.createdAt
+      },
+      credentials: {
+        username: defaultUsername,
+        password: companyPassword, // This is the password for hiring signin
+        companyId: companyId,
+        companyPassword: companyPassword, // This is used for API authentication
+        note: 'Use these credentials to login at /hiring/signin'
+      }
+    });
+  } catch (error) {
+    console.error('Error creating company:', error);
+    res.status(500).json({ error: 'Failed to create company' });
+  }
+});
+
+// Recharge credits for a company
+router.post('/admin/companies/:companyId/recharge', adminAuth, async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const { credits } = req.body;
+    
+    if (!credits || typeof credits !== 'number' || credits <= 0) {
+      return res.status(400).json({ error: 'Valid credits amount is required' });
+    }
+    
+    const db = require('../config/db');
+    const company = await db.getCompany(companyId);
+    
+    const newCredits = (company.credits || 1000) + credits;
+    const updatedCompany = await db.updateCompanyCredits(companyId, newCredits, company.name, company.email);
+    
+    res.json({
+      message: 'Credits recharged successfully',
+      company: {
+        id: companyId,
+        previousCredits: company.credits || 1000,
+        creditsAdded: credits,
+        newCredits: updatedCompany.credits
+      }
+    });
+  } catch (error) {
+    console.error('Error recharging credits:', error);
+    res.status(500).json({ error: 'Failed to recharge credits' });
+  }
+});
+
+// Get company details with full statistics
+router.get('/admin/companies/:companyId', adminAuth, async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const db = require('../config/db');
+    
+    const company = await db.getCompany(companyId);
+    const candidates = await db.getCandidatesByCompany(companyId);
+    const drives = await db.getDrivesByCompany(companyId);
+    const screenings = await db.getScreeningsByCompany(companyId);
+    
+    // Get all interview responses
+    let allResponses = [];
+    for (const drive of drives) {
+      try {
+        const responses = await db.getInterviewResponsesByDrive(drive.id);
+        if (responses && Array.isArray(responses)) {
+          allResponses.push(...responses);
+        }
+      } catch (error) {
+        // Skip if error
+      }
+    }
+    
+    // Calculate statistics
+    const stats = {
+      totalCandidates: candidates.length,
+      totalDrives: drives.length,
+      totalScreenings: screenings.length,
+      candidatesInvited: candidates.length,
+      candidatesShortlisted: candidates.filter(c => 
+        c.hiringStatus === 'shortlisted' || 
+        c.hiringStatus === 'hired' || 
+        c.status === 'offer'
+      ).length,
+      candidatesOnHold: candidates.filter(c => c.hiringStatus === 'on-hold').length,
+      candidatesRejected: candidates.filter(c => c.hiringStatus === 'rejected').length,
+      candidatesPending: candidates.filter(c => c.hiringStatus === 'pending' || !c.hiringStatus).length,
+      completedInterviews: allResponses.length,
+      averageScore: allResponses.length > 0
+        ? allResponses
+            .filter(r => r.score && typeof r.score === 'number')
+            .reduce((sum, r) => sum + r.score, 0) / allResponses.filter(r => r.score).length
+        : 0
+    };
+    
+    res.json({
+      company: {
+        id: companyId,
+        credits: company.credits || 1000,
+        createdAt: company.createdAt,
+        updatedAt: company.updatedAt
+      },
+      statistics: stats
+    });
+  } catch (error) {
+    console.error('Error fetching company details:', error);
+    res.status(500).json({ error: 'Failed to fetch company details' });
   }
 });
 

@@ -1195,13 +1195,15 @@ useEffect(() => {
         }
 
         // Submit to backend company interview API with calculated scores
+        const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+        const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
         const response = await fetch(`${backendUrl}/api/company/interview/${companyParams.token}/submit`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Company-ID': 'hireog',
-            'X-Company-Password': 'manasi22'
+            'X-Company-ID': companyId,
+            'X-Company-Password': companyPassword
           },
           credentials: 'include',
           body: JSON.stringify({

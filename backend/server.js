@@ -111,7 +111,7 @@ app.use((req, res, next) => {
   
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Company-ID, X-Company-Password, Cache-Control, Pragma, Expires, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, User-Agent, Referer');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Company-ID, X-Company-Password, X-Admin-Key, x-admin-key, Cache-Control, Pragma, Expires, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, User-Agent, Referer');
   
   // Log CORS info for debugging
   if (req.path.includes('/api/company/')) {
@@ -149,7 +149,7 @@ app.options('/api/company/*', (req, res) => {
   
   res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', requestedHeaders || 'Content-Type, Authorization, X-Company-ID, X-Company-Password, Cache-Control, Pragma, Expires, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, User-Agent, Referer');
+  res.header('Access-Control-Allow-Headers', requestedHeaders || 'Content-Type, Authorization, X-Company-ID, X-Company-Password, X-Admin-Key, x-admin-key, Cache-Control, Pragma, Expires, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, User-Agent, Referer');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
   res.sendStatus(200);

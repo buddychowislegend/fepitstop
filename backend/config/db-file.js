@@ -26,7 +26,8 @@ let inMemoryDB = {
   interviewTokens: [],
   interviewResponses: [],
   screenings: [],
-  companies: [] // Store company data including credits
+  companies: [], // Store company data including credits
+  companyCredentials: [] // Store company login credentials
 };
 
 try {
@@ -51,7 +52,8 @@ try {
       interviewTokens: [],
       interviewResponses: [],
       screenings: [],
-      companies: []
+      companies: [],
+      companyCredentials: []
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
     console.log(`✅ Database initialized at: ${DB_FILE}`);
@@ -1007,6 +1009,8 @@ class Database {
       company = {
         id: companyId,
         credits: 1000,
+        name: '',
+        email: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -1017,7 +1021,7 @@ class Database {
     return company;
   }
 
-  async updateCompanyCredits(companyId, credits) {
+  async updateCompanyCredits(companyId, credits, name, email) {
     const db = this.read();
     if (!db.companies) {
       db.companies = [];
@@ -1030,6 +1034,8 @@ class Database {
       company = {
         id: companyId,
         credits: 1000,
+        name: name || '',
+        email: email || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -1037,16 +1043,65 @@ class Database {
     }
     
     company.credits = Math.max(0, credits); // Ensure credits don't go negative
+    if (name !== undefined) company.name = name;
+    if (email !== undefined) company.email = email;
     company.updatedAt = new Date().toISOString();
     
     this.write(db);
     return company;
   }
 
+  async setCompanyCredentials(companyId, companyPassword) {
+    const db = this.read();
+    if (!db.companyCredentials) {
+      db.companyCredentials = [];
+    }
+    
+    // Remove existing credentials for this company
+    db.companyCredentials = db.companyCredentials.filter(c => c.companyId !== companyId);
+    
+    // Add new credentials
+    const credentials = {
+      companyId: companyId,
+      password: companyPassword, // In production, this should be hashed
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    db.companyCredentials.push(credentials);
+    this.write(db);
+    return credentials;
+  }
+
+  async getCompanyCredentials(companyId) {
+    const db = this.read();
+    if (!db.companyCredentials) {
+      db.companyCredentials = [];
+    }
+    return db.companyCredentials.find(c => c.companyId === companyId);
+  }
+
+  async verifyCompanyCredentials(companyId, companyPassword) {
+    const credentials = await this.getCompanyCredentials(companyId);
+    if (!credentials) {
+      return false;
+    }
+    // In production, use bcrypt.compare here
+    return credentials.password === companyPassword;
+  }
+
   async deductCompanyCredits(companyId, amount) {
     const company = await this.getCompany(companyId);
     const newCredits = Math.max(0, company.credits - amount);
-    return await this.updateCompanyCredits(companyId, newCredits);
+    return await this.updateCompanyCredits(companyId, newCredits, company.name, company.email);
+  }
+
+  async getAllCompanies() {
+    const db = this.read();
+    if (!db.companies) {
+      db.companies = [];
+    }
+    return db.companies;
   }
 }
 

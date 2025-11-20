@@ -33,22 +33,50 @@ export default function HiringSignIn() {
     setLoading(true);
     setError("");
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // First check hardcoded users (for backward compatibility)
+      const matched = validUsers.find(u => u.username === credentials.username && u.password === credentials.password);
+      if (matched) {
+        localStorage.setItem('hiring_authenticated', 'true');
+        localStorage.setItem('hiring_user', matched.username);
+        localStorage.setItem('hiring_company_id', matched.companyId);
+        localStorage.setItem('hiring_company_password', matched.companyPassword);
+        router.push('/hiring/dashboard');
+        setLoading(false);
+        return;
+      }
 
-    // Check credentials against list
-    const matched = validUsers.find(u => u.username === credentials.username && u.password === credentials.password);
-    if (matched) {
-      // Store authentication state (you can use localStorage, cookies, or context)
-      localStorage.setItem('hiring_authenticated', 'true');
-      localStorage.setItem('hiring_user', matched.username);
-      localStorage.setItem('hiring_company_id', matched.companyId);
-      localStorage.setItem('hiring_company_password', matched.companyPassword);
-      
-      // Redirect to hiring dashboard
-      router.push('/hiring/dashboard');
-    } else {
-      setError("Invalid username or password. Please try again.");
+      // If not in hardcoded list, verify with backend
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const response = await fetch(`${backendUrl}/api/company/verify-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.valid) {
+          localStorage.setItem('hiring_authenticated', 'true');
+          localStorage.setItem('hiring_user', data.username || credentials.username);
+          localStorage.setItem('hiring_company_id', data.companyId);
+          localStorage.setItem('hiring_company_password', data.companyPassword);
+          router.push('/hiring/dashboard');
+        } else {
+          setError("Invalid username or password. Please try again.");
+        }
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Invalid username or password. Please try again.");
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError("Failed to connect to server. Please try again.");
     }
     
     setLoading(false);

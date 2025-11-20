@@ -878,6 +878,8 @@ class MongoDatabase {
         company = {
           id: companyId,
           credits: 1000,
+          name: '',
+          email: '',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
@@ -891,13 +893,15 @@ class MongoDatabase {
       return {
         id: companyId,
         credits: 1000,
+        name: '',
+        email: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
     }
   }
 
-  async updateCompanyCredits(companyId, credits) {
+  async updateCompanyCredits(companyId, credits, name, email) {
     try {
       await this.ensureConnection();
       const company = await this.getCompany(companyId);
@@ -907,6 +911,9 @@ class MongoDatabase {
         credits: Math.max(0, credits), // Ensure credits don't go negative
         updatedAt: new Date().toISOString()
       };
+      
+      if (name !== undefined) updatedCompany.name = name;
+      if (email !== undefined) updatedCompany.email = email;
       
       await this.db.collection('companies').updateOne(
         { id: companyId },
@@ -924,7 +931,65 @@ class MongoDatabase {
   async deductCompanyCredits(companyId, amount) {
     const company = await this.getCompany(companyId);
     const newCredits = Math.max(0, company.credits - amount);
-    return await this.updateCompanyCredits(companyId, newCredits);
+    return await this.updateCompanyCredits(companyId, newCredits, company.name, company.email);
+  }
+
+  async getAllCompanies() {
+    try {
+      await this.ensureConnection();
+      const companies = await this.db.collection('companies').find({}).toArray();
+      return companies;
+    } catch (error) {
+      console.error('Error getting all companies:', error);
+      return [];
+    }
+  }
+
+  async setCompanyCredentials(companyId, companyPassword) {
+    try {
+      await this.ensureConnection();
+      const credentials = {
+        companyId: companyId,
+        password: companyPassword, // In production, this should be hashed
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await this.db.collection('companyCredentials').updateOne(
+        { companyId: companyId },
+        { $set: credentials },
+        { upsert: true }
+      );
+      
+      return credentials;
+    } catch (error) {
+      console.error('Error setting company credentials:', error);
+      throw error;
+    }
+  }
+
+  async getCompanyCredentials(companyId) {
+    try {
+      await this.ensureConnection();
+      return await this.db.collection('companyCredentials').findOne({ companyId: companyId });
+    } catch (error) {
+      console.error('Error getting company credentials:', error);
+      return null;
+    }
+  }
+
+  async verifyCompanyCredentials(companyId, companyPassword) {
+    try {
+      const credentials = await this.getCompanyCredentials(companyId);
+      if (!credentials) {
+        return false;
+      }
+      // In production, use bcrypt.compare here
+      return credentials.password === companyPassword;
+    } catch (error) {
+      console.error('Error verifying company credentials:', error);
+      return false;
+    }
   }
 }
 

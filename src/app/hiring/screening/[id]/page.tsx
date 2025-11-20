@@ -9,6 +9,7 @@ interface Candidate {
   id: string;
   name: string;
   email: string;
+  profile?: string;
   status: 'invited' | 'in-progress' | 'completed' | 'not-started';
   hiringStatus?: 'shortlisted' | 'on-hold' | 'rejected' | 'hired' | 'pending';
   score?: number;
@@ -86,14 +87,16 @@ export default function ScreeningDetailPage() {
 
   const loadScreeningDetails = async () => {
     try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       // Add cache-busting parameter to ensure fresh data
       const cacheBuster = `?_t=${Date.now()}`;
       const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}/details${cacheBuster}`, {
         method: 'GET',
         headers: {
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword,
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
@@ -125,11 +128,15 @@ export default function ScreeningDetailPage() {
           email: candidate.email,
           status: candidate.status,
           hiringStatus: candidate.hiringStatus || 'pending',
-          score: candidate.score,
+          score: candidate.score !== null && candidate.score !== undefined ? candidate.score : undefined,
+          technicalScore: candidate.technicalScore !== null && candidate.technicalScore !== undefined ? candidate.technicalScore : undefined,
+          communicationScore: candidate.communicationScore !== null && candidate.communicationScore !== undefined ? candidate.communicationScore : undefined,
           completedDate: candidate.completedDate ? new Date(candidate.completedDate).toLocaleDateString() : undefined,
           invitedDate: new Date(candidate.invitedDate).toLocaleDateString(),
           progress: candidate.progress,
           feedback: candidate.feedback,
+          detailedFeedback: candidate.detailedFeedback,
+          questionAnalysis: candidate.questionAnalysis,
           qaPairs: candidate.qaPairs
         }));
         
@@ -169,6 +176,8 @@ export default function ScreeningDetailPage() {
         profile: screening?.name?.includes('Frontend') ? 'Frontend Developer' : 'General'
       }));
       
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
       
       // Add candidates to screening and send invites in one call
@@ -176,8 +185,8 @@ export default function ScreeningDetailPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword,
           'Cache-Control': 'no-cache, no-store, must-revalidate'
         },
         credentials: 'include',
@@ -301,6 +310,101 @@ export default function ScreeningDetailPage() {
       alert('Failed to update hiring status');
       // Reload to get correct state
       loadScreeningDetails();
+    }
+  };
+
+  const handleDeleteCandidate = async (candidateId: string, candidateName: string) => {
+    if (!confirm(`Are you sure you want to remove ${candidateName} from this screening?`)) {
+      return;
+    }
+
+    try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      
+      const response = await fetch(`${backendUrl}/api/company/candidates/${candidateId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        // Remove candidate from local state
+        setCandidates(prev => prev.filter(c => c.id !== candidateId));
+        alert(`${candidateName} has been removed from this screening.`);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to remove candidate'}`);
+        // Reload to get correct state
+        loadScreeningDetails();
+      }
+    } catch (error) {
+      console.error('Error deleting candidate:', error);
+      alert('Failed to remove candidate');
+      // Reload to get correct state
+      loadScreeningDetails();
+    }
+  };
+
+  const handleResendInvite = async (candidate: Candidate) => {
+    if (!confirm(`Resend interview invite to ${candidate.name} (${candidate.email})?`)) {
+      return;
+    }
+
+    try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      
+      // Use the invite-candidates endpoint with just this candidate
+      const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}/invite-candidates`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword,
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        },
+        credentials: 'include',
+        cache: 'no-store',
+        body: JSON.stringify({
+          candidates: [{
+            name: candidate.name,
+            email: candidate.email,
+            profile: candidate.profile || 'General'
+          }]
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const emailSent = data.emailResults?.[0]?.emailSent || false;
+        
+        if (emailSent) {
+          alert(`Interview invite has been resent to ${candidate.name} (${candidate.email}).`);
+        } else {
+          const errorMsg = data.emailResults?.[0]?.error || 'Unknown error';
+          alert(`Invite link generated but email failed to send: ${errorMsg}\n\nYou can manually share the interview link with the candidate.`);
+        }
+        
+        // Reload screening details to get updated data
+        await loadScreeningDetails();
+      } else {
+        const errorData = await response.json();
+        if (errorData.error === 'Insufficient credits') {
+          alert(`Error: ${errorData.message || 'Insufficient credits to resend invite'}`);
+        } else {
+          alert(`Error: ${errorData.error || 'Failed to resend invite'}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error resending invite:', error);
+      alert('Failed to resend invite');
     }
   };
 
@@ -731,8 +835,18 @@ export default function ScreeningDetailPage() {
                               >
                                 {candidate.status === 'completed' ? 'View Results' : 'View'}
                               </button>
-                              <button className="text-blue-400 hover:text-blue-300 mr-3">Resend</button>
-                              <button className="text-red-400 hover:text-red-300">Remove</button>
+                              <button 
+                                onClick={() => handleResendInvite(candidate)}
+                                className="text-blue-400 hover:text-blue-300 mr-3"
+                              >
+                                Resend
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteCandidate(candidate.id, candidate.name)}
+                                className="text-red-400 hover:text-red-300"
+                              >
+                                Remove
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -994,63 +1108,73 @@ export default function ScreeningDetailPage() {
                         transition={{ duration: 2, repeat: Infinity, type: "tween" }}
                       >
                         <span className="bg-gradient-to-r from-[#2ad17e] to-[#20c997] bg-clip-text text-transparent">
-                          {Math.round((selectedCandidate.score || 0))}
+                          {selectedCandidate.score !== undefined && selectedCandidate.score !== null 
+                            ? selectedCandidate.score.toFixed(1)
+                            : 'N/A'}
                         </span>
-                        <span className="text-xl text-white/60">%</span>
+                        {selectedCandidate.score !== undefined && selectedCandidate.score !== null && (
+                          <span className="text-xl text-white/60">/10</span>
+                        )}
                       </motion.div>
                       <p className="text-white font-semibold text-lg">Overall Score</p>
                       <p className="text-white/70 text-sm mt-2">
-                        {(selectedCandidate.score || 0) >= 90 ? 'Excellent Performance!' : 
-                         (selectedCandidate.score || 0) >= 80 ? 'Great Job!' : 
-                         (selectedCandidate.score || 0) >= 70 ? 'Good Performance' : 
-                         (selectedCandidate.score || 0) >= 60 ? 'Satisfactory' : 
-                         'Room for Improvement'}
+                        {selectedCandidate.score !== undefined && selectedCandidate.score !== null ? (
+                          selectedCandidate.score >= 8 ? 'Excellent Performance!' : 
+                          selectedCandidate.score >= 7 ? 'Great Job!' : 
+                          selectedCandidate.score >= 6 ? 'Good Performance' : 
+                          selectedCandidate.score >= 5 ? 'Satisfactory' : 
+                          'Room for Improvement'
+                        ) : 'Score not available'}
                       </p>
                     </motion.div>
 
-                    {/* Technical Skills */}
-                    {selectedCandidate.technicalScore !== undefined && (
+                    {/* Technical Skills - Always show if completed */}
+                    <motion.div 
+                      className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center relative overflow-hidden"
+                      whileHover={{ scale: 1.02, y: -5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
                       <motion.div 
-                        className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center relative overflow-hidden"
-                        whileHover={{ scale: 1.02, y: -5 }}
-                        transition={{ type: "spring", stiffness: 300 }}
+                        className="text-5xl font-bold mb-3"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
                       >
-                        <motion.div 
-                          className="text-5xl font-bold mb-3"
-                          animate={{ scale: [1, 1.05, 1] }}
-                          transition={{ duration: 2.5, repeat: Infinity, type: "tween" }}
-                        >
-                          <span className="bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] bg-clip-text text-transparent">
-                            {Math.round(selectedCandidate.technicalScore)}
-                          </span>
-                          <span className="text-xl text-white/60">%</span>
-                        </motion.div>
-                        <p className="text-white font-semibold text-lg">Technical Skills</p>
-                        <p className="text-white/70 text-sm mt-2">Code quality & problem solving</p>
+                        <span className="bg-gradient-to-r from-[#5cd3ff] to-[#6f5af6] bg-clip-text text-transparent">
+                          {selectedCandidate.technicalScore !== undefined && selectedCandidate.technicalScore !== null 
+                            ? selectedCandidate.technicalScore.toFixed(1)
+                            : 'N/A'}
+                        </span>
+                        {selectedCandidate.technicalScore !== undefined && selectedCandidate.technicalScore !== null && (
+                          <span className="text-xl text-white/60">/10</span>
+                        )}
                       </motion.div>
-                    )}
+                      <p className="text-white font-semibold text-lg">Technical Score</p>
+                      <p className="text-white/70 text-sm mt-2">Technical skills & knowledge</p>
+                    </motion.div>
 
-                    {/* Communication */}
-                    {selectedCandidate.communicationScore !== undefined && (
+                    {/* Communication - Always show if completed */}
+                    <motion.div 
+                      className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center relative overflow-hidden"
+                      whileHover={{ scale: 1.02, y: -5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
                       <motion.div 
-                        className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center relative overflow-hidden"
-                        whileHover={{ scale: 1.02, y: -5 }}
-                        transition={{ type: "spring", stiffness: 300 }}
+                        className="text-5xl font-bold mb-3"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 3, repeat: Infinity, type: "tween" }}
                       >
-                        <motion.div 
-                          className="text-5xl font-bold mb-3"
-                          animate={{ scale: [1, 1.05, 1] }}
-                          transition={{ duration: 3, repeat: Infinity, type: "tween" }}
-                        >
-                          <span className="bg-gradient-to-r from-[#ffb21e] to-[#ff6b6b] bg-clip-text text-transparent">
-                            {Math.round(selectedCandidate.communicationScore)}
-                          </span>
-                          <span className="text-xl text-white/60">%</span>
-                        </motion.div>
-                        <p className="text-white font-semibold text-lg">Communication</p>
-                        <p className="text-white/70 text-sm mt-2">Clarity & articulation</p>
+                        <span className="bg-gradient-to-r from-[#ffb21e] to-[#ff6b6b] bg-clip-text text-transparent">
+                          {selectedCandidate.communicationScore !== undefined && selectedCandidate.communicationScore !== null 
+                            ? selectedCandidate.communicationScore.toFixed(1)
+                            : 'N/A'}
+                        </span>
+                        {selectedCandidate.communicationScore !== undefined && selectedCandidate.communicationScore !== null && (
+                          <span className="text-xl text-white/60">/10</span>
+                        )}
                       </motion.div>
-                    )}
+                      <p className="text-white font-semibold text-lg">Communication Score</p>
+                      <p className="text-white/70 text-sm mt-2">Clarity & articulation</p>
+                    </motion.div>
                   </motion.div>
 
                   {/* Detailed Feedback */}

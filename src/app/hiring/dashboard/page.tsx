@@ -159,6 +159,14 @@ function CompanyDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Helper function to get company credentials from localStorage
+  const getCompanyCredentials = () => {
+    return {
+      companyId: localStorage.getItem('hiring_company_id') || 'hireog',
+      companyPassword: localStorage.getItem('hiring_company_password') || 'manasi22'
+    };
+  };
+
   const profileOptions: Array<{ value: ProfileOption; label: string }> = [
     { value: 'frontend', label: 'Frontend Engineering' },
     { value: 'backend', label: 'Backend Engineering' },
@@ -392,12 +400,13 @@ function CompanyDashboardContent() {
       
       // Create screening in backend
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const { companyId, companyPassword } = getCompanyCredentials();
       const response = await fetch(`${backendUrl}/api/company/screenings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -437,12 +446,13 @@ function CompanyDashboardContent() {
 
         // Create corresponding interview drive with generated questions
         try {
+          const { companyId, companyPassword } = getCompanyCredentials();
           const driveResponse = await fetch(`${backendUrl}/api/company/drives`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-Company-ID': 'hireog',
-              'X-Company-Password': 'manasi22'
+              'X-Company-ID': companyId,
+              'X-Company-Password': companyPassword
             },
             credentials: 'include',
             body: JSON.stringify({
@@ -490,12 +500,13 @@ function CompanyDashboardContent() {
     setIsLoading(true);
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const { companyId, companyPassword } = getCompanyCredentials();
       const response = await fetch(`${backendUrl}/api/company/candidates`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
         },
         credentials: 'include',
         body: JSON.stringify(newCandidate)
@@ -789,8 +800,8 @@ function CompanyDashboardContent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': getCompanyCredentials().companyId,
+          'X-Company-Password': getCompanyCredentials().companyPassword
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -881,12 +892,13 @@ function CompanyDashboardContent() {
 
       let screeningId: string | null = null;
 
+      const { companyId, companyPassword } = getCompanyCredentials();
       const screeningResponse = await fetch(`${backendUrl}/api/company/screenings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
         },
         credentials: 'include',
         body: JSON.stringify(screeningPayload)
@@ -905,8 +917,8 @@ function CompanyDashboardContent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': getCompanyCredentials().companyId,
+          'X-Company-Password': getCompanyCredentials().companyPassword
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -1432,12 +1444,13 @@ function CompanyDashboardContent() {
   const handleArchiveScreening = async (screeningId: string) => {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const { companyId, companyPassword } = getCompanyCredentials();
       const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
         },
         credentials: 'include',
         body: JSON.stringify({ status: 'archived' })
@@ -1475,8 +1488,8 @@ function CompanyDashboardContent() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': getCompanyCredentials().companyId,
+          'X-Company-Password': getCompanyCredentials().companyPassword
         },
         credentials: 'include'
       });
@@ -1516,12 +1529,13 @@ function CompanyDashboardContent() {
     setIsLoading(true);
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      const { companyId, companyPassword } = getCompanyCredentials();
       const response = await fetch(`${backendUrl}/api/company/drives/${screeningId}/send-links`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword,
           'Cache-Control': 'no-cache, no-store, must-revalidate'
         },
         credentials: 'include',
