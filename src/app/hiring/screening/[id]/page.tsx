@@ -408,6 +408,47 @@ export default function ScreeningDetailPage() {
     }
   };
 
+  const handleStatusChange = async (newStatus: 'active' | 'completed') => {
+    if (!screening) return;
+    
+    if (newStatus === screening.status) {
+      return; // No change needed
+    }
+
+    try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://fepit.vercel.app';
+      
+      const response = await fetch(`${backendUrl}/api/company/screenings/${screeningId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
+        },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        // Update local state
+        setScreening(prev => prev ? { ...prev, status: newStatus } : null);
+        alert(`Screening status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}.`);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to update status'}`);
+        // Reload to get correct state
+        loadScreeningDetails();
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status');
+      // Reload to get correct state
+      loadScreeningDetails();
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-500/20 text-green-400';
@@ -868,8 +909,11 @@ export default function ScreeningDetailPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[color:var(--foreground)] mb-2">Status</label>
-                    <select className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent">
-                      <option value="draft">Draft</option>
+                    <select 
+                      value={screening?.status || 'active'}
+                      onChange={(e) => handleStatusChange(e.target.value as 'active' | 'completed')}
+                      className="w-full px-3 py-2 border border-[color:var(--border)] rounded-lg bg-[color:var(--surface)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--brand-start)] focus:border-transparent"
+                    >
                       <option value="active">Active</option>
                       <option value="completed">Completed</option>
                     </select>

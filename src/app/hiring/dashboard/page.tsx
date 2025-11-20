@@ -389,7 +389,7 @@ function CompanyDashboardContent() {
   const handleCreateDriveFromAI = async (details: any) => {
     setIsLoading(true);
     try {
-      const screeningName = `AI Generated: ${details.positionTitle}`;
+      const screeningName = `${details.positionTitle}`;
       const derivedProfile = mapProfileString(details.positionTitle || details.jobDescription || '');
       
       if (!details.questions || details.questions.length === 0) {

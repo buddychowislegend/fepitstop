@@ -22,7 +22,7 @@ function JDInterviewContent() {
 
   const handleCreateDriveFromAI = async (details: any) => {
     try {
-      const screeningName = `AI Generated: ${details.positionTitle}`;
+      const screeningName = `${details.positionTitle}`;
       
       // Map profile string
       const mapProfileString = (text: string = '') => {
