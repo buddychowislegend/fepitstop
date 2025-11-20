@@ -25,10 +25,12 @@ export default function CompanyAPITest() {
   const testDashboard = async () => {
     setLoading(true);
     try {
+      const companyId = localStorage.getItem('hiring_company_id') || 'hireog';
+      const companyPassword = localStorage.getItem('hiring_company_password') || 'manasi22';
       const response = await fetch('/api/company/dashboard', {
         headers: {
-          'X-Company-ID': 'hireog',
-          'X-Company-Password': 'manasi22'
+          'X-Company-ID': companyId,
+          'X-Company-Password': companyPassword
         }
       });
       
