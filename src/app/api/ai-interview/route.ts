@@ -432,20 +432,27 @@ Given the previous question and candidate's answer, generate the NEXT interview 
 Previous question: ${previousQuestion}
 Candidate answer: ${candidateAnswer}
 
+CRITICAL REQUIREMENTS:
+- You MUST ask a DIFFERENT question, NOT the same question again
+- The new question should be related but explore a different aspect or go deeper
+- If the candidate's answer was incomplete or they said "I need to think", ask a related but DIFFERENT question that helps them get started
+- NEVER repeat the exact same question or rephrase it in a way that's essentially the same
+
 Generate a follow-up question that:
-1. Builds naturally on their previous answer
-2. Tests deeper understanding of the topic
-3. Is appropriate for ${level} level difficulty
-4. Allows for technical discussion and problem-solving
-5. Encourages the candidate to elaborate on their approach
-6. ${focusInstruction}
-7. BEFORE ASKING THE NEXT QUESTION, provide brief positive encouragement about their previous answer (e.g., "Great explanation!", "I appreciate your thoughtful approach!", "Well done!", "Excellent insight!") - this boosts their confidence
-8. Then transition smoothly to the next question with phrases like "Let's explore this further...", "Building on what you just explained...", "That's a good foundation, now let's dive deeper..."
+1. Is DIFFERENT from the previous question (explores a new aspect, goes deeper, or takes a different angle)
+2. Builds naturally on their previous answer OR helps them get started if they were stuck
+3. Tests deeper understanding of the topic or explores related concepts
+4. Is appropriate for ${level} level difficulty
+5. Allows for technical discussion and problem-solving
+6. Encourages the candidate to elaborate on their approach or think through the problem
+7. ${focusInstruction}
+8. BEFORE ASKING THE NEXT QUESTION, provide brief positive encouragement (e.g., "No worries, let's approach this differently!", "That's okay, let me ask you something related...", "Great, let's explore a different aspect...") - this boosts their confidence
+9. Then transition smoothly to the NEW question with phrases like "Let's explore this from a different angle...", "Building on that topic, let me ask...", "That's a good starting point, now let's consider..."
 
 Focus Area: ${focus || profileData.focusAreas[0]}
 ${framework && focus !== 'javascript' ? `Framework: ${framework}` : ''}
 
-Return ONLY the question text.`;
+IMPORTANT: Return ONLY the question text. Make sure it's a DIFFERENT question, not a rephrasing of the previous one.`;
   }
 
   if (promptType === 'analysis') {
@@ -549,6 +556,17 @@ function classifyResponse(answer: string, previousQuestion: string): {
     /(weather|food|sports|movie|music|game)/,
     /(politics|religion|personal life)/
   ];
+  
+  // Check for "thinking" or "need time" responses (non-answers)
+  const thinkingPatterns = [
+    /^(i need to think|let me think|i'm thinking|give me a moment|need to think|thinking about)/,
+    /(i need to think about this|let me think about this|i'm thinking about this|give me time to think)/,
+    /(i don't know how to answer|not sure how to answer|can't answer|unable to answer)/
+  ];
+  
+  if (thinkingPatterns.some(pattern => pattern.test(lowerAnswer))) {
+    return { type: 'incomplete', confidence: 0.9, reason: 'Response indicates need to think, not an actual answer' };
+  }
   
   // Check for very short responses
   if (lowerAnswer.length < 10) {
@@ -712,18 +730,20 @@ Return ONLY your response as the interviewer.`;
     
     prompt = buildEnhancedInterviewPrompt(context, 'followup') + `
 
-The candidate gave a very brief response: "${answer}"
+The candidate gave a very brief response or indicated they need to think: "${answer}"
 Previous question: ${previousQuestion}
 
+CRITICAL: You MUST ask a DIFFERENT question, NOT the same question again. Ask a related question that helps them get started or explores a different aspect.
+
 Respond professionally and ENCOURAGINGLY:
-1. Acknowledge their response positively (e.g., "Good start!", "That's a beginning!")
-2. Ask for more detail or clarification with encouragement
-3. Provide a more specific follow-up question
-4. Encourage them to elaborate with phrases like "I'd love to hear more about your thinking", "Can you walk me through your approach?", "Feel free to share more details"
+1. Acknowledge their response positively (e.g., "No worries, let's try a different approach!", "That's okay, let me ask you something related...")
+2. Ask a DIFFERENT but related question that helps them get started
+3. Make it easier or break it down into a simpler related question
+4. Encourage them with phrases like "Let's think about this from a different angle", "Here's a related question that might help", "Let me ask you something simpler first"
 5. Show that you're interested in their thoughts and boost their confidence
 6. Use supportive phrases like "Take your time", "There's no rush", "I'm here to help you showcase your knowledge"
 
-Return ONLY your response as the interviewer.`;
+IMPORTANT: Return ONLY your response as the interviewer. Make sure it's a DIFFERENT question, not a rephrasing of the previous one.`;
   } else {
     // Valid response - use enhanced prompt engineering
     const context: InterviewContext = {

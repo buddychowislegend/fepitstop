@@ -150,10 +150,15 @@ const autoStartTriggeredRef = useRef(false);
   const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [avatarVideoUrl, setAvatarVideoUrl] = useState<string | null>(null);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
+  const [useAzureSTT, setUseAzureSTT] = useState(true); // Use Azure STT by default
+  const [sttSource, setSttSource] = useState<'azure' | 'google' | 'browser' | 'none'>('none');
+  const [sttConfidence, setSttConfidence] = useState<number>(0);
   const audioVisualizerRef = useRef<NodeJS.Timeout | null>(null);
   const avatarVideoRef = useRef<HTMLVideoElement>(null);
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const azureAudioChunksRef = useRef<Blob[]>([]);
+  const azureMediaRecorderRef = useRef<MediaRecorder | null>(null);
   // Ensure avatar URLs sent to D-ID are absolute and end with image extensions
   const buildAvatarImageUrl = (rawUrl?: string, gender: 'male' | 'female' = 'female'): string => {
     // Prefer local assets placed in public/
@@ -1323,6 +1328,35 @@ useEffect(() => {
     actualSpokenTextRef.current = ''; // Reset the ref
     setIsRecording(true);
     setIsListening(true);
+    setSttSource('none');
+    setSttConfidence(0);
+    
+    // Start Azure STT recording if enabled
+    if (useAzureSTT && streamRef.current) {
+      try {
+        azureAudioChunksRef.current = [];
+        const audioStream = streamRef.current.getAudioTracks();
+        if (audioStream.length > 0) {
+          const mediaRecorder = new MediaRecorder(streamRef.current, {
+            mimeType: 'audio/webm;codecs=opus'
+          });
+          
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data && event.data.size > 0) {
+              azureAudioChunksRef.current.push(event.data);
+            }
+          };
+          
+          azureMediaRecorderRef.current = mediaRecorder;
+          mediaRecorder.start(1000); // Collect chunks every second for real-time processing
+          setSttSource('azure');
+          console.log('Started Azure STT recording');
+        }
+      } catch (error) {
+        console.error('Error starting Azure STT recording:', error);
+        setUseAzureSTT(false); // Fallback to browser STT
+      }
+    }
     
     // Start video recording
     if (streamRef.current && !videoRecorderRef.current) {
@@ -1347,8 +1381,11 @@ useEffect(() => {
       }
     }
     
-    if (recognitionRef.current) {
+    // Start browser STT as fallback or if Azure is disabled
+    if (!useAzureSTT && recognitionRef.current) {
       recognitionRef.current.start();
+      setSttSource('browser');
+      console.log('Started browser STT (fallback)');
     }
     
     console.log('Started recording answer');
@@ -1360,8 +1397,66 @@ useEffect(() => {
     setIsRecording(false);
     setIsListening(false);
     
+    // Stop browser STT if running
     if (recognitionRef.current) {
       recognitionRef.current.stop();
+    }
+
+    // Process Azure STT audio if available
+    let azureTranscription = '';
+    if (useAzureSTT && azureMediaRecorderRef.current && azureMediaRecorderRef.current.state === 'recording') {
+      try {
+        azureMediaRecorderRef.current.stop();
+        await new Promise(resolve => {
+          if (azureMediaRecorderRef.current) {
+            azureMediaRecorderRef.current.onstop = resolve;
+          } else {
+            resolve(undefined);
+          }
+        });
+
+        if (azureAudioChunksRef.current.length > 0) {
+          const audioBlob = new Blob(azureAudioChunksRef.current, { type: 'audio/webm;codecs=opus' });
+          
+          // Send to Azure STT API
+          const formData = new FormData();
+          formData.append('audio', audioBlob, 'recording.webm');
+          formData.append('language', 'en-IN');
+          formData.append('provider', 'azure');
+          
+          try {
+            const response = await fetch('/api/speech-to-text', {
+              method: 'POST',
+              body: formData,
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success && result.transcription) {
+                azureTranscription = result.transcription;
+                setSttSource(result.source || 'azure');
+                setSttConfidence(result.confidence || 0);
+                console.log('Azure STT transcription:', azureTranscription, 'Confidence:', result.confidence);
+                
+                // Update current answer with Azure transcription
+                if (azureTranscription.trim()) {
+                  setCurrentAnswer(prev => {
+                    const cleaned = prev.replace(/\[.*?\]/g, '').trim();
+                    const combined = cleaned ? `${cleaned} ${azureTranscription}` : azureTranscription;
+                    actualSpokenTextRef.current = combined;
+                    return combined;
+                  });
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Azure STT API error:', error);
+            // Fallback to browser STT result
+          }
+        }
+      } catch (error) {
+        console.error('Error processing Azure STT:', error);
+      }
     }
 
     // Stop video recording
