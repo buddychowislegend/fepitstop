@@ -96,8 +96,11 @@ app.use(cors({
     'Referer'
   ]
 }));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Increase body parser limit to handle large video data (base64 encoded)
+// Note: MongoDB document limit is 16MB, so we set limit to 20MB to allow some buffer
+// Vercel serverless functions have a 4.5MB limit, but we're on a custom server
+app.use(bodyParser.json({ limit: '20mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
 
 // Additional CORS middleware to ensure all responses have proper headers
 app.use((req, res, next) => {

@@ -14,7 +14,9 @@ class EmailService {
   async sendInterviewInvite(candidateEmail, candidateName, interviewLink, companyName, driveName) {
     try {
       const mailOptions = {
-        from: process.env.EMAIL_USER || 'noreply@hireog.com',
+        from: process.env.EMAIL_FROM_NAME 
+          ? `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER || 'noreply@hireog.com'}>`
+          : (process.env.EMAIL_USER || 'noreply@hireog.com'),
         to: candidateEmail,
         subject: `Interview Invitation from ${companyName}`,
         html: `
@@ -124,7 +126,9 @@ class EmailService {
   async sendInterviewReminder(candidateEmail, candidateName, interviewLink, companyName) {
     try {
       const mailOptions = {
-        from: process.env.EMAIL_USER || 'noreply@hireog.com',
+        from: process.env.EMAIL_FROM_NAME 
+          ? `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER || 'noreply@hireog.com'}>`
+          : (process.env.EMAIL_USER || 'noreply@hireog.com'),
         to: candidateEmail,
         subject: `Reminder: Complete Your Interview for ${companyName}`,
         html: `
@@ -179,10 +183,12 @@ const generateOTP = () => {
 
 const sendOTPEmail = async (email, otp, name = 'User') => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@hireog.com',
-      to: email,
-      subject: 'Your OTP for HireOG',
+      const mailOptions = {
+        from: process.env.EMAIL_FROM_NAME 
+          ? `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER || 'noreply@hireog.com'}>`
+          : (process.env.EMAIL_USER || 'noreply@hireog.com'),
+        to: email,
+        subject: 'Your OTP for HireOG',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
@@ -216,10 +222,12 @@ const sendOTPEmail = async (email, otp, name = 'User') => {
 
 const sendWelcomeEmail = async (email, name) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@hireog.com',
-      to: email,
-      subject: 'Welcome to HireOG!',
+      const mailOptions = {
+        from: process.env.EMAIL_FROM_NAME 
+          ? `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER || 'noreply@hireog.com'}>`
+          : (process.env.EMAIL_USER || 'noreply@hireog.com'),
+        to: email,
+        subject: 'Welcome to HireOG!',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
@@ -252,7 +260,9 @@ const sendPasswordResetEmail = async (email, resetToken, name) => {
   try {
     const resetLink = `${process.env.FRONTEND_URL || 'http://hireog.com'}/reset-password?email=${encodeURIComponent(email)}&token=${resetToken}`;
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@hireog.com',
+      from: process.env.EMAIL_FROM_NAME 
+        ? `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER || 'noreply@hireog.com'}>`
+        : (process.env.EMAIL_USER || 'noreply@hireog.com'),
       to: email,
       subject: 'Password Reset - HireOG',
       html: `

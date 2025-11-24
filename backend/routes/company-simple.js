@@ -590,6 +590,20 @@ router.post('/interview/:token/submit', async (req, res) => {
       overallScore
     } = req.body;
     
+    // Check request body size (MongoDB document limit is 16MB)
+    const requestSize = JSON.stringify(req.body).length;
+    const requestSizeMB = (requestSize / (1024 * 1024)).toFixed(2);
+    
+    if (requestSize > 15 * 1024 * 1024) { // 15MB threshold (MongoDB limit is 16MB)
+      console.warn(`Large request body detected: ${requestSizeMB}MB`);
+      return res.status(413).json({ 
+        error: 'Request payload too large',
+        message: `Request body size (${requestSizeMB}MB) exceeds the maximum allowed size. Please reduce video quality or duration.`,
+        size: `${requestSizeMB}MB`,
+        maxSize: '15MB'
+      });
+    }
+    
     // Get token data from MongoDB
     const tokenData = await db.getTokenData(token);
     
@@ -636,7 +650,8 @@ router.post('/interview/:token/submit', async (req, res) => {
       technicalScore: responseData.technicalScore,
       communicationScore: responseData.communicationScore,
       hasDetailedFeedback: !!responseData.detailedFeedback,
-      hasQuestionAnalysis: Array.isArray(responseData.questionAnalysis) && responseData.questionAnalysis.length > 0
+      hasQuestionAnalysis: Array.isArray(responseData.questionAnalysis) && responseData.questionAnalysis.length > 0,
+      requestSize: `${requestSizeMB}MB`
     });
     
     res.json({ 
@@ -650,6 +665,16 @@ router.post('/interview/:token/submit', async (req, res) => {
     });
   } catch (error) {
     console.error('Error submitting interview response:', error);
+    
+    // Check if error is due to document size limit
+    if (error.message && (error.message.includes('document is too large') || error.message.includes('BSON document too large'))) {
+      return res.status(413).json({ 
+        error: 'Document too large',
+        message: 'The interview data (including videos) exceeds MongoDB\'s 16MB document size limit. Please reduce video quality or duration.',
+        hint: 'Consider using shorter video recordings or lower quality settings.'
+      });
+    }
+    
     res.status(500).json({ error: 'Failed to submit interview response' });
   }
 });

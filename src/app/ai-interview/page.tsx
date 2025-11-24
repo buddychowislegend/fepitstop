@@ -1091,11 +1091,20 @@ useEffect(() => {
       const duration = companyParams?.interviewDuration || 20;
       setTimeRemaining(duration * 60);
       
-      // Start camera for the interview
+      // Start camera for the interview with optimized constraints to reduce file size
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: true, 
-          audio: true 
+          video: {
+            width: { ideal: 640, max: 1280 },
+            height: { ideal: 480, max: 720 },
+            frameRate: { ideal: 15, max: 30 },
+            facingMode: 'user'
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
         });
         
         if (videoRef.current) {
@@ -1128,6 +1137,45 @@ useEffect(() => {
     }
   };
 
+  // Helper function to upload video to S3 or return base64
+  const uploadVideoToS3 = async (
+    videoBlob: Blob,
+    interviewId: string,
+    questionIndex: string
+  ): Promise<{ success: boolean; videoUrl?: string; videoData?: string; error?: string }> => {
+    try {
+      const formData = new FormData();
+      formData.append('video', videoBlob, `question-${questionIndex}.webm`);
+      formData.append('interviewId', interviewId);
+      formData.append('questionIndex', questionIndex);
+
+      const response = await fetch('/api/upload-video', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      return result;
+    } catch (error: any) {
+      console.error('Error uploading video:', error);
+      // Fallback to base64
+      try {
+        const base64String = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            resolve(result);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(videoBlob);
+        });
+        return { success: true, videoData: base64String };
+      } catch (base64Error) {
+        return { success: false, error: 'Failed to process video' };
+      }
+    }
+  };
+
   const endInterview = async () => {
     if (!session || !token) return;
     
@@ -1152,24 +1200,46 @@ useEffect(() => {
     
     setLoading(true);
     try {
-      // Build Q/A pairs from conversation
-      const qaPairs: Array<{ question: string; answer: string; hasVideo: boolean }> = [];
+      // Build Q/A pairs from conversation with video data
+      const qaPairs: Array<{ question: string; answer: string; hasVideo: boolean; videoUrl?: string; videoData?: string }> = [];
       const candidateMsgs = messages.filter(m => m.role === 'candidate');
       let ci = 0;
+      const candidateMsgRefs: Message[] = []; // Track which candidate message corresponds to which qaPair
+      
+      // First pass: Build qaPairs structure and track candidate messages
       for (const m of messages) {
         if (m.role === 'interviewer') {
           const q = m.content;
           // pick the next candidate message as answer
           let a = '';
           let hasVideo = false;
+          let videoUrl: string | undefined;
+          let candidateMsg: Message | undefined;
+          
           while (ci < candidateMsgs.length && a.trim().length === 0) {
-            const cand = candidateMsgs[ci++];
-            a = (cand.content || '').replace(/\[.*?\]/g, '').trim();
-            hasVideo = !!cand.videoUrl;
+            candidateMsg = candidateMsgs[ci++];
+            a = (candidateMsg.content || '').replace(/\[.*?\]/g, '').trim();
+            // Video submission disabled - always set hasVideo to false
+            hasVideo = false;
+            videoUrl = undefined;
           }
-          qaPairs.push({ question: q, answer: a, hasVideo });
+          
+          qaPairs.push({ question: q, answer: a, hasVideo: false, videoUrl: undefined });
+          candidateMsgRefs.push(candidateMsg!); // Store reference to candidate message
         }
       }
+      
+      // Video submission disabled - skip video processing
+      // Second pass: Upload videos to S3 or convert to base64 (async) - DISABLED
+      // Videos are recorded but not submitted to reduce payload size and processing time
+      console.log('Video submission disabled - skipping video processing');
+      
+      // Clear video data from qaPairs
+      qaPairs.forEach((qa, index) => {
+        qa.hasVideo = false;
+        delete qa.videoUrl;
+        delete qa.videoData;
+      });
 
       // Handle company interviews differently
       if (companyParams) {
@@ -1187,7 +1257,7 @@ useEffect(() => {
               profile: companyParams.profile || profile,
               ...((companyParams.profile || profile) === 'frontend' ? { framework } : {}),
               jdText: jdText || companyParams?.jobDescription || '',
-              qaPairs: qaPairs.map(({ question, answer }) => ({ question, answer })) // Remove hasVideo for API
+              qaPairs: qaPairs.map(({ question, answer }) => ({ question, answer })) // Remove video data for AI analysis
             })
           });
 
@@ -1224,7 +1294,13 @@ useEffect(() => {
             communicationScore: analysisData?.communicationScore || null,
             feedback: typeof analysisData?.feedback === 'string' ? analysisData.feedback : (analysisData?.feedback?.summary || ''),
             detailedFeedback: analysisData?.feedback || null,
-            questionAnalysis: Array.isArray(analysisData?.questionAnalysis) ? analysisData.questionAnalysis : null,
+            questionAnalysis: Array.isArray(analysisData?.questionAnalysis) ? analysisData.questionAnalysis.map((qa: any, idx: number) => ({
+              ...qa,
+              // Add video data from qaPairs to questionAnalysis
+              hasVideo: qaPairs[idx]?.hasVideo || false,
+              videoUrl: qaPairs[idx]?.videoUrl,
+              videoData: qaPairs[idx]?.videoData
+            })) : null,
             completedAt: new Date().toISOString()
           })
         });
@@ -1362,8 +1438,15 @@ useEffect(() => {
     if (streamRef.current && !videoRecorderRef.current) {
       try {
         videoChunksRef.current = [];
+        // Use optimized settings to reduce file size
+        // Try VP9 first (better compression), fallback to VP8
+        const preferredMimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+          ? 'video/webm;codecs=vp9,opus'
+          : 'video/webm;codecs=vp8,opus';
+        
         const videoRecorder = new MediaRecorder(streamRef.current, {
-          mimeType: 'video/webm;codecs=vp8,opus'
+          mimeType: preferredMimeType,
+          videoBitsPerSecond: 500000 // 500 kbps (reduces file size significantly)
         });
         
         videoRecorder.ondataavailable = (event) => {

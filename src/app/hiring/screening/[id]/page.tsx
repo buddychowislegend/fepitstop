@@ -40,11 +40,17 @@ interface Candidate {
     improvements?: string[];
     responseType?: string;
     confidence?: number;
+    hasVideo?: boolean;
+    videoUrl?: string;
+    videoData?: string; // Base64 encoded video
   }>;
   qaPairs?: Array<{
     question: string;
     answer: string;
     score?: number;
+    hasVideo?: boolean;
+    videoUrl?: string;
+    videoData?: string; // Base64 encoded video
   }>;
 }
 
@@ -58,6 +64,21 @@ interface Screening {
   inProgressCandidates: number;
   averageScore: number;
 }
+
+// Helper function to get valid video source
+// Blob URLs from database are invalid (they're session-specific), so only use base64 data
+const getVideoSource = (videoData?: string, videoUrl?: string): string | undefined => {
+  // Always prioritize base64 data (persistent)
+  if (videoData) {
+    return videoData;
+  }
+  // Only use videoUrl if it's NOT a blob URL (blob URLs from DB are invalid)
+  if (videoUrl && !videoUrl.startsWith('blob:')) {
+    return videoUrl;
+  }
+  // Don't use blob URLs from database - they're invalid
+  return undefined;
+};
 
 export default function ScreeningDetailPage() {
   const router = useRouter();
@@ -136,8 +157,18 @@ export default function ScreeningDetailPage() {
           progress: candidate.progress,
           feedback: candidate.feedback,
           detailedFeedback: candidate.detailedFeedback,
-          questionAnalysis: candidate.questionAnalysis,
-          qaPairs: candidate.qaPairs
+          questionAnalysis: candidate.questionAnalysis ? candidate.questionAnalysis.map((qa: any) => ({
+            ...qa,
+            hasVideo: qa.hasVideo || !!qa.videoUrl || !!qa.videoData,
+            videoUrl: qa.videoUrl,
+            videoData: qa.videoData
+          })) : undefined,
+          qaPairs: candidate.qaPairs ? candidate.qaPairs.map((qa: any) => ({
+            ...qa,
+            hasVideo: qa.hasVideo || !!qa.videoUrl || !!qa.videoData,
+            videoUrl: qa.videoUrl,
+            videoData: qa.videoData
+          })) : undefined
         }));
         
         setScreening(formattedScreening);
@@ -1318,6 +1349,32 @@ export default function ScreeningDetailPage() {
                                     <p className="bg-white/5 p-3 rounded-lg border border-white/10 text-white/90 text-sm whitespace-pre-wrap">
                                       {qa.answer || 'No answer provided'}
                                     </p>
+                                    
+                                    {/* Video Player for this answer */}
+                                    {(qa.hasVideo || qa.videoUrl || qa.videoData) && (
+                                      <div className="mt-3">
+                                        <h5 className="text-xs font-semibold text-white/70 mb-2 flex items-center gap-2">
+                                          <span>🎥</span>
+                                          Video Response
+                                        </h5>
+                                        <div className="bg-black/30 rounded-lg overflow-hidden border border-white/10">
+                                          <video
+                                            controls
+                                            className="w-full max-h-64"
+                                            src={getVideoSource(qa.videoData, qa.videoUrl)}
+                                            preload="metadata"
+                                            onError={(e) => {
+                                              console.error('Video load error:', e);
+                                              // Hide video element on error
+                                              const videoElement = e.currentTarget;
+                                              videoElement.style.display = 'none';
+                                            }}
+                                          >
+                                            Your browser does not support the video tag.
+                                          </video>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="text-right">
@@ -1400,6 +1457,33 @@ export default function ScreeningDetailPage() {
                               <span className="text-white/60 text-sm font-medium">Answer:</span>
                               <p className="text-white/80 mt-1 whitespace-pre-wrap">{qa.answer || 'No answer provided'}</p>
                             </div>
+                            
+                            {/* Video Player for this answer */}
+                            {(qa.hasVideo || qa.videoUrl || qa.videoData) && (
+                              <div className="mt-3 mb-2">
+                                <h5 className="text-xs font-semibold text-white/70 mb-2 flex items-center gap-2">
+                                  <span>🎥</span>
+                                  Video Response
+                                </h5>
+                                <div className="bg-black/30 rounded-lg overflow-hidden border border-white/10">
+                                  <video
+                                    controls
+                                    className="w-full max-h-64"
+                                    src={getVideoSource(qa.videoData, qa.videoUrl)}
+                                    preload="metadata"
+                                    onError={(e) => {
+                                      console.error('Video load error:', e);
+                                      // Hide video element on error
+                                      const videoElement = e.currentTarget;
+                                      videoElement.style.display = 'none';
+                                    }}
+                                  >
+                                    Your browser does not support the video tag.
+                                  </video>
+                                </div>
+                              </div>
+                            )}
+                            
                             {qa.score !== undefined && (
                               <div>
                                 <span className="text-white/60 text-sm font-medium">Score:</span>
