@@ -3187,21 +3187,23 @@ useEffect(() => {
           ))}
             </div>
 
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 sm:p-6 py-6">
           <motion.div 
-            className="w-full max-w-6xl"
+            className="w-full max-w-6xl flex flex-col"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
             <motion.div 
-              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-10 relative overflow-hidden"
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 sm:p-10 relative overflow-visible sm:overflow-hidden flex flex-col"
               whileHover={{ y: -5 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
+              {/* Scrollable Content Area */}
+              <div className="flex-1 overflow-y-auto">
               {/* Header */}
               <motion.div 
-                className="text-center mb-12"
+                className="text-center mb-8 sm:mb-12"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -3590,10 +3592,11 @@ useEffect(() => {
                 </motion.div>
               </motion.div>
             </motion.div>
+            </div>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - Fixed at Bottom */}
             <motion.div 
-              className="flex justify-center gap-6 mt-12"
+              className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-8 sm:mt-12 pt-6 border-t border-white/10"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.8 }}
@@ -3601,7 +3604,7 @@ useEffect(() => {
               {!companyParams && (
                 <motion.button
                   onClick={() => setCurrentStep('interviewer-selection')}
-                  className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-white/10 to-white/5 text-white font-semibold rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300"
+                  className="group relative inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-white/10 to-white/5 text-white font-semibold rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300 w-full sm:w-auto"
                   whileHover={{ scale: 1.05, x: -5 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -3618,7 +3621,7 @@ useEffect(() => {
               <motion.button
                 onClick={startInterview}
                 disabled={!micTestPassed || loading}
-                className={`group relative inline-flex items-center justify-center gap-3 px-8 py-3 font-bold rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ${
+                className={`group relative inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-2.5 sm:py-3 font-bold text-sm sm:text-base rounded-2xl shadow-lg overflow-hidden transition-all duration-300 w-full sm:w-auto ${
                   micTestPassed && !loading
                     ? 'bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white hover:shadow-2xl hover:shadow-[#2ad17e]/30'
                     : 'bg-gradient-to-r from-gray-600 to-gray-700 text-gray-300 cursor-not-allowed opacity-50'
@@ -3670,9 +3673,9 @@ useEffect(() => {
                 )}
               </motion.button>
             </motion.div>
-            </motion.div>
           </motion.div>
-        </div>
+        </motion.div>
+      </div>
       </div>
     );
   }
@@ -4058,7 +4061,7 @@ useEffect(() => {
             </div>
 
             {/* Action Button Section */}
-            <div className="mt-12 px-8 pb-70 pt-4 flex flex-col items-center gap-4 flex-shrink-0">
+            <div className=" mt-12 px-8 pb-20 pt-4 flex flex-col  items-center gap-4 flex-shrink-0">
               <motion.button
                 onClick={!isRecording ? startAnswer : stopAnswer}
                 disabled={loading && !isRecording}
