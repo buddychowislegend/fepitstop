@@ -230,7 +230,7 @@ overallScore = 6.5 * (0.6 + 0.4 * 0.8) = 6.5 * 0.92 = 5.98 → 6/10
 - ✅ **Coverage factor**: Rewards answering more questions
   - 100% coverage: multiplier = 1.0
   - 50% coverage: multiplier = 0.8
-  - 0% coverage: multiplier = 0.6
+  - 0% coverage: multiplier = 0.6 
 - ✅ **Minimum score**: 1 (even if all answers are poor)
 - ✅ **Maximum score**: 10
 

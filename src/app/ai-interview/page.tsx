@@ -1624,7 +1624,7 @@ useEffect(() => {
             nextQuestion = questionsToUse[nextIndex];
             setCurrentQuestionIndex(nextIndex);
           } else {
-            // All questions answered
+            // Last question was just answered - show thank you message and auto-end
             shouldEndInterview = true;
             nextQuestion = "Thank you for answering all the questions! That concludes our interview. We'll review your responses and get back to you soon.";
           }
@@ -1679,9 +1679,9 @@ useEffect(() => {
         
         setSession(updatedSession);
         
-        // Check if interview should end
-        if (shouldEndInterview || (updatedSession && updatedSession.currentQuestion >= updatedSession.totalQuestions)) {
-          // Automatically end the interview
+        // Check if interview should end (after last question is answered, or if AI explicitly says to end)
+        if (shouldEndInterview) {
+          // Auto-end after showing thank you message (after last question is answered)
           setTimeout(() => {
             endInterview();
           }, 2000);
@@ -1727,7 +1727,7 @@ useEffect(() => {
             nextQuestion = questionsToUse[nextIndex];
             setCurrentQuestionIndex(nextIndex);
           } else {
-            // All questions answered
+            // Last question was just answered - show thank you message and auto-end
             shouldEndInterview = true;
             nextQuestion = "Thank you for answering all the questions! That concludes our interview. We'll review your responses and get back to you soon.";
           }
@@ -1782,9 +1782,9 @@ useEffect(() => {
         
         setSession(updatedSession);
         
-        // Check if interview should end
-        if (shouldEndInterview || (updatedSession && updatedSession.currentQuestion >= updatedSession.totalQuestions)) {
-          // Automatically end the interview
+        // Check if interview should end (after last question is answered, or if AI explicitly says to end)
+        if (shouldEndInterview) {
+          // Auto-end after showing thank you message (after last question is answered)
           setTimeout(() => {
             endInterview();
           }, 2000);
@@ -4112,9 +4112,9 @@ useEffect(() => {
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <List className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white">
+                { session.currentQuestion <= session.totalQuestions &&  <h3 className="text-xl font-bold text-white">
                     Question {session.currentQuestion}/{session.totalQuestions}
-                  </h3>
+                  </h3>}
                 </div>
 
                 {/* Question Text */}
