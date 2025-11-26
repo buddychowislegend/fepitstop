@@ -9,12 +9,16 @@ import { NextRequest, NextResponse } from 'next/server';
  * NOTE: Video submission is currently disabled. This endpoint is kept for future use.
  */
 
-// S3 Configuration (set these in .env.local)
-const S3_ENABLED = process.env.S3_ENABLED === 'true';
-const S3_BUCKET = process.env.S3_BUCKET_NAME || '';
-const S3_REGION = process.env.S3_REGION || 'us-east-1';
-const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || '';
-const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';
+// S3 Configuration - read at runtime for Vercel compatibility
+function getS3Config() {
+  return {
+    enabled: process.env.S3_ENABLED === 'true',
+    bucket: process.env.S3_BUCKET_NAME || '',
+    region: process.env.S3_REGION || 'us-east-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  };
+}
 
 interface UploadResponse {
   success: boolean;
@@ -38,11 +42,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get S3 config at runtime
+    const s3Config = getS3Config();
+    
+    // Debug logging (remove in production if needed)
+    console.log('S3 Configuration check:', {
+      enabled: s3Config.enabled,
+      hasBucket: !!s3Config.bucket,
+      hasAccessKey: !!s3Config.accessKeyId,
+      hasSecretKey: !!s3Config.secretAccessKey,
+      bucket: s3Config.bucket ? `${s3Config.bucket.substring(0, 3)}...` : 'missing',
+      region: s3Config.region
+    });
+
     // Check if S3 is configured and AWS SDK is available
-    if (S3_ENABLED && S3_BUCKET && AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
+    if (s3Config.enabled && s3Config.bucket && s3Config.accessKeyId && s3Config.secretAccessKey) {
       try {
         // Try to upload to S3 (only if AWS SDK is installed)
-        const s3Url = await uploadToS3(videoFile, interviewId, questionIndex);
+        const s3Url = await uploadToS3(videoFile, interviewId, questionIndex, s3Config);
         return NextResponse.json({
           success: true,
           videoUrl: s3Url,
@@ -57,11 +74,20 @@ export async function POST(request: NextRequest) {
         }
         // Fall through to base64 encoding
       }
+    } else {
+      // Log which variables are missing
+      const missing = [];
+      if (!s3Config.enabled) missing.push('S3_ENABLED');
+      if (!s3Config.bucket) missing.push('S3_BUCKET_NAME');
+      if (!s3Config.accessKeyId) missing.push('AWS_ACCESS_KEY_ID');
+      if (!s3Config.secretAccessKey) missing.push('AWS_SECRET_ACCESS_KEY');
+      console.warn('S3 not fully configured. Missing:', missing.join(', '));
     }
 
-    // Fallback: Convert to base64
+    // Fallback: Convert to base64 (Node.js compatible)
     const arrayBuffer = await videoFile.arrayBuffer();
-    const base64String = await blobToBase64(new Blob([arrayBuffer], { type: videoFile.type }));
+    const buffer = Buffer.from(arrayBuffer);
+    const base64String = `data:${videoFile.type || 'video/webm'};base64,${buffer.toString('base64')}`;
     
     return NextResponse.json({
       success: true,
@@ -86,7 +112,8 @@ export async function POST(request: NextRequest) {
 async function uploadToS3(
   videoFile: File,
   interviewId: string,
-  questionIndex: string
+  questionIndex: string,
+  s3Config: ReturnType<typeof getS3Config>
 ): Promise<string> {
   // Dynamic import to avoid bundling AWS SDK in client
   // This will throw if the package is not installed, which is caught by the caller
@@ -102,10 +129,10 @@ async function uploadToS3(
   }
   
   const s3Client = new S3Client({
-    region: S3_REGION,
+    region: s3Config.region,
     credentials: {
-      accessKeyId: AWS_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SECRET_ACCESS_KEY,
+      accessKeyId: s3Config.accessKeyId,
+      secretAccessKey: s3Config.secretAccessKey,
     },
   });
 
@@ -119,7 +146,7 @@ async function uploadToS3(
 
   // Upload to S3
   const command = new PutObjectCommand({
-    Bucket: S3_BUCKET,
+    Bucket: s3Config.bucket,
     Key: fileName,
     Body: buffer,
     ContentType: videoFile.type || 'video/webm',
@@ -129,7 +156,7 @@ async function uploadToS3(
   await s3Client.send(command);
 
   // Return public URL
-  const publicUrl = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${fileName}`;
+  const publicUrl = `https://${s3Config.bucket}.s3.${s3Config.region}.amazonaws.com/${fileName}`;
   
   // If CloudFront is configured, use that instead
   const cloudfrontUrl = process.env.CLOUDFRONT_URL;
@@ -141,17 +168,15 @@ async function uploadToS3(
 }
 
 /**
- * Convert Blob to base64 string
+ * Convert Blob to base64 string (Node.js compatible)
+ * Note: This function is no longer used, but kept for reference.
+ * We now convert directly from ArrayBuffer to base64 using Buffer.
  */
 function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      resolve(result);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
+  // This function is deprecated - use Buffer.from(arrayBuffer).toString('base64') instead
+  return blob.arrayBuffer().then(buffer => {
+    const nodeBuffer = Buffer.from(buffer);
+    return `data:${blob.type || 'video/webm'};base64,${nodeBuffer.toString('base64')}`;
   });
 }
 
