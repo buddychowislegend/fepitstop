@@ -1232,44 +1232,56 @@ useEffect(() => {
       }
       
       // Second pass: Upload videos to S3 or convert to base64 (async)
-      console.log('Processing videos for upload...');
-      const interviewId = session?.id || `interview-${Date.now()}`;
-      
-      // Upload videos in parallel
-      const videoUploadPromises = qaPairs.map(async (qa, index) => {
-        const candidateMsg = candidateMsgRefs[index];
-        if (!candidateMsg || !candidateMsg.videoBlob) {
-          return; // No video to upload
-        }
+      // Only upload videos for drive/company interviews (when companyParams is present)
+      // Skip video upload for normal AI interviews
+      if (companyParams) {
+        console.log('Processing videos for upload (drive interview)...');
+        const interviewId = session?.id || `interview-${Date.now()}`;
         
-        try {
-          const uploadResult = await uploadVideoToS3(
-            candidateMsg.videoBlob,
-            interviewId,
-            index.toString()
-          );
-          
-          if (uploadResult.success) {
-            if (uploadResult.videoUrl) {
-              qa.videoUrl = uploadResult.videoUrl;
-              qa.hasVideo = true;
-              console.log(`Video ${index} uploaded to S3: ${uploadResult.videoUrl}`);
-            } else if (uploadResult.videoData) {
-              // Fallback to base64 if S3 not available
-              qa.videoData = uploadResult.videoData;
-              qa.hasVideo = true;
-              console.log(`Video ${index} converted to base64 (S3 not available)`);
-            }
+        // Upload videos in parallel
+        const videoUploadPromises = qaPairs.map(async (qa, index) => {
+          const candidateMsg = candidateMsgRefs[index];
+          if (!candidateMsg || !candidateMsg.videoBlob) {
+            return; // No video to upload
           }
-        } catch (error) {
-          console.error(`Error uploading video ${index}:`, error);
-          // Continue without video if upload fails
-        }
-      });
-      
-      // Wait for all video uploads to complete
-      await Promise.all(videoUploadPromises);
-      console.log('Video processing complete');
+          
+          try {
+            const uploadResult = await uploadVideoToS3(
+              candidateMsg.videoBlob,
+              interviewId,
+              index.toString()
+            );
+            
+            if (uploadResult.success) {
+              if (uploadResult.videoUrl) {
+                qa.videoUrl = uploadResult.videoUrl;
+                qa.hasVideo = true;
+                console.log(`Video ${index} uploaded to S3: ${uploadResult.videoUrl}`);
+              } else if (uploadResult.videoData) {
+                // Fallback to base64 if S3 not available
+                qa.videoData = uploadResult.videoData;
+                qa.hasVideo = true;
+                console.log(`Video ${index} converted to base64 (S3 not available)`);
+              }
+            }
+          } catch (error) {
+            console.error(`Error uploading video ${index}:`, error);
+            // Continue without video if upload fails
+          }
+        });
+        
+        // Wait for all video uploads to complete
+        await Promise.all(videoUploadPromises);
+        console.log('Video processing complete');
+      } else {
+        console.log('Skipping video upload for normal AI interview');
+        // Clear video data for normal interviews
+        qaPairs.forEach((qa) => {
+          qa.hasVideo = false;
+          delete qa.videoUrl;
+          delete qa.videoData;
+        });
+      }
       
       // Store qaPairs with videos for analytics tab
       setQaPairsWithVideos([...qaPairs]);

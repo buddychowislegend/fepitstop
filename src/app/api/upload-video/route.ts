@@ -11,8 +11,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // S3 Configuration - read at runtime for Vercel compatibility
 function getS3Config() {
+  // Default S3_ENABLED to true if other required variables are present
+  const hasRequiredVars = !!(
+    process.env.S3_BUCKET_NAME &&
+    process.env.AWS_ACCESS_KEY_ID &&
+    process.env.AWS_SECRET_ACCESS_KEY
+  );
+  
   return {
-    enabled: process.env.S3_ENABLED === 'true',
+    enabled: process.env.S3_ENABLED === 'true' || (hasRequiredVars && process.env.S3_ENABLED !== 'false'),
     bucket: process.env.S3_BUCKET_NAME || '',
     region: process.env.S3_REGION || 'us-east-1',
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
@@ -75,13 +82,14 @@ export async function POST(request: NextRequest) {
         // Fall through to base64 encoding
       }
     } else {
-      // Log which variables are missing
+      // Log which variables are missing (S3_ENABLED is now auto-enabled if other vars exist)
       const missing = [];
-      if (!s3Config.enabled) missing.push('S3_ENABLED');
       if (!s3Config.bucket) missing.push('S3_BUCKET_NAME');
       if (!s3Config.accessKeyId) missing.push('AWS_ACCESS_KEY_ID');
       if (!s3Config.secretAccessKey) missing.push('AWS_SECRET_ACCESS_KEY');
-      console.warn('S3 not fully configured. Missing:', missing.join(', '));
+      if (missing.length > 0) {
+        console.warn('S3 not fully configured. Missing:', missing.join(', '));
+      }
     }
 
     // Fallback: Convert to base64 (Node.js compatible)
@@ -145,12 +153,14 @@ async function uploadToS3(
   const buffer = Buffer.from(arrayBuffer);
 
   // Upload to S3
+  // Note: ACL is removed as newer S3 buckets have ACLs disabled by default
+  // Public access is controlled via bucket policy instead
   const command = new PutObjectCommand({
     Bucket: s3Config.bucket,
     Key: fileName,
     Body: buffer,
     ContentType: videoFile.type || 'video/webm',
-    ACL: 'public-read', // Make video publicly accessible
+    // ACL removed - use bucket policy for public access instead
   });
 
   await s3Client.send(command);

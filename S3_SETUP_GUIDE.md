@@ -35,7 +35,7 @@ This guide explains how to set up AWS S3 for video storage, which reduces video 
 1. Go to [AWS S3 Console](https://s3.console.aws.amazon.com/)
 2. Click "Create bucket"
 3. Configure:
-   - **Bucket name**: `hireog-interview-videos` (or your choice)
+   - **Bucket name**: `  (or your choice)
    - **Region**: Choose closest to your users (e.g., `us-east-1`)
    - **Block Public Access**: Uncheck "Block all public access" (or configure bucket policy)
    - **Versioning**: Optional
@@ -43,8 +43,11 @@ This guide explains how to set up AWS S3 for video storage, which reduces video 
 
 ### 2. Configure Bucket Policy (Public Read Access)
 
-1. Go to your bucket → Permissions → Bucket Policy
-2. Add this policy (replace `YOUR-BUCKET-NAME`):
+**IMPORTANT**: Newer S3 buckets have ACLs disabled by default. You MUST configure a bucket policy for public access.
+
+1. Go to your bucket → **Permissions** tab
+2. Scroll to **"Bucket policy"** section
+3. Click **"Edit"** and add this policy (replace `YOUR-BUCKET-NAME` with your actual bucket name):
 
 ```json
 {
