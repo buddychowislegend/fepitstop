@@ -4,6 +4,20 @@ const db = require('../config/db');
 const emailService = require('../services/emailService');
 const { generateQuestionsFromJD } = require('../utils/questionGenerator');
 
+// Helper function to format profile to display name for email
+const formatProfileToPosition = (profile) => {
+  const profileLabels = {
+    'frontend': 'Frontend Engineering',
+    'backend': 'Backend Engineering',
+    'product': 'Product Management',
+    'business': 'Business & Sales',
+    'qa': 'Quality Assurance',
+    'hr': 'Human Resources',
+    'data': 'Data & Analytics'
+  };
+  return profileLabels[profile?.toLowerCase()] || profileLabels['frontend'];
+};
+
 // Basic CORS handling for company routes
 router.use((req, res, next) => {
   console.log('[Company CORS] Incoming request', {
@@ -454,6 +468,25 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
         link: interviewLink
       });
       
+      // Get profile from drive or screening and format it for display
+      let positionTitle = drive.name;
+      try {
+        const screening = await db.getScreeningById(driveId);
+        if (screening) {
+          // Use profile from screening if available, format it nicely
+          const profile = screening.profile || drive.profile || 'frontend';
+          positionTitle = formatProfileToPosition(profile);
+        } else if (drive.profile) {
+          // Use profile from drive if screening not found
+          positionTitle = formatProfileToPosition(drive.profile);
+        }
+      } catch (error) {
+        // Use drive name as fallback
+        if (drive.profile) {
+          positionTitle = formatProfileToPosition(drive.profile);
+        }
+      }
+      
       // Send email to candidate using the same service that works for OTP
       try {
         const emailResult = await emailService.sendInterviewInvite(
@@ -461,7 +494,8 @@ router.post('/drives/:id/send-links', companyAuth, async (req, res) => {
           candidate.name,
           interviewLink,
           'HireOG',
-          drive.name
+          drive.name,
+          positionTitle
         );
         if (emailResult.success) {
           console.log(`Email sent to ${candidate.name} (${candidate.email})`);
@@ -996,6 +1030,10 @@ router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) =
         link: interviewLink
       });
       
+      // Get profile from screening and format it for display
+      const profile = screening.profile || 'frontend';
+      const positionTitle = formatProfileToPosition(profile);
+      
       // Send email to candidate
       try {
         const emailResult = await emailService.sendInterviewInvite(
@@ -1003,7 +1041,8 @@ router.post('/screenings/:id/invite-candidates', companyAuth, async (req, res) =
           candidate.name,
           interviewLink,
           'HireOG',
-          screening.name
+          screening.name,
+          positionTitle
         );
         emailResults.push({
           candidate: candidate,

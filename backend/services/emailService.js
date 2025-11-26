@@ -11,8 +11,11 @@ class EmailService {
     });
   }
 
-  async sendInterviewInvite(candidateEmail, candidateName, interviewLink, companyName, driveName) {
+  async sendInterviewInvite(candidateEmail, candidateName, interviewLink, companyName, driveName, position = null) {
     try {
+      // Format position title nicely
+      const positionTitle = position || driveName || 'the position';
+      
       const mailOptions = {
         from: process.env.EMAIL_FROM_NAME 
           ? `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER || 'noreply@hireog.com'}>`
@@ -27,22 +30,22 @@ class EmailService {
             </div>
             
             <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 20px;">
-              <h2 style="color: #333; margin-top: 0;">Hello ${candidateName}!</h2>
+              <h2 style="color: #333; margin-top: 0;">Hello ${candidateName} 👋</h2>
               <p style="color: #666; font-size: 16px; line-height: 1.6;">
-                You have been invited to participate in a screening interview for <strong>${companyName}</strong>.
+                You've been invited to complete a screening interview for <strong>${companyName}</strong>.
               </p>
               <p style="color: #666; font-size: 16px; line-height: 1.6;">
-                <strong>Interview Drive:</strong> ${driveName}
+                <strong>Position:</strong> ${positionTitle}
               </p>
             </div>
             
             <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h3 style="color: #1976d2; margin-top: 0;">What to Expect:</h3>
-              <ul style="color: #666; line-height: 1.6;">
-                <li>AI-powered interview with voice interaction</li>
+              <ul style="color: #666; line-height: 1.8; margin: 0; padding-left: 20px;">
+                <li>AI-guided interview with voice & video prompts</li>
                 <li>Questions tailored to your profile</li>
-                <li>Real-time feedback and evaluation</li>
-                <li>Flexible timing - complete at your convenience</li>
+                <li>Finish at your convenience — takes only ~15–25 minutes</li>
+                <li>To understand the interview format, you can take a quick <a href="https://hireog.com/ai-interview" style="color: #1976d2; text-decoration: underline;"><strong>demo interview</strong></a> before starting your actual attempt</li>
               </ul>
             </div>
             
@@ -61,13 +64,15 @@ class EmailService {
             </div>
             
             <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-top: 20px;">
-              <h4 style="color: #f57c00; margin-top: 0;">Important Notes:</h4>
-              <ul style="color: #666; line-height: 1.6; margin: 0;">
-                <li>Please ensure you have a stable internet connection</li>
-                <li>Use a quiet environment for the best experience</li>
-                <li>The interview will be recorded for evaluation purposes</li>
-                <li>Contact support if you encounter any technical issues</li>
-              </ul>
+              <h4 style="color: #f57c00; margin-top: 0; margin-bottom: 15px;">Important:</h4>
+              <ol style="color: #666; line-height: 1.8; margin: 0; padding-left: 20px;">
+                <li>Complete the interview within the allocated time limit — The timer will begin once you start.</li>
+                <li>Use a laptop/desktop only for the interview (mobile is not supported).</li>
+                <li>Any kind of cheating will be flagged and may lead to application rejection.</li>
+                <li>Switching tabs/windows or navigating away during the interview may be flagged.</li>
+                <li>Your interview will be recorded for evaluation.</li>
+                <li>For help, contact on <a href="mailto:hello@hireog.com" style="color: #f57c00; text-decoration: underline;">hello@hireog.com</a> or WhatsApp on <a href="https://wa.me/918147274882" style="color: #f57c00; text-decoration: underline;">8147274882</a>.</li>
+              </ol>
             </div>
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
@@ -91,7 +96,7 @@ class EmailService {
     }
   }
 
-  async sendBulkInterviewInvites(candidates, interviewLinks, companyName, driveName) {
+  async sendBulkInterviewInvites(candidates, interviewLinks, companyName, driveName, position = null) {
     const results = [];
     
     for (let i = 0; i < candidates.length; i++) {
@@ -104,7 +109,8 @@ class EmailService {
           candidate.name,
           interviewLink,
           companyName,
-          driveName
+          driveName,
+          position
         );
         results.push({
           candidate: candidate,

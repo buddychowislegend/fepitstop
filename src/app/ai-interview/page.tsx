@@ -133,6 +133,8 @@ const autoStartTriggeredRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<any>(null);
   const [questionAnalysis, setQuestionAnalysis] = useState<any[]>([]);
+  const [resultActiveTab, setResultActiveTab] = useState<'feedback' | 'analytics'>('feedback');
+  const [qaPairsWithVideos, setQaPairsWithVideos] = useState<Array<{ question: string; answer: string; hasVideo: boolean; videoUrl?: string; videoData?: string }>>([]);
   // FreeTTS/voice generation loading indicator
   const [isAIAudioLoading, setIsAIAudioLoading] = useState(false);
   // Track latest interviewer gender for TTS selection even if session is not yet set
@@ -1219,27 +1221,58 @@ useEffect(() => {
           while (ci < candidateMsgs.length && a.trim().length === 0) {
             candidateMsg = candidateMsgs[ci++];
             a = (candidateMsg.content || '').replace(/\[.*?\]/g, '').trim();
-            // Video submission disabled - always set hasVideo to false
-            hasVideo = false;
-            videoUrl = undefined;
+            // Check if candidate message has video
+            hasVideo = !!(candidateMsg.videoBlob || candidateMsg.videoUrl);
+            videoUrl = candidateMsg.videoUrl;
           }
           
-          qaPairs.push({ question: q, answer: a, hasVideo: false, videoUrl: undefined });
+          qaPairs.push({ question: q, answer: a, hasVideo, videoUrl });
           candidateMsgRefs.push(candidateMsg!); // Store reference to candidate message
         }
       }
       
-      // Video submission disabled - skip video processing
-      // Second pass: Upload videos to S3 or convert to base64 (async) - DISABLED
-      // Videos are recorded but not submitted to reduce payload size and processing time
-      console.log('Video submission disabled - skipping video processing');
+      // Second pass: Upload videos to S3 or convert to base64 (async)
+      console.log('Processing videos for upload...');
+      const interviewId = session?.id || `interview-${Date.now()}`;
       
-      // Clear video data from qaPairs
-      qaPairs.forEach((qa, index) => {
-        qa.hasVideo = false;
-        delete qa.videoUrl;
-        delete qa.videoData;
+      // Upload videos in parallel
+      const videoUploadPromises = qaPairs.map(async (qa, index) => {
+        const candidateMsg = candidateMsgRefs[index];
+        if (!candidateMsg || !candidateMsg.videoBlob) {
+          return; // No video to upload
+        }
+        
+        try {
+          const uploadResult = await uploadVideoToS3(
+            candidateMsg.videoBlob,
+            interviewId,
+            index.toString()
+          );
+          
+          if (uploadResult.success) {
+            if (uploadResult.videoUrl) {
+              qa.videoUrl = uploadResult.videoUrl;
+              qa.hasVideo = true;
+              console.log(`Video ${index} uploaded to S3: ${uploadResult.videoUrl}`);
+            } else if (uploadResult.videoData) {
+              // Fallback to base64 if S3 not available
+              qa.videoData = uploadResult.videoData;
+              qa.hasVideo = true;
+              console.log(`Video ${index} converted to base64 (S3 not available)`);
+            }
+          }
+        } catch (error) {
+          console.error(`Error uploading video ${index}:`, error);
+          // Continue without video if upload fails
+        }
       });
+      
+      // Wait for all video uploads to complete
+      await Promise.all(videoUploadPromises);
+      console.log('Video processing complete');
+      
+      // Store qaPairs with videos for analytics tab
+      setQaPairsWithVideos([...qaPairs]);
 
       // Handle company interviews differently
       if (companyParams) {
@@ -1366,7 +1399,16 @@ useEffect(() => {
           categories: typeof data?.feedback === 'object' ? data.feedback?.categories : undefined,
         };
         setFeedback(Object.keys(mapped).some((k) => (mapped as any)[k] !== undefined) ? mapped : data);
-        setQuestionAnalysis(Array.isArray(data?.questionAnalysis) ? data.questionAnalysis : []);
+        // Merge video data from qaPairs into questionAnalysis
+        const analysisWithVideos = Array.isArray(data?.questionAnalysis) 
+          ? data.questionAnalysis.map((qa: any, idx: number) => ({
+              ...qa,
+              hasVideo: qaPairs[idx]?.hasVideo || false,
+              videoUrl: qaPairs[idx]?.videoUrl || qa.videoUrl,
+              videoData: qaPairs[idx]?.videoData || qa.videoData
+            }))
+          : [];
+        setQuestionAnalysis(analysisWithVideos);
       } catch {
         setFeedback(data);
       }
@@ -5486,6 +5528,35 @@ useEffect(() => {
               </motion.p>
             </motion.div>
 
+            {/* Tabs */}
+            <motion.div 
+              className="flex gap-4 mb-8 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <button
+                onClick={() => setResultActiveTab('feedback')}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  resultActiveTab === 'feedback'
+                    ? 'bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white shadow-lg'
+                    : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/20'
+                }`}
+              >
+                Feedback
+              </button>
+              <button
+                onClick={() => setResultActiveTab('analytics')}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  resultActiveTab === 'analytics'
+                    ? 'bg-gradient-to-r from-[#2ad17e] to-[#20c997] text-white shadow-lg'
+                    : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/20'
+                }`}
+              >
+                Analytics
+              </button>
+            </motion.div>
+
             {/* Score Overview */}
             <motion.div 
               className="grid md:grid-cols-3 gap-6 mb-12"
@@ -5580,6 +5651,9 @@ useEffect(() => {
               </motion.div>
             </motion.div>
 
+            {/* Tab Content */}
+            {resultActiveTab === 'feedback' && (
+              <>
             {/* Detailed Feedback */}
             <motion.div 
               className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8"
@@ -5768,6 +5842,88 @@ useEffect(() => {
                     </div>
                   ))}
                 </div>
+              </motion.div>
+            )}
+              </>
+            )}
+
+            {resultActiveTab === 'analytics' && (
+              <motion.div
+                className="space-y-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <motion.div 
+                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8"
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <Camera className="w-8 h-8 text-[#5cd3ff]" />
+                    Interview Videos
+                  </h2>
+                  
+                  {(qaPairsWithVideos.length === 0 && questionAnalysis.length === 0) ? (
+                    <div className="text-center py-12">
+                      <p className="text-white/70 text-lg">No videos available for this interview.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {(qaPairsWithVideos.length > 0 ? qaPairsWithVideos : questionAnalysis).map((qa, index) => {
+                        // Get video data from qaPairsWithVideos or questionAnalysis
+                        const videoUrl = qaPairsWithVideos[index]?.videoUrl || qa.videoUrl;
+                        const videoData = qaPairsWithVideos[index]?.videoData || qa.videoData;
+                        const hasVideo = qaPairsWithVideos[index]?.hasVideo || qa.hasVideo || !!(videoUrl || videoData);
+                        const question = qaPairsWithVideos[index]?.question || qa.question || `Question ${index + 1}`;
+                        const answer = qaPairsWithVideos[index]?.answer || qa.answer || '';
+                        
+                        return (
+                          <motion.div
+                            key={index}
+                            className="bg-white/5 rounded-2xl p-6 border border-white/10"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 * index }}
+                          >
+                            <div className="mb-4">
+                              <p className="text-white/70 text-sm mb-2">Question {index + 1}</p>
+                              <p className="text-white font-semibold text-lg mb-2">{question}</p>
+                              {answer && <p className="text-white/80 text-sm">{answer}</p>}
+                            </div>
+                            
+                            {hasVideo && (videoUrl || videoData) && (
+                              <div className="mt-4">
+                                <video
+                                  controls
+                                  className="w-full rounded-xl bg-black/20"
+                                  style={{ maxHeight: '500px' }}
+                                  src={videoUrl || videoData}
+                                  preload="metadata"
+                                >
+                                  Your browser does not support the video tag.
+                                </video>
+                              </div>
+                            )}
+                            
+                            {hasVideo && !videoUrl && !videoData && (
+                              <div className="mt-4 p-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+                                <p className="text-yellow-300 text-sm">Video is being processed...</p>
+                              </div>
+                            )}
+                            
+                            {!hasVideo && (
+                              <div className="mt-4 p-4 bg-white/5 border border-white/10 rounded-lg">
+                                <p className="text-white/60 text-sm">No video available for this answer.</p>
+                              </div>
+                            )}
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </motion.div>
               </motion.div>
             )}
 
