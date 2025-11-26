@@ -1006,7 +1006,7 @@ useEffect(() => {
         setCurrentQuestionIndex(0);
         firstQuestion = questionsToUse[0];
         const interviewerName = selectedInterviewer.name;
-        introduction = `Hello! I'm ${interviewerName}. Welcome to your interview! I'm really excited to learn about your skills and experience. Don't worry about being perfect - I'm here to help you showcase what you know and we'll work through the questions together. Take your time, think out loud, and remember that showing your thought process is just as important as the final answer. You've got this! Let's begin with our first question.`;
+        introduction = `Hello! I'm ${interviewerName}. Welcome to your interview! I'm really excited to learn about your skills and experience. Don't worry about being perfect - I'm here to help you showcase what you know and we'll work through the questions together. Take your time, think out loud, and remember that showing your thought process is just as important as the final answer. You've got this!`;
       } else {
         // Generate question using AI
         const headers: Record<string, string> = {
@@ -1046,19 +1046,33 @@ useEffect(() => {
           throw new Error('Empty response from AI service');
         }
         
-        // Store the full response - it already contains introduction + question
-        // The API format is: "Introduction\n\nQuestion"
-        introduction = '';
-        firstQuestion = fullResponse; // The full message from API includes intro + question
+        // Try to split introduction and question if they're combined
+        // Look for common separators like double newlines or "Let's begin"
+        const introSeparators = ['\n\n', 'Let\'s begin', 'Let\'s start', 'Now, let\'s'];
+        let introEndIndex = -1;
+        for (const separator of introSeparators) {
+          const index = fullResponse.indexOf(separator);
+          if (index > 0) {
+            introEndIndex = index;
+            break;
+          }
+        }
+        
+        if (introEndIndex > 0) {
+          introduction = fullResponse.substring(0, introEndIndex).trim();
+          firstQuestion = fullResponse.substring(introEndIndex).replace(/^(Let's begin|Let's start|Now, let's)[\s:]*/i, '').trim();
+        } else {
+          // If we can't split, use a default introduction
+          const interviewerName = selectedInterviewer.name;
+          introduction = `Hello! I'm ${interviewerName}. Welcome to your interview! I'm really excited to learn about your skills and experience. Don't worry about being perfect - I'm here to help you showcase what you know and we'll work through the questions together. Take your time, think out loud, and remember that showing your thought process is just as important as the final answer. You've got this!`;
+          firstQuestion = fullResponse;
+        }
       }
 
-      // Construct the full message to display
-      // If we have drive questions, combine intro + question
-      // If AI-generated, the firstQuestion already contains the full message (intro + question)
-      const fullMessage = questionsToUse.length > 0 
-        ? `${introduction}\n\n${firstQuestion}`
-        : firstQuestion; // firstQuestion already contains intro + question from AI
+      // Combine introduction and intro request into one message
+      const introMessage = `${introduction}\n\nCould you please introduce yourself? Tell me a bit about your background, experience, and what brings you here today.`;
       
+      // Store first question in session for later use
       const interviewerForSession: Interviewer = companyParams ? {
         ...selectedInterviewer,
         role: '',
@@ -1075,14 +1089,17 @@ useEffect(() => {
         startTime: new Date(),
         messages: [{
           role: 'interviewer',
-          content: fullMessage,
+          content: introMessage,
           timestamp: new Date()
         }],
-        currentQuestion: 1,
+        currentQuestion: 0, // Start at 0 (intro phase), will increment to 1 after candidate intro
         totalQuestions: questionsToUse.length > 0 ? questionsToUse.length : 7,
         status: 'active',
         timeRemaining: companyParams?.interviewDuration ? companyParams.interviewDuration * 60 : 20 * 60
       };
+
+      // Store first question in session for later retrieval
+      (newSession as any).firstQuestion = firstQuestion;
 
       setSession(newSession);
       setShouldAutoStart(false);
@@ -1122,14 +1139,10 @@ useEffect(() => {
       setWarnings([]);
       setViolations([]);
       
-      // Make AI read the initial greeting with D-ID video
-      console.log('🚀 Starting interview, will call speakTextOrVideo in 1 second');
-      console.log('📊 Session state after setSession:', session);
+      // Make AI read the introduction + intro request
+      console.log('🚀 Starting interview with introduction and intro request');
       setTimeout(() => {
-        console.log('⏰ Timeout triggered, calling speakTextOrVideo');
-        console.log('📊 Session state in timeout:', session);
-        console.log('📊 NewSession data:', newSession);
-        speakTextOrVideo(fullMessage, newSession);
+        speakTextOrVideo(introMessage, newSession);
       }, 1000);
     } catch (error) {
       console.error('Error starting interview:', error);
@@ -1664,6 +1677,43 @@ useEffect(() => {
       
       setLoading(true);
       try {
+        // Check if this is the intro response (currentQuestion === 0)
+        // If so, ask the first question instead of processing normally
+        if (session.currentQuestion === 0) {
+          const firstQuestion = (session as any).firstQuestion || '';
+          if (firstQuestion) {
+            // Update session with candidate intro message
+            const updatedSession = {
+              ...session,
+              currentQuestion: 1, // Move to first question
+              messages: [...messages, candidateMessage]
+            };
+            setSession(updatedSession);
+            
+            // Add first question message
+            const firstQuestionMessage: Message = {
+              role: 'interviewer',
+              content: firstQuestion,
+              timestamp: new Date()
+            };
+            
+            setMessages(prev => [...prev, candidateMessage, firstQuestionMessage]);
+            setSession(prev => prev ? {
+              ...prev,
+              messages: [...prev.messages, candidateMessage, firstQuestionMessage],
+              currentQuestion: 1
+            } : null);
+            
+            // Speak the first question
+            setTimeout(() => {
+              speakTextOrVideo(firstQuestion, updatedSession);
+            }, 1000);
+            
+            setLoading(false);
+            return;
+          }
+        }
+        
         // Check if we have drive questions to use
         const questionsToUse = driveQuestions.length > 0 ? driveQuestions : (companyParams?.driveQuestions || []);
         
@@ -4166,7 +4216,7 @@ useEffect(() => {
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <List className="w-5 h-5 text-white" />
                   </div>
-                { session.currentQuestion <= session.totalQuestions &&  <h3 className="text-xl font-bold text-white">
+                { session.currentQuestion <= session.totalQuestions &&  session.currentQuestion !==0 &&  <h3 className="text-xl font-bold text-white">
                     Question {session.currentQuestion}/{session.totalQuestions}
                   </h3>}
                 </div>
